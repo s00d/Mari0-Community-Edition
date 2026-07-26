@@ -1039,14 +1039,14 @@ function animationguiline:init(tabl, t2): any
 	
 	local x = 0
 	self.elements = {}
-	self.elements[1] = {}
+	self.elements[1] = {} as animationguielement
 	local start = 1
-	for i = 1, #(animationstrings[self.type] as {any}) do
-		if (animationlist as {any:any})[self.t[1]] and (animationlist as {any:any})[self.t[1]].nicename == (animationstrings[self.type] as {any})[i] then
+	for i = 1, #(animationstrings[self.type] as {string}) do
+		if (animationlist as {any:any})[self.t[1]] and (animationlist as {any:any})[self.t[1]].nicename == (animationstrings[self.type] as {string})[i] then
 			start = i as integer
 		end
 	end
-	local firstwidth = 22--#(animationstrings[self.type] as {any})[start]
+	local firstwidth = 22--#(animationstrings[self.type] as {string})[start]
 	
 	self.deletebutton = guielement:new("button", 0, 0, "x", function() self:delete() end, nil, nil, nil, 8, 0.1)
 	self.deletebutton.textcolor = {0.6, 0, 0}
@@ -1057,12 +1057,13 @@ function animationguiline:init(tabl, t2): any
 	self.upbutton = guielement:new("button", 0, 0, "_dir4", function() self:moveup() end, nil, nil, nil, 8, 0.1)
 	self.upbutton.textcolor = {1, 1, 1}
 	
-	self.elements[1].gui = guielement:new("dropdown", 0, 0, firstwidth, function(val) self:changemainthing(val) end, start, unpack(animationstrings[self.type] as {any}))
+	self.elements[1].gui = guielement:new("dropdown", 0, 0, firstwidth, function(val) self:changemainthing(val) end, start, unpack(animationstrings[self.type] as {string}))
 	self.elements[1].width = 14+firstwidth*8
 	
 	if not self.t[1] then
-		for i, v in pairs(animationlist as {any:any}) do
-			if v.nicename == (animationstrings[self.type] as {any})[1] then
+		for i, raw in pairs(animationlist as {any:any}) do
+			local v = raw as {string:any}
+			if v.nicename == (animationstrings[self.type] as {string})[1] then
 				self.t[1] = i
 				break
 			end
@@ -1071,8 +1072,9 @@ function animationguiline:init(tabl, t2): any
 	
 	local tid = 1
 	if animationlist[self.t[1] ] then
-		for i, v in ipairs(((animationlist as {any:any})[self.t[1]] as {string:any}).entries as {any}) do
-			local temp = {}
+		for i, raw in ipairs(((animationlist as {any:any})[self.t[1]] as {string:any}).entries as {any}) do
+			local v = raw as {string:any}
+			local temp = {} as animationguielement
 			
 			if v.t == "text" then
 				temp.t = "text"
@@ -1282,7 +1284,7 @@ end
 function animationguiline:changemainthing(value): any
 	local name: any = nil
 	for i, v in pairs(animationlist as {any:any}) do
-		if v.nicename == (animationstrings[self.type] as {any})[value] then
+		if v.nicename == (animationstrings[self.type] as {string})[value] then
 			name = i
 		end
 	end

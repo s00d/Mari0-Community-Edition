@@ -1157,13 +1157,13 @@ function mario:update_controls(dt: number): any
 		if inmap(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16)) and downkey(self.playernumber) and self.falling == false and self.jumping == false then
 			local t2 = map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][2]
 			if t2 and entitylist[t2] and entitylist[t2].t == "pipe" then
-				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3]-1))
+				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", tonumber((map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3] as number)-1))
 				return true
 			elseif t2 and entitylist[t2] and entitylist[t2].t == "warppipe" then
 				self.animationmisc2 = tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3]) or 1
 				self.animationmisc3 = tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][4]) or 1
 				
-				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", "pipe" .. tostring(map)[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3])
+				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", "pipe" .. tostring(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3]))
 				return true
 			end				
 		end
@@ -1301,10 +1301,7 @@ function mario:updateangle(): any
 	--UPDATE THE PLAYER ANGLE
 	if self.playernumber == mouseowner then
 		local scale = scale
-		do
-			local _ss = shaders as any
-			if _ss and _ss.scale then scale = _ss.scale end
-		end
+		if shaders and shaders.scale then scale = shaders.scale as number end
 		self.pointingangle = math.atan2(self.x+6/16-xscroll-(mouse.getX()/16/scale), (self.y-yscroll+6/16-.5)-(mouse.getY()/16/scale))
 	elseif #controls[self.playernumber as integer]["aimx"] > 0 then
 		local x: number
@@ -1313,7 +1310,7 @@ function mario:updateangle(): any
 		local s = controls[self.playernumber as integer]["aimx"]
 		local j = love.joystick.getJoysticks()[s[2] as integer]
 		if s[1] == "joy" then
-			x = j and -j:getAxis(s[4]) or 0
+			x = j and -j:getAxis(s[4] as number) or 0
 			if s[5] == "neg" then
 				x = -x
 			end
@@ -1322,7 +1319,7 @@ function mario:updateangle(): any
 		s = controls[self.playernumber as integer]["aimy"]
 		j = love.joystick.getJoysticks()[s[2] as integer]
 		if s[1] == "joy" then
-			y = j and -j:getAxis(s[4]) or 0
+			y = j and -j:getAxis(s[4] as number) or 0
 			if s[5] == "neg" then
 				y = -y
 			end
@@ -2926,11 +2923,11 @@ end
 global function hitblock(x: number, y: number, t: any, koopa: any): any
 	for i, v in pairs(portals) do
 		if v.x1 and v.x2 and v.y1 and v.y2 then
-			local x1 = v.x1
-			local y1 = v.y1
+			local x1 = v.x1 as number
+			local y1 = v.y1 as number
 			
-			local x2 = v.x2
-			local y2 = v.y2
+			local x2 = v.x2 as number
+			local y2 = v.y2 as number
 			
 			local x3 = x1
 			local y3 = y1
@@ -2973,8 +2970,8 @@ global function hitblock(x: number, y: number, t: any, koopa: any): any
 	end
 	
 	local r = map[x][y]
-	if not t or not t.infunnel then
-		if koopa and t:onscreen() or not koopa then
+	if not t or not (t as {string:any}).infunnel then
+		if koopa and ((t as {string:any}).onscreen as function(...: any): any)(t) or not koopa then
 			playsound("blockhit")
 		end
 	end
@@ -2991,7 +2988,7 @@ global function hitblock(x: number, y: number, t: any, koopa: any): any
 		table.insert(blockbouncey, y)
 		if #r > 1 and entitylist[r[2]] and entitylist[r[2]].t ~= "manycoins" then --block contained something!
 			table.insert(blockbouncecontent, entitylist[r[2]].t)
-			table.insert(blockbouncecontent2, t.size)
+			table.insert(blockbouncecontent2, (t as {string:any}).size)
 			if tilequads[r[1]]:getproperty("invisible", x, y) then
 				if spriteset == 1 then
 					map[x][y][1] = 113
@@ -3016,7 +3013,7 @@ global function hitblock(x: number, y: number, t: any, koopa: any): any
 			end
 		elseif #r > 1 and tablecontains(enemies, r[2]) then
 			table.insert(blockbouncecontent, r[2])
-			table.insert(blockbouncecontent2, t.size)
+			table.insert(blockbouncecontent2, (t as {string:any}).size)
 			playsound("mushroomappear")
 			
 			
@@ -3039,7 +3036,7 @@ global function hitblock(x: number, y: number, t: any, koopa: any): any
 			end
 		else
 			table.insert(blockbouncecontent, false)
-			table.insert(blockbouncecontent2, t.size)
+			table.insert(blockbouncecontent2, (t as {string:any}).size)
 			
 			if (koopa or (t and t.size > 1)) and tilequads[r[1]]:getproperty("coinblock", x, y) == false and (#r == 1 or (entitylist[r[2]] and entitylist[r[2]].t ~= "manycoins")) then --destroy block!
 				destroyblock(x, y)
@@ -3100,7 +3097,7 @@ global function hitblock(x: number, y: number, t: any, koopa: any): any
 			end
 			addpoints(200)
 			
-			local exists = false
+			local exists: any = false
 			for i = 1, #coinblocktimers do
 				if x == coinblocktimers[i][1] and y == coinblocktimers[i][2] then
 					exists = i
@@ -3109,7 +3106,7 @@ global function hitblock(x: number, y: number, t: any, koopa: any): any
 			
 			if not exists then
 				table.insert(coinblocktimers, {x, y, coinblocktime})
-			elseif coinblocktimers[exists][3] <= 0 then
+			elseif (coinblocktimers[exists as integer][3] as number) <= 0 then
 				if spriteset == 1 then
 					map[x][y][1] = 113
 				elseif spriteset == 2 then
@@ -3394,17 +3391,18 @@ function mario:emancipate(a: any)
 	remove_indices_desc(portalprojectiles, delete)
 end
 
-function mario:removeportals(i: any)	
-	if (self.portalsavailable[1] and self.portal.x1) or (self.portalsavailable[2] and self.portal.x2) then
+function mario:removeportals(i: any)
+	local portal = self.portal as portal
+	if (self.portalsavailable[1] and portal.x1) or (self.portalsavailable[2] and portal.x2) then
 		playsound("portalfizzle")
 	end
 	
 	
 	if self.portalsavailable[1] then
-		self.portal:removeportal(1)
+		portal:removeportal(1)
 	end
 	if self.portalsavailable[2] then
-		self.portal:removeportal(2)
+		portal:removeportal(2)
 	end
 end
 
@@ -3415,7 +3413,7 @@ function mario:use(xcenter: number, ycenter: number): any
 	end
 	
 	if self.pickup then
-		if self.pickup.destroying then
+		if (self.pickup as {string:any}).destroying then
 			self.pickup = false
 		else
 			self:dropbox()
@@ -3424,8 +3422,8 @@ function mario:use(xcenter: number, ycenter: number): any
 	end
 	
 	local col, i = userect(xcenter-usesquaresize/2, ycenter-usesquaresize/2, usesquaresize, usesquaresize)
-	if #col > 0 then
-		col[1]:used(self.playernumber)
+	if #(col as {any}) > 0 then
+		((col as {any})[1].used as function(any, any): any)((col as {any})[1], self.playernumber)
 	end
 end
 
@@ -3436,9 +3434,10 @@ function mario:pickupbox(box: Entity)
 end
 
 function mario:dropbox()
-	self.pickup:dropped()
+	local pickup = self.pickup as Entity
+	(pickup.dropped as function(Entity): any)(pickup)
 	
-	self.pickup.gravitydirection = self.gravitydirection
+	pickup.gravitydirection = self.gravitydirection
 	
 	local set = false
 	
@@ -3447,45 +3446,45 @@ function mario:dropbox()
 	
 	if self.pointingangle < 0 then
 		if #checkrect(self.x+self.width, self.y+self.height-12/16, 12/16, 12/16, {"exclude", self.pickup}, true) == 0 then
-			self.pickup.x = self.x+self.width
-			self.pickup.y = self.y+self.height-12/16
+			pickup.x = self.x+self.width
+			pickup.y = self.y+self.height-12/16
 			set = true
 		end
 	else
 		if #checkrect(self.x-12/16, self.y+self.height-12/16, 12/16, 12/16, {"exclude", self.pickup}, true) == 0 then
-			self.pickup.x = self.x-12/16
-			self.pickup.y = self.y+self.height-12/16
+			pickup.x = self.x-12/16
+			pickup.y = self.y+self.height-12/16
 			set = true
 		end
 	end
 	
 	if set == false then
 		if #checkrect(self.x+self.width, self.y+self.height-12/16, 12/16, 12/16, {"exclude", self.pickup}, true) == 0 then
-			self.pickup.x = self.x+self.width
-			self.pickup.y = self.y+self.height-12/16
+			pickup.x = self.x+self.width
+			pickup.y = self.y+self.height-12/16
 		elseif #checkrect(self.x-12/16, self.y+self.height-12/16, 12/16, 12/16, {"exclude", self.pickup}, true) == 0 then
-			self.pickup.x = self.x-12/16
-			self.pickup.y = self.y+self.height-12/16
+			pickup.x = self.x-12/16
+			pickup.y = self.y+self.height-12/16
 		elseif #checkrect(self.x, self.y+self.height, 12/16, 12/16, {"exclude", self.pickup}, true) == 0 then
-			self.pickup.x = self.x
-			self.pickup.y = self.y+self.height
+			pickup.x = self.x
+			pickup.y = self.y+self.height
 		elseif #checkrect(self.x, self.y-12/16, 12/16, 12/16, {"exclude", self.pickup}, true) == 0 then
-			self.pickup.x = self.x
-			self.pickup.y = self.y-12/16
+			pickup.x = self.x
+			pickup.y = self.y-12/16
 		else
-			self.pickup.x = self.x
-			self.pickup.y = self.y
+			pickup.x = self.x
+			pickup.y = self.y
 		end
 	end
 	
 	for h, u in pairs(emancipationgrills) do
 		if u.dir == "hor" then
-			if inrange(self.pickup.x+6/16, u.startx-1, u.endx, true) and inrange(u.y-14/16, boxy, self.pickup.y, true) then
-				self.pickup:emancipate(h)
+			if inrange(pickup.x+6/16, u.startx-1, u.endx, true) and inrange(u.y-14/16, boxy, pickup.y, true) then
+				(pickup.emancipate as function(Entity, any): any)(pickup, h)
 			end
 		else
-			if inrange(self.pickup.y+6/16, u.starty-1, u.endy, true) and inrange(u.x-14/16, boxx, self.pickup.x, true) then
-				self.pickup:emancipate(h)
+			if inrange(pickup.y+6/16, u.starty-1, u.endy, true) and inrange(u.x-14/16, boxx, pickup.x, true) then
+				(pickup.emancipate as function(Entity, any): any)(pickup, h)
 			end
 		end
 	end
@@ -3501,7 +3500,7 @@ function mario:duck(ducking: any): any --goose
 		self.ducking = false
 		return
 	else
-		self.ducking = ducking
+		self.ducking = ducking as boolean
 	end
 	
 	if self.ducking then

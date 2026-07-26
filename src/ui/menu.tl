@@ -2595,7 +2595,7 @@ global function convertentity(...: any): any
 	local entin: {any} = ...
 	local newent: {any} = {}
 	if #entin >= 1 then
-		local entid = entin[1] -- will never be 1 since it's no entity (and this doesn't get saved)
+		local entid = entin[1] as number -- will never be 1 since it's no entity (and this doesn't get saved)
 		
 		if entid == 3 then -- 1up
 			newent = {"oneup"}

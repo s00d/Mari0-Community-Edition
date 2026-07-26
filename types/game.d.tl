@@ -13,14 +13,14 @@ end
 
 
 
-global record GamestateModule
+global record GamestateModule is {any}
 	current: string
-	handlers: {string:{string:function}}
-	register: function(GamestateModule, string, {string:function})
-	set: function(GamestateModule, string)
-	get: function(GamestateModule): string
-	update: function(GamestateModule, number)
-	draw: function(GamestateModule)
+	handlers: {any:any}
+	register: function(GamestateModule, ...: any): any
+	set: function(GamestateModule, ...: any): any
+	get: function(GamestateModule, ...: any): any
+	update: function(GamestateModule, ...: any): any
+	draw: function(GamestateModule, ...: any): any
 end
 
 global record LoggerModule
@@ -140,14 +140,14 @@ global mariolives: {integer}
 global mariolivecount: any
 global mariocoincount: number
 global mariocolors: {{{number}}}
-global mariohats: {number:{number:number}}
+global mariohats: {any:{any}}
 global portalhues: {number:{number:number}}
 global portalcolor: {{{number}}}
 global portalcolor1: {number:number}
 global portalcolor2: {number:number}
 global portals: {number:portal}
 global portalsavailable: {boolean}
-global controls: {{string:{string|number}}}
+global controls: {any:{any:{any}}}
 global mouse: MouseProxy
 global mousex: number
 global mousey: number
@@ -213,11 +213,11 @@ global tileselectionclick1y: number
 global minimapscroll: number
 global tilesoffset: number
 global tileliststart: integer
-global middlemode: {any} -- [1]=bool dragging, [2]=x, [3]=y
+global middlemode: {any:any} -- [1]=bool dragging, [2]=x, [3]=y
 global colorsetedit: integer
-global replaychar: {any}
-global record PromptState
-	joystick: {any:any}
+global replaychar: {any:Character}
+global record PromptState is {any}
+	joystick: {any:{string:any}}
 	joysticks: number
 end
 global prompt: PromptState
@@ -247,25 +247,30 @@ global record SoundSource is {any}
 	getDuration: function(SoundSource): number
 	setVolume: function(SoundSource, number)
 	setLooping: function(SoundSource, boolean)
+	setPitch: function(SoundSource, number)
 	isPlaying: function(SoundSource): boolean
 end
 global record SoundEntry
 	source: SoundSource
 	lastplayed: number
 end
-global soundlist: {string:SoundEntry}
+global soundlist: {any:SoundEntry}
 global record ShadersController is {any}
+	scale: any
 	set: function(ShadersController, any, any)
 	update: function(ShadersController, any)
+	refresh: function(ShadersController, ...: any): any
+	predraw: function(ShadersController, ...: any): any
+	postdraw: function(ShadersController, ...: any): any
 end
 
 global shaders: ShadersController
 global shaderlist: {string}
-global guielements: {string:guielement}
+global guielements: {any:guielement}
 global volumesfx: number
 global volumemusic: number
-global speed: number
-global speedtarget: number
+global speed: any
+global speedtarget: any
 global scrollingscores: {any:Entity}
 global flagx: any
 global axex: any
@@ -277,7 +282,7 @@ global gdt: number
 global introprogress: number
 global currentshaderi1: number
 global currentshaderi2: number
-global globints: {string:integer}
+global globints: {any:any}
 global outputs: {string:any}
 global CATEGORYDELIMITER: {any:string}
 global MAP_SPAWN_HANDLERS: {string:function(number, number, {any}): any}
@@ -380,7 +385,7 @@ global toconvertmappacklist: {string}
 global result: {string:any}
 global yoffset: number
 global uispace: number
-global blockbouncetimer: {any:number}
+global blockbouncetimer: {any:any}
 global pausemenuopen: boolean
 global musiclist: {string}
 global animatedtilecount: number
@@ -458,8 +463,8 @@ global groundlighttable: {number:string}
 global runanimationframe: number
 global usemagic: boolean
 global modcustomspritebatch: {SpriteBatch}
-global blockbouncex: {any}
-global blockbouncey: {any}
+global blockbouncex: {any:any}
+global blockbouncey: {any:any}
 global fscrollfactor: number
 global infinitetime: boolean
 global portaldelay: {number}
@@ -487,19 +492,19 @@ global multitileobjects: {{any}}
 global tilescrollbarheight: number
 global selectworldcursor: number
 global mappackdescription: {any}
-global axisDeadZones: {any}
+global axisDeadZones: {any:any}
 global playerconfig: {any}
 global blockdebristable: {any:Entity}
-global portalprojectiles: {any:Entity}
-global completecanvas: Canvas
+global portalprojectiles: {any}
+global completecanvas: any
 global userects: {any:Entity}
 global menuprompt: boolean
 global itemanimations: {any:Entity}
 global scalefactor: number
 global replayi: {number:number}
 global everyonedead: boolean
-global blockbouncecontent: {any}
-global coinblocktimers: {any:{any}}
+global blockbouncecontent: {any:any}
+global coinblocktimers: {{any}}
 global minimapdragging: boolean
 global scrollrate: number
 global userscrollrange: number
@@ -507,12 +512,12 @@ global firetimer: number
 global prevsublevel: number|boolean
 global spawnrestrictions: {any}
 global gamefinished: boolean
-global frameskip: boolean
+global frameskip: any
 global mkstation: boolean
 global SERVER: string
 global BLOCKDELIMITER: {any:string}
 global airslidefactor: number
-global mariocombo: {any:number}
+global mariocombo: {number}
 global mariogravity: number
 global uwmaxairwalkspeed: number
 global uwfriction: number
@@ -555,7 +560,7 @@ global customspritebatchfront: SpriteBatch
 global modcustomspritebatchfront: SpriteBatch
 global emancipateanimations: {any:Entity}
 global dialogboxes: {any:Entity}
-global blockbouncecontent2: {any}
+global blockbouncecontent2: {any:any}
 global xpantimer: number
 global ypantimer: number
 global spritebatchY: {any}
@@ -605,7 +610,7 @@ global hasHotkey: function(any, any): string|boolean|nil
 global levelscreentimer: number
 global mappackauthor: {any}
 global buttonerror: any
-global steptimer: number
+global steptimer: any
 global magicdns_timer: number
 global magictimer: number
 global scrollingscoretime: number
@@ -723,7 +728,7 @@ global lakitoendx: any
 global mazeinprogress: boolean
 global skipupdate: boolean
 global livereplaystored: {number:{string:any}}
-global fontquads: {string:Quad}
+global fontquads: {any:Quad}
 global delaylist: {string:any}
 global imagelist: {string}
 global marioversion: number
@@ -816,8 +821,8 @@ global lakitoend: any
 global mazegates: {any}
 global testlevelworld: number
 global testlevellevel: number
-global font2quads: {{Quad}}
-global debugbinds: {string:any}
+global font2quads: {any}
+global debugbinds: any
 global portal_pair_offsets: function(any, any): number, number, number, number
 global maxyspeed: number
 global overwrittenimages: {string}
@@ -952,8 +957,8 @@ global hammerbrosquad: {{Quad}}
 global hammerquad: {{Quad}}
 global plantquads: {{Quad}}
 global versionerror: boolean
-global targetdt: number
-global screenshotimagedata: {any}
+global targetdt: any
+global screenshotimagedata: any
 global magicdns_delay: number
 global localnicks: {any}
 global magicdelay: number
@@ -1100,7 +1105,7 @@ global outdated: boolean
 global shaderssupported: boolean
 global backgroundi: number
 global volume: number
-global previewimg: Image
+global previewimg: any
 global numberglyphs: {any}
 global starquad: {{Quad}}
 global flowerquad: {{Quad}}
@@ -1213,7 +1218,7 @@ global portalbackground: {string:any}
 global powerlinestab: function(...: any): any
 global pushbuttonimg: Image
 global reachedx: function(...: any): any
-global realdt: number
+global realdt: any
 global recordtarget: string
 global rsflipflopimg: Image
 global scoredelay: number
@@ -1391,7 +1396,7 @@ global game_update: function(...: any): any
 global generateanimationgui: function(...: any): any
 global generateentitylist: function(...: any): any
 global generatespritebatch: function(...: any): any
-global getAngleFrame: function(number, number): number
+global getAngleFrame: function(...: any): any
 global getPortal: function(number, number, any): any
 global getSelectedTiles: function(...: any): {{any}}
 global getTiles: function(...: any): any
@@ -1587,9 +1592,9 @@ global vercollision: function(Entity, Entity, any, any, any, any, number): boole
 global warpzone: function(...: any): any
 
 -- Typed free-function replacement for legacy string:split (see core.stringutil).
-global strsplit: function(string, string): {string}
+global strsplit: function(...: any): {any}
 global addzeros: function(any, integer): string
-global loadingtexts: {number:string}
+global loadingtexts: {any:string}
 global skipintro: boolean
 global fontglyphs: string
 global gethatoffset: function(...: any): {number}
@@ -1629,7 +1634,7 @@ global cameraxpan: function(...: any): any
 global cameraypan: function(...: any): any
 global update_and_compact: function(...: any): any
 global adduserect: function(...: any): any
-global userect: function(...: any): any
+global userect: function(...: any): {any}, any
 global usebase: function(...: any): any
 global buildstartendzones: function(...: any): any
 global remove_indices_desc_multi: function(...: any): any
@@ -1647,7 +1652,9 @@ global lkisScancodeDown: function(...: any): any
 global lkisDown: function(...: any): any
 global lmisDown: function(...: any): any
 global joysticks: {any}
-global bdrawui: function(...: any): any
+global bdrawui: any
+global drawreplays: any
+global fsaa: any
 global iconimg: Image
 
 
@@ -1665,6 +1672,10 @@ global sly1: number
 
 global sly2: number
 
-global animationstrings: {any:{any}}
+global animationstrings: {any:{string}}
 
 global GCA: number
+
+global unstatics: function(...: any): any
+global net_quit: function(...: any): any
+global net_sendchat: function(...: any): any

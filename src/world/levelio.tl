@@ -2,6 +2,7 @@
 -- Globals, mappack format, tile/entity encoding, and LOVE_COLOR_MAX are unchanged.
 -- Pure helpers below are safe to exercise without LÖVE.
 
+
 local unpack = rawget(_G, "unpack") or table.unpack
 local math_mod = math.fmod
 

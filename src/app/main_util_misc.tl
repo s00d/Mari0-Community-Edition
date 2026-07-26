@@ -72,7 +72,7 @@ global function loadcustomsounds(path: string): any
 		if assets.sounds[id] then
 			local src = assets:get_sound(id)
 			if soundlist[id] then
-				soundlist[id].source = src
+				soundlist[id].source = src as SoundSource
 			end
 			defaultsoundslist[id] = src
 		end
@@ -87,12 +87,12 @@ global function loadcustomsounds(path: string): any
 			local full = path .. "/" .. v
 			if soundlist[s] then
 				assets:override_sound(s, full)
-				soundlist[s].source = assets:get_sound(s)
+				soundlist[s].source = assets:get_sound(s) as SoundSource
 				table.insert(overwrittensounds, s)
 			else
 				assets:register_sound(s, full)
 				soundlist[s] = {}
-				soundlist[s].source = assets:get_sound(s)
+				soundlist[s].source = assets:get_sound(s) as SoundSource
 				soundlist[s].lastplayed = 0
 			end
 		end
@@ -101,7 +101,7 @@ end
 
 global function changescale(...: any): any
 	local s, init = ...
-	scale = s
+	scale = s as number
 	
 	if not init then
 		if width*16*scale > desktopsize.width then
@@ -143,7 +143,7 @@ global function changescale(...: any): any
 	end
 
 	completecanvas = love.graphics.newCanvas()
-	completecanvas:setFilter("linear", "linear")
+	(completecanvas as Canvas):setFilter("linear", "linear")
 	
 	gamewidth, gameheight = love.window.getMode()
 	if shaders then

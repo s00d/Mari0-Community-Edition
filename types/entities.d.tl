@@ -121,6 +121,10 @@ end
 -- Tile atlas entry (world.quad / tilequads[i]).
 global record TileQuad is {any}
 	image: Image
+	triggered: any
+	boolean: any
+	cache: any
+	number: any
 	getproperty: function(TileQuad, ...: any): any
 	quad: function(TileQuad, ...: any): any
 end

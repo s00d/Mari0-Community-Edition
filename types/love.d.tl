@@ -108,7 +108,7 @@ global interface Entity is {any}
 	shotted: function(Entity, ...: any): any
 	rangex: number
 	rangey: number
-	removeportals: function(Entity)
+	removeportals: function(Entity, ...: any): any
 	jump: any
 	leftkey: any
 	rightkey: any
@@ -225,6 +225,7 @@ global record love
 		setLineWidth: function(width: number)
 		line: function(...: number)
 		present: function()
+		newScreenshot: function(...: any): any
 	end
 
 	record audio
@@ -261,6 +262,8 @@ global record love
 		setPosition: function(x: number, y: number)
 		setVisible: function(visible: boolean)
 		getVisible: function(): boolean
+		setGrabbed: function(grabbed: boolean)
+		isGrabbed: function(): boolean
 	end
 
 	record Joystick
@@ -270,6 +273,7 @@ global record love
 		getAxis: function(self: Joystick, index: number): number
 		isDown: function(self: Joystick, ...: any): boolean
 		getName: function(self: Joystick): string
+		getID: function(self: Joystick): number
 	end
 
 	record joystick
@@ -348,6 +352,7 @@ end
 global record Canvas
 	renderTo: function(self: Canvas, fn: function())
 	clear: function(self: Canvas, ...: number)
+	setFilter: function(self: Canvas, min: string, mag: string)
 end
 
 global record Shader

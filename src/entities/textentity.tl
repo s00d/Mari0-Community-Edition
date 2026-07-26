@@ -26,7 +26,7 @@ function textentity:init(x: number, y: number, r)
 	--TEXT
 	if #self.r > 0 and self.r[1] ~= "link" then
 		self.text = tostring(self.r[1])
-		self.textsplit = strsplit(self.text, " ") or 0
+		self.textsplit = strsplit(self.text, " ") or {}
 		table.remove(self.r, 1)
 		--prefixes!!
 		self.hasaprefix = false
@@ -36,36 +36,37 @@ function textentity:init(x: number, y: number, r)
 		self.boolbincache = {}
 		if globools then --don't try to index a nonexistent table
 		for n, i in pairs(self.textsplit) do
-			local prefix = string.sub(i,1,3)
+			local is = tostring(i)
+			local prefix = string.sub(is,1,3)
 			if  prefix == "db:" then
-				print(i)
-				self.textsplit[n] = string.sub(i,4)
+				print(is)
+				self.textsplit[n] = string.sub(is,4)
 				self.hasaprefix = true
 			elseif prefix == "gb:" then
-				print(i, "bool")
-				self.textsplit[n] = globoolSH(string.sub(i,4), "check")
+				print(is, "bool")
+				self.textsplit[n] = globoolSH(string.sub(is,4), "check")
 				self.hasaprefix = true
-				self.boolcache[string.sub(i,4)] = {globoolSH(string.sub(i,4), "check"), n} 
+				self.boolcache[string.sub(is,4)] = {globoolSH(string.sub(is,4), "check"), n} 
 			elseif prefix == "gi:" then
-				print(i, "int")
-				self.textsplit[n] = globints[string.sub(i,4)] or "uninit"
+				print(is, "int")
+				self.textsplit[n] = globints[string.sub(is,4)] or "uninit"
 				self.hasaprefix = true
-				self.glintcache[string.sub(i,4)] = {globints[string.sub(i,4)], n} 
+				self.glintcache[string.sub(is,4)] = {globints[string.sub(is,4)], n} 
 			elseif prefix == "bi:" then
-				print(i, "g_")
-				self.textsplit[n] = _G[string.sub(i,4)] or "typo"
+				print(is, "g_")
+				self.textsplit[n] = _G[string.sub(is,4)] or "typo"
 				self.hasaprefix = true
-				self.builtincache[string.sub(i,4)] = {_G[string.sub(i,4)], n} 
+				self.builtincache[string.sub(is,4)] = {_G[string.sub(is,4)], n} 
 			elseif prefix == "bb:" then
-				local splitup = string.sub(i,4)
-				splitup = strsplit(splitup, "/")
-				if globoolSH(splitup[1], "check") then
-					self.textsplit[n] = splitup[2]
+				local splitup = string.sub(is,4)
+				local parts = strsplit(splitup, "/")
+				if globoolSH(parts[1], "check") then
+					self.textsplit[n] = parts[2]
 				else
-					self.textsplit[n] = splitup[3]
+					self.textsplit[n] = parts[3]
 				end
 				self.hasaprefix = true
-				self.boolbincache[splitup[1]] = {splitup[2], splitup[3], globoolSH(splitup[1], "check"), n}
+				self.boolbincache[parts[1]] = {parts[2], parts[3], globoolSH(parts[1], "check"), n}
 				
 			end
 			print(n,i)
@@ -87,17 +88,17 @@ function textentity:init(x: number, y: number, r)
 	end
 	--Red
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.red = tonumber(self.r[1])
+		self.red = tonumber(self.r[1] as string) or 0
 		table.remove(self.r, 1)
 	end
 	--Green
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.green = tonumber(self.r[1])
+		self.green = tonumber(self.r[1] as string) or 0
 		table.remove(self.r, 1)
 	end
 	--Blue
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.blue = tonumber(self.r[1])
+		self.blue = tonumber(self.r[1] as string) or 0
 		table.remove(self.r, 1)
 	end
 end
@@ -105,9 +106,10 @@ end
 function textentity:link()
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w] as {Entity}) do
-				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
-					v:addoutput(self, self.r[2])
+			for i, v in pairs(objects[w] as {any}) do
+				local ent = v as Entity
+				if tonumber(self.r[3] as string) == ent.cox and tonumber(self.r[4] as string) == ent.coy then
+					(ent.addoutput as function(Entity, any, any): any)(ent, self, self.r[2])
 				end
 			end
 		end

@@ -240,11 +240,11 @@ function editor_load()
 		for i = 1, #split1 do
 			local split2 = strsplit(split1[i], "=")
 			if split2[1] == "name" then
-				mappackname = split2[2]:lower()
+				mappackname = (split2[2] as string):lower() as any
 			elseif split2[1] == "author" then
-				mappackauthor = split2[2]:lower()
+				mappackauthor = (split2[2] as string):lower() as any
 			elseif split2[1] == "description" then
-				mappackdescription = split2[2]:lower()
+				mappackdescription = (split2[2] as string):lower() as any
 			end
 		end
 	end
@@ -1776,8 +1776,8 @@ function editor_draw_menu_animations(emx: number, emy: number)
 		for i, v in pairs(animationguilines) do
 			for k, w in ipairs(v) do
 				for anotherletter, fuck in pairs(w.elements as {any:any}) do
-					if fuck.gui and not fuck.gui.priority then
-						fuck.gui:draw()
+					if (fuck as animationguielement).gui and not (fuck as animationguielement).gui.priority then
+						(fuck as animationguielement).gui:draw()
 					end
 				end
 			end
@@ -1860,8 +1860,8 @@ function editor_draw_chrome()
 		for i, v in pairs(animationguilines) do
 			for k, w in ipairs(v) do
 				for anotherletter, fuck in pairs(w.elements as {any:any}) do
-					if fuck.gui and fuck.gui.priority then
-						fuck.gui:draw()
+					if (fuck as animationguielement).gui and (fuck as animationguielement).gui.priority then
+						(fuck as animationguielement).gui:draw()
 					end
 				end
 			end

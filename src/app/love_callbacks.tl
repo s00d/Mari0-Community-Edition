@@ -1,6 +1,6 @@
 --[[ Love callbacks extracted from main.lua ]]
 
-function love.update(dt)
+function love.update(dt: number)
 	if music then
 		music:update()
 	end
@@ -49,7 +49,7 @@ function love.update(dt)
 		steptimer = steptimer - targetdt
 		
 		if frameskip then
-			if frameskip > skippedframes then
+			if (frameskip as number) > skippedframes then
 				skippedframes = skippedframes + 1
 				return
 			else
@@ -62,9 +62,9 @@ function love.update(dt)
 		-- Prefer Gamestate handlers when registered; legacy branches as fallback
 		local gs_handled = false
 		if Gamestate then
-			local h = Gamestate.handlers[Gamestate.get()]
-			if h and h.update then
-				Gamestate.update(dt)
+			local h = (Gamestate.handlers as {any:any})[Gamestate.get()]
+			if h and (h as {string:any}).update then
+				(Gamestate.update as function(number): any)(dt)
 				gs_handled = true
 			end
 		end
@@ -98,9 +98,9 @@ function love.draw()
 	
 	local gs_handled = false
 	if Gamestate then
-		local h = Gamestate.handlers[Gamestate.get()]
-		if h and h.draw then
-			Gamestate.draw()
+		local h = (Gamestate.handlers as {any:any})[Gamestate.get()]
+		if h and (h as {string:any}).draw then
+			(Gamestate.draw as function(): any)()
 			gs_handled = true
 		end
 	end
@@ -124,7 +124,7 @@ function love.draw()
 	
 	if recording then
 		screenshotimagedata = love.graphics.newScreenshot( )
-		screenshotimagedata:encode("recording/" .. recordframe .. ".png")
+		(screenshotimagedata as ImageData):encode("recording/" .. tostring(recordframe) .. ".png")
 		recordframe = recordframe + 1
 		screenshotimagedata = nil
 		
@@ -134,7 +134,7 @@ function love.draw()
 	end
 end
 
-function love.keypressed(key, scancode, isrepeat)
+function love.keypressed(key: any, scancode: any, isrepeat: any)
 	-- Layout-independent: scancode is physical key position (Love 11)
 	if type(scancode) == "string" then
 		key = scancode
@@ -205,7 +205,7 @@ function love.keypressed(key, scancode, isrepeat)
 	end
 end
 
-function love.keyreleased(key, scancode)
+function love.keyreleased(key: any, scancode: any)
 	if type(scancode) == "string" then
 		key = scancode
 	end
@@ -238,7 +238,7 @@ function love.wheelmoved(x, y)
 	end
 end
 
-function love.mousepressed(x, y, button)
+function love.mousepressed(x: number, y: number, button: any)
 	-- Love 11 passes numeric buttons; legacy handlers still use "l"/"r"/"m".
 	if button == 1 then button = "l"
 	elseif button == 2 then button = "r"
@@ -302,7 +302,7 @@ function love.mousepressed(x, y, button)
 	end
 end
 
-function love.mousereleased(x, y, button)
+function love.mousereleased(x: number, y: number, button: any)
 	if button == 1 then button = "l"
 	elseif button == 2 then button = "r"
 	elseif button == 3 then button = "m"
@@ -319,10 +319,10 @@ function love.mousereleased(x, y, button)
 	end
 end
 
-function love.joystickpressed(joystick, button)
+function love.joystickpressed(joystick: any, button: any)
 	local joysticks,found = love.joystick.getJoysticks(),false
 	for i,v in ipairs(joysticks) do
-		if v:getID() == joystick:getID() then
+		if (v as Joystick):getID() == (joystick as Joystick):getID() then
 			joystick,found = i,true
 			break
 		end
@@ -339,10 +339,10 @@ function love.joystickpressed(joystick, button)
 	end
 end
 
-function love.joystickreleased(joystick, button)
+function love.joystickreleased(joystick: any, button: any)
 	local joysticks,found = love.joystick.getJoysticks(),false
 	for i,v in ipairs(joysticks) do
-		if v:getID() == joystick:getID() then
+		if (v as Joystick):getID() == (joystick as Joystick):getID() then
 			joystick,found = i,true
 			break
 		end
@@ -357,10 +357,10 @@ function love.joystickreleased(joystick, button)
 	end
 end
 
-function love.joystickaxis(joystick, axis, value)
+function love.joystickaxis(joystick: any, axis: any, value: number)
 	local joysticks,found = love.joystick.getJoysticks(),false
 	for i,v in ipairs(joysticks) do
-		if v:getID() == joystick:getID() then
+		if (v as Joystick):getID() == (joystick as Joystick):getID() then
 			joystick,found = i,true
 			break
 		end
@@ -370,20 +370,21 @@ function love.joystickaxis(joystick, axis, value)
 		local stickmoved = false
 		local shouldermoved = false
 		
+		local adz = ((axisDeadZones as {any:any})[joystick] as {any:any})[axis] as {string:any}
 		--If this axis is a stick, get whether it just moved out of its deadzone
-		if math.abs(value) > joystickaimdeadzone and axisDeadZones[joystick][axis]["stick"] then
+		if math.abs(value) > joystickaimdeadzone and adz["stick"] then
 			stickmoved = true
-			axisDeadZones[joystick][axis]["stick"] = false
-		elseif math.abs(value) < joystickaimdeadzone and not axisDeadZones[joystick][axis]["stick"] then
-			axisDeadZones[joystick][axis]["stick"] = true
+			adz["stick"] = false
+		elseif math.abs(value) < joystickaimdeadzone and not adz["stick"] then
+			adz["stick"] = true
 		end
 
 		--If this axis is a shoulder, get whether it just moved out of its deadzone
-		if value > 0 and axisDeadZones[joystick][axis]["shoulder"] then
+		if value > 0 and adz["shoulder"] then
 			shouldermoved = true
-			axisDeadZones[joystick][axis]["shoulder"] = false
-		elseif value < 0 and not axisDeadZones[joystick][axis]["shoulder"] then
-			axisDeadZones[joystick][axis]["shoulder"] = true
+			adz["shoulder"] = false
+		elseif value < 0 and not adz["shoulder"] then
+			adz["shoulder"] = true
 		end
 
 		if gamestate == "menu" or gamestate == "options" then
@@ -394,10 +395,10 @@ function love.joystickaxis(joystick, axis, value)
 	end
 end
 
-function love.joystickhat(joystick, hat, direction)
+function love.joystickhat(joystick: any, hat: any, direction: any)
 	local joysticks,found = love.joystick.getJoysticks(),false
 	for i,v in ipairs(joysticks) do
-		if v:getID() == joystick:getID() then
+		if (v as Joystick):getID() == (joystick as Joystick):getID() then
 			joystick,found = i,true
 			break
 		end
@@ -416,7 +417,7 @@ end
 -- love.gamepadreleased = love.joystickreleased
 -- love.gamepadaxis = love.joystickaxis
 
-function love.focus(f)
+function love.focus(f: any)
 	--[[if not f and gamestate == "game"and not editormode and not levelfinished and not everyonedead  then
 		pausemenuopen = true
 		paused = love.audio.pause()

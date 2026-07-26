@@ -167,16 +167,18 @@ end
 
 global record animationguielement is {any}
 	gui: guielement
-	width: any
+	width: number
 	t: any
 	value: any
 	default: any
+	nicename: any
+	length: any
 end
 
 global record animationguiline is {any}
 	deletebutton: guielement
 	downbutton: guielement
-	elements: {any:animationguielement}
+	elements: {animationguielement}
 	t: any
 	type: any
 	upbutton: guielement
@@ -1729,7 +1731,7 @@ global record mario is Entity
 	die: function(mario, any): any
 	laser: function(mario, any): any
 	emancipate: function(mario, any)
-	removeportals: function(Entity)
+	removeportals: function(mario, ...: any): any
 	use: function(mario, number, number): any
 	pickupbox: function(mario, Entity)
 	dropbox: function(mario)
@@ -2574,19 +2576,19 @@ global record textentity is Entity
 	category: number
 	mask: {boolean}
 	blue: number
-	boolbincache: {any}
-	boolcache: {any}
-	builtincache: any
-	glintcache: any
+	boolbincache: {any:any}
+	boolcache: {any:any}
+	builtincache: {any:any}
+	glintcache: {any:any}
 	green: number
 	hasaprefix: boolean
-	input1state: number
+	input1state: any
 	pass: boolean
 	power: boolean
 	r: {any}
 	red: number
 	text: string
-	textsplit: number
+	textsplit: {any}
 	x: number
 	y: number
 	init: function(textentity, number, number, any)
