@@ -14,7 +14,7 @@ function musicentity:init(x: number, y: number, r)
 	self.cox = x
 	self.coy = y
 	self.visible = false
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	self.single = true
 	self.triggered = false
 	table.remove(self.r, 1)

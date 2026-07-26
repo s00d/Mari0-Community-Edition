@@ -13,7 +13,7 @@ function enemyspawner:init(x: number, y: number, r)
 	self.y = y
 	self.cox = x
 	self.coy = y
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	self.xspeed = 0
 	self.yspeed = 0
 	self.enemytospawn = "goomba"

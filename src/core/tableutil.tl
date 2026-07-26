@@ -1,5 +1,5 @@
 local function tablecontains(t: {any}, entry: any): boolean
-	for _, v in pairs(t) do
+	for _, v in pairs(t as {any:any}) do
 		if v == entry then
 			return true
 		end

@@ -14,7 +14,7 @@ function orgate:init(x: number, y: number, r)
 	self.cox = x
 	self.coy = y
 	self.visible = false
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
 	

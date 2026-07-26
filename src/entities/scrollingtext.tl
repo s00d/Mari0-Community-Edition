@@ -8,7 +8,7 @@ function scrollingtext.new(_: scrollingtext, s: any, x: any, y: any): scrollingt
 	return self
 end
 
-function scrollingtext:init(s, x, y)
+function scrollingtext:init(s: any, x: any, y: any)
 	self.x = x-xscroll
 	self.y = y-yscroll
 	self.s = s

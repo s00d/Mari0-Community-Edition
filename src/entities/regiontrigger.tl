@@ -18,7 +18,7 @@ function regiontrigger:init(x: number, y: number, r)
 	self.outtable = {}
 	
 	--Input list
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
 	

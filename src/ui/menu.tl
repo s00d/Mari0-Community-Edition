@@ -863,7 +863,7 @@ global function menu_draw_options(...: any): any
 			if (mariohats[skinningplayer] as {any})[1] == 0 then
 				properprint("hat: none", (83)*scale, 90*scale)
 			else
-				properprint("hat: " .. tostring((mariohats[skinningplayer] as {any})[1]), (99-string.len((mariohats[skinningplayer] as {any})[1])*4)*scale, 90*scale)
+				properprint("hat: " .. tostring((mariohats[skinningplayer] as {any})[1]), (99-string.len(tostring((mariohats[skinningplayer] as {any})[1]))*4)*scale, 90*scale)
 			end
 
 			if optionsselection == 5 then
@@ -1482,8 +1482,8 @@ global function loadtoconvertmappacks(...: any): any
 		end
 	end
 	
-	for _, v in pairs(delete) do
-		table.remove(toconvertmappacklist, v)
+	for _, v in ipairs(delete as {any}) do
+		table.remove(toconvertmappacklist, v as integer)
 	end
 	
 	toconvertmappackicon = {}
@@ -1536,19 +1536,19 @@ global function downloadmappacks(...: any): any
 		return false
 	end
 	
-	local maplist = {}
-	local versionlist = {}
+	local maplist: {string} = {}
+	local versionlist: {number} = {}
 	local latestversion = marioversion
 	
 	local split1 = strsplit(onlinedata as string, "<")
 	for i = 2, #split1 do
 		local split2 = strsplit(split1[i], ">")
 		if split2[1] == "latestversion" then
-			latestversion = tonumber(split2[2])
+			latestversion = tonumber(split2[2] as string) or latestversion
 		elseif split2[1] == "mapfile" then
-			table.insert(maplist, split2[2])
+			table.insert(maplist, split2[2] as string)
 		elseif split2[1] == "version" then
-			table.insert(versionlist, tonumber(split2[2]))
+			table.insert(versionlist, tonumber(split2[2] as string) or 0)
 		end
 	end
 	
@@ -1610,12 +1610,12 @@ global function downloadmappacks(...: any): any
 						love.graphics.present()
 						loadingonlinemappacks = false
 						
-						local target = "mappacks/" .. maplist[i] .. "/" .. split2[2]:match("([^/]-)$")
+						local target = "mappacks/" .. maplist[i] .. "/" .. (split2[2] as string):match("([^/]-)$")
 						
 						local tries = 0
 						success = false
 						while not success and tries < 3 do
-							success = downloadfile(split2[2], target, checksums[currentfiledownload])
+							success = downloadfile(split2[2], target, (checksums as {any})[currentfiledownload as integer]) as boolean
 							tries = tries + 1
 						end
 						
@@ -1626,7 +1626,7 @@ global function downloadmappacks(...: any): any
 					end
 				end
 				if success then
-					love.filesystem.write( "mappacks/" .. maplist[i] .. "/version.txt", versionlist[i])
+					love.filesystem.write( "mappacks/" .. maplist[i] .. "/version.txt", tostring(versionlist[i]))
 				end
 			else
 				success = false
@@ -1842,7 +1842,7 @@ global function menu_keypressed(...: any): any
 				if optionstab == 2 or optionstab == 1 then
 					if skinningplayer < 4 then
 						skinningplayer = skinningplayer + 1
-						if players > #controls then
+						if players > #(controls as {any}) then
 							loadconfig()
 						end
 					end
@@ -1934,8 +1934,8 @@ global function menu_keypressed(...: any): any
 				if optionsselection == 3 then
 					nextcharacter()
 				elseif characters[mariocharacter[skinningplayer]].colorables and optionsselection == 4 then
-					if (mariohats[skinningplayer] as {any})[1] < #(hat as {any}) then
-						(mariohats[skinningplayer] as {any})[1] = (mariohats[skinningplayer] as {any})[1] + 1
+					if ((mariohats[skinningplayer] as {any})[1] as number) < #(hat as {any}) then
+						(mariohats[skinningplayer] as {any})[1] = ((mariohats[skinningplayer] as {any})[1] as number) + 1
 					end
 				elseif characters[mariocharacter[skinningplayer]].colorables and optionsselection == 5 then
 					--next color set
@@ -1991,7 +1991,7 @@ global function menu_keypressed(...: any): any
 					if playertypei > #playertypelist then
 						playertypei = 1
 					end
-					playertype = playertypelist[playertypei]
+					playertype = playertypelist[playertypei as integer] as string
 					if playertype == "gelcannon" then
 						sonicrainboom = false
 					end
@@ -2020,8 +2020,8 @@ global function menu_keypressed(...: any): any
 				if optionsselection == 3 then
 					previouscharacter()
 				elseif characters[mariocharacter[skinningplayer]].colorables and optionsselection == 4 then
-					if (mariohats[skinningplayer] as {any})[1] > 0 then
-						(mariohats[skinningplayer] as {any})[1] = (mariohats[skinningplayer] as {any})[1] - 1
+					if ((mariohats[skinningplayer] as {any})[1] as number) > 0 then
+						(mariohats[skinningplayer] as {any})[1] = ((mariohats[skinningplayer] as {any})[1] as number) - 1
 					end
 				elseif characters[mariocharacter[skinningplayer]].colorables and optionsselection == 5 then
 					--previous color set
@@ -2080,7 +2080,7 @@ global function menu_keypressed(...: any): any
 					if playertypei < 1 then
 						playertypei = #playertypelist
 					end
-					playertype = playertypelist[playertypei]
+					playertype = playertypelist[playertypei as integer] as string
 					if playertype == "gelcannon" then
 						sonicrainboom = false
 					end
@@ -2205,35 +2205,37 @@ global function keypromptstart(...: any): any
 		prompt.joystick[i].hats = js:getHatCount()
 		prompt.joystick[i].axes = js:getAxisCount()
 		
-		prompt.joystick[i].validhats = {}
-		for j = 1, prompt.joystick[i].hats do
+		local validhats: {integer} = {}
+		for j = 1, prompt.joystick[i].hats as integer do
 			if js:getHat(j) == "c" then
-				table.insert(prompt.joystick[i].validhats, j)
+				table.insert(validhats, j)
 			end
 		end
+		prompt.joystick[i].validhats = validhats
 		
-		prompt.joystick[i].axisposition = {}
-		for j = 1, prompt.joystick[i].axes do
-			table.insert(prompt.joystick[i].axisposition, js:getAxis(j))
+		local axisposition: {number} = {}
+		for j = 1, prompt.joystick[i].axes as integer do
+			table.insert(axisposition, js:getAxis(j))
 		end
+		prompt.joystick[i].axisposition = axisposition
 	end
 end
 
 global function downloadfile(...: any): any
 	local url, target, checksum = ...
-	local data, code = http.request(url)
+	local data, code = http.request(url as string)
 	
 	if code ~= 200 then
 		return false
 	end
 	
-	if checksum ~= sha1(data as string) then
+	if (checksum as string) ~= sha1(data as string) then
 		print("Checksum doesn't match!")
 		return false
 	end
 	
 	if data then
-		love.filesystem.write(target, data as string)
+		love.filesystem.write(target as string, data as string)
 		return true
 	else
 		return false
@@ -2284,7 +2286,7 @@ global function createmappack(...: any): any
 	local folderlist = {"animated", "animations", "backgrounds", "enemies", "graphics", "levelscreens", "music", "sounds"}
 	
 	for i, v in pairs(folderlist as {any:any}) do
-		love.filesystem.createDirectory("mappacks/" .. tostring(mappack) .. "/" .. v .. "/")
+		love.filesystem.createDirectory("mappacks/" .. tostring(mappack) .. "/" .. tostring(v) .. "/")
 	end
 end
 
@@ -2342,8 +2344,8 @@ global function previouscharacter(...: any): any
 	
 	if not char then return end
 	
-	if char > 1 then
-		changecharacter(char - 1)
+	if (char as number) > 1 then
+		changecharacter((char as number) - 1)
 	else
 		changecharacter(#characterlist)
 	end
@@ -2361,8 +2363,8 @@ global function nextcharacter(...: any): any
 	
 	if not char then return end
 	
-	if char < #characterlist then
-		changecharacter(char + 1)
+	if (char as number) < #characterlist then
+		changecharacter((char as number) + 1)
 	else
 		changecharacter(1)
 	end
@@ -2402,19 +2404,19 @@ global function convertmappack(...: any): any
 	mapheight = 15
 	
 	love.filesystem.createDirectory(newmappackpath)
-	for i, v in pairs({"animated/", "animations/", "backgrounds/", "assets/enemies/", "assets/graphics/", "levelscreens/", "music/"}) do
+	for i, v in ipairs({"animated/", "animations/", "backgrounds/", "assets/enemies/", "assets/graphics/", "levelscreens/", "music/"} as {string}) do
 		love.filesystem.createDirectory(newmappackpath .. v)
 	end
 	
-	local function cpy(from, to)
+	local function cpy(from: any, to: any): boolean
 		local parentTo = strsplit(to, "/")
 		table.remove(parentTo, #parentTo)
-		local parent = table.concat(parentTo, "/")
+		local parent = table.concat(parentTo as {string}, "/")
 		if parent ~= "" and not love.filesystem.getInfo(parent, "directory") then
 			love.filesystem.createDirectory(parent)
 		end
-		if love.filesystem.getInfo(from, "file") then
-			love.filesystem.write(to, love.filesystem.read(from))
+		if love.filesystem.getInfo(from as string, "file") then
+			love.filesystem.write(to as string, (love.filesystem.read(from as string) or "") as string)
 			return true
 		end
 		return false
@@ -2423,7 +2425,7 @@ global function convertmappack(...: any): any
 	cpy(oldmappackpath .. "settings.txt", newmappackpath .. "settings.txt")
 	cpy(oldmappackpath .. "icon.png", newmappackpath .. "icon.png")
 	local custommusicname = ""
-	for _, ext in pairs({"mp3", "ogg"}) do
+	for _, ext in ipairs({"mp3", "ogg"} as {string}) do
 		if cpy(oldmappackpath .. "music." .. ext, newmappackpath .. "music/custom." .. ext) then
 			custommusicname = "custom." .. ext
 		end
@@ -2466,7 +2468,7 @@ global function convertmappack(...: any): any
 		customtilesimg = nil
 	end
 	
-	for i, v in pairs(love.filesystem.getDirectoryItems(oldmappackpath)) do
+	for i, v in ipairs(love.filesystem.getDirectoryItems(oldmappackpath)) do
 		if v:find("^%d+%-%d+.txt$") or v:find("^%d+%-%d+_%d+.txt$") then -- file is in format world-level.txt or world-level_sub.txt
 			if loadmapold(oldmappackpath .. v) then
 				bgi = 1
@@ -2493,7 +2495,7 @@ end
 
 global function loadmapold(...: any): any
 	local path = ...
-	if love.filesystem.getInfo(path, "file") then
+	if love.filesystem.getInfo(path as string, "file") then
 		-- start to fill important info
 		map = {}
 		coinmap = {}
@@ -2513,8 +2515,8 @@ global function loadmapold(...: any): any
 		levelscreenbackname = false
 		mapwidth = 25
 		
-		local data = strsplit(love.filesystem.read(path), ";")
-		for i, v in pairs(data) do
+		local data = strsplit((love.filesystem.read(path as string) or "") as string, ";")
+		for i, v in ipairs(data as {any}) do
 			local spl = strsplit(v, "=")
 			if spl[1] == "timelimit" then
 				mariotimelimit = tonumber(spl[2])
@@ -2525,7 +2527,7 @@ global function loadmapold(...: any): any
 				if musici == 7 then
 					musicname = "custom.ext"
 				else
-					musicname = musiclist[tonumber(spl[2]) as number]
+					musicname = musiclist[tonumber(spl[2] as string) as integer] as string
 				end
 			elseif spl[1] == "spriteset" then
 				spriteset = tonumber(spl[2])
@@ -2550,7 +2552,7 @@ global function loadmapold(...: any): any
 				mapwidth = math.floor(#mapsplit/15)
 				local x = 0
 				local y = 1
-				for j, w in pairs(mapsplit) do
+				for j, w in ipairs(mapsplit as {any}) do
 					local spl2 = strsplit(w, "-")
 					x = x + 1
 					if x == mapwidth + 1 then
@@ -2569,7 +2571,7 @@ global function loadmapold(...: any): any
 							table.insert(entextra, tonumber(spl2[subent]) or spl2[subent])
 						end
 					end
-					entextra = convertentity(entextra)
+					entextra = convertentity(entextra) as {any}
 					
 					local shouldbecoin = false
 					if tilequads[tileid] and tilequads[tileid]:getproperty("coin") then
@@ -2592,7 +2594,7 @@ end
 -- Converts an entity from the 1.6 system to the CE one
 -- Most cases, was enemy or multiple entities merged into one
 global function convertentity(...: any): any
-	local entin: {any} = ...
+	local entin: {any} = (... as {any}) or {}
 	local newent: {any} = {}
 	if #entin >= 1 then
 		local entid = entin[1] as number -- will never be 1 since it's no entity (and this doesn't get saved)
@@ -2622,7 +2624,7 @@ global function convertentity(...: any): any
 		elseif entid == 18 or entid == 19 then -- platforms
 			newent = {18, entin[2], entid == 18 and 0 or 3.31, entid == 19 and 0 or 3.31, 4}
 		elseif entid == 14 or entid == 21 or entid == 31 then -- pipe enter/exit / vine
-			newent = {entid, entin[2]+1}
+			newent = {entid, (entin[2] as number)+1}
 		elseif entid == 22 then -- lakitu
 			newent = {"lakito"}
 		elseif entid == 26 or entid == 27 then -- emance grid
@@ -2631,23 +2633,23 @@ global function convertentity(...: any): any
 			newent = {28, entid == 29 and "hor" or "ver", "false", "false"}
 		elseif entid >= 36 and entid <= 39 then -- light bridges
 			local dirs = {"right", "left", "down", "up"}
-			newent = {36, dirs[entid - 35], tostring(tablecontains(entin, "link"))}
+			newent = {36, dirs[(entid - 35) as integer], tostring(tablecontains(entin, "link"))}
 		elseif entid == 41 or entid == 42 then -- infinite platforms
 			newent = {41, entid == 41 and "down" or "up", entin[2], 3.5, 2.18}
 		elseif entid >= 49 and entid <= 51 then -- faithplate
 			local speeds = {{0, 40}, {30, 30}, {-30, 30}}
-			newent = {49, speeds[entid - 48][1], speeds[entid - 48][2], "false"}
+			newent = {49, speeds[(entid - 48) as integer][1], speeds[(entid - 48) as integer][2], "false"}
 		elseif entid >= 52 and entid <= 55 then -- laser
 			local dirs = {"right", "down", "left", "up"}
-			newent = {52, dirs[entid - 51], tostring(tablecontains(entin, "link"))}
+			newent = {52, dirs[(entid - 51) as integer], tostring(tablecontains(entin, "link"))}
 		elseif entid >= 56 and entid <= 59 then -- laser detector
 			local dirs = {"right", "down", "left", "up"}
-			newent = {56, dirs[entid - 55], "false"}
+			newent = {56, dirs[(entid - 55) as integer], "false"}
 		elseif (entid >= 61 and entid <= 66) or (entid >= 71 and entid <= 73) then -- gel dispensers
 			local dirs = {"down", "right", "left"}
 			local dirid = (entid < 71 and ((entid - 61)%3)+1) or entid - 70
 			local gelid = (entid < 64 and 1) or (entid < 71 and 2) or 3
-			newent = {61, dirs[dirid], gelid, "false"}
+			newent = {61, dirs[dirid as integer], gelid, "false"}
 		elseif entid == 68 or entid == 69 then -- push button
 			newent = {68, entid == 68 and "left" or "right", "down"}
 		elseif entid == 70 then -- plant
@@ -2664,8 +2666,8 @@ global function convertentity(...: any): any
 			newent = {79, 6, 0.11, tostring(entid == 79)}
 		elseif entid == 80 then -- seesaw
 			-- line below copied from 1.6 src
-			local seesaws = {{7,4,6,3}, {4,2,6,3}, {7,3,6,3}, {8,3,7,3}, {5,3,7,3}, {6,3,7,3}, {4,3,7,1.5}, {3,3,7,1.5}, {3,4,7,1.5}}
-			local seesawtype = seesaws[entin[2]]
+			local seesaws: {{number}} = {{7,4,6,3}, {4,2,6,3}, {7,3,6,3}, {8,3,7,3}, {5,3,7,3}, {6,3,7,3}, {4,3,7,1.5}, {3,3,7,1.5}, {3,4,7,1.5}}
+			local seesawtype = seesaws[entin[2] as integer]
 			newent = {80, seesawtype[1], seesawtype[2], seesawtype[3], seesawtype[4]}
 		elseif entid == 84 then -- not gate
 			newent = {84, "true"}
@@ -2697,10 +2699,10 @@ global function convertentity(...: any): any
 					if entin[i] == "link" then
 						local linktype = ""
 						local toskip = linkcount
-						for j, v in pairs(rcmenu) do
-							if v.t == "linkbutton" then
-								if toskip == 0 then
-									linktype = v.link
+							for j, v in pairs(rcmenu as {any:{string:any}}) do
+								if v.t == "linkbutton" then
+									if toskip == 0 then
+										linktype = v.link as string
 								else
 									toskip = toskip - 1
 								end

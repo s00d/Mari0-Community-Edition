@@ -35,7 +35,7 @@ function rocketlauncher:update(dt: number): any...
 	end
 end
 
-function rocketlauncher:fire(): any
+function rocketlauncher:fire(): any...
 	--count all bullet bills
 	
 	local count = 0

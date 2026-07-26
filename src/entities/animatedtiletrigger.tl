@@ -11,7 +11,7 @@ end
 function animatedtiletrigger:init(x: number, y: number, r)
 	self.x = x
 	self.y = y
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
 	

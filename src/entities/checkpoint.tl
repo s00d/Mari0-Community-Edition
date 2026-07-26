@@ -14,7 +14,7 @@ function checkpoint:init(x: number, y: number, r)
 	self.cox = x
 	self.coy = y
 	
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	
 	self.all = true
 	self.p = {false, false, false, false}

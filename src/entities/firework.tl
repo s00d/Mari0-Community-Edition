@@ -8,7 +8,7 @@ function fireworkboom.new(_: fireworkboom, x: any, yoffset: any): fireworkboom
 	return self
 end
 
-function fireworkboom:init(x, yoffset)
+function fireworkboom:init(x: any, yoffset: any)
 	self.x = x+(math.random(9)-5)
 	self.y = math.random(5)+2+yoffset
 	self.timer = 0

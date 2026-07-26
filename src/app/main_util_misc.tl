@@ -183,7 +183,7 @@ global function newRecoloredImage(...: any): any
 	return love.graphics.newImage(imagedata)
 end
 
-global function getaveragecolor(...: any): any, any, any
+global function getaveragecolor(...: any): number, number, number
 	local imgdata, cox, coy = ...
 	local idata = imgdata as ImageData
 	local cx = cox as number
@@ -191,9 +191,11 @@ global function getaveragecolor(...: any): any, any, any
 	local xstart = (cx-1)*17
 	local ystart = (cy-1)*17
 	
-	local r, g, b = 0, 0, 0
+	local r: number = 0
+	local g: number = 0
+	local b: number = 0
 	
-	local count = 0
+	local count: number = 0
 	
 	for x = xstart, xstart+15 do
 		for y = ystart, ystart+15 do
@@ -212,22 +214,27 @@ end
 
 global function keyprompt_update(...: any): any
 	if keyprompt then
-		local js = (love.joystick.getJoysticks() as {any})
+		local js = love.joystick.getJoysticks()
 		for i = 1, prompt.joysticks do
-			for j = 1, #prompt.joystick[i].validhats do
-				local dir = js[i]:getHat(prompt.joystick[i].validhats[j])
+			local pj = prompt.joystick[i]
+			local hats = pj.validhats as {integer}
+			local ji = i as integer
+			for j = 1, #hats do
+				local dir = js[ji]:getHat(hats[j as integer])
 				if dir ~= "c" then
-					keypromptenter("joyhat", i, prompt.joystick[i].validhats[j], dir)
+					keypromptenter("joyhat", i, hats[j as integer], dir)
 					return
 				end
 			end
 			
-			for j = 1, prompt.joystick[i].axes do
-				local value = js[i]:getAxis(j)
-				if value > prompt.joystick[i].axisposition[j] + joystickdeadzone then
+			local axes = pj.axes as integer
+			local axispos = pj.axisposition as {integer:number}
+			for j = 1, axes do
+				local value = js[ji]:getAxis(j)
+				if value > axispos[j] + joystickdeadzone then
 					keypromptenter("joyaxis", i, j, "pos")
 					return
-				elseif value < prompt.joystick[i].axisposition[j] - joystickdeadzone then
+				elseif value < axispos[j] - joystickdeadzone then
 					keypromptenter("joyaxis", i, j, "neg")
 					return
 				end
@@ -237,8 +244,8 @@ global function keyprompt_update(...: any): any
 end
 
 global function print_r(t: any, indent: any): any --Not by me
-	local indent=indent or ''
-	for key,value in pairs(t) do
+	local indent = (indent or '') as string
+	for key,value in pairs(t as {any:any}) do
 		io.write(indent,'[',tostring(key),']') 
 		if type(value)=="table" then io.write(':\n') print_r(value,indent..'\t')
 		else io.write(' = ',tostring(value),'\n') end
@@ -247,9 +254,9 @@ end
 
 global function openSaveFolder(subfolder: any): any --By Slime
 	local path = love.filesystem.getSaveDirectory()
-	path = subfolder and path.."/"..subfolder or path
+	path = subfolder and path.."/"..(subfolder as string) or path
 	
-	local cmdstr
+	local cmdstr: string|nil = nil
 	local successval = 0
 	
 	if os.getenv("WINDIR") then -- lolwindows
@@ -270,7 +277,7 @@ global function openSaveFolder(subfolder: any): any --By Slime
 	end
 	
 	-- returns true if successfully opened folder
-	return cmdstr and os.execute(cmdstr:format(path)) == successval
+	return cmdstr ~= nil and (os.execute((cmdstr as string):format(path)) as any) == successval
 end
 
 global function getupdate(...: any): any
@@ -281,9 +288,9 @@ global function getupdate(...: any): any
 		return false
 	end
 	
-	local latestversion
+	local latestversion: any = nil
 	
-	local split1 = strsplit(onlinedata, "<")
+	local split1 = strsplit(onlinedata as string, "<")
 	for i = 2, #split1 do
 		local split2 = strsplit(split1[i], ">")
 		if split2[1] == "latestversion" then
@@ -291,29 +298,32 @@ global function getupdate(...: any): any
 		end
 	end
 	
-	if latestversion and latestversion > marioversion then
+	if latestversion and (latestversion as number) > marioversion then
 		return true
 	end
 	return false
 end
 
 global function properprint(s: any, x: any, y: any, sc: any): any
-	local scale = sc or scale
-	local startx = x
+	local scale = (sc or scale) as number
+	local startx = x as number
+	local xx = x as number
+	local yy = y as number
+	local ss = tostring(s)
 	local skip = 0
-	for i = 1, string.len(tostring(s)) do
+	for i = 1, string.len(ss) do
 		if skip > 0 then
 			skip = skip - 1
 		else
-			local char = string.sub(s, i, i)
-			if string.sub(s, i, i+3) == "_dir" and tonumber(string.sub(s, i+4, i+4)) then
-				love.graphics.draw(directionsimg, directionsquad[tonumber(string.sub(s, i+4, i+4))], x+((i-1)*8+1)*scale, y, 0, scale, scale)
+			local char = string.sub(ss, i, i)
+			if string.sub(ss, i, i+3) == "_dir" and tonumber(string.sub(ss, i+4, i+4)) then
+				love.graphics.draw(directionsimg, directionsquad[tonumber(string.sub(ss, i+4, i+4)) as integer], xx+((i-1)*8+1)*scale, yy, 0, scale, scale)
 				skip = 4
 			elseif char == "|" then
-				x = startx-((i)*8)*scale
-				y = y + 10*scale
+				xx = startx-((i)*8)*scale
+				yy = yy + 10*scale
 			elseif fontquads[char] then
-				love.graphics.draw(fontimage, fontquads[char], x+((i-1)*8+1)*scale, y, 0, scale, scale)
+				love.graphics.draw(fontimage, fontquads[char], xx+((i-1)*8+1)*scale, yy, 0, scale, scale)
 			end
 		end
 	end
@@ -321,25 +331,28 @@ end
 
 global function properprintbackground(...: any): any
 	local s, x, y, include, color, sc = ...
-	local scale = sc or scale
-	local startx = x
+	local scale = (sc or scale) as number
+	local startx = x as number
+	local xx = x as number
+	local yy = y as number
+	local ss = tostring(s)
 	local skip = 0
-	for i = 1, string.len(tostring(s)) do
+	for i = 1, string.len(ss) do
 		if skip > 0 then
 			skip = skip - 1
 		else
-			local char = string.sub(s, i, i)
+			local char = string.sub(ss, i, i)
 			if char == "|" then
-				x = startx-((i)*8)*scale
-				y = y + 10*scale
+				xx = startx-((i)*8)*scale
+				yy = yy + 10*scale
 			elseif fontquadsback[char] then
-				love.graphics.draw(fontimageback, fontquadsback[char], x+((i-1)*8)*scale, y-1*scale, 0, scale, scale)
+				love.graphics.draw(fontimageback, fontquadsback[char], xx+((i-1)*8)*scale, yy-1*scale, 0, scale, scale)
 			end
 		end
 	end
 	
 	if include ~= false then
-		properprint(s, x, y, scale)
+		properprint(s, xx, yy, scale)
 	end
 end
 
@@ -365,19 +378,21 @@ global function loadcustombackgrounds(...: any): any
 				custombackgroundheight[name] = {}
 					
 				while love.filesystem.getInfo(bg .. i .. ".png") do
-					custombackgroundimg[name][i] = AssetStore.load_image(bg .. i .. ".png")
-					custombackgroundwidth[name][i] = custombackgroundimg[name][i]:getWidth()/16
-					custombackgroundheight[name][i] = custombackgroundimg[name][i]:getHeight()/16
+					local img = AssetStore.load_image(bg .. i .. ".png") as Image
+					custombackgroundimg[name][i] = img
+					custombackgroundwidth[name][i] = img:getWidth()/16
+					custombackgroundheight[name][i] = img:getHeight()/16
 					i = i + 1
 				end
 				table.insert(custombackgrounds, name)
 			else
 				local name = string.sub(fl[i], 1, -5)
 				local bg = string.sub(v, 1, -5)
+				local img = AssetStore.load_image(bg .. ".png") as Image
 				
-				custombackgroundimg[name] = {AssetStore.load_image(bg .. ".png")}
-				custombackgroundwidth[name] = {custombackgroundimg[name][1]:getWidth()/16}
-				custombackgroundheight[name] = {custombackgroundimg[name][1]:getHeight()/16}
+				custombackgroundimg[name] = {img}
+				custombackgroundwidth[name] = {img:getWidth()/16}
+				custombackgroundheight[name] = {img:getHeight()/16}
 				
 				table.insert(custombackgrounds, name)
 			end
@@ -419,16 +434,17 @@ global function loadanimatedtiles(...: any): any
 		end
 	end
 	
-	local function loadfolder(folder)
+	local function loadfolder(folder: any)
 		local i = 1
-		while love.filesystem.getInfo(folder .. "/" .. i .. ".png") do
-			local v = folder .. "/" .. i .. ".png"
+		local fold = folder as string
+		while love.filesystem.getInfo(fold .. "/" .. i .. ".png") do
+			local v = fold .. "/" .. i .. ".png"
 			if love.filesystem.getInfo(v, "file") and string.sub(v, -4) == ".png" then
 				if love.filesystem.getInfo(string.sub(v, 1, -5) .. ".txt", "file") then
 					animatedtilecount = animatedtilecount + 1
 					local number = animatedtilecount+10000
 					local t = animatedquad:new(v, love.filesystem.read(string.sub(v, 1, -5) .. ".txt"), number)
-					tilequads[number] = t
+					tilequads[number] = t as TileQuad
 					table.insert(animatedtiles, t)
 				end
 			end
@@ -467,7 +483,7 @@ end
 
 global function loadmodcustomtiles(...: any): any
 	local files = love.filesystem.getDirectoryItems("mappacks/" .. mappack .. "/tiles")
-	for i,j in pairs(files) do
+	for i,j in ipairs(files) do
 		print(i,j)
 		if string.sub(j, -4) ~= ".png" then
 			table.remove(files, i)
@@ -478,8 +494,8 @@ global function loadmodcustomtiles(...: any): any
 		modcustomtiles = #files
 		modcustomtilesimg = {}
 		modcustomtilecount = {}
-		for i = 1, modcustomtiles do
-			modcustomtilesimg[i] = AssetStore.load_image("mappacks/" .. mappack .. "/tiles/" .. files[i])
+		for i = 1, modcustomtiles as integer do
+			modcustomtilesimg[i] = AssetStore.load_image("mappacks/" .. mappack .. "/tiles/" .. files[i]) as Image
 			local imgwidth, imgheight = modcustomtilesimg[i]:getWidth(), modcustomtilesimg[i]:getHeight()
 			local width = math.floor(imgwidth/17)
 			local height = math.floor(imgheight/17)
@@ -492,7 +508,7 @@ global function loadmodcustomtiles(...: any): any
 					table.insert(rgblist, {r, g, b})
 				end
 			end
-			modcustomtilecount[i] = (modcustomtilecount[i-1] or 0) + width*height
+			modcustomtilecount[i] = (modcustomtilecount[(i-1) as integer] or 0) + width*height
 		end
 	else
 		modcustomtiles = false
@@ -510,8 +526,8 @@ end
 
 global function add(...: any): any
 	local desc = ...
-	print((desc or "") .. "\n" .. round((love.timer.getTime()-starttime)*1000) .. "ms\tlines " .. lastline+1 .. " - " .. debug.getinfo(2).currentline-1 .. "\n")
-	lastline = debug.getinfo(2).currentline
+	print(tostring(desc or "") .. "\n" .. tostring(round((love.timer.getTime()-starttime)*1000)) .. "ms\tlines " .. tostring((lastline as number)+1) .. " - " .. tostring(debug.getinfo(2).currentline-1) .. "\n")
+	lastline = debug.getinfo(2).currentline as number
 	totaltime = totaltime + round((love.timer.getTime()-starttime)*1000)
 	starttime = love.timer.getTime()
 end

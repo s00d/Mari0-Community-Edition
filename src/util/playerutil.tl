@@ -4,7 +4,7 @@
 -- Note: assigns global closestplayer (legacy side effect used by callers).
 
 local function getclosestplayer(x: any)
-	closestplayer = 1
+	closestplayer = 1 as any
 	for i = 2, players do
 		if math.abs(playerobjs[closestplayer].x+6/16-x) > math.abs(playerobjs[i].x+6/16-x) then
 			closestplayer = i

@@ -211,7 +211,7 @@ global record animationtrigger is Entity
 	update: function(animationtrigger, number): any...
 	cox: number
 	coy: number
-	id: number
+	id: any
 	r: {any}
 	x: number
 	y: number
@@ -614,11 +614,11 @@ global record cubedispenser is Entity
 	inputactive: boolean
 	mask: {boolean}
 	r: {any}
-	spawnondestroy: number
+	spawnondestroy: any
 	speedx: number
 	speedy: number
 	static: boolean
-	t: string
+	t: any
 	timer: number
 	width: number
 	x: number
@@ -688,7 +688,7 @@ global record door is Entity
 	dir: string
 	drawable: boolean
 	firstupdate: boolean
-	forceclose: number
+	forceclose: any
 	height: number
 	input1state: any
 	mask: {boolean}
@@ -744,7 +744,7 @@ global record emancipationfizzle is Entity
 	static: boolean
 	category: number
 	mask: {boolean}
-	r: {any}
+	r: any
 	rotspeed: number
 	speedx: number
 	speedy: number
@@ -802,7 +802,7 @@ global record enemy is Entity
 	animationtype: string
 	bounceforce: number
 	bounces: number
-	breakblockside: number
+	breakblockside: any
 	breaksblocks: number
 	chasemarioonwakeup: number
 	chasespeed: number
@@ -829,7 +829,7 @@ global record enemy is Entity
 	falling: boolean
 	fallswhenstomped: number
 	firstanimationtype: string
-	firstmovement: string
+	firstmovement: any
 	flyingdistance: number
 	flyingtime: number
 	flyingtimer: number
@@ -862,7 +862,7 @@ global record enemy is Entity
 	mask: {boolean}
 	movement: any
 	movementrandoms: {any}
-	nocollidestops: number
+	nocollidestops: any
 	nofollowspeedup: number
 	offsetX: number
 	offsetY: number
@@ -906,7 +906,7 @@ global record enemy is Entity
 	smallquad: any
 	smallspeed: number
 	spawnallow: boolean
-	spawnedenemies: {any}
+	spawnedenemies: {enemy}
 	spawnenemydelay: number
 	spawnenemydelays: {number}
 	spawnenemyoffsetx: number
@@ -958,10 +958,10 @@ global record enemy is Entity
 	throwanimationstate: number
 	throwpreparetime: number
 	throwquadoffset: number
-	transformpassedparameters: number
+	transformpassedparameters: {any}
 	transforms: boolean
 	transformsinto: string
-	transformsintorandoms: number
+	transformsintorandoms: {any}
 	transformsoffsetx: number
 	transformsoffsety: number
 	transformtrigger: string
@@ -993,7 +993,7 @@ global record enemy is Entity
 	shotted: function(enemy, any, any, any, any, any): any...
 	decodearg: function(enemy, any): any...
 	customtimeraction: function(enemy, any, any): any...
-	func: function(enemy, any): any
+	func: function(enemy, any): number
 	globalcollide: function(enemy, any, Entity, any, any, any): any...
 	leftcollide: function(enemy, any, Entity, any, any): any...
 	rightcollide: function(enemy, any, Entity, any, any): any...
@@ -1060,7 +1060,7 @@ global record entitylistitem is {any}
 end
 
 global record entitytooltip is {any}
-	ent: number
+	ent: any
 	x: number
 	y: number
 	init: function(entitytooltip, any)
@@ -1186,7 +1186,7 @@ global record fireworkboom is Entity
 	timer: number
 	x: number
 	y: number
-	init: function(fireworkboom, number, number)
+	init: function(fireworkboom, any, any)
 	update: function(fireworkboom, number): any...
 	draw: function(fireworkboom)
 	new: function(fireworkboom, any, any): fireworkboom
@@ -1298,7 +1298,7 @@ global record groundlight is Entity
 	static: boolean
 	category: number
 	mask: {boolean}
-	dir: string
+	dir: any
 	input1state: any
 	lighted: boolean
 	r: {any}
@@ -1559,7 +1559,7 @@ global record magic is Entity
 	mask: {boolean}
 	color: {number}
 	lifetime: number
-	t: string
+	t: any
 	x: number
 	y: number
 	init: function(magic)
@@ -1783,9 +1783,9 @@ global record musicentity is Entity
 	update: function(musicentity, number): any...
 	cox: number
 	coy: number
-	musicname: number
+	musicname: any
 	r: {any}
-	single: number
+	single: any
 	triggered: boolean
 	visible: boolean
 	x: number
@@ -2196,7 +2196,7 @@ global record rainboom is Entity
 	mask: {boolean}
 	dir: string
 	frame: number
-	r: {any}
+	r: any
 	timer: number
 	x: number
 	y: number
@@ -2322,7 +2322,7 @@ global record rocketlauncher is Entity
 	y: number
 	init: function(rocketlauncher, number, number)
 	update: function(rocketlauncher, number): any...
-	fire: function(rocketlauncher)
+	fire: function(rocketlauncher): any...
 	randomtime: function(rocketlauncher)
 	new: function(rocketlauncher, number, number): rocketlauncher
 end
@@ -2425,7 +2425,7 @@ global record scrollingscore is Entity
 	timer: number
 	x: number
 	y: number
-	init: function(scrollingscore, number, number, any)
+	init: function(scrollingscore, any, any, any)
 	update: function(scrollingscore, number): any...
 	new: function(scrollingscore, any, any, any): scrollingscore
 end
@@ -2443,7 +2443,7 @@ global record scrollingtext is Entity
 	timer: number
 	x: number
 	y: number
-	init: function(scrollingtext, number, number, any)
+	init: function(scrollingtext, any, any, any)
 	update: function(scrollingtext, number): any...
 	draw: function(scrollingtext)
 	new: function(scrollingtext, any, any, any): scrollingtext
@@ -2620,7 +2620,7 @@ global record vine is Entity
 	coy: number
 	drawable: boolean
 	height: number
-	hidetop: number
+	hidetop: any
 	limit: number
 	mask: {boolean}
 	static: boolean

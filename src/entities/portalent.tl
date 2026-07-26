@@ -21,7 +21,7 @@ function portalent:init(x: number, y: number, i, r)
 
 	--Input list
 	self.input1state = "off"
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
 	

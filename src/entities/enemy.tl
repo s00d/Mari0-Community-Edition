@@ -155,7 +155,7 @@ function enemy:init(x: number, y: number, t: string, a: any)
 		self.jumptimer = 0
 	end
 	
-	self.firstmovement = self.movement
+	self.firstmovement = self.movement as any
 	self.firstanimationtype = self.animationtype
 
 	-- Apparently we now have to deal with case sensitivity.
@@ -279,7 +279,7 @@ function enemy:update(dt: number): any...
 			return false
 		end
 		self.spawnenemytimer = self.spawnenemytimer + dt
-		while self.spawnenemytimer >= self.spawnenemydelay and self.spawnallow and (not self.spawnmax or self:getspawnedenemies() < self.spawnmax) do
+		while self.spawnenemytimer >= self.spawnenemydelay and self.spawnallow and (not self.spawnmax or (self:getspawnedenemies() as number) < (self.spawnmax as number)) do
 			if self.spawnsenemyrandoms then
 				self.spawnsenemy = self.spawnsenemyrandoms[math.random(#self.spawnsenemyrandoms)]
 			end
@@ -359,7 +359,7 @@ function enemy:update(dt: number): any...
 						self.animationtype = self.firstanimationtype
 						
 						if self.chasemarioonwakeup then
-							local px = playerobjs[getclosestplayer(self.x)].x as any
+							local px = playerobjs[getclosestplayer(self.x)].x as number
 							if px > self.x then
 								self.speedx = -self.speedx
 							end
@@ -749,7 +749,7 @@ function enemy:update(dt: number): any...
 		if type(self.playerneardist) == "number" then
 			for i = 1, players do
 				local v = playerobjs[i]
-				if inrange(v.x+v.width/2, self.x+self.width/2-(self.playerneardist or 3), self.x+self.width/2+(self.playerneardist or 3)) then
+				if inrange(v.x+v.width/2, self.x+self.width/2-((self.playerneardist or 3) as number), self.x+self.width/2+((self.playerneardist or 3) as number)) then
 					if self.transformtrigger == "playernear" then
 						self:transform(self.transformsinto)
 						return
@@ -932,7 +932,7 @@ function enemy:decodearg(arg: any): any
 			return (self as {string:any})[a[2] as string]
 		elseif a[1] == "concat" then
 			if not a[3] then return end
-			return (self:decodearg(a[2]) .. self:decodearg(a[3]))
+			return (tostring(self:decodearg(a[2])) .. tostring(self:decodearg(a[3])))
 		end
 	else
 		return arg
@@ -945,7 +945,7 @@ function enemy:customtimeraction(action: any, arg: any): any
 		local act = action as {any}
 		local args = (arg as {any}) or {}
 	
-		realaction = act[1] or false
+		realaction = act[1] or false -- any
 		act[2] = self:decodearg(act[2]) --decode argument
 		act[3] = self:decodearg(act[3])
 		
@@ -961,8 +961,8 @@ function enemy:customtimeraction(action: any, arg: any): any
 				self:customtimeraction(a2[1], a2[2])
 			end
 		elseif realaction == "istrue" then
-			print(globools[act[2]])
-			if globools[act[2]] then
+			print(globools[act[2] as string])
+			if globools[act[2] as string] then
 				local a1 = args[1] as {any}
 				local a2 = args[2] as {any}
 				self:customtimeraction(a1[1], a1[2])
@@ -973,7 +973,7 @@ function enemy:customtimeraction(action: any, arg: any): any
 			end
 		elseif realaction == "simultaneous" then
 			table.remove(act, 1)
-			for i, v in pairs(act) do
+			for i, v in ipairs(act as {any}) do
 				local vv = v as {any}
 				self:customtimeraction(vv[1], vv[2])
 			end
@@ -983,32 +983,32 @@ function enemy:customtimeraction(action: any, arg: any): any
 		
 		if action == "bounce" then
 			if self.speedy == 0 then
-				self.speedy = -(arg or 10)
+				self.speedy = -((arg or 10) as number)
 			end
 		elseif action == "playsound" then
 			playsound(arg)
-		elseif string.sub(action, 0, 7) == "reverse" then
-			local parameter = string.sub(action, 8, string.len(action))
+		elseif string.sub(action as string, 0, 7) == "reverse" then
+			local parameter = string.sub(action as string, 8, string.len(action as string))
 			if not bag[parameter as string] then return end
 			if type(bag[parameter as string]) ~= "number" then return end
-			bag[parameter as string] = -bag[parameter as string]
-		elseif string.sub(action, 0, 3) == "add" then
-			local parameter = string.sub(action, 4, string.len(action))
+			bag[parameter as string] = -(bag[parameter as string] as number)
+		elseif string.sub(action as string, 0, 3) == "add" then
+			local parameter = string.sub(action as string, 4, string.len(action as string))
 			if not bag[parameter as string] or not arg or tonumber(arg) == nil then return end
 			if type(bag[parameter as string]) ~= "number" then return end
-			bag[parameter as string] = bag[parameter as string] + arg
-		elseif string.sub(action, 0, 8) == "multiply" then
-			local parameter = string.sub(action, 9, string.len(action))
+			bag[parameter as string] = (bag[parameter as string] as number) + (arg as number)
+		elseif string.sub(action as string, 0, 8) == "multiply" then
+			local parameter = string.sub(action as string, 9, string.len(action as string))
 			if not bag[parameter as string] or not arg or tonumber(arg) == nil then return end
 			if type(bag[parameter as string]) ~= "number" then return end
-			bag[parameter as string] = bag[parameter as string] * arg
+			bag[parameter as string] = (bag[parameter as string] as number) * (arg as number)
 		elseif action == "setframe" then
 			self.quad = self.quadgroup[arg]
-		elseif string.sub(action, 0, 3) == "set" then
+		elseif string.sub(action as string, 0, 3) == "set" then
 			if not arg then --if arg is nil set it to false
-				bag[string.sub(action, 4, string.len(action))] = false
+				bag[string.sub(action as string, 4, string.len(action as string))] = false
 			else
-				bag[string.sub(action, 4, string.len(action))] = arg
+				bag[string.sub(action as string, 4, string.len(action as string))] = arg
 			end
 		elseif action == "print" then
 			print(arg)
@@ -1016,8 +1016,8 @@ function enemy:customtimeraction(action: any, arg: any): any
 	end
 end
 
-function enemy:func(i: any) -- 0-1 in please
-	return (-math.cos(i*math.pi*2)+1)/2
+function enemy:func(i: any): number -- 0-1 in please
+	return (-math.cos((i as number)*math.pi*2)+1)/2
 end
 
 function enemy:globalcollide(a: any, b: Entity, c: any, d: any, dir: any): any
@@ -1352,9 +1352,9 @@ function enemy:stomp(x: any, b: Entity): any
 				self.speedx = 0
 				self.animationtype = "none"
 			elseif self.speedx == 0 then
-				if self.x > x then
+				if self.x > (x as number) then
 					self.speedx = self.smallspeed
-					self.x = x+12/16+self.smallspeed*gdt
+					self.x = (x as number)+12/16+self.smallspeed*gdt
 					if b then
 						self.size = b.size
 					else
@@ -1363,7 +1363,7 @@ function enemy:stomp(x: any, b: Entity): any
 					self.killsenemies = true
 				else
 					self.speedx = -self.smallspeed
-					self.x = x-self.width-self.smallspeed*gdt
+					self.x = (x as number)-self.width-self.smallspeed*gdt
 					if b then
 						self.size = b.size
 					else
@@ -1401,8 +1401,9 @@ end
 
 function enemy:output(): any
 	for i = 1, #self.outtable do
-		if self.outtable[i][1].input then
-			self.outtable[i][1]:input("toggle", self.outtable[i][2])
+		local ot = self.outtable[i as integer] as {any}
+		if (ot[1] as {string:any}).input then
+			(ot[1] as {string:any}):input("toggle", ot[2])
 		end
 	end
 end
@@ -1418,7 +1419,7 @@ function enemy:portaled(): any
 end
 
 function enemy:spawnenemy(t: any): any
-	local speedx, speedy = 0, 0
+	local speedx: number, speedy: number = 0, 0
 	if self.spawnenemyspeedx then
 		speedx = self.spawnenemyspeedx
 	end
@@ -1464,7 +1465,7 @@ function enemy:spawnenemy(t: any): any
 	local xoffset = self.spawnenemyoffsetx or 0
 	local yoffset = self.spawnenemyoffsety or 0
 	
-	local temp = enemy:new(self.x+self.width/2+.5+xoffset, self.y+self.height+yoffset, t, {})
+	local temp = enemy:new(self.x+self.width/2+.5+xoffset, self.y+self.height+yoffset, t as string, {})
 	table.insert(objects["enemy"], temp)
 	
 	temp.speedx = speedx
@@ -1492,18 +1493,18 @@ function enemy:transform(t: any): any
 		local xoffset = self.transformsoffsetx or 0
 		local yoffset = self.transformsoffsety or 0
 		if self.transformsintorandoms then
-			self.transformsinto = self.transformsintorandoms[math.random(#self.transformsintorandoms)]
+			self.transformsinto = (self.transformsintorandoms as {any})[math.random(#(self.transformsintorandoms as {any}))] as string
 			t = self.transformsinto
 		end
 
-		local temp = enemy:new(self.x+self.width/2+.5+xoffset, self.y+self.height+yoffset, t, {})
+		local temp = enemy:new(self.x+self.width/2+.5+xoffset, self.y+self.height+yoffset, t as string, {})
 
 		if self.transformpassedparameters then
 			local bag = self as {string:any}
 			local tbag = temp as {string:any}
-			for i = 1, #self.transformpassedparameters do
-				if self.transformpassedparameters[i] ~= nil then
-					tbag[self.transformpassedparameters[i] as string] = bag[self.transformpassedparameters[i] as string]
+			for i = 1, #(self.transformpassedparameters as {any}) do
+				if (self.transformpassedparameters as {any})[i] ~= nil then
+					tbag[(self.transformpassedparameters as {any})[i] as string] = bag[(self.transformpassedparameters as {any})[i] as string]
 				end
 			end
 		end
@@ -1511,7 +1512,7 @@ function enemy:transform(t: any): any
 		table.insert(objects["enemy"], temp)
 
 		if self.spawner then
-			table.insert(self.spawner.spawnedenemies, temp)
+			table.insert((self.spawner as enemy).spawnedenemies, temp)
 		end
 
 		self.kill = true
@@ -1545,7 +1546,7 @@ end
 
 function enemy:getspawnedenemies(): any
 	local count = 0
-	for i, v in pairs(self.spawnedenemies) do
+	for i, v in pairs(self.spawnedenemies as {any:enemy}) do
 		if not v.dead then
 			count = count + 1
 		end

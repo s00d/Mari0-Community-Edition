@@ -19,7 +19,7 @@ function groundlight:init(x: number, y: number, dir, r)
 	
 	self.lighted = false
 	--Input list
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
 	--POWER

@@ -13,7 +13,7 @@ global function drawlevel_tiles(...: any): any
 	end
 	if modcustomtiles then
 		for i = 1, modcustomtiles do
-			love.graphics.draw(modcustomspritebatch[i], batchx, batchy)
+			love.graphics.draw(modcustomspritebatch[i as integer], batchx, batchy)
 		end
 	end
 	local lmap = map as {number:{number:MapCell}}
@@ -38,13 +38,13 @@ global function drawlevel_tiles(...: any): any
 	for y = 1, ytodraw do
 		for x = 1, xtodraw do
 			if inmap(flooredxscroll+x, flooredyscroll+y) then
-				local bounceyoffset = 0
-				local bi = bounce_at[tilekey(flooredxscroll+x, flooredyscroll+y)] as any
+				local bounceyoffset: number = 0
+				local bi = (bounce_at as {any:any})[tilekey(flooredxscroll+x, flooredyscroll+y)]
 				if bi then
-					if blockbouncetimer[bi] < blockbouncetime/2 then
-						bounceyoffset = blockbouncetimer[bi] / (blockbouncetime/2) * blockbounceheight
+					if (blockbouncetimer[bi] as number) < blockbouncetime/2 then
+						bounceyoffset = (blockbouncetimer[bi] as number) / (blockbouncetime/2) * blockbounceheight
 					else
-						bounceyoffset = (2 - blockbouncetimer[bi] / (blockbouncetime/2)) * blockbounceheight
+						bounceyoffset = (2 - (blockbouncetimer[bi] as number) / (blockbouncetime/2)) * blockbounceheight
 					end
 				end
 				
@@ -56,7 +56,7 @@ global function drawlevel_tiles(...: any): any
 					love.graphics.draw(coinblockimg, coinblockquads[spriteset][coinframe], math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac-bounceyoffset)*16-8)*scale), 0, scale, scale)
 				elseif coinmap[cox][coy] then --coin
 					love.graphics.draw(coinimg, coinquads[spriteset][coinframe], math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac-bounceyoffset)*16-8)*scale), 0, scale, scale)
-				elseif bounceyoffset ~= 0 or tilenumber > 10000 then
+				elseif bounceyoffset ~= 0 or (tilenumber as number) > 10000 then
 					if not tilequads[tilenumber]:getproperty("invisible", cox, coy) then
 						love.graphics.draw(tilequads[tilenumber].image, tilequads[tilenumber]:quad(flooredxscroll+x, flooredyscroll+y), math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac-bounceyoffset)*16-8)*scale), 0, scale, scale)
 					end
@@ -120,7 +120,7 @@ global function drawlevel_tiles(...: any): any
 							love.graphics.setColor(1, 1, 1, alpha)
 							love.graphics.draw(v.graphic, v.quad, math.floor((x-1-xscrollfrac)*16*scale+xoff), math.floor(((y-1-yscrollfrac)*16)*scale+yoff), 0, scale, scale)
 						else
-							love.graphics.draw(entityquads[tilenumber].image, entityquads[tilenumber].quad, math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac)*16-8)*scale), 0, scale, scale)
+							love.graphics.draw(entityquads[tilenumber as number].image, entityquads[tilenumber as number].quad, math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac)*16-8)*scale), 0, scale, scale)
 						end
 						love.graphics.setColor(1, 1, 1, 1)
 					end
@@ -139,9 +139,9 @@ global function drawlevel_tiles(...: any): any
 						
 						love.graphics.setColor(252 / 255, 152 / 255, 56 / 255, 0.6)
 						if dir == "down" then
-							love.graphics.line((x-xscroll-.5)*16*scale, (y-yscroll-1.2)*16*scale, (x-xscroll-.5)*16*scale, (y-yscroll-1.2+dist)*16*scale)
+							love.graphics.line((x-xscroll-.5)*16*scale, (y-yscroll-1.2)*16*scale, (x-xscroll-.5)*16*scale, (y-yscroll-1.2+(dist as number))*16*scale)
 						elseif dir == "left" then
-							love.graphics.line((x-xscroll-.5)*16*scale, (y-yscroll-1.2)*16*scale, (x-xscroll-.5-dist)*16*scale, (y-yscroll-1.2)*16*scale)
+							love.graphics.line((x-xscroll-.5)*16*scale, (y-yscroll-1.2)*16*scale, (x-xscroll-.5-(dist as number))*16*scale, (y-yscroll-1.2)*16*scale)
 						end
 						love.graphics.setColor(1, 1, 1, 1)
 					end
@@ -245,7 +245,7 @@ global function drawforeground(...: any): any
 	end
 	if modcustomtiles then
 		for i = 1, modcustomtiles do
-			love.graphics.draw(modcustomspritebatchfront[i], batchx, batchy)
+			love.graphics.draw(modcustomspritebatchfront[i as integer], batchx, batchy)
 		end
 	end
 	
@@ -301,7 +301,7 @@ global function drawforeground(...: any): any
 						love.graphics.draw(coinblockimg, coinblockquads[spriteset][coinframe], math.floor((x-1-math.fmod(xscroll, 1))*16*scale), math.floor(((y-1-math.fmod(yscroll, 1))*16-8)*scale), 0, scale, scale)
 					elseif coinmap[x][y] then --coin
 						love.graphics.draw(coinimg, coinquads[spriteset][coinframe], math.floor((x-1-xscroll)*16*scale), math.floor(((y-1-yscroll)*16-8)*scale), 0, scale, scale)
-					elseif tilenumber > 10000 then
+					elseif (tilenumber as number) > 10000 then
 						if not tilequads[tilenumber]:getproperty("invisible", cox, coy) then
 							love.graphics.draw(tilequads[tilenumber].image, tilequads[tilenumber]:quad(flooredxscroll+x, flooredyscroll+y), math.floor((x-1-math.fmod(xscroll, 1))*16*scale), math.floor(((y-1-math.fmod(yscroll, 1))*16-8)*scale), 0, scale, scale)
 						end
@@ -386,8 +386,8 @@ global function game_draw_props(...: any): any
 	--warpzonetext
 	if displaywarpzonetext then
 		properprint("welcome to warp zone!", (mapwidth-14-1/16-xscroll)*16*scale, (5.5-yscroll)*16*scale)
-		for i, v in pairs(warpzonenumbers) do
-			properprint(v[3], math.floor((v[1]-xscroll-1-9/16)*16*scale), (v[2]-3-yscroll)*16*scale)
+		for i, v in ipairs(warpzonenumbers as {any}) do
+			properprint((v as {any})[3], math.floor(((v as {any})[1] as number)-xscroll-1-9/16)*16*scale, (((v as {any})[2] as number)-3-yscroll)*16*scale)
 		end
 	end
 
@@ -636,7 +636,7 @@ global function game_draw_objects(...: any): any
 					--SCISSOR FOR ENTRY
 					if v.customscissor and v.portalable ~= false then
 						local cs = v.customscissor as {any}
-						love.graphics.stencil(function() love.graphics.rectangle("fill", math.floor((cs[1]-xscroll)*16*scale), math.floor((cs[2]-.5-yscroll)*16*scale), cs[3]*16*scale, cs[4]*16*scale) end, "replace", 1)
+						love.graphics.stencil(function() love.graphics.rectangle("fill", math.floor((((cs as {number})[1] as number)-xscroll)*16*scale), math.floor((((cs as {number})[2] as number)-.5-yscroll)*16*scale), cs[3]*16*scale, cs[4]*16*scale) end, "replace", 1)
 						love.graphics.setStencilTest((v.invertedscissor and "equal" or "greater"), 0)
 					end
 
@@ -686,7 +686,7 @@ global function game_draw_objects(...: any): any
 						local cols = v.colors as {any}
 
 						if offsets and #hats > 0 then
-							local yadd = 0
+							local yadd: number = 0
 							for i = 1, #hats do
 								if hats[i] ~= 0 then
 									if hats[i] == 1 then
@@ -714,22 +714,22 @@ global function game_draw_objects(...: any): any
 							love.graphics.draw(gdot[0], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
 						end
 						if gdot.dot then
-							love.graphics.setColor(unpack(v["portal" .. (v.lastportal or 1) .. "color"]))
+							love.graphics.setColor(unpack((v as {string:any})["portal" .. (v.lastportal or 1) .. "color"] as {any}))
 							love.graphics.draw(gdot["dot"], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
 						end	
 					end
 
 					--portal duplication
 					if v.customscissor and v.portalable ~= false then
-						love.graphics.stencil(function() love.graphics.rectangle("fill", math.floor((v.customscissor[1]-xscroll)*16*scale), math.floor((v.customscissor[2]-.5-yscroll)*16*scale), v.customscissor[3]*16*scale, v.customscissor[4]*16*scale) end, "replace", 1)
+						love.graphics.stencil(function() love.graphics.rectangle("fill", math.floor(((v.customscissor as {number})[1]-xscroll)*16*scale), math.floor(((v.customscissor as {number})[2]-.5-yscroll)*16*scale), (v.customscissor as {number})[3]*16*scale, (v.customscissor as {number})[4]*16*scale) end, "replace", 1)
 						love.graphics.setStencilTest((v.invertedscissor and "equal" or "greater"), 0)
 					end
 
 					if v.static == false and (v.active or v.portaloverride) and v.portalable ~= false then
-						if not v.customscissor and portal ~= false then
-							love.graphics.setScissor(unpack(currentscissor))
+						if not v.customscissor and (portal as any) ~= false then -- portal any|bool
+							love.graphics.setScissor((currentscissor as {number})[1], (currentscissor as {number})[2], (currentscissor as {number})[3], (currentscissor as {number})[4])
 							local px, py, pw, ph, pr, pad = v.x, v.y, v.width, v.height, v.rotation, v.animationdirection
-							px, py, d, d, pr, pad = portalcoords(px, py, 0, 0, pw, ph, pr, pad, entryX, entryY, entryfacing, exitX, exitY, exitfacing)
+							local _d1: any, _d2: any; px, py, _d1, _d2, pr, pad = portalcoords(px, py, 0, 0, pw, ph, pr, pad, entryX, entryY, entryfacing, exitX, exitY, exitfacing)
 
 							if pad ~= v.animationdirection then
 								dirscale = -dirscale
@@ -751,13 +751,13 @@ global function game_draw_objects(...: any): any
 							end
 
 							if type(v.graphic) == "table" then
-								for k = 1, #v.graphic do
-									if v.colors[k] then
-										love.graphics.setColor(v.colors[k])
+								for k = 1, #(v.graphic as {any}) do
+									if (v.colors as {any})[k] then
+										love.graphics.setColor(unpack((v.colors as {any})[k] as {any}))
 									else
 										love.graphics.setColor(1, 1, 1)
 									end
-									love.graphics.draw(v.graphic[k], v.quad, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+									love.graphics.draw((v.graphic as {any})[k], v.quad, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
 								end
 							else
 								love.graphics.draw(v.graphic, v.quad, math.ceil(((px-xscroll)*16+v.offsetX)*scale), math.ceil(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
@@ -768,7 +768,7 @@ global function game_draw_objects(...: any): any
 								local offsets = gethatoffset(v.char, v.graphic, v.animationstate, v.runframe, v.jumpframe, v.climbframe, v.swimframe, v.underwater, v.infunnel, v.fireanimationtimer, v.ducking)
 
 								if offsets and #v.hats > 0 then
-									local yadd = 0
+									local yadd: number = 0
 									for i = 1, #v.hats do
 										if v.hats[i] ~= 0 then
 											if v.hats[i] == 1 then
@@ -789,18 +789,18 @@ global function game_draw_objects(...: any): any
 							end
 
 							if type(v.graphic) == "table" then
-								if v.graphic[0] then
+								if (v.graphic as {any})[0] then
 									love.graphics.setColor(1, 1, 1)
-									love.graphics.draw(v.graphic[0], v.quad, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+									love.graphics.draw((v.graphic as {any})[0], v.quad, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
 								end
-								if v.graphic.dot and v.lastportal then
-									love.graphics.setColor(unpack(v["portal" .. v.lastportal .. "color"]))
-									love.graphics.draw(v.graphic["dot"], v.quad, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+								if (v.graphic as {string:any}).dot and v.lastportal then
+									love.graphics.setColor(unpack((v as {string:any})["portal" .. v.lastportal .. "color"] as {any}))
+									love.graphics.draw((v.graphic as {string:any})["dot"], v.quad, math.floor(((px-xscroll)*16+v.offsetX)*scale), math.floor(((py-yscroll)*16-v.offsetY)*scale), pr, dirscale, horscale, v.quadcenterX, v.quadcenterY)
 								end
 							end
 						end
 					end
-					love.graphics.setScissor(unpack(currentscissor))
+					love.graphics.setScissor((currentscissor as {number})[1], (currentscissor as {number})[2], (currentscissor as {number})[3], (currentscissor as {number})[4])
 						love.graphics.setStencilTest()
 				end
 			end

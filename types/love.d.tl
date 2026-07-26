@@ -1,3 +1,4 @@
+global type Joystick = love.Joystick
 global type Dyn = {any:Dyn}
 
 global record Font
@@ -38,6 +39,8 @@ global interface Entity is {any}
 	falling: boolean
 	flying: boolean
 	small: boolean
+	killsenemies: any
+	nocollidestops: any
 	jumping: any
 	upsidedown: boolean
 	delete: boolean
@@ -193,19 +196,20 @@ global record love
 
 	record graphics
 		print: function(text: string, x: number, y: number)
-		newImage: function(path: string): Image
+		newImage: function(...: any): Image
 		newQuad: function(x: number, y: number, w: number, h: number, sw: number, sh: number): Quad
 		newCanvas: function(...: any): Canvas
 		newShader: function(code: string): Shader
 		newSpriteBatch: function(image: Image, size: integer|nil, usage: string|nil): SpriteBatch
 		setColor: function(...: any)
 		setBackgroundColor: function(...: any)
+		getBackgroundColor: function(): number, number, number, number
 		clear: function(...: number)
 		draw: function(...: any)
 		getWidth: function(): number
 		getHeight: function(): number
 		setDefaultFilter: function(min: string, mag: string)
-		setScissor: function(...: number)
+		setScissor: function(...: any)
 		setCanvas: function(...: any)
 		setShader: function(shader: Shader|nil)
 		origin: function()
@@ -331,6 +335,16 @@ global record love
 	resize: function(w: number, h: number)
 	run: function(): function()|nil
 	errhand: function(msg: any)
+end
+
+global record Joystick
+	getHatCount: function(self: Joystick): number
+	getAxisCount: function(self: Joystick): number
+	getHat: function(self: Joystick, index: number): string
+	getAxis: function(self: Joystick, index: number): number
+	isDown: function(self: Joystick, ...: any): boolean
+	getName: function(self: Joystick): string
+	getID: function(self: Joystick): number
 end
 
 global record ImageData

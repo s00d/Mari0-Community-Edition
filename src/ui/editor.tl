@@ -238,13 +238,13 @@ function editor_load()
 		local data = (love.filesystem.read("mappacks/" .. mappack .. "/settings.txt") or "") as string
 		local split1 = strsplit(data, "\n")
 		for i = 1, #split1 do
-			local split2 = strsplit(split1[i], "=")
+			local split2 = strsplit(split1[i], "=") as {string}
 			if split2[1] == "name" then
-				mappackname = (split2[2] as string):lower() as any
+				mappackname = (split2[2] as string):lower()
 			elseif split2[1] == "author" then
-				mappackauthor = (split2[2] as string):lower() as any
+				mappackauthor = (split2[2] as string):lower()
 			elseif split2[1] == "description" then
-				mappackdescription = (split2[2] as string):lower() as any
+				mappackdescription = (split2[2] as string):lower()
 			end
 		end
 	end
@@ -778,7 +778,7 @@ function editor_update_tiles(dt: number)
 	tilesoffset = (guielements["tilesscrollbar"].value as number) * tilescrollbarheight * scale
 	if editentities and not editenemies then
 		local x, y = mouse.getPosition()
-		local tile = getentityhighlight(x, y) as entitylistitem|nil
+		local tile = getentityhighlight(x, y) as any as entitylistitem|nil
 		
 		if tile ~= prevtile then
 			if tile ~= nil and tooltipimages[(tile as entitylistitem).i] then
@@ -1540,7 +1540,7 @@ function editor_draw_menu_tiles(emx: number, emy: number)
 			properprint("frames: " .. #(animatedtiles[tile as integer].delays as {any}), 3*scale, 205*scale)
 			local t = 0
 			for i = 1, #(animatedtiles[tile as integer].delays as {any}) do
-				t = t + (animatedtiles[tile as integer].delays as {any})[i]
+				t = t + ((animatedtiles[tile as integer].delays as {any})[i] as number)
 			end
 			properprint("total time: " .. t, 3*scale, 215*scale)
 		end
@@ -2394,11 +2394,11 @@ function loadmtobjects()
 			local split3: {string} = {}
 			for i = 1, #split1 do
 				-- objects
-				split2 = strsplit(split1[i], "=")
+				split2 = strsplit(split1[i], "=") as {string}
 				table.insert(multitileobjectnames, split2[1])
 				-- rows
-				if string.find(split1[i],":") then
-					split3 = strsplit(split2[2], ":")
+				if string.find(split1[i] as string,":") then
+					split3 = strsplit(split2[2], ":") as {string}
 				else
 					split3 = {split2[2]}
 				end
@@ -2432,10 +2432,10 @@ function loadmtgroups()
 			local split3: {string} = {}
 			for i = 1, #split1 do
 				-- groups
-				split2 = strsplit(split1[i], "=")
+				split2 = strsplit(split1[i], "=") as {string}
 				-- rows
-				if string.find(split1[i],":") then
-					split3 = strsplit(split2[2], ":")
+				if string.find(split1[i] as string,":") then
+					split3 = strsplit(split2[2], ":") as {string}
 				else
 					split3 = {split2[2]}
 				end
@@ -2993,7 +2993,7 @@ function savestate()
 			(t[x] as {any})[y] = {}
 			;((t.coinmap as {any})[x] as {any})[y] = coinmap[x][y]
 			for i, v in pairs(map[x][y] as {any:any}) do
-				((t[x] as {any})[y] as {any})[i] = v
+				((t[x] as {any})[y] as {any})[i as any] = v
 			end
 		end
 	end
@@ -3004,10 +3004,10 @@ function loadstate(s: any)
 	local si = (s or currentstate) as number
 	currentstate = si
 	
-	local v = savestates[si] as {any:any}
+	local v = savestates[si as integer] as {any}
 	map = {}
 	coinmap = {}
-	for x = 1, #v do
+	for x = 1, #(v as {any}) do
 		map[x] = {}
 		coinmap[x] = {}
 		local col = v[x] as {any}
@@ -3126,11 +3126,11 @@ function editor_mousepressed_left(x: number, y: number)
 		else
 			local cox, coy = getMouseTile(x, y+8*scale)
 			if inmap(cox, coy) then					
-				local lx1, ly1, lx2, ly2, slx1, sly1, slx2, sly2 = 0, 0, 0, 0, 0, 0, 0, 0
-				lx1 = math.min(tileselectionclick1x, tileselectionclick2x)
-				ly1 = math.min(tileselectionclick1y, tileselectionclick2y)
-				lx2 = math.max(tileselectionclick1x, tileselectionclick2x)
-				ly2 = math.max(tileselectionclick1y, tileselectionclick2y)
+				local lx1: number, ly1: number, lx2: number, ly2: number, slx1: number, sly1: number, slx2: number, sly2: number = 0, 0, 0, 0, 0, 0, 0, 0
+				lx1 = math.min(tileselectionclick1x as integer, tileselectionclick2x as integer)
+				ly1 = math.min(tileselectionclick1y as integer, tileselectionclick2y as integer)
+				lx2 = math.max(tileselectionclick1x as integer, tileselectionclick2x as integer)
+				ly2 = math.max(tileselectionclick1y as integer, tileselectionclick2y as integer)
 				
 				slx1 = math.floor((lx1-xscroll-1)*16*scale)
 				sly1 = ((ly1-yscroll-1)*16+8)*scale
@@ -3165,8 +3165,8 @@ function editor_mousepressed_left(x: number, y: number)
 							if w == 1 and pastemode == false then
 								-- nothing
 							else
-								currenttile = mtclipboard[i][j]
-								placetile(x+(i-1 + pastecenter[1])*16*scale, y+(j-1 + pastecenter[2])*16*scale)
+								currenttile = (mtclipboard[i as integer] as {any})[j as integer]
+								placetile(x+((i as number)-1 + pastecenter[1])*16*scale, y+((j as number)-1 + pastecenter[2])*16*scale)
 							end
 						end
 					end
@@ -3251,7 +3251,7 @@ function editor_mousepressed_left(x: number, y: number)
 						allowdrag = false
 					end
 				else
-					tile = getentityhighlight(x, y)
+					tile = getentityhighlight(x, y) as any
 					if tile then
 						currenttile = (tile as EntityListEntry).i
 						editorclose()
@@ -3276,7 +3276,7 @@ function editor_mousepressed_left(x: number, y: number)
 					if not guielements["renamebar"].active then
 						allowdrag = false
 						editorclose()
-						mtclipboard = (multitileobjects as {any})[(tile as number)+1]
+						mtclipboard = ((multitileobjects as {any})[((tile as number)+1) as integer] as {{any}})
 						--for i, v in pairs(mtclipboard as {any:any}) do
 							--for j, w in pairs(v as {any:any}) do
 								--print(w)
@@ -3294,25 +3294,25 @@ function editor_mousepressed_left(x: number, y: number)
 				else
 					if mtbutton == 1 then
 						guielements["renamebar"].active = true
-						guielements["renamebar"].value = (multitileobjectnames as {any})[(tile as number)+1]
+						guielements["renamebar"].value = (multitileobjectnames as {any})[((tile as number)+1) as integer]
 						guielements["renamebar"].tile = tile as number
-						guielements["renamebar"].y = objectsguiarea[2]+1-multitilesoffset/scale + (tile*17)
+						guielements["renamebar"].y = objectsguiarea[2]+1-multitilesoffset/scale + ((tile as number)*17)
 						guielements["renamebar"].func = function()
 							if guielements["renamebar"].value ~= "" then
 								guielements["renamebar"].value = string.gsub((guielements["renamebar"].value as string), "=", " ")
-								renameline("mappacks/" .. mappack .. "/objects.txt",tile+1,guielements["renamebar"].value)
+								renameline("mappacks/" .. mappack .. "/objects.txt",(tile as number)+1,guielements["renamebar"].value)
 							end
 							guielements["renamebar"].active = false
 							loadmtobjects()
 						end
 					elseif mtbutton == 2 then
-						moveline("mappacks/" .. mappack .. "/objects.txt",tile+1,"up")
+						moveline("mappacks/" .. mappack .. "/objects.txt",(tile as number)+1,"up")
 						loadmtobjects()
 					elseif mtbutton == 3 then
-						moveline("mappacks/" .. mappack .. "/objects.txt",tile+1,"down")
+						moveline("mappacks/" .. mappack .. "/objects.txt",(tile as number)+1,"down")
 						loadmtobjects()
 					elseif mtbutton == 4 then
-						deleteline("mappacks/" .. mappack .. "/objects.txt", tile+1)
+						deleteline("mappacks/" .. mappack .. "/objects.txt", (tile as number)+1)
 						if guielements["renamebar"] and guielements["renamebar"].active then
 							guielements["renamebar"].active = false
 						end
@@ -3426,7 +3426,7 @@ function editor_mousepressed_wheel_down(x: number, y: number)
 					currenttile = 1
 				end
 			else
-				if currenttile <= 10000+animatedtilecount then
+				if (currenttile as number) <= 10000+animatedtilecount then
 					currenttile = (currenttile as number) + 1
 					if currenttile == 10001+animatedtilecount then
 						currenttile = 10001
@@ -3680,7 +3680,7 @@ function editor_keypressed(key: string)
 								saveHotKeys()
 							end
 						elseif editentities then
-							tile = getentityhighlight(x, y)
+							tile = getentityhighlight(x, y) as any
 							
 							if tile and (tile as EntityListEntry).i and (tile as EntityListEntry).i <= entitiescount then
 								changeHotKey(i,2,(tile as EntityListEntry).i)
@@ -3776,24 +3776,25 @@ function editor_keypressed(key: string)
 		else
 			for i = 1, 9 do
 				if key == tostring(i) then --HOTKEY
-					if hotkeys[key] then
-						if hotkeys[key][1] == 1 then --TILES
+					local hk = hotkeys[key] as {any}
+					if hk then
+						if hk[1] == 1 then --TILES
 							editorstate = "tiles"
 							tilesall()
-							currenttile = hotkeys[key][2]
+							currenttile = hk[2]
 							if (currenttile as number) >= 10000 then
 								animatedtilelist = true
 								tilesanimated()
 							end
-						elseif hotkeys[key][1] == 2 then --ENTITIES
+						elseif hk[1] == 2 then --ENTITIES
 							editorstate = "tiles"
 							generateentitylist()
 							tilesentities()
-							currenttile = hotkeys[key][2]
-						elseif hotkeys[key][1] == 3 then --ENEMIES
+							currenttile = hk[2]
+						elseif hk[1] == 3 then --ENEMIES
 							editorstate = "tiles"
 							tilesenemies()
-							currenttile = enemies[hotkeys[key][2] as number]
+							currenttile = enemies[hk[2] as integer]
 						end
 					end
 				end
@@ -3887,7 +3888,7 @@ function togglecustombackground(var: any)
 	if custombackground then
 		custombackground = false
 	else
-		custombackground = custombackgrounds[((guielements["backgrounddropdown"].var as number)-1)]
+		custombackground = custombackgrounds[(((guielements["backgrounddropdown"].var as number)-1) as integer)]
 		if custombackground == nil then
 			custombackground = true
 		end
@@ -3934,7 +3935,7 @@ function togglecustomforeground(var: any)
 	if customforeground then
 		customforeground = false
 	else
-		customforeground = custombackgrounds[((guielements["foregrounddropdown"].var as number)-1)]
+		customforeground = custombackgrounds[(((guielements["foregrounddropdown"].var as number)-1) as integer)]
 		if customforeground == nil then
 			customforeground = true
 		end
@@ -3946,7 +3947,7 @@ end
 function changebackground(var: any)
 	guielements["backgrounddropdown"].var = var
 	if custombackground then
-		custombackground = custombackgrounds[((guielements["backgrounddropdown"].var as number)-1)]
+		custombackground = custombackgrounds[(((guielements["backgrounddropdown"].var as number)-1) as integer)]
 		if custombackground == nil then
 			custombackground = true
 		end
@@ -3956,7 +3957,7 @@ end
 function changeforeground(var: any)
 	guielements["foregrounddropdown"].var = var
 	if customforeground then
-		customforeground = custombackgrounds[((var as number)-1)]
+		customforeground = custombackgrounds[(((var as number)-1) as integer)]
 		if customforeground == nil then
 			customforeground = true
 		end
@@ -3965,7 +3966,7 @@ end
 
 function changelevelscreen(var: any)
 	guielements["levelscreendropdown"].var = var
-	levelscreenbackname = levelscreens[((var as number)-1)]
+	levelscreenbackname = levelscreens[(((var as number)-1) as integer)]
 end
 
 function changeportalgun(var: any)
@@ -3983,7 +3984,7 @@ end
 
 function changemusic(var: any)
 	stopmusic()
-	musicname = musiclist[var as number]
+	musicname = musiclist[var as integer] as string
 	
 	if var == 1 then
 		musicname = nil
@@ -4175,7 +4176,7 @@ function savemtobject(objecttable: {{any}}, name: string|nil, file: string|nil)
 	if name then
 		data = data .. name .. "="
 	else
-		datalines = strsplit(data, "\n")
+		datalines = strsplit(data, "\n") as {string}
 		data = data .. "object " .. tostring(#datalines) .. " } mtobjsize="
 	end
 	-- 2 append new object (with \n at the end!)
@@ -4249,19 +4250,19 @@ function moveline(file: string, line: any, direction: string): boolean|nil
 	local linetmp2 = ""
 	if direction == "up" then
 		changeto = linenum-1
-		linetmp2 = split1[changeto as integer]
+		linetmp2 = split1[changeto as integer] as string
 	else
 		changeto = linenum+1
-		linetmp2 = split1[changeto as integer]
+		linetmp2 = split1[changeto as integer] as string
 	end
 	
 	for i, v in ipairs(split1) do
 		if i == linenum then
 			newdata = newdata .. linetmp2 .. "\n"
 		elseif i == changeto then
-			newdata = newdata .. linetmp1 .. "\n"
+			newdata = newdata .. (linetmp1 as string) .. "\n"
 		else
-			newdata = newdata .. split1[i] .. "\n"
+			newdata = newdata .. (split1[i] as string) .. "\n"
 		end
 	end
 	love.filesystem.write(file, newdata)
@@ -4279,7 +4280,7 @@ function deleteline(file: string, line: any): boolean|nil
 	local split1 = strsplit(data, "\n")
 	for i, v in ipairs(split1) do
 		if i ~= linenum then
-			newdata = newdata .. split1[i] .. "\n"
+			newdata = newdata .. (split1[i] as string) .. "\n"
 		end
 	end
 	love.filesystem.write(file, newdata)
@@ -4297,10 +4298,10 @@ function renameline(file: string, line: any, newName: string): boolean|nil
 	local split1 = strsplit(data, "\n")
 	for i, v in ipairs(split1) do
 		if i == linenum then
-			local split2 = strsplit(split1[i], "=")
-			newdata = newdata .. newName .. "=" .. split2[#split2] .. "\n"
+			local split2 = strsplit(split1[i], "=") as {string}
+			newdata = newdata .. (newName as string) .. "=" .. (split2[#split2] as string) .. "\n"
 		else
-			newdata = newdata .. split1[i] .. "\n"
+			newdata = newdata .. (split1[i] as string) .. "\n"
 		end
 	end
 	love.filesystem.write(file, newdata)
@@ -4318,7 +4319,7 @@ function changeline(file: string, linenumber: any, newstring: string): boolean|n
 	local split1 = strsplit(data, "\n")
 	for i, v in ipairs(split1) do
 		if i ~= linenum then
-			newdata = newdata .. split1[i] .. "\n"
+			newdata = newdata .. (split1[i] as string) .. "\n"
 		else
 			newdata = newdata .. newstring .. "\n"
 		end
@@ -4351,7 +4352,7 @@ function livesincrease()
 end
 
 function defaultbackground(i: number)
-	background = {unpack(backgroundcolor[i] as {any})}
+	background = {unpack(backgroundcolor[i as integer] as {any})} as {number}
 	love.graphics.setBackgroundColor(unpack(background))
 	
 	guielements["colorsliderr"].internvalue = background[1] as number
@@ -4391,7 +4392,7 @@ function closerightclickmenu()
 			
 			for i = 1, #selectionlist do
 				local v = selectionlist[i]
-				if (map[v.x][v.y][2] == map[(rightclickm as rightclickmenu).tx][(rightclickm as rightclickmenu).ty][2] or (tablecontains(groundlighttable, entitylist[map[(rightclickm as rightclickmenu).tx][(rightclickm as rightclickmenu).ty][2]].t) and tablecontains(groundlighttable, entitylist[map[v.x][v.y][2]].t))) and (v.x ~= (rightclickm as rightclickmenu).tx or v.y ~= (rightclickm as rightclickmenu).ty) then
+				if (map[v.x as number][v.y as number][2] == map[((rightclickm as rightclickmenu).tx as number)][((rightclickm as rightclickmenu).ty as number)][2] or (tablecontains(groundlighttable, entitylist[map[(rightclickm as rightclickmenu).tx][(rightclickm as rightclickmenu).ty][2]].t) and tablecontains(groundlighttable, entitylist[map[v.x][v.y][2]].t))) and (v.x ~= (rightclickm as rightclickmenu).tx or v.y ~= (rightclickm as rightclickmenu).ty) then
 					table.insert(edittable, {x=v.x, y=v.y})
 				end
 			end

@@ -122,7 +122,7 @@ global getMouseTile: function(x: number, y: number): number, number
 -- Tiles / enemies / characters
 global tilequads: {any:TileQuad}
 global enemiesdata: {any:EnemyDef}
-global enemies: {string}
+global enemies: {any}
 global characters: {string:Character}
 global mariocharacter: {number:string}
 
@@ -192,8 +192,8 @@ global mappackhorscrollsmooth: number
 global onlinemappacklist: {string}
 global onlinemappackselection: integer
 global helpui: {number}
-global hotkeys: any
-global selection: any
+global hotkeys: {string:any}
+global selection: number
 global selectionlist: {SelectionTile}
 global brush: {number}
 global record RegionDragging
@@ -218,7 +218,7 @@ global middlemode: {any:any} -- [1]=bool dragging, [2]=x, [3]=y
 global colorsetedit: integer
 global replaychar: {any:Character}
 global record PromptState is {any}
-	joystick: {any:{string:any}}
+	joystick: {number:{string:any}}
 	joysticks: number
 end
 global prompt: PromptState
@@ -228,17 +228,17 @@ global server_load: function(...: any): any
 global server_start: function(...: any): any
 
 -- Level / world visuals
-global spriteset: any
+global spriteset: integer
 global custombackground: any
 global customforeground: any
 global backgroundlevel: any
-global background: any
-global coinmap: {any:{any}}
+global background: {number}
+global coinmap: {number:{number:any}}
 global smbtilecount: integer
 global portaltilecount: integer
 global customtilecount: integer
-global modcustomtiles: integer
-global modcustomtilecount: {integer}
+global modcustomtiles: any
+global modcustomtilecount: {any:number}
 global music: MusicPlayer
 global musicname: string
 global record SoundSource is {any}
@@ -274,8 +274,8 @@ global volumemusic: number
 global speed: any
 global speedtarget: any
 global scrollingscores: {any:Entity}
-global flagx: any
-global axex: any
+global flagx: number
+global axex: number
 global startx: {number}
 global starty: {number}
 global levelfinished: boolean
@@ -350,7 +350,7 @@ global record EntityQuad
 	i: number
 end
 global entityquads: {number:EntityQuad}
-global levelfinishedmisc: any
+global levelfinishedmisc: number
 global playertype: string
 global animatedtimers: {any:{any:animatedtimer}}
 global tileselectionclick1: any
@@ -369,17 +369,17 @@ global seesawtype: {any:{any}}
 global pausemenuoptions: {number:string}
 global earthquake: number
 global animatedtiles: {animatedquad}
-global backgroundcolor: {{number}}
+global backgroundcolor: {number:{number}}
 global mazestarts: {number}
 global bonusstage: any
 global record HttpLib
-	request: function(...: any): any
+	request: function(...: any): any, any
 	PORT: number
 	TIMEOUT: number
 end
 
 global http: HttpLib
-global custombackgrounds: {any}
+global custombackgrounds: {number:any}
 global reachedworlds: {string:{boolean}}
 global superfriction: number
 global animatedtilelist: any
@@ -387,9 +387,9 @@ global toconvertmappacklist: {string}
 global result: {string:any}
 global yoffset: number
 global uispace: number
-global blockbouncetimer: {any:any}
+global blockbouncetimer: {any:number}
 global pausemenuopen: boolean
-global musiclist: {string}
+global musiclist: {any}
 global animatedtilecount: number
 global animatedbooltimers: {any:{any:animatedbooltimer}}
 global allowdrag: boolean
@@ -404,10 +404,10 @@ global ENEMY_SPAWN_HANDLERS: {string:any}
 global playerlist: {any}
 global emancipationgrills: {any:Entity}
 global marioscore: number
-global flagy: any
+global flagy: number
 global bullettime: boolean
 global replaydata: {{string:any}}
-global repeatX: boolean
+global repeatX: any
 global haswarpzone: any
 global maxwalkspeed: number
 global friction: number
@@ -418,7 +418,7 @@ global introfadetime: number
 global rightclickwidth: number
 global runanimationtimer: number
 global coinframe: integer
-global modcustomtilesimg: Image
+global modcustomtilesimg: {Image}
 global scrollfactor: number
 global custombackgroundheight: {any:{number}}
 global custombackgroundwidth: {any:{number}}
@@ -433,7 +433,7 @@ global sonicrainboom: boolean
 global fireballquad: {any}
 global arcade: boolean
 global multitilesoffset: number
-global savestates: {{any}}
+global savestates: {any}
 global tileselection: any
 global pastecenter: {number}
 global changemapwidthmenu: boolean
@@ -464,7 +464,7 @@ global lightdrawY: number
 global groundlighttable: {number:string}
 global runanimationframe: number
 global usemagic: boolean
-global modcustomspritebatch: {SpriteBatch}
+global modcustomspritebatch: {any}
 global blockbouncex: {any:any}
 global blockbouncey: {any:any}
 global fscrollfactor: number
@@ -472,7 +472,7 @@ global infinitetime: boolean
 global portaldelay: {number}
 global gelcannontimer: number
 global spritebatchX: {any}
-global firestartx: any
+global firestartx: number
 global pipestarty: any
 global fireanimationtime: number
 global soundenabled: boolean
@@ -490,7 +490,7 @@ global collisionexists: function(any, Entity): any
 global mtjustsaved: number
 global pastemode: any
 global splitxscroll: {number}
-global multitileobjects: {{any}}
+global multitileobjects: {any}
 global tilescrollbarheight: number
 global selectworldcursor: number
 global mappackdescription: {any}
@@ -559,7 +559,7 @@ global textentities: {any:Entity}
 global smbspritebatchfront: SpriteBatch
 global portalspritebatchfront: SpriteBatch
 global customspritebatchfront: SpriteBatch
-global modcustomspritebatchfront: SpriteBatch
+global modcustomspritebatchfront: {any}
 global emancipateanimations: {any:Entity}
 global dialogboxes: {any:Entity}
 global blockbouncecontent2: {any:any}
@@ -619,8 +619,8 @@ global scrollingscoretime: number
 global scrollingtexts: {Entity}
 global rainbooms: {any:Entity}
 global blockbounceheight: number
-global coinblockquads: {integer:{integer:Quad}}
-global coinquads: {integer:{integer:Quad}}
+global coinblockquads: {any:{any:Quad}}
+global coinquads: {any:{any:Quad}}
 global flagimgx: number
 global flagimgy: number
 global sunrot: number
@@ -665,7 +665,7 @@ global bowserquad: {{Quad}}
 global buttonquad: {{Quad}}
 global emancemaxspeed: number
 global parstartup: boolean
-global realaction: boolean
+global realaction: any
 global faithplateplateimg: Image
 global img: {string:any}
 global bowserfall: boolean
@@ -678,7 +678,7 @@ global advanceddrawtool: string|boolean
 global linktoolX: number
 global linktoolY: number
 global blackafterintro: boolean
-global levelscreenback: {any}
+global levelscreenback: any
 global huechangespeed: number
 global continueavailable: boolean
 global menuselectimg: Image
@@ -721,7 +721,7 @@ global xpan: {any}
 global xpantime: number
 global ypan: {any}
 global ypantime: number
-global lastrepeat: {any}
+global lastrepeat: number
 global flyingfishstartx: any
 global flyingfishendx: any
 global bulletbillstartx: any
@@ -730,7 +730,7 @@ global lakitoendx: any
 global mazeinprogress: boolean
 global skipupdate: boolean
 global livereplaystored: {number:{string:any}}
-global fontquads: {any}
+global fontquads: {string:any}
 global delaylist: {string:any}
 global imagelist: {string}
 global marioversion: number
@@ -797,7 +797,7 @@ global gel1groundimg: Image
 global gel2groundimg: Image
 global gel3groundimg: Image
 global gel4groundimg: Image
-global warpzonenumbers: {{any}}
+global warpzonenumbers: {any}
 global axequads: {{Quad}}
 global miniblocks: {any:Entity}
 global rainboomearthquake: number
@@ -823,7 +823,7 @@ global lakitoend: any
 global mazegates: {any}
 global testlevelworld: number
 global testlevellevel: number
-global font2quads: {any}
+global font2quads: {string:any}
 global debugbinds: any
 global portal_pair_offsets: function(any, any): number, number, number, number
 global maxyspeed: number
@@ -831,7 +831,7 @@ global overwrittenimages: {string}
 global soundstoload: {string}
 global defaultsoundslist: {string:any}
 global overwrittensounds: {string}
-global directionsquad: {{Quad}}
+global directionsquad: {number:any}
 global starttime: number
 global CLIENT: string
 global s1: {number:string}
@@ -923,7 +923,7 @@ global fireballimg: Image
 global emanceaccel: number
 global parstartright: {any}
 global parstartdown: {any}
-global firequad: {{Quad}}
+global firequad: {any}
 global magicquad: {{Quad}}
 global firework: number|boolean
 global panelquad: {{Quad}}
@@ -991,7 +991,7 @@ global PHYSICS_LATE_SET: {string:boolean}
 global PHYSICS_LATE_LIST: {number:string}
 global directionsimg: Image
 global fontquadsback: {string:Quad}
-global lastline: string
+global lastline: number
 global totaltime: number
 global gellifetime: number
 global yaccelerationjumping: number
@@ -1107,7 +1107,7 @@ global outdated: boolean
 global shaderssupported: boolean
 global backgroundi: number
 global volume: number
-global previewimg: any
+global previewimg: ImageData
 global numberglyphs: {any}
 global starquad: {{Quad}}
 global flowerquad: {{Quad}}
@@ -1376,12 +1376,12 @@ global fromlightdrawcustomizetab: function(...: any): any
 global frommapstab: function(...: any): any
 
 global game_update: function(...: any): any
-global getquadprops: function(...: any): any
-global properprint: function(...: any): any
-global print_r: function(...: any): any
-global openSaveFolder: function(...: any): any
+global getquadprops: function(ImageData, number, number): {string:any}
+global properprint: function(any, any, any, any): any
+global print_r: function(any, any): any
+global openSaveFolder: function(any): any
 global dbprint: function(...: any): any
-global keypromptenter: function(...: any): any
+global keypromptenter: function(any, ...: any): any
 global loadcustombackgrounds: function(...: any): any
 global loadcustommusics: function(...: any): any
 global loadcustomtiles: function(...: any): any
@@ -1410,8 +1410,8 @@ global generatespritebatch: function(...: any): any
 global getAngleFrame: function(...: any): any
 global getPortal: function(number, number, any): any
 global getSelectedTiles: function(...: any): {{any}}
-global getTiles: function(...: any): any
-global getaveragecolor: function(...: any): any, any, any
+global getTiles: function(...: any): {{any}}
+global getaveragecolor: function(...: any): number, number, number
 global getentityhighlight: function(...: any): any
 global getfilepath: function(...: any): any
 global getmaps: function(...: any): any
@@ -1457,13 +1457,13 @@ global loadbackground: function(...: any): any
 global loadbackgroundsafe: function(...: any): any
 global loadcharacter: function(...: any): any
 global loadconfig: function(...: any): any
-global loadcustomimages: function(string): any
-global loadcustomsounds: function(string): any
+global loadcustomimages: function(...: any): any
+global loadcustomsounds: function(...: any): any
 global loadenemy: function(...: any): any
 global loadhat: function(...: any): any
-global loadlevel: function(...: any): boolean
+global loadlevel: function(...: any): any
 global loadlevelscreens: function(...: any): any
-global loadmap: function(...: any): any
+global loadmap: function(...: any): any...
 global loadmapold: function(...: any): any
 global loadmappacks: function(...: any): any
 global loadmodcustomtiles: function(...: any): any
@@ -1612,7 +1612,7 @@ global subtractscore: any
 global editor_link_screen_pos: function(...: any): number, number
 global gettilelistpos: function(number, number): number|boolean
 global changeHotKey: function(...: any): any
-global closestplayer: function(...: any): any
+global closestplayer: any
 global drawui: function(...: any): any
 global drawtools: number
 global newx: number
@@ -1680,6 +1680,6 @@ global animationstrings: {any:{string}}
 
 global GCA: number
 
-global unstatics: function(...: any): any
+global unstatics: any
 global net_quit: function(...: any): any
 global net_sendchat: function(...: any): any

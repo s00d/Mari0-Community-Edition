@@ -16,7 +16,7 @@ function platform:init(x: number, y: number, r, diroverride): any
 	self.ydistance = 0
 	
 	--Input list
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
 	

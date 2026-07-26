@@ -20,7 +20,7 @@ function pedestal:init(x: number, y: number, r)
 	self.blue = false
 	self.orange = false
 	
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	
 	if #r >= 4 then
 		self.blue = r[3] == "true"

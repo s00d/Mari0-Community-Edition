@@ -2,7 +2,7 @@
 
 global function drawreplay(...: any): any
 	local j, i = ...
-	local self = replaydata[j].data[i]
+	local self = ((replaydata[j] as {string:any}).data as {any})[i]
 	local angleframe = 1
 	
 	if not self.drawable then
@@ -22,12 +22,12 @@ global function drawreplay(...: any): any
 	if replaychar[j].nopointing then
 		angleframe = 1
 	else
-		angleframe = getAngleFrame(self.pointingangle, self.rotation)
+		angleframe = getAngleFrame(self.pointingangle, self.rotation) as integer
 	end
 	
 	local animationstate = self.animationstate
 	local size = self.size
-	local quad
+	local quad: any = nil
 	
 	if size == 1 then
 		if self.infunnel then
@@ -73,7 +73,7 @@ global function drawreplay(...: any): any
 		end
 	end
 	
-	local graphic
+	local graphic: any = nil
 	local biggraphic = replaychar[j].nogunbiganimations
 	if self.size == 1 then
 		graphic = replaychar[j].nogunanimations
@@ -86,7 +86,7 @@ global function drawreplay(...: any): any
 	end
 	
 	if true then
-		self.pointingangle = -math.pi as any
+		self.pointingangle = (-math.pi) as any
 		if self.animationdirection == "left" then
 			self.pointingangle = math.pi as any
 		end
@@ -99,11 +99,11 @@ end
 
 global function drawplayer(...: any): any
 	local i, x, y, cscale, offsetX, offsetY, rotation, quadcenterX, quadcenterY, animationstate, underwater, ducking, hats, graphic, quad, pointingangle, shot, upsidedown, colors, lastportal, portal1color, portal2color, runframe, swimframe, climbframe, jumpframe, biggraphic, fireanimationtimer, char = ...
-	x = x-6
+	x = (x as number)-6
 
 	local scale = scale
 	if cscale then
-		scale = cscale
+		scale = cscale as number
 	end
 	
 	local v
@@ -159,7 +159,7 @@ global function drawplayer(...: any): any
 		local offsets = gethatoffset(v.char, v.graphic, v.animationstate, v.runframe, v.jumpframe, v.climbframe, v.swimframe, v.underwater, v.infunnel, v.fireanimationtimer, v.ducking)
 		
 		if offsets and #v.hats > 0 then
-			local yadd = 0
+			local yadd: number = 0
 			for i = 1, #v.hats do
 				if v.hats[i] ~= 0 then
 					if v.hats[i] == 1 then
@@ -240,7 +240,7 @@ global function reachedx(...: any): any
 		
 		local x = math.ceil(currentx)
 		
-		if repeatX == 0 then
+		if repeatX == 0 then -- any
 			repeatX = mazestarts[mazei]
 		end
 		
@@ -257,14 +257,14 @@ global function reachedx(...: any): any
 			for cox = mapwidth, x, -1 do
 				--move objects
 				if objects["tile"][tilekey(cox, y)] then
-					objects["tile"][tilekey(cox + 1, y)] = tile:new(cox, y-1)
+					objects["tile"][tilekey(cox + 1, y)] = tile:new(cox, y-1) as Entity
 					objects["tile"][tilekey(cox, y)] = nil
 				end
 			end
 			
 			--create object for block
 			if tilequads[map[repeatX][y][1]]:getproperty("collision", repeatX, y) then
-				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
+				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
 			end
 		end
 		mapwidth = mapwidth + 1
@@ -341,8 +341,8 @@ end
 global function properprint2(...: any): any
 	local s, x, y = ...
 	for i = 1, string.len(tostring(s)) do
-		if fontquads[string.sub(s, i, i)] then
-			love.graphics.draw(fontimage2, font2quads[string.sub(s, i, i)], x+((i-1)*4)*scale, y, 0, scale, scale)
+		if fontquads[string.sub(s as string, i, i)] then
+			love.graphics.draw(fontimage2, font2quads[string.sub(s as string, i, i)], (x as number)+((i-1)*4)*scale, y as number, 0, scale, scale)
 		end
 	end
 end
@@ -354,9 +354,9 @@ global function playsound(...: any): any
 	end
 
 	if soundenabled then
-		if delaylist[sound] then
+		if delaylist[sound as string] then
 			local currenttime = love.timer.getTime()
-			if currenttime-soundlist[sound].lastplayed > delaylist[sound] then
+			if currenttime-(soundlist[sound as string].lastplayed as number) > delaylist[sound as string] then
 				soundlist[sound].lastplayed = currenttime
 			else
 				return
@@ -369,7 +369,7 @@ global function playsound(...: any): any
 	end
 end
 
-global function drawrectangle(...: any): any
+global function drawrectangle(x: any, y: any, width: any, height: any): any: any
 	local x, y, width, height = ...
 	love.graphics.rectangle("fill", x*scale, y*scale, width*scale, scale)
 	love.graphics.rectangle("fill", x*scale, y*scale, scale, height*scale)
@@ -379,7 +379,7 @@ end
 
 global function playmusic(...: any): any
 	if not editormode and musicname then
-		if mariotime <= 99 and mariotime > 0 then
+		if (mariotime as number) <= 99 and (mariotime as number) > 0 then
 			music:play(musicname, true)
 		else
 			music:play(musicname)
@@ -389,7 +389,7 @@ end
 
 global function stopmusic(...: any): any
 	if musicname then
-		if mariotime <= 99 and mariotime > 0 then
+		if (mariotime as number) <= 99 and (mariotime as number) > 0 then
 			music:stop(musicname, true)
 		else
 			music:stop(musicname)
@@ -412,19 +412,19 @@ end
 
 global function updateranges(...: any): any
 	for i, v in pairs(objects["laser"]) do
-		v:updaterange()
+		(v as {string:any}):updaterange()
 	end
 	for i, v in pairs(objects["lightbridge"]) do
-		v:updaterange()
+		(v as {string:any}):updaterange()
 	end
 	for i, v in pairs(objects["funnel"]) do
-		v:updaterange()
+		(v as {string:any}):updaterange()
 	end
 end
 
 global function createdialogbox(...: any): any
 	local text, speaker = ...
 	dialogboxes = {}
-	table.insert(dialogboxes, dialogbox:new(text, speaker))
+	table.insert(dialogboxes, dialogbox:new(text, speaker) as Entity)
 end
 

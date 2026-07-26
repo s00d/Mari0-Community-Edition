@@ -19,7 +19,7 @@ function zginttrigger:init(x: number, y: number, r)
 	self.id = false
 	self.value = 0
 	--Input list
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
 	

@@ -38,7 +38,7 @@ function actionblock:update(dt: number): any...
 end
 
 function actionblock:draw()
-	local bounceyoffset = 0
+	local bounceyoffset: number = 0
 	if self.timer < blockbouncetime then
 		if self.timer < blockbouncetime/2 then
 			bounceyoffset = self.timer / (blockbouncetime/2) * blockbounceheight
@@ -54,7 +54,7 @@ function actionblock:draw()
 	love.graphics.draw(actionblockimg, wallindicatorquad[q], math.floor((self.x-xscroll)*16*scale), math.floor((self.y-.5-yscroll-bounceyoffset)*16*scale), 0, scale, scale)
 end
 
-function actionblock:floorcollide(a: any, b: Entity, c: any, d: any)
+function actionblock:floorcollide(a: any, b: Entity, c: any, d: any): any...
 	if self.state == "off" then
 		self.state = "on"
 	else

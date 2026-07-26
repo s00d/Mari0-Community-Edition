@@ -29,7 +29,7 @@ function button:init(x: number, y: number, r)
 	
 	--Input list
 	self.input1state = "off"
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
 	--DIRECTION
