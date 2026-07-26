@@ -130,7 +130,7 @@ global function drawlevel_tiles(...: any): any
 						local dist: any
 						if rightclickm and (rightclickm as rightclickmenu).tx == x and (rightclickm as rightclickmenu).ty == y then
 							dir = (rightclickm as rightclickmenu).variables[2].value
-							dist = tonumber((rightclickm as rightclickmenu).t[6].value as string)
+							dist = tonumber(((rightclickm as rightclickmenu).t[6] as guielement).value as string)
 						else
 							dir = map[x][y][3]
 							dist = tonumber(map[x][y][5])
@@ -433,44 +433,47 @@ global function game_draw_props(...: any): any
 	love.graphics.setColor(1, 1, 1)
 	--axe
 	if axex then
-		love.graphics.draw(axeimg, axequads[coinframe], math.floor((axex-1-xscroll)*16*scale), (axey-1.5-yscroll)*16*scale, 0, scale, scale)
+		local axe_x = axex as number
+		local axe_y = axey as number
+		love.graphics.draw(axeimg, axequads[coinframe], math.floor((axe_x-1-xscroll)*16*scale), (axe_y-1.5-yscroll)*16*scale, 0, scale, scale)
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--levelfinish text and toad
 	if levelfinished and levelfinishtype == "castle" then
+		local axe_y = axey as number
 		if marioworld ~= 8 then
-			love.graphics.draw(toadimg, math.floor((mapwidth-7-xscroll)*16*scale), (axey+2.0625-yscroll)*16*scale, 0, scale, scale)
+			love.graphics.draw(toadimg, math.floor((mapwidth-7-xscroll)*16*scale), (axe_y+2.0625-yscroll)*16*scale, 0, scale, scale)
 		else
-			print(math.floor((mapwidth-7-xscroll)*16*scale), (axey+2.0625-yscroll)*16*scale)
-			love.graphics.draw(peachimg, math.floor((mapwidth-7-xscroll)*16*scale), (axey+2.0625-yscroll)*16*scale, 0, scale, scale)
+			print(math.floor((mapwidth-7-xscroll)*16*scale), (axe_y+2.0625-yscroll)*16*scale)
+			love.graphics.draw(peachimg, math.floor((mapwidth-7-xscroll)*16*scale), (axe_y+2.0625-yscroll)*16*scale, 0, scale, scale)
 		end
 
 		if levelfinishedmisc2 == 1 then
 			if levelfinishedmisc >= 1 then
-				properprint("thank you " .. characters[mariocharacter[1]].name .. "!", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (axey-4.5-yscroll)*16*scale)
+				properprint("thank you " .. characters[mariocharacter[1]].name .. "!", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (axe_y-4.5-yscroll)*16*scale)
 			end
 			if levelfinishedmisc == 2 then
-				properprint("but our princess is in", math.floor(((mapwidth-13.5-xscroll)*16-1)*scale), (axey-2.5-yscroll)*16*scale) --say what
-				properprint("another castle!", math.floor(((mapwidth-13.5-xscroll)*16-1)*scale), (axey-1.5-yscroll)*16*scale) --bummer.
+				properprint("but our princess is in", math.floor(((mapwidth-13.5-xscroll)*16-1)*scale), (axe_y-2.5-yscroll)*16*scale) --say what
+				properprint("another castle!", math.floor(((mapwidth-13.5-xscroll)*16-1)*scale), (axe_y-1.5-yscroll)*16*scale) --bummer.
 			end
 		else
 			if levelfinishedmisc >= 1 then	
-				properprint("thank you mario!", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (axey-4.5-yscroll)*16*scale)
+				properprint("thank you mario!", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (axe_y-4.5-yscroll)*16*scale)
 			end
 			if levelfinishedmisc >= 2 then
-				properprint("your quest is over.", math.floor(((mapwidth-12.5-xscroll)*16-1)*scale), (axey-3-yscroll)*16*scale)
+				properprint("your quest is over.", math.floor(((mapwidth-12.5-xscroll)*16-1)*scale), (axe_y-3-yscroll)*16*scale)
 			end
 
 			--todo
 			if levelfinishedmisc >= 3 then
-				properprint("we present you a new quest.", math.floor(((mapwidth-14.5-xscroll)*16-1)*scale), (axey-2-yscroll)*16*scale)
+				properprint("we present you a new quest.", math.floor(((mapwidth-14.5-xscroll)*16-1)*scale), (axe_y-2-yscroll)*16*scale)
 			end
 			if levelfinishedmisc >= 4 then
-				properprint("push button b", math.floor(((mapwidth-11-xscroll)*16-1)*scale), (axey-.5-yscroll)*16*scale)
+				properprint("push button b", math.floor(((mapwidth-11-xscroll)*16-1)*scale), (axe_y-.5-yscroll)*16*scale)
 			end
 			if levelfinishedmisc == 5 then
-				properprint("to play as steve", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (axey+.5-yscroll)*16*scale)
+				properprint("to play as steve", math.floor(((mapwidth-12-xscroll)*16-1)*scale), (axe_y+.5-yscroll)*16*scale)
 			end
 		end
 	end
@@ -621,7 +624,8 @@ global function game_draw_objects(...: any): any
 						dirscale = dirscale * v.customscale
 					end
 
-					local portal, portaly = insideportal(v.x, v.y, v.width, v.height)
+					local portal_raw, portaly = insideportal(v.x, v.y, v.width, v.height)
+					local portal = portal_raw as portal
 					local entryX: number
 					local entryY: number
 					local entryfacing: any
@@ -631,18 +635,19 @@ global function game_draw_objects(...: any): any
 
 					--SCISSOR FOR ENTRY
 					if v.customscissor and v.portalable ~= false then
-						love.graphics.stencil(function() love.graphics.rectangle("fill", math.floor((v.customscissor[1]-xscroll)*16*scale), math.floor((v.customscissor[2]-.5-yscroll)*16*scale), v.customscissor[3]*16*scale, v.customscissor[4]*16*scale) end, "replace", 1)
+						local cs = v.customscissor as {any}
+						love.graphics.stencil(function() love.graphics.rectangle("fill", math.floor((cs[1]-xscroll)*16*scale), math.floor((cs[2]-.5-yscroll)*16*scale), cs[3]*16*scale, cs[4]*16*scale) end, "replace", 1)
 						love.graphics.setStencilTest((v.invertedscissor and "equal" or "greater"), 0)
 					end
 
 					if v.static == false and v.portalable ~= false then
-						if not v.customscissor and portal ~= false and (v.active or v.portaloverride) then
+						if not v.customscissor and portal_raw ~= false and (v.active or v.portaloverride) then
 							if portaly == 1 then
-								entryX, entryY, entryfacing = portal.x1, portal.y1, portal.facing1
-								exitX, exitY, exitfacing = portal.x2, portal.y2, portal.facing2
+								entryX, entryY, entryfacing = portal.x1 as number, portal.y1 as number, portal.facing1
+								exitX, exitY, exitfacing = portal.x2 as number, portal.y2 as number, portal.facing2
 							else
-								entryX, entryY, entryfacing = portal.x2, portal.y2, portal.facing2
-								exitX, exitY, exitfacing = portal.x1, portal.y1, portal.facing1
+								entryX, entryY, entryfacing = portal.x2 as number, portal.y2 as number, portal.facing2
+								exitX, exitY, exitfacing = portal.x1 as number, portal.y1 as number, portal.facing1
 							end
 
 							if entryfacing == "right" then
@@ -658,13 +663,15 @@ global function game_draw_objects(...: any): any
 					end
 
 					if type(v.graphic) == "table" then
-						for k = 1, #v.graphic do
-							if v.colors[k] then
-								love.graphics.setColor(v.colors[k])
+						local g = v.graphic as {any}
+						local cols = v.colors or {}
+						for k = 1, #g do
+							if cols[k] then
+								love.graphics.setColor(cols[k])
 							else
 								love.graphics.setColor(1, 1, 1)
 							end
-							love.graphics.draw(v.graphic[k], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+							love.graphics.draw(g[k], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
 						end
 					else
 						if v.graphic and v.quad then
@@ -675,22 +682,24 @@ global function game_draw_objects(...: any): any
 					--HATS
 					if v.drawhat then
 						local offsets = gethatoffset(v.char, v.graphic, v.animationstate, v.runframe, v.jumpframe, v.climbframe, v.swimframe, v.underwater, v.infunnel, v.fireanimationtimer, v.ducking)
+						local hats = v.hats as {any}
+						local cols = v.colors as {any}
 
-						if offsets and #v.hats > 0 then
+						if offsets and #hats > 0 then
 							local yadd = 0
-							for i = 1, #v.hats do
-								if v.hats[i] ~= 0 then
-									if v.hats[i] == 1 then
-										love.graphics.setColor(v.colors[1])
+							for i = 1, #hats do
+								if hats[i] ~= 0 then
+									if hats[i] == 1 then
+										love.graphics.setColor(cols[1])
 									else
 										love.graphics.setColor(1, 1, 1)
 									end
 									if v.graphic == v.biggraphic or v.animationstate == "grow" then
-										love.graphics.draw(bighat[v.hats[i]].graphic, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX - bighat[v.hats[i]].x + offsets[1], v.quadcenterY - bighat[v.hats[i]].y + offsets[2] + yadd)
-										yadd = yadd + bighat[v.hats[i]].height
+										love.graphics.draw(bighat[hats[i]].graphic, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX - bighat[hats[i]].x + offsets[1], v.quadcenterY - bighat[hats[i]].y + offsets[2] + yadd)
+										yadd = yadd + bighat[hats[i]].height
 									else
-										love.graphics.draw(hat[v.hats[i]].graphic, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX - hat[v.hats[i]].x + offsets[1], v.quadcenterY - hat[v.hats[i]].y + offsets[2] + yadd)
-										yadd = yadd + hat[v.hats[i]].height
+										love.graphics.draw(hat[hats[i]].graphic, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX - hat[hats[i]].x + offsets[1], v.quadcenterY - hat[hats[i]].y + offsets[2] + yadd)
+										yadd = yadd + hat[hats[i]].height
 									end
 								end
 							end
@@ -699,13 +708,14 @@ global function game_draw_objects(...: any): any
 					end
 
 					if type(v.graphic) == "table" then
-						if v.graphic[0] then
+						local gdot = v.graphic as {any:any}
+						if gdot[0] then
 							love.graphics.setColor(1, 1, 1)
-							love.graphics.draw(v.graphic[0], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+							love.graphics.draw(gdot[0], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
 						end
-						if v.graphic.dot then
+						if gdot.dot then
 							love.graphics.setColor(unpack(v["portal" .. (v.lastportal or 1) .. "color"]))
-							love.graphics.draw(v.graphic["dot"], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+							love.graphics.draw(gdot["dot"], v.quad, math.floor(((v.x-xscroll)*16+v.offsetX)*scale), math.floor(((v.y-yscroll)*16-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
 						end	
 					end
 

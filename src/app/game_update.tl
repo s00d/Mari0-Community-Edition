@@ -2,8 +2,7 @@
      Loaded via require("app.game_update"); defines global game_update.
 ]]
 
-global function game_update(...: any): any
-	local dt = ...
+global function game_update(dt: number)
 	if not objects then return end
 	dt = dt * speed
 	gdt = dt
@@ -75,7 +74,8 @@ global function game_update(...: any): any
 		for j = 1, #replaydata do
 			if replaydata[j].data then
 				replaytimer[j] = replaytimer[j] + dt
-				while replaydata[j].data[replayi[j]].time < replaytimer[j] and replayi[j] < #replaydata[j].data do
+				local rdata = replaydata[j].data as {any}
+				while (rdata[replayi[j]] as {string:any}).time < replaytimer[j] and replayi[j] < #rdata do
 					replayi[j] = replayi[j] + 1
 				end
 			end
@@ -328,8 +328,8 @@ global function game_update(...: any): any
 				xscroll = 0
 			end
 				
-			if (axex and xscroll > axex-width and axex >= width) then
-				xscroll = axex-width
+			if (axex and xscroll > (axex as number)-width and (axex as number) >= width) then
+				xscroll = (axex as number)-width
 				hitrightside()
 			end
 		end

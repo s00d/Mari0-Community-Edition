@@ -1213,8 +1213,8 @@ function editor_draw_linking(mx: number, my: number)
 			
 			local speedx, speedy = 0.0, 0.0
 			if rightclickm then
-				speedx = ((rightclickm as rightclickmenu).t[2].value) as number
-				speedy = -(((rightclickm as rightclickmenu).t[4].value) as number)
+				speedx = (((rightclickm as rightclickmenu).t[2] as guielement).value) as number
+				speedy = -((((rightclickm as rightclickmenu).t[4] as guielement).value) as number)
 			else
 				speedx = tonumber(map[ltx][lty][3] as any) or 0
 				speedy = -(tonumber(map[ltx][lty][4] as any) or 0)
@@ -4408,19 +4408,19 @@ function closerightclickmenu()
 				local v = (rightclickm as rightclickmenu).variables[i]
 				local value = nil
 				if v.t == "scrollbar" then
-					value = (rightclickm as rightclickmenu).t[i].value
+					value = ((rightclickm as rightclickmenu).t[i] as guielement).value
 				elseif v.t == "checkbox" then
 					value = tostring((rightclickm as rightclickmenu).t[i].var)
 				elseif v.t == "directionbuttons" then
 					value = v.value
 				elseif v.t == "submenu" then
 					if (rightclickm as rightclickmenu).t[i].actualvalue then
-						value = (rightclickm as rightclickmenu).t[i].entries[(rightclickm as rightclickmenu).t[i].value]
+						value = (rightclickm as rightclickmenu).t[i].entries[((rightclickm as rightclickmenu).t[i] as guielement).value]
 					else
-						value = (rightclickm as rightclickmenu).t[i].value
+						value = ((rightclickm as rightclickmenu).t[i] as guielement).value
 					end
 				elseif v.t == "input" then
-					value = (rightclickm as rightclickmenu).t[i].value
+					value = ((rightclickm as rightclickmenu).t[i] as guielement).value
 				end
 				
 				if value then

@@ -23,26 +23,29 @@ end
 --BRIDGE?
 --SPIKES?
 --FOREGROUND?
-function quad:init(img, imgdata, x, y, width, height)
+function quad:init(img: any, imgdata: any, x: any, y: any, width: any, height: any)
 	--get if empty?
 
-	self.image = img
-	self.quadobj = love.graphics.newQuad((x-1)*17, (y-1)*17, 16, 16, width, height)
+	self.image = img as Image
+	local xn = x as number
+	local yn = y as number
+	local wn = width as number
+	local hn = height as number
+	self.quadobj = love.graphics.newQuad((xn-1)*17, (yn-1)*17, 16, 16, wn, hn)
 	
-	self.props = getquadprops(imgdata, x, y)
+	self.props = getquadprops(imgdata as ImageData, xn, yn)
 end
 
-function quad:getproperty(s)
+function quad:getproperty(s: any): any
 	return self.props[s]
 end
 
-function quad:quad()
+function quad:quad(): Quad
 	return self.quadobj
 end
 
-global function getquadprops(...: any): any
-	local imgdata, x, y = ...
-	local self = {}
+global function getquadprops(imgdata: ImageData, x: number, y: number): {string:any}
+	local self: {string:any} = {}
 	
 	--get collision
 	self.collision = false

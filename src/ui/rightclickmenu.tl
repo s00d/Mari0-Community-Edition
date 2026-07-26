@@ -35,7 +35,7 @@ function rightclickmenu:init(x: number, y: number, elements, tx, ty)
 	self.variables = {}
 	local actuali = 1
 	for i = 1, #self.elements do
-		local v = self.elements[i]
+		local v = self.elements[i] as RightClickVar
 		local set = false
 		local variablesadd = {}
 		if v.t == "text" then
@@ -49,7 +49,7 @@ function rightclickmenu:init(x: number, y: number, elements, tx, ty)
 		elseif v.t == "linkbutton" then
 			table.insert(self.t, guielement:new("button", self.x, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), v.value, rightclickmenu.linkcallback, nil, {nil, self, v.link, false}, nil, rightclickwidth-14))
 			table.insert(self.t, guielement:new("button", self.x+rightclickwidth-11, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), "x", rightclickmenu.linkcallback, nil, {nil, self, v.link, true}, nil, 8))
-			self.t[#self.t].textcolor = {0.8, 0, 0}
+			(self.t[#self.t] as guielement).textcolor = {0.8, 0, 0}
 			table.insert(self.variables, v)
 			
 		elseif v.t == "regionselect" then
@@ -58,27 +58,29 @@ function rightclickmenu:init(x: number, y: number, elements, tx, ty)
 			
 		elseif v.t == "scrollbar" then
 			local current = 0
-			if string.sub(map[tx][ty][actuali+2], 1, 1) == "m" then
-				current = -tonumber(string.sub(map[tx][ty][actuali+2], 2))
+			local cell = map[tx as number][ty as number][actuali+2]
+			if string.sub(cell as string, 1, 1) == "m" then
+				current = -tonumber(string.sub(cell as string, 2))
 			else
-				current = tonumber(map[tx][ty][actuali+2])
+				current = tonumber(cell as string)
 			end
 			
 			table.insert(self.t, guielement:new(v.t, self.x+1, self.y+1+(rightclickcellheight+rightclickcellspacing)*(i-1), rightclickwidth-2, 33, rightclickcellheight, current, "hor", true, v.min, v.max, v.step))
 			set = true
-			self.t[#self.t].backgroundcolor = {0, 0, 0, 1}
+			local scrollel = self.t[#self.t] as guielement
+			scrollel.backgroundcolor = {0, 0, 0, 1}
 			
 		elseif v.t == "input" then
 			local default = v.default
-			if map[tx][ty][actuali+2] then
-				default = map[tx][ty][actuali+2]
+			if map[tx as number][ty as number][actuali+2] then
+				default = map[tx as number][ty as number][actuali+2]
 			end
 			table.insert(self.t, guielement:new(v.t, self.x, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), rightclickwidth/8-5/8, nil, default, v.max))
 			set = true
 			
 		elseif v.t == "checkbox" then
 			local start = false
-			if map[tx][ty][actuali+2] == "true" then
+			if map[tx as number][ty as number][actuali+2] == "true" then
 				start = true
 			end
 			table.insert(self.t, guielement:new(v.t, self.x+1, self.y+1+(rightclickcellheight+rightclickcellspacing)*(i-1), nil, start, v.text))
@@ -108,7 +110,7 @@ function rightclickmenu:init(x: number, y: number, elements, tx, ty)
 					table.insert(dirbtns, guielement:new("button", self.x+j*12, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), "_dir" .. k, rightclickmenu.directioncallback, nil, {nil, self, #self.t+1, dir}, nil, rightclickcellheight-1))
 					j = j + 1
 					
-					if map[tx][ty][actuali+2] == dir then
+					if map[tx as number][ty as number][actuali+2] == dir then
 						dirbtns[#dirbtns].bordercolor = {1, 0, 0}
 						dirbtns[#dirbtns].bordercolorhigh = {1, 0.5, 0.5}
 						
@@ -130,7 +132,7 @@ function rightclickmenu:init(x: number, y: number, elements, tx, ty)
 				values = v.entries
 			end
 			
-			local start = map[tx][ty][actuali+2]
+			local start = map[tx as number][ty as number][actuali+2]
 			
 			if v.actualvalue then
 				for i, w in pairs(values) do
@@ -145,7 +147,7 @@ function rightclickmenu:init(x: number, y: number, elements, tx, ty)
 			end
 			
 			table.insert(self.t, guielement:new(v.t, self.x, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), 12.5, v.width or 6, values, start))
-			self.t[#self.t].actualvalue = v.actualvalue
+			(self.t[#self.t] as {string:any}).actualvalue = v.actualvalue
 			set = true
 			
 		end
@@ -161,7 +163,7 @@ function rightclickmenu:init(x: number, y: number, elements, tx, ty)
 		
 		-- Skip empty spacer entries that do not create a GUI element
 		if #self.t > 0 and self.t[#self.t] then
-			self.t[#self.t].active = true
+			(self.t[#self.t] as guielement).active = true
 		end
 	end
 end

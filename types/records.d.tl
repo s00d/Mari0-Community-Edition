@@ -881,7 +881,7 @@ global record enemy is Entity
 	quadcenterY: number
 	quadcenterx: number
 	quadcentery: number
-	quadgroup: {number:any}
+	quadgroup: {any:any}
 	quadi: number
 	reflects: number
 	removeonmariocontact: boolean
@@ -901,7 +901,7 @@ global record enemy is Entity
 	size: number
 	small: boolean
 	smallmovement: any
-	smallquad: Quad
+	smallquad: any
 	smallspeed: number
 	spawnallow: boolean
 	spawnedenemies: {any}
@@ -1591,7 +1591,7 @@ global record mario is Entity
 	category: number
 	char: Character
 	climbframe: number
-	colors: any
+	colors: {any}
 	combo: number
 	controlsenabled: boolean
 	customscale: number
@@ -1609,7 +1609,7 @@ global record mario is Entity
 	graphic: any
 	gravity: number
 	gravitydirection: number
-	hats: any
+	hats: {any}
 	height: number
 	infunnel: boolean
 	invincible: boolean
@@ -1632,7 +1632,7 @@ global record mario is Entity
 	portal: any
 	portal1color: {number}
 	portal2color: {number}
-	portalsavailable: {number:boolean}
+	portalsavailable: {boolean}
 	previouslyonground: boolean
 	quad: any
 	quadcenterX: number
@@ -1979,17 +1979,17 @@ global record portal is Entity
 	category: number
 	mask: {boolean}
 	animationtimer: number
-	facing1: string|boolean
-	facing2: string|boolean
+	facing1: any
+	facing2: any
 	number: number
 	openscale: {number}
 	portal1color: {number}
 	portal2color: {number}
 	portalframe: number
-	x1: number|boolean
-	x2: number|boolean
-	y1: number|boolean
-	y2: number|boolean
+	x1: any
+	x2: any
+	y1: any
+	y2: any
 	init: function(portal, any, any, any)
 	createportal: function(portal, number, any, any, any, any)
 	removeportal: function(portal, number)
@@ -2181,9 +2181,9 @@ global record quad is {any}
 	slantupleft: number
 	slantupright: number
 	water: number
-	init: function(quad, number, number, any, any, any, any)
-	getproperty: function(quad, any)
-	quad: function(quad)
+	init: function(quad, any, any, any, any, any, any)
+	getproperty: function(quad, any): any
+	quad: function(quad): Quad
 	new: function(quad, any, any, any, any, any, any): quad
 end
 
@@ -2255,15 +2255,26 @@ global record regiontrigger is Entity
 	new: function(regiontrigger, number, number, {any}): regiontrigger
 end
 
-global record RightClickVar
+global record RightClickVar is {any}
 	value: any
+	t: any
+	link: any
+	entries: {any}
+	max: any
+	min: any
+	step: any
+	actualvalue: any
+	width: any
+	region: any
+	default: any
+	text: any
 end
 
 global record rightclickmenu is {any}
 	elements: {any}
-	t: {RightClickVar}
-	tx: number
-	ty: number
+	t: {any}
+	tx: any
+	ty: any
 	variables: {RightClickVar}
 	x: number
 	y: number

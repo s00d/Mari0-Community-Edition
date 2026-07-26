@@ -90,7 +90,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 		self.height = 24/16
 		
 		if self.size == 3 then
-			self.colors = self.char.flowercolor or flowercolor as any
+			self.colors = self.char.flowercolor or flowercolor as {any}
 		end
 	end
 	
@@ -183,7 +183,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	self.bubbletimer = 0
 	self.bubbletime = bubblestime[math.random(#bubblestime)]
 	
-	self.underwater = underwater
+	self.underwater = underwater as boolean
 	if self.underwater then
 		self:dive(true)
 	end
@@ -207,7 +207,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 		self.animationx = x
 		self.animationy = y
 		self.customscissor = {x-2.5, y-4, 6, 4}
-		self.y = self.animationy + 20/16
+		self.y = (self.animationy as number) + 20/16
 		
 		self.animationstate = "idle"
 		self:setquad()
@@ -217,7 +217,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 		end
 		
 		if arcade and not arcadeplaying[self.playernumber] then
-			self.y = self.animationy + 20/16 - pipeanimationdistancedown
+			self.y = (self.animationy as number) + 20/16 - pipeanimationdistancedown
 			self.animation = false as any
 		end
 	elseif self.animation == "intermission" then
@@ -367,8 +367,8 @@ function mario:update_raccoon_effects(dt: number)
 		self.raccoonspintimer = self.raccoonspintimer + dt
 		while self.raccoonspintimer > raccoonspindelay and self.raccoonspinframe do
 			self.raccoonspintimer = self.raccoonspintimer - raccoonspindelay
-			self.raccoonspinframe = self.raccoonspinframe + 1
-			if self.raccoonspinframe >= 4 then
+			self.raccoonspinframe = (self.raccoonspinframe as number) + 1
+			if (self.raccoonspinframe as number) >= 4 then
 				self.raccoonspinframe = false
 			end
 		end
@@ -412,7 +412,7 @@ function mario:update_star(dt: number)
 		
 		if self.startimer >= mariostarduration then
 			if self.size == 3 then --flower colors
-				self.colors = self.char.flowercolor or flowercolor as any
+				self.colors = self.char.flowercolor or flowercolor as {any}
 			else
 				self.colors = mariocolors[self.playernumber as integer]
 			end
@@ -436,9 +436,9 @@ function mario:update_animation(dt: number): any
 	elseif self.animation == "pipedown" and self.animationy and self.animationx then
 		self.animationtimer = self.animationtimer + dt
 		if self.animationtimer < pipeanimationtime then
-			self.y = self.animationy - 28/16 + self.animationtimer/pipeanimationtime*pipeanimationdistancedown
+			self.y = (self.animationy as number) - 28/16 + self.animationtimer/pipeanimationtime*pipeanimationdistancedown
 		else
-			self.y = self.animationy - 28/16 + pipeanimationdistancedown
+			self.y = (self.animationy as number) - 28/16 + pipeanimationdistancedown
 			
 			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
 				updatesizes()
@@ -455,9 +455,9 @@ function mario:update_animation(dt: number): any
 		if self.animationtimer < pipeupdelay then
 		
 		elseif self.animationtimer < pipeanimationtime+pipeupdelay then
-			self.y = self.animationy + 20/16 - (self.animationtimer-pipeupdelay)/pipeanimationtime*pipeanimationdistancedown
+			self.y = (self.animationy as number) + 20/16 - (self.animationtimer-pipeupdelay)/pipeanimationtime*pipeanimationdistancedown
 		else
-			self.y = self.animationy + 20/16 - pipeanimationdistancedown
+			self.y = (self.animationy as number) + 20/16 - pipeanimationdistancedown
 			
 			if self.animationtimer >= pipeanimationtime then
 				self.active = true
@@ -470,7 +470,7 @@ function mario:update_animation(dt: number): any
 	elseif self.animation == "piperight" and self.animationy and self.animationx then
 		self.animationtimer = self.animationtimer + dt
 		if self.animationtimer < pipeanimationtime then
-			self.x = self.animationx - 28/16 + self.animationtimer/pipeanimationtime*pipeanimationdistanceright
+			self.x = (self.animationx as number) - 28/16 + self.animationtimer/pipeanimationtime*pipeanimationdistanceright
 			
 			--Run animation
 			if self.animationstate == "running" then
@@ -478,7 +478,7 @@ function mario:update_animation(dt: number): any
 			end
 			self:setquad()
 		else
-			self.x = self.animationx - 28/16 + pipeanimationdistanceright
+			self.x = (self.animationx as number) - 28/16 + pipeanimationdistanceright
 			
 			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
 				updatesizes()
@@ -910,7 +910,7 @@ function mario:update_animation(dt: number): any
 			self.animation = false as any
 			noupdate = false
 			self.animationtimer = 0
-			self.colors = self.char.flowercolor or flowercolor as any
+			self.colors = self.char.flowercolor or flowercolor as {any}
 		end
 		return true
 	end
@@ -1862,13 +1862,13 @@ function mario:underwatermovement(dt: number)
 end
 
 function mario:setquad(anim: any, s: any)
-	local angleframe: any
+	local angleframe: number
 	if self.char.nopointing then
 		angleframe = 1
 	elseif not self.portalsavailable[1] and not self.portalsavailable[2] and not self.char.nogunanimations then
 		angleframe = 3
 	else
-		angleframe = getAngleFrame(self.pointingangle, self.rotation) or 1
+		angleframe = (getAngleFrame(self.pointingangle, self.rotation) or 1) as number
 	end
 	
 	local animationstate = anim or self.animationstate
@@ -1897,9 +1897,9 @@ function mario:setquad(anim: any, s: any)
 			self.quad = self.char.bigcustomframe[angleframe][self.tailwagframe+9]
 		elseif self.char.raccoon and self.raccoonspinframe then
 			if self.falling or self.jumping then
-				self.quad = self.char.bigcustomframe[angleframe][self.raccoonspinframe+12]
+				self.quad = self.char.bigcustomframe[angleframe][(self.raccoonspinframe as number)+12]
 			else
-				self.quad = self.char.bigcustomframe[angleframe][self.raccoonspinframe]
+				self.quad = self.char.bigcustomframe[angleframe][self.raccoonspinframe as number]
 			end
 		elseif self.char.raccoon and (animationstate ~= "climbing" and not self.ducking and self.falling and not self.jumping) then
 			self.quad = self.char.bigcustomframe[angleframe][self.tailwagframe+3]
@@ -2068,7 +2068,7 @@ function mario:grow(): any
 			self.y = self.y - 12/16
 			self.height = 24/16
 		elseif self.size == 3 then
-			self.colors = self.char.flowercolor or flowercolor as any
+			self.colors = self.char.flowercolor or flowercolor as {any}
 		end
 		
 		if self.size == 2 then
@@ -3544,9 +3544,9 @@ function mario:pipe(x: number, y: number, dir: any, i: any): any
 		self.customscissor = {x-4, y-3, 6, 2}
 	else
 		if self.size == 1 then
-			self.y = self.animationy-1/16 - self.height
+			self.y = (self.animationy as number)-1/16 - self.height
 		else
-			self.y = self.animationy-1/16 - self.height
+			self.y = (self.animationy as number)-1/16 - self.height
 		end
 		self.animationstate = "running"
 		self.customscissor = {x-2, y-5, 1, 6}

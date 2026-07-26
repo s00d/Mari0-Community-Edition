@@ -56,8 +56,8 @@ global interface Entity is {any}
 	quad: any
 	graphic: any
 	biggraphic: any
-	colors: any
-	hats: any
+	colors: {any}
+	hats: {any}
 	char: any
 	animationdirection: any
 	animationstate: any
@@ -74,7 +74,7 @@ global interface Entity is {any}
 	drawhat: boolean
 	pointingangle: number
 	controlsenabled: boolean
-	portalsavailable: {number:boolean}
+	portalsavailable: {boolean}
 	portalgundisabled: boolean
 	disableaiming: boolean
 	vine: Entity|boolean

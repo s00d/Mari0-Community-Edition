@@ -923,15 +923,16 @@ end
 
 function enemy:decodearg(arg: any): any
 	if type(arg) == "table" then
-		if not (arg[1] and arg[2]) then return end
+		local a = arg as {any}
+		if not (a[1] and a[2]) then return end
 		
-		if arg[1] == "global" then
-			return _G[arg[2]] or false
-		elseif arg[1] == "self" then
-			return (self as {string:any})[arg[2] as string]
-		elseif arg[1] == "concat" then
-			if not arg[3] then return end
-			return (self:decodearg(arg[2]) .. self:decodearg(arg[3]))
+		if a[1] == "global" then
+			return _G[a[2] as string] or false
+		elseif a[1] == "self" then
+			return (self as {string:any})[a[2] as string]
+		elseif a[1] == "concat" then
+			if not a[3] then return end
+			return (self:decodearg(a[2]) .. self:decodearg(a[3]))
 		end
 	else
 		return arg
@@ -941,29 +942,40 @@ end
 function enemy:customtimeraction(action: any, arg: any): any
 	local bag = self as {string:any}
 	if type(action) == "table" then --compound action
+		local act = action as {any}
+		local args = (arg as {any}) or {}
 	
-		realaction = action[1] or false
-		action[2] = self:decodearg(action[2]) --decode argument
-		action[3] = self:decodearg(action[3])
+		realaction = act[1] or false
+		act[2] = self:decodearg(act[2]) --decode argument
+		act[3] = self:decodearg(act[3])
 		
-		if string.sub(realaction, -4, -1) == "than" then
-			if not (action[2] and action[3]) then return end
-			if globintCH(action[2],  string.sub(realaction, 1, -5), action[3]) then --coding practice, using string.sub the same way Maurice did
-				self:customtimeraction(arg[1][1], arg[1][2])
+		if string.sub(realaction as string, -4, -1) == "than" then
+			if not (act[2] and act[3]) then return end
+			if globintCH(act[2],  string.sub(realaction as string, 1, -5), act[3]) then --coding practice, using string.sub the same way Maurice did
+				local a1 = args[1] as {any}
+				local a2 = args[2] as {any}
+				self:customtimeraction(a1[1], a1[2])
 			else
-				self:customtimeraction(arg[2][1], arg[2][2])
+				local a1 = args[1] as {any}
+				local a2 = args[2] as {any}
+				self:customtimeraction(a2[1], a2[2])
 			end
 		elseif realaction == "istrue" then
-			print(globools[action[2]])
-			if globools[action[2]] then
-				self:customtimeraction(arg[1][1], arg[1][2])
+			print(globools[act[2]])
+			if globools[act[2]] then
+				local a1 = args[1] as {any}
+				local a2 = args[2] as {any}
+				self:customtimeraction(a1[1], a1[2])
 			else
-				self:customtimeraction(arg[2][1], arg[2][2])
+				local a1 = args[1] as {any}
+				local a2 = args[2] as {any}
+				self:customtimeraction(a2[1], a2[2])
 			end
 		elseif realaction == "simultaneous" then
-			table.remove(action, 1)
-			for i, v in pairs(action) do
-				self:customtimeraction(v[1],v[2])
+			table.remove(act, 1)
+			for i, v in pairs(act) do
+				local vv = v as {any}
+				self:customtimeraction(vv[1], vv[2])
 			end
 		end
 	else

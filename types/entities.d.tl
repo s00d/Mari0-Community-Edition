@@ -98,24 +98,24 @@ global record Character is {any}
 	colorables: {any}
 	hatoffsets: any
 	bighatoffsets: any
-	idle: {any}
-	run: {any}
-	slide: {any}
-	jump: {any}
-	die: {any}
-	climb: {any}
-	swim: {any}
-	grow: {any}
-	customframe: {any}
-	bigidle: {any}
-	bigrun: {any}
-	bigslide: {any}
-	bigjump: {any}
-	bigfire: {any}
-	bigclimb: {any}
-	bigswim: {any}
-	bigduck: {any}
-	bigcustomframe: {any}
+	idle: {any:any}
+	run: {any:any}
+	slide: {any:any}
+	jump: {any:any}
+	die: {any:any}
+	climb: {any:any}
+	swim: {any:any}
+	grow: {any:any}
+	customframe: {any:any}
+	bigidle: {any:any}
+	bigrun: {any:any}
+	bigslide: {any:any}
+	bigjump: {any:any}
+	bigfire: {any:any}
+	bigclimb: {any:any}
+	bigswim: {any:any}
+	bigduck: {any:any}
+	bigcustomframe: {any:any}
 end
 
 -- Tile atlas entry (world.quad / tilequads[i]).
