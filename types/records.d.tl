@@ -1,0 +1,2732 @@
+-- Ambient class records (Teal handbook). Implementations live in src/**/*.tl.
+-- Required from types/game.d.tl so every module sees constructors / self types.
+
+global record actionblock is Entity
+	active: boolean
+	category: number
+	cox: number
+	coy: number
+	height: number
+	mask: {boolean}
+	outtable: {any}
+	speedx: number
+	speedy: number
+	state: string
+	static: boolean
+	timer: number
+	width: number
+	x: number
+	y: number
+	init: function(actionblock, number, number)
+	addoutput: function(actionblock, any, any)
+	update: function(actionblock, number): any
+	draw: function(actionblock)
+	floorcollide: function(actionblock, any, Entity, any, any): any
+	out: function(actionblock, any)
+	new: function(actionblock, number, number): actionblock
+end
+
+global record andgate is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	cox: number
+	coy: number
+	initial: boolean
+	inputstate: {any}
+	outputstate: any
+	outtable: {any}
+	r: {any}
+	visible: boolean
+	x: number
+	y: number
+	init: function(andgate, number, number, any)
+	link: function(andgate)
+	addoutput: function(andgate, any, any)
+	update: function(andgate, number): any
+	draw: function(andgate)
+	out: function(andgate, any)
+	input: function(andgate, any, any)
+	new: function(andgate, number, number, {any}): andgate
+end
+
+global record animatedbooltimer is {any}
+	boolcheck: number
+	delays: any
+	dir: string
+	frametimes: any
+	length: number
+	oldbool: number
+	quadi: number
+	quadobj: Quad
+	timer: number
+	x: number
+	y: number
+	init: function(animatedbooltimer, number, number, any)
+	update: function(animatedbooltimer, number): any
+	input: function(animatedbooltimer, any)
+	geti: function(animatedbooltimer)
+	new: function(animatedbooltimer, number, number, any): animatedbooltimer
+end
+
+global record animatedquad is {any}
+	boolean: number
+	boolid: number
+	cache: any
+	delays: any
+	image: Image
+	imagedata: any
+	number: number
+	portalable: boolean
+	properties: any
+	props: any
+	quadi: number
+	quadlist: any
+	spikes: any
+	timer: number
+	triggered: boolean
+	init: function(animatedquad, number, number, any)
+	updateproperties: function(animatedquad)
+	update: function(animatedquad, number): any
+	quad: function(animatedquad, any, any): any
+	getproperty: function(animatedquad, any, any, any): any
+	new: function(animatedquad, any, any, any): animatedquad
+end
+
+global record animatedtiletrigger is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	r: {any}
+	regionX: number
+	regionY: number
+	regionheight: number
+	regionwidth: number
+	visible: boolean
+	x: number
+	y: number
+	init: function(animatedtiletrigger, number, number, any)
+	link: function(animatedtiletrigger)
+	update: function(animatedtiletrigger): any
+	draw: function(animatedtiletrigger)
+	input: function(animatedtiletrigger, any, any)
+	new: function(animatedtiletrigger, number, number, {any}): animatedtiletrigger
+end
+
+global record animatedtimer is {any}
+	delays: any
+	dir: string
+	frametimes: any
+	length: number
+	quadi: number
+	quadobj: Quad
+	timer: number
+	x: number
+	y: number
+	init: function(animatedtimer, number, number, any)
+	update: function(animatedtimer, number): any
+	input: function(animatedtimer, any)
+	geti: function(animatedtimer)
+	new: function(animatedtimer, number, number, any): animatedtimer
+end
+
+global record animation is {any}
+	actions: {any}
+	conditions: {any}
+	currentaction: number
+	enabled: boolean
+	filepath: string
+	firstupdate: boolean
+	name: string
+	raw: any
+	running: boolean
+	sleep: number
+	timer: number
+	triggers: {any}
+	init: function(animation, any, any)
+	decode: function(animation, any)
+	addtrigger: function(animation, any)
+	addcondition: function(animation, any)
+	addaction: function(animation, any)
+	update: function(animation, number): any
+	trigger: function(animation)
+	draw: function(animation)
+	decodenuminput: function(animation, any)
+	new: function(animation, any, any): animation
+end
+
+global record animationguielement
+	gui: guielement
+	width: number
+	t: string
+	value: any
+	default: any
+end
+
+global record animationguiline is {any}
+	deletebutton: guielement
+	downbutton: guielement
+	elements: {animationguielement}
+	t: string
+	type: string
+	upbutton: guielement
+	init: function(animationguiline, number, number)
+	update: function(animationguiline, number): any
+	draw: function(animationguiline, any, any)
+	click: function(animationguiline, any, any, any)
+	unclick: function(animationguiline, any, any, any)
+	delete: function(animationguiline)
+	moveup: function(animationguiline)
+	movedown: function(animationguiline)
+	keypressed: function(animationguiline, any)
+	textinput: function(animationguiline, any)
+	changemainthing: function(animationguiline, any)
+	submenuchange: function(animationguiline, any, any)
+	haspriority: function(animationguiline)
+	new: function(animationguiline, any, any): animationguiline
+end
+
+global record animationtrigger is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	draw: function(animationtrigger)
+	update: function(animationtrigger, number): any
+	cox: number
+	coy: number
+	id: number
+	r: {any}
+	x: number
+	y: number
+	init: function(animationtrigger, number, number, any)
+	link: function(animationtrigger)
+	input: function(animationtrigger, any, any)
+	new: function(animationtrigger, number, number, {any}): animationtrigger
+end
+
+global record blockdebris is Entity
+	width: number
+	height: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	frame: number
+	speedx: number
+	speedy: number
+	timer: number
+	x: number
+	y: number
+	init: function(blockdebris, number, number, any, any)
+	update: function(blockdebris, number): any
+	draw: function(blockdebris)
+	new: function(blockdebris, number, number, any, any): blockdebris
+end
+
+global record bowser is Entity
+	active: boolean
+	animationdirection: string
+	animationtimer: number
+	backwards: boolean
+	category: number
+	direction: string
+	drawable: boolean
+	emancipatecheck: boolean
+	fall: number
+	fireframe: number
+	graphic: Image
+	gravity: number
+	gravitydirection: number
+	hammers: number
+	hammertime: number
+	hammertimer: number
+	height: number
+	hp: number
+	jump: boolean
+	level: number
+	mask: {boolean}
+	offsetX: number
+	offsetY: number
+	quad: Quad
+	quadcenterX: number
+	quadcenterY: number
+	rotation: number
+	shot: boolean
+	speedx: number
+	speedy: number
+	startx: number
+	starty: number
+	static: boolean
+	targetx: number
+	timer: number
+	walkframe: number
+	width: number
+	x: number
+	y: number
+	init: function(bowser, number, number, any)
+	update: function(bowser, number): any
+	draw: function(bowser)
+	newtargetx: function(bowser, any)
+	shotted: function(bowser, any)
+	firedeath: function(bowser)
+	leftcollide: function(bowser, any, Entity): any
+	rightcollide: function(bowser, any, Entity): any
+	ceilcollide: function(bowser, any, Entity): any
+	startfall: function(bowser)
+	floorcollide: function(bowser, any, Entity): any
+	startfall: function(bowser)
+	emancipate: function(bowser, any)
+	new: function(bowser, number, number, any): bowser
+end
+
+global record box is Entity
+	draw: function(box)
+	active: boolean
+	category: number
+	cox: number
+	coy: number
+	destroying: boolean
+	drawable: boolean
+	emancipatecheck: boolean
+	falling: boolean
+	funnel: boolean
+	graphic: Image
+	gravity: number
+	gravitydirection: number
+	height: number
+	infunnel: boolean
+	jumping: boolean
+	mask: {boolean}
+	offsetX: number
+	offsetY: number
+	outtable: {any}
+	parent: any
+	portaledframe: boolean
+	portaloverride: boolean
+	pushed: boolean
+	quad: Quad
+	quadcenterX: number
+	quadcenterY: number
+	rotation: number
+	speedx: number
+	speedy: number
+	static: boolean
+	userect: number
+	width: number
+	x: number
+	y: number
+	init: function(box, number, number)
+	update: function(box, number): any
+	globalcollide: function(box, any, Entity, any, any, any): any
+	ceilcollide: function(box, any, Entity): any
+	leftcollide: function(box, any, Entity): any
+	rightcollide: function(box, any, Entity): any
+	floorcollide: function(box, any, Entity): any
+	passivecollide: function(box, any, Entity): any
+	startfall: function(box)
+	emancipate: function(box)
+	destroy: function(box)
+	addoutput: function(box, any, any)
+	used: function(box, any)
+	dropped: function(box)
+	portaled: function(box)
+	enteredfunnel: function(box, any)
+	faithplate: function(box, any)
+	onbutton: function(box, any)
+	new: function(box, number, number): box
+end
+
+global record bubble is Entity
+	width: number
+	height: number
+	speedx: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	speedy: number
+	x: number
+	y: number
+	init: function(bubble, number, number)
+	update: function(bubble, number): any
+	draw: function(bubble)
+	new: function(bubble, number, number): bubble
+end
+
+global record bulletbill is Entity
+	draw: function(bulletbill)
+	active: boolean
+	animationdirection: string
+	autodelete: boolean
+	category: number
+	customscissor: any
+	direction: string
+	drawable: boolean
+	graphic: Image
+	gravity: number
+	height: number
+	id: number
+	killstuff: number
+	mask: {boolean}
+	offsetX: number
+	offsetY: number
+	quad: Quad
+	quadcenterX: number
+	quadcenterY: number
+	rotation: number
+	shot: boolean
+	speedx: number
+	speedy: number
+	startx: number
+	static: boolean
+	time: number
+	timer: number
+	width: number
+	x: number
+	y: number
+	init: function(bulletbill, number, number, any)
+	update: function(bulletbill, number): any
+	stomp: function(bulletbill, any)
+	shotted: function(bulletbill, any)
+	rightcollide: function(bulletbill, any, Entity): any
+	leftcollide: function(bulletbill, any, Entity): any
+	ceilcollide: function(bulletbill, any, Entity): any
+	floorcollide: function(bulletbill, any, Entity): any
+	globalcollide: function(bulletbill, any, Entity): any
+	portaled: function(bulletbill)
+	new: function(bulletbill, number, number, any): bulletbill
+end
+
+global record button is Entity
+	speedx: number
+	speedy: number
+	active: boolean
+	category: number
+	cox: number
+	coy: number
+	dir: string
+	drawable: boolean
+	height: number
+	input1state: number
+	mask: {boolean}
+	objtable: {any}
+	out: boolean
+	outtable: {any}
+	pressings: number
+	r: {any}
+	static: boolean
+	width: number
+	x: number
+	y: number
+	init: function(button, number, number, any)
+	update: function(button, number): any
+	draw: function(button)
+	addoutput: function(button, any, any)
+	new: function(button, number, number, {any}): button
+end
+
+global record camera is {any}
+	x: number
+	y: number
+	scale: number
+	rot: number
+	init: function(camera, number|nil, number|nil, number|nil, number|nil)
+	new: function(camera, number|nil, number|nil, number|nil, number|nil): camera
+	lookAt: function(camera, number, number): camera
+	move: function(camera, number, number): camera
+	pos: function(camera): number, number
+	rotate: function(camera, number): camera
+	rotateTo: function(camera, number): camera
+	zoom: function(camera, number): camera
+	zoomTo: function(camera, number): camera
+	attach: function(camera)
+	detach: function(camera)
+	draw: function(camera, function())
+	cameraCoords: function(camera, number, number): number, number
+	worldCoords: function(camera, number, number): number, number
+	mousepos: function(camera): number, number
+end
+
+global record castlefire is Entity
+	speedx: number
+	speedy: number
+	draw: function(castlefire)
+	active: boolean
+	angle: number
+	category: number
+	child: number
+	delay: number
+	dir: string
+	drawable: boolean
+	graphic: Image
+	height: number
+	kills: boolean
+	length: number
+	mask: {boolean}
+	offsetX: number
+	offsetY: number
+	quad: Quad
+	quadcenterX: number
+	quadcenterY: number
+	quadi: number
+	r: {any}
+	static: boolean
+	timer: number
+	timer2: number
+	width: number
+	x: number
+	y: number
+	init: function(castlefire, number, number, any)
+	update: function(castlefire, number): any
+	updatepos: function(castlefire)
+	updatequad: function(castlefire)
+	new: function(castlefire, number, number, {any}): castlefire
+end
+
+global record castlefirefire is Entity
+	speedx: number
+	speedy: number
+	draw: function(castlefirefire)
+	update: function(castlefirefire, number): any
+	active: boolean
+	angle: number
+	category: number
+	child: number
+	delay: number
+	dir: string
+	drawable: boolean
+	graphic: Image
+	height: number
+	kills: boolean
+	length: number
+	mask: {boolean}
+	offsetX: number
+	offsetY: number
+	quad: Quad
+	quadcenterX: number
+	quadcenterY: number
+	quadi: number
+	r: {any}
+	static: boolean
+	timer: number
+	timer2: number
+	width: number
+	x: number
+	y: number
+	init: function(castlefirefire)
+	new: function(castlefirefire): castlefirefire
+end
+
+global record ceilblocker is Entity
+	speedx: number
+	speedy: number
+	category: number
+	mask: {boolean}
+	draw: function(ceilblocker)
+	update: function(ceilblocker, number): any
+	active: boolean
+	height: number
+	static: boolean
+	width: number
+	x: number
+	y: number
+	init: function(ceilblocker, any)
+	new: function(ceilblocker, any): ceilblocker
+end
+
+global record checkpoint is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	draw: function(checkpoint)
+	all: number
+	cox: number
+	coy: number
+	input1state: number
+	p: number
+	r: {any}
+	regionX: number
+	regionY: number
+	regionheight: number
+	regionwidth: number
+	rest: number
+	visible: boolean
+	x: number
+	y: number
+	init: function(checkpoint, number, number, any)
+	update: function(checkpoint): any
+	link: function(checkpoint)
+	input: function(checkpoint, any, any)
+	trigger: function(checkpoint)
+	new: function(checkpoint, number, number, {any}): checkpoint
+end
+
+global record coinblockanimation is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	draw: function(coinblockanimation)
+	frame: number
+	timer: number
+	x: number
+	y: number
+	init: function(coinblockanimation, number, number)
+	update: function(coinblockanimation, number): any
+	new: function(coinblockanimation, number, number): coinblockanimation
+end
+
+global record cubedispenser is Entity
+	active: boolean
+	box: number
+	boxexists: boolean
+	category: number
+	cox: number
+	coy: number
+	height: number
+	input1state: number
+	inputactive: boolean
+	mask: {boolean}
+	r: {any}
+	spawnondestroy: number
+	speedx: number
+	speedy: number
+	static: boolean
+	t: string
+	timer: number
+	width: number
+	x: number
+	y: number
+	init: function(cubedispenser, number, number, any)
+	input: function(cubedispenser, any, any)
+	link: function(cubedispenser)
+	update: function(cubedispenser, number): any
+	draw: function(cubedispenser)
+	removebox: function(cubedispenser)
+	new: function(cubedispenser, number, number, {any}): cubedispenser
+end
+
+global record delayer is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	cox: number
+	coy: number
+	delay: number
+	outtable: {any}
+	r: {any}
+	timers: number
+	visible: boolean
+	x: number
+	y: number
+	init: function(delayer, number, number, any)
+	link: function(delayer)
+	addoutput: function(delayer, any, any)
+	update: function(delayer, number): any
+	draw: function(delayer)
+	out: function(delayer, any)
+	input: function(delayer, any, any)
+	new: function(delayer, number, number, {any}): delayer
+end
+
+global record dialogbox is {any}
+	chardelay: number
+	chartimer: number
+	color: {number}
+	curchar: number
+	hasaprefix: boolean
+	lifetime: number
+	speaker: number
+	text: string
+	textcolors: {any}
+	textsplit: number
+	timer: number
+	init: function(dialogbox, number, number)
+	update: function(dialogbox, number): any
+	draw: function(dialogbox)
+	new: function(dialogbox, any, any): dialogbox
+end
+
+global record door is Entity
+	speedx: number
+	speedy: number
+	active: boolean
+	category: number
+	cox: number
+	coy: number
+	dir: string
+	drawable: boolean
+	firstupdate: boolean
+	forceclose: number
+	height: number
+	input1state: number
+	mask: {boolean}
+	open: boolean
+	r: {any}
+	static: boolean
+	targetopen: boolean
+	timer: number
+	width: number
+	x: number
+	y: number
+	init: function(door, number, number, any)
+	link: function(door)
+	update: function(door, number): any
+	draw: function(door)
+	pushstuff: function(door)
+	input: function(door, any, any)
+	closeopen: function(door, any)
+	new: function(door, number, number, {any}): door
+end
+
+global record emancipateanimation is Entity
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	height: number
+	img: Image
+	offsetX: number
+	offsetY: number
+	quad: Quad
+	quadcenterX: number
+	quadcenterY: number
+	rotation: number
+	rotationspeed: number
+	speedx: number
+	speedy: number
+	timer: number
+	timer2: number
+	width: number
+	x: number
+	y: number
+	init: function(emancipateanimation, number, number, any, any, any, any, any, any, any, any, any, any, any)
+	update: function(emancipateanimation, number): any
+	draw: function(emancipateanimation)
+	new: function(emancipateanimation, number, number, any, any, any, any, any, any, any, any, any, any, any): emancipateanimation
+end
+
+global record emancipationfizzle is Entity
+	width: number
+	height: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	r: {any}
+	rotspeed: number
+	speedx: number
+	speedy: number
+	timer: number
+	x: number
+	y: number
+	init: function(emancipationfizzle, number, number, any, any)
+	update: function(emancipationfizzle, number): any
+	draw: function(emancipationfizzle)
+	new: function(emancipationfizzle, number, number, any, any): emancipationfizzle
+end
+
+global record emancipationgrill is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	static: boolean
+	category: number
+	mask: {boolean}
+	active: boolean
+	destroy: boolean
+	dir: string
+	endx: number
+	endy: number
+	inputstate: {any}
+	involvedtiles: number
+	particles: {any}
+	r: {any}
+	range: number
+	startx: number
+	starty: number
+	thickness: number
+	x: number
+	y: number
+	init: function(emancipationgrill, number, number, any)
+	link: function(emancipationgrill)
+	update: function(emancipationgrill, number): any
+	draw: function(emancipationgrill)
+	getTileInvolved: function(emancipationgrill, any, any)
+	input: function(emancipationgrill, any, any)
+	new: function(emancipationgrill, number, number, {any}): emancipationgrill
+end
+
+global record enemy is Entity
+	category: number
+	draw: function(enemy)
+	a: {any}
+	active: boolean
+	animationdirection: string
+	animationframes: number
+	animationspeed: number
+	animationstart: number
+	animationtimer: number
+	animationtype: string
+	bounceforce: number
+	bounces: number
+	breakblockside: number
+	breaksblocks: number
+	chasemarioonwakeup: number
+	chasespeed: number
+	chasetime: number
+	chasetimer: number
+	combo: number
+	currentcustomtimerstage: number
+	customscissor: any
+	customtimer: any
+	customtimertimer: number
+	dead: boolean
+	deathtimer: number
+	direction: string
+	distancetime: number
+	doesntflyawayonfireball: number
+	doesntunrotate: number
+	dontactuallytransform: number
+	dontmirror: number
+	dontpistondist: number
+	dontpistonnearplayer: number
+	downy: number
+	drawable: boolean
+	facesplayer: number
+	falling: boolean
+	fallswhenstomped: number
+	firstanimationtype: number
+	firstmovement: number
+	flyingdistance: number
+	flyingtime: number
+	flyingtimer: number
+	followspace: number
+	followspeed: number
+	funnel: boolean
+	givecoinwhenshot: boolean
+	givecoinwhenstomped: number
+	graphic: Image
+	gravity: number
+	gravitydirection: number
+	health: number
+	height: number
+	inactiveonretracted: number
+	infunnel: boolean
+	jumpforce: number
+	jumpforcedown: number
+	jumping: boolean
+	jumpingy: number
+	jumps: number
+	jumptime: number
+	jumptimer: number
+	kickedupsidedown: boolean
+	kill: boolean
+	killsenemies: boolean
+	killsenemiesafterportal: number
+	laserresistant: number
+	lifetime: number
+	lifetimer: number
+	mask: {boolean}
+	movement: string
+	movementrandoms: {any}
+	nocollidestops: number
+	nofollowspeedup: number
+	offsetX: number
+	offsetY: number
+	offsetx: number
+	offsety: number
+	outtable: {any}
+	pistondistx: number
+	pistondisty: number
+	pistonextendtime: number
+	pistonretracttime: number
+	pistonspeedx: number
+	pistonspeedy: number
+	pistonstate: number
+	pistontimer: number
+	playerneardist: number
+	quad: Quad
+	quadcenterX: number
+	quadcenterY: number
+	quadcenterx: number
+	quadcentery: number
+	quadgroup: {any}
+	quadi: number
+	reflects: number
+	removeonmariocontact: boolean
+	resettime: number
+	resettimer: number
+	resistsfire: number
+	resistsspikes: any
+	resistsstar: boolean
+	rocketdistance: number
+	rotatetowardsplayer: number
+	rotation: number
+	shellanimal: boolean
+	shot: boolean
+	shothealth: number
+	shotjumpforce: number
+	shotspeedx: number
+	size: number
+	small: boolean
+	smallmovement: number
+	smallquad: Quad
+	smallspeed: number
+	spawnallow: boolean
+	spawnedenemies: number
+	spawnenemydelay: number
+	spawnenemydelays: any
+	spawnenemyoffsetx: number
+	spawnenemyoffsety: number
+	spawnenemyspeed: number
+	spawnenemyspeedx: number
+	spawnenemyspeedxrandomend: number
+	spawnenemyspeedxrandomstart: number
+	spawnenemyspeedxtowardsplayer: number
+	spawnenemyspeedy: number
+	spawnenemyspeedyrandomend: number
+	spawnenemyspeedyrandomstart: number
+	spawnenemytimer: number
+	spawnenemytowardsplayer: number
+	spawner: number
+	spawnmax: number
+	spawnoffsetx: number
+	spawnoffsety: number
+	spawnonlyonextended: boolean
+	spawnsenemy: string
+	spawnsenemyrandoms: number
+	spawnsound: string
+	speedx: number
+	speedxtowardsplayer: number
+	speedy: number
+	squidacceleration: number
+	squiddowndistance: number
+	squidfallspeed: number
+	squidhordistance: number
+	squidstate: number
+	squidupspeed: number
+	squidxspeed: number
+	startgravity: number
+	startoffsetY: number
+	startquadcenterY: number
+	starttowardsplayerhorizontal: boolean
+	startx: number
+	starty: number
+	static: boolean
+	staticifnotseen: number
+	staticifseen: number
+	stompable: boolean
+	stompanimation: boolean
+	stompedframe: number
+	stomphealth: number
+	t: string
+	targety: number
+	targetyspeed: number
+	throwanimationstate: number
+	throwpreparetime: number
+	throwquadoffset: number
+	transformpassedparameters: number
+	transforms: boolean
+	transformsinto: string
+	transformsintorandoms: number
+	transformsoffsetx: number
+	transformsoffsety: number
+	transformtrigger: string
+	transformtriggerenemycollide: number
+	transformtriggerobjectcollide: number
+	transfoutaction: number
+	transfoutid: number
+	transfoutvalue: number
+	truffleshuffleacceleration: number
+	truffleshufflespeed: number
+	turnaroundoncliff: number
+	upsidedown: boolean
+	upx: number
+	verticalwiggledistance: number
+	verticalwigglespeed: number
+	wakesup: number
+	width: number
+	wiggledelay: number
+	wiggledistance: number
+	wiggleleft: boolean
+	wigglespeed: number
+	wiggletime: number
+	wiggletimer: number
+	x: number
+	y: number
+	init: function(enemy, number, number, any, any)
+	update: function(enemy, number): any
+	addoutput: function(enemy, any, any)
+	shotted: function(enemy, any, any, any, any, any)
+	decodearg: function(enemy, any)
+	customtimeraction: function(enemy, any, any)
+	func: function(enemy, any)
+	globalcollide: function(enemy, any, Entity, any, any, any): any
+	leftcollide: function(enemy, any, Entity, any, any): any
+	rightcollide: function(enemy, any, Entity, any, any): any
+	ceilcollide: function(enemy, any, Entity, any, any): any
+	floorcollide: function(enemy, any, Entity, any, any): any
+	passivecollide: function(enemy, any, Entity, any, any): any
+	startfall: function(enemy)
+	stomp: function(enemy, any, any)
+	autodeleted: function(enemy)
+	output: function(enemy)
+	addoutput: function(enemy, any, any)
+	portaled: function(enemy)
+	spawnenemy: function(enemy, any)
+	transform: function(enemy, any)
+	emancipate: function(enemy)
+	laser: function(enemy, any, any)
+	enteredfunnel: function(enemy, any)
+	getspawnedenemies: function(enemy)
+	onscreen: function(enemy)
+	new: function(enemy, number, number, any, any): enemy
+end
+
+global record enemyspawner is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	draw: function(enemyspawner)
+	update: function(enemyspawner, number): any
+	cox: number
+	coy: number
+	enemytospawn: number
+	r: {any}
+	x: number
+	xspeed: number
+	y: number
+	yspeed: number
+	init: function(enemyspawner, number, number, any)
+	link: function(enemyspawner)
+	input: function(enemyspawner, any, any)
+	new: function(enemyspawner, number, number, {any}): enemyspawner
+end
+
+global record entity is {any}
+	image: Image
+	quad: Quad
+	t: string
+	init: function(entity, number, number, any, any, any)
+	sett: function(entity, any)
+	new: function(entity, any, any, any, any, any): entity
+end
+
+global record entitylistitem is {any}
+	i: number
+	t: string
+	x: number
+	y: number
+	init: function(entitylistitem, number, number)
+	gethighlight: function(entitylistitem, any, any)
+	new: function(entitylistitem, any, any): entitylistitem
+end
+
+global record entitytooltip is {any}
+	ent: number
+	x: number
+	y: number
+	init: function(entitytooltip, any)
+	update: function(entitytooltip, number): any
+	draw: function(entitytooltip, any)
+	new: function(entitytooltip, any): entitytooltip
+end
+
+global record faithplate is Entity
+	speedx: number
+	speedy: number
+	active: boolean
+	animationtimer: number
+	category: number
+	cox: number
+	coy: number
+	dir: string
+	height: number
+	includetable: {any}
+	input1state: number
+	mask: {boolean}
+	power: boolean
+	r: {any}
+	static: boolean
+	width: number
+	x: number
+	xspeed: number
+	y: number
+	yspeed: number
+	init: function(faithplate, number, number, any)
+	input: function(faithplate, any, any)
+	link: function(faithplate)
+	update: function(faithplate, number): any
+	draw: function(faithplate)
+	new: function(faithplate, number, number, {any}): faithplate
+end
+
+global record fire is Entity
+	draw: function(fire)
+	active: boolean
+	autodelete: boolean
+	category: number
+	drawable: boolean
+	graphic: Image
+	gravity: number
+	height: number
+	mask: {boolean}
+	offsetX: number
+	offsetY: number
+	quad: Quad
+	quadcenterX: number
+	quadcenterY: number
+	quadi: number
+	rotation: number
+	speedx: number
+	speedy: number
+	static: boolean
+	targety: number
+	timer: number
+	width: number
+	x: number
+	y: number
+	init: function(fire, number, number)
+	update: function(fire, number): any
+	leftcollide: function(fire, any, Entity): any
+	rightcollide: function(fire, any, Entity): any
+	floorcollide: function(fire, any, Entity): any
+	ceilcollide: function(fire, any, Entity): any
+	new: function(fire, number, number): fire
+end
+
+global record fireball is Entity
+	draw: function(fireball)
+	active: boolean
+	category: number
+	destroy: boolean
+	destroysoon: number
+	drawable: boolean
+	emancipatecheck: boolean
+	fireballthrower: number
+	graphic: Image
+	gravity: number
+	gravitydirection: number
+	height: number
+	kill: boolean
+	mask: {boolean}
+	offsetX: number
+	offsetY: number
+	quad: Quad
+	quadcenterX: number
+	quadcenterY: number
+	quadi: number
+	rotation: number
+	speedx: number
+	speedy: number
+	static: boolean
+	timer: number
+	width: number
+	x: number
+	y: number
+	init: function(fireball, number, number, any, any)
+	update: function(fireball, number): any
+	leftcollide: function(fireball, any, Entity): any
+	rightcollide: function(fireball, any, Entity): any
+	floorcollide: function(fireball, any, Entity): any
+	ceilcollide: function(fireball, any, Entity): any
+	passivecollide: function(fireball, any, Entity): any
+	hitstuff: function(fireball, any, any)
+	explode: function(fireball)
+	emancipate: function(fireball)
+	new: function(fireball, number, number, any, any): fireball
+end
+
+global record fireworkboom is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	timer: number
+	x: number
+	y: number
+	init: function(fireworkboom, number, number)
+	update: function(fireworkboom, number): any
+	draw: function(fireworkboom)
+	new: function(fireworkboom, any, any): fireworkboom
+end
+
+global record funnel is Entity
+	x: number
+	y: number
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	animationtime: number
+	cox: number
+	coy: number
+	dir: string
+	firstupdate: boolean
+	funneltable: any
+	input1state: number
+	input2state: number
+	lastblock: number
+	objtable: {any}
+	power: boolean
+	quad: Quad
+	r: {any}
+	reverse: number
+	speed: number
+	timer: number
+	timer2: number
+	init: function(funnel, number, number, any)
+	link: function(funnel)
+	update: function(funnel, number): any
+	draw: function(funnel)
+	updaterange: function(funnel)
+	input: function(funnel, any, any)
+	new: function(funnel, number, number, {any}): funnel
+end
+
+global record gel is Entity
+	draw: function(gel)
+	active: boolean
+	autodelete: boolean
+	category: number
+	destroy: boolean
+	drawable: boolean
+	funnel: boolean
+	graphic: Image
+	gravity: number
+	height: number
+	id: number
+	infunnel: boolean
+	mask: {boolean}
+	offsetX: number
+	offsetY: number
+	quad: Quad
+	quadcenterX: number
+	quadcenterY: number
+	rotation: number
+	speedx: number
+	speedy: number
+	static: boolean
+	timer: number
+	width: number
+	x: number
+	y: number
+	init: function(gel, number, number, any)
+	update: function(gel, number): any
+	leftcollide: function(gel, any, Entity): any
+	rightcollide: function(gel, any, Entity): any
+	floorcollide: function(gel, any, Entity): any
+	ceilcollide: function(gel, any, Entity): any
+	globalcollide: function(gel, any, Entity): any
+	enteredfunnel: function(gel, any)
+	new: function(gel, number, number, any): gel
+end
+
+global record geldispenser is Entity
+	active: boolean
+	category: number
+	cox: number
+	coy: number
+	dir: string
+	dropping: boolean
+	height: number
+	id: number
+	input1state: number
+	mask: {boolean}
+	r: {any}
+	speedx: number
+	speedy: number
+	static: boolean
+	timer: number
+	width: number
+	x: number
+	y: number
+	init: function(geldispenser, number, number, any)
+	link: function(geldispenser)
+	update: function(geldispenser, number): any
+	draw: function(geldispenser)
+	input: function(geldispenser, any, any)
+	new: function(geldispenser, number, number, {any}): geldispenser
+end
+
+global record groundlight is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	dir: string
+	input1state: number
+	lighted: boolean
+	r: {any}
+	timer: number
+	x: number
+	y: number
+	init: function(groundlight, number, number, any, any)
+	link: function(groundlight)
+	update: function(groundlight, number): any
+	draw: function(groundlight)
+	input: function(groundlight, any, any)
+	new: function(groundlight, number, number, any, any): groundlight
+end
+
+global record guielement is {any}
+	active: boolean
+	arguments: any
+	autorepeat: number
+	backgroundcolor: {number}
+	bordercolor: {number}
+	bordercolorhigh: {number}
+	color: {number}
+	cursorblink: boolean|number
+	cursorpos: number
+	cutoff: boolean
+	dir: string
+	direction: string
+	displaynumber: number
+	dragging: number
+	draggingx: number
+	draggingy: number
+	entries: {any}
+	extended: boolean
+	fillcolor: {number}
+	func: any
+	gui: guielement
+	height: number
+	hidden: boolean
+	holding: number
+	image: Image
+	inputting: boolean
+	internvalue: number
+	max: number
+	maxlength: number
+	min: number
+	missingy: number
+	movex: number
+	movey: number
+	numerical: number
+	offset: number
+	priority: boolean
+	quad: Quad
+	range: number
+	repeatdelay: number
+	repeatdelaytimer: number
+	repeatwait: number
+	repeatwaittimer: number
+	scrollbar: guielement
+	space: number
+	spacing: number
+	starty: number
+	step: number
+	subx: number
+	suby: number
+	text: string
+	textcolor: {number}
+	timer: number
+	type: string|number
+	usemousewheel: boolean|number
+	value: any
+	var: any
+	width: number
+	width2: number
+	x: number
+	xrange: number
+	y: number
+	yrange: number
+	category: string
+	nicename: string
+	name: string
+	i: number
+	tile: number
+	gels: any
+	mousepressed: any
+	mousereleased: any
+	keypressed: any
+	elements: {any}
+	init: function(guielement, ...: any)
+	update: function(guielement, number): any
+	draw: function(guielement, any, any, any)
+	getheight: function(guielement): number
+	click: function(guielement, any, any, any): any
+	textinput: function(guielement, any): any
+	keypress: function(guielement, any): any
+	unclick: function(guielement, any, any, any): any
+	inhighlight: function(guielement, any, any): any
+	new: function(guielement, ...: any): guielement
+end
+
+global record itemanimation is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	i: number
+	timer: number
+	v: number
+	x: number
+	y: number
+	init: function(itemanimation, number, number, any)
+	update: function(itemanimation, number): any
+	draw: function(itemanimation)
+	new: function(itemanimation, number, number, any): itemanimation
+end
+
+global record laser is Entity
+	x: number
+	y: number
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	blocked: boolean
+	cox: number
+	coy: number
+	dir: string
+	framestart: number
+	input1state: number
+	lasertable: {any}
+	outtable: {any}
+	power: boolean
+	r: {any}
+	init: function(laser, number, number, any)
+	link: function(laser)
+	input: function(laser, any, any)
+	update: function(laser, number): any
+	updateoutputs: function(laser)
+	checktile: function(laser, any, any, any)
+	draw: function(laser)
+	updaterange: function(laser)
+	new: function(laser, number, number, {any}): laser
+end
+
+global record laserdetector is Entity
+	x: number
+	y: number
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	allowclear: boolean
+	cox: number
+	coy: number
+	dir: string
+	drawable: boolean
+	out: boolean
+	outtable: {any}
+	prevout: number
+	r: {any}
+	init: function(laserdetector, number, number, any)
+	update: function(laserdetector, number): any
+	input: function(laserdetector, any)
+	draw: function(laserdetector)
+	addoutput: function(laserdetector, any, any)
+	clear: function(laserdetector)
+	new: function(laserdetector, number, number, {any}): laserdetector
+end
+
+global record lightbridge is Entity
+	speedx: number
+	speedy: number
+	active: boolean
+	category: number
+	children: number
+	childtable: any
+	cox: number
+	coy: number
+	destroy: boolean
+	dir: string
+	gels: number
+	glowa: number
+	glowtimer: number
+	height: number
+	i: number
+	input1state: number
+	mask: {boolean}
+	parent: any
+	power: boolean
+	r: {any}
+	static: boolean
+	width: number
+	x: number
+	y: number
+	init: function(lightbridge, number, number, any)
+	link: function(lightbridge)
+	input: function(lightbridge, any, any)
+	update: function(lightbridge, number): any
+	getglowa: function(lightbridge, any)
+	draw: function(lightbridge)
+	updaterange: function(lightbridge)
+	addChild: function(lightbridge, any)
+	new: function(lightbridge, number, number, {any}): lightbridge
+end
+
+global record lightbridgebody is Entity
+	speedx: number
+	speedy: number
+	active: boolean
+	category: number
+	children: number
+	childtable: any
+	cox: number
+	coy: number
+	destroy: boolean
+	dir: string
+	gels: number
+	glowa: number
+	glowtimer: number
+	height: number
+	i: number
+	input1state: number
+	mask: {boolean}
+	parent: any
+	power: boolean
+	r: {any}
+	static: boolean
+	width: number
+	x: number
+	y: number
+	init: function(lightbridgebody, number, number, any, any, any)
+	pushstuff: function(lightbridgebody)
+	update: function(lightbridgebody, number): any
+	draw: function(lightbridgebody)
+	new: function(lightbridgebody, any, any, any, any, any): lightbridgebody
+end
+
+global record magic is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	color: {number}
+	lifetime: number
+	t: string
+	x: number
+	y: number
+	init: function(magic)
+	update: function(magic, number): any
+	draw: function(magic)
+	new: function(magic): magic
+end
+
+global record mario is Entity
+	draw: function(mario)
+	active: boolean
+	alwaysactive: boolean
+	animation: any
+	animationbridgex: number
+	animationdirection: string
+	animationmisc: number|boolean
+	animationmisc2: number|boolean
+	animationmisc3: number|boolean
+	animationstate: string
+	animationtimer: number
+	animationtimer2: number
+	animationx: number|boolean
+	animationy: number|boolean
+	biggraphic: Image
+	bubbletime: number
+	bubbletimer: number
+	category: number
+	char: Character
+	climbframe: number
+	colors: any
+	combo: number
+	controlsenabled: boolean
+	customscale: number
+	customscissor: any
+	dbljmping: number
+	dead: boolean
+	drawable: boolean
+	drawhat: boolean
+	ducking: boolean
+	emancipatecheck: boolean
+	falling: boolean
+	fireanimationtimer: number
+	fireballcount: number
+	funnel: boolean
+	graphic: Image
+	gravity: number
+	gravitydirection: number
+	hats: any
+	height: number
+	infunnel: boolean
+	invincible: boolean
+	jumpanimationprogress: number
+	jumpframe: number
+	jumping: boolean
+	lastcollision: number
+	lastground: number
+	lastportal: number
+	looktimer: number
+	mask: {boolean}
+	mazevar: number
+	offsetX: number
+	offsetY: number
+	passivemoved: boolean
+	pickup: any
+	platform: number|boolean
+	playernumber: number
+	pointingangle: number
+	portal: any
+	portal1color: {number}
+	portal2color: {number}
+	portalsavailable: {boolean}
+	previouslyonground: boolean
+	quad: Quad
+	quadcenterX: number
+	quadcenterY: number
+	raccoonascendtimer: number
+	raccoonjump: boolean
+	raccoonspinframe: number|boolean
+	raccoonspintimer: number
+	raccoonstarttimer: number
+	raccoontimer: number
+	rainboomallowed: boolean
+	remote: boolean
+	rotation: number
+	runanimationprogress: number
+	runframe: number
+	shot: boolean
+	size: number
+	smallgraphic: Image
+	speedx: number
+	speedy: number
+	spring: boolean
+	springb: number
+	springhigh: boolean
+	springtimer: number
+	springx: number
+	springy: number
+	starblinktimer: number
+	starcolori: number
+	starred: boolean
+	startimer: number
+	static: boolean
+	swimanimationprogress: number
+	swimframe: number
+	t: string
+	tailwag: boolean
+	tailwagframe: number
+	tailwagtimer: number
+	underwater: boolean
+	upsidedown: boolean
+	vine: any
+	vineanimationclimb: boolean
+	vineanimationdropoff: boolean
+	vinemovetimer: number
+	vineside: number
+	vinex: number
+	viney: number
+	width: number
+	x: number
+	y: number
+	init: function(mario, number, number, any, any, any, any)
+	adddata: function(mario)
+	update: function(mario, number): any
+	update_raccoon_effects: function(mario, any)
+	update_star: function(mario, any)
+	update_animation: function(mario, any)
+	update_funnels: function(mario, any)
+	update_vine: function(mario, any)
+	update_springs: function(mario, any)
+	update_world_pickups: function(mario, any)
+	update_replay: function(mario, any)
+	update_gravity: function(mario, any)
+	update_fire_animation: function(mario, any)
+	update_zones: function(mario, any)
+	update_controls: function(mario, any)
+	update_drains: function(mario, any)
+	updateangle: function(mario)
+	movement: function(mario, any)
+	runanimation: function(mario, any)
+	underwatermovement: function(mario, any)
+	setquad: function(mario, any, any)
+	jump: function(mario, any)
+	stopjump: function(mario, any)
+	rightkey: function(mario)
+	leftkey: function(mario)
+	grow: function(mario)
+	shrink: function(mario)
+	floorcollide: function(mario, any, Entity, any, any): any
+	bluegel: function(mario, any)
+	stompenemy: function(mario, any, any, any, any, any)
+	rightcollide: function(mario, any, Entity, any, any): any
+	leftcollide: function(mario, any, Entity, any, any): any
+	ceilcollide: function(mario, any, Entity, any, any): any
+	globalcollide: function(mario, any, Entity, any, any, any): any
+	passivecollide: function(mario, any, Entity, any, any): any
+	starcollide: function(mario, any, Entity, any, any): any
+	hitspring: function(mario, any)
+	leavespring: function(mario)
+	dropvine: function(mario, any)
+	grabvine: function(mario, any)
+	goinvincible: function(mario)
+	faithplate: function(mario, any)
+	startfall: function(mario)
+	die: function(mario, any)
+	laser: function(mario, any)
+	emancipate: function(mario, any)
+	removeportals: function(mario, any)
+	use: function(mario, any, any)
+	pickupbox: function(mario, any)
+	dropbox: function(mario)
+	cubeemancipate: function(mario)
+	duck: function(mario, any)
+	pipe: function(mario, any, any, any, any)
+	savereplaydata: function(mario)
+	flag: function(mario)
+	axe: function(mario)
+	vineanimation: function(mario)
+	star: function(mario)
+	fire: function(mario)
+	spinhit: function(mario, any, any, any)
+	fireballcallback: function(mario)
+	portaled: function(mario, any)
+	shootgel: function(mario, any)
+	respawn: function(mario)
+	dive: function(mario, any)
+	enteredfunnel: function(mario, any)
+	animationwalk: function(mario, any)
+	stopanimation: function(mario)
+	portalpickup: function(mario, any)
+	new: function(mario, number, number, any, any, any, any): mario
+end
+
+global record miniblock is Entity
+	width: number
+	height: number
+	speedx: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	i: number
+	speedy: number
+	timer: number
+	x: number
+	y: number
+	init: function(miniblock, number, number, any)
+	update: function(miniblock, number): any
+	draw: function(miniblock)
+	new: function(miniblock, number, number, any): miniblock
+end
+
+global record musicentity is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	update: function(musicentity, number): any
+	cox: number
+	coy: number
+	musicname: number
+	r: {any}
+	single: number
+	triggered: boolean
+	visible: boolean
+	x: number
+	y: number
+	init: function(musicentity, number, number, any)
+	link: function(musicentity)
+	draw: function(musicentity)
+	input: function(musicentity, any, any)
+	new: function(musicentity, number, number, {any}): musicentity
+end
+
+global record notgate is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	cox: number
+	coy: number
+	initial: boolean
+	input1state: number
+	outtable: {any}
+	power: boolean
+	r: {any}
+	visible: boolean
+	x: number
+	y: number
+	init: function(notgate, number, number, any)
+	link: function(notgate)
+	addoutput: function(notgate, any, any)
+	update: function(notgate, number): any
+	draw: function(notgate)
+	out: function(notgate, any)
+	input: function(notgate, any, any)
+	new: function(notgate, number, number, {any}): notgate
+end
+
+global record orgate is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	cox: number
+	coy: number
+	initial: boolean
+	inputstate: {any}
+	outputstate: any
+	outtable: {any}
+	r: {any}
+	visible: boolean
+	x: number
+	y: number
+	init: function(orgate, number, number, any)
+	link: function(orgate)
+	addoutput: function(orgate, any, any)
+	update: function(orgate, number): any
+	draw: function(orgate)
+	out: function(orgate, any)
+	input: function(orgate, any, any)
+	new: function(orgate, number, number, {any}): orgate
+end
+
+global record panel is Entity
+	x: number
+	y: number
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	update: function(panel, number): any
+	cox: number
+	coy: number
+	dir: string
+	input1state: number
+	out: boolean
+	r: {any}
+	t: string
+	init: function(panel, number, number, any)
+	link: function(panel)
+	draw: function(panel)
+	input: function(panel, any, any)
+	updatestuff: function(panel)
+	new: function(panel, number, number, any): panel
+end
+
+global record pedestal is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	blue: number
+	cox: number
+	coy: number
+	orange: number
+	pickedup: number
+	progress: number
+	r: {any}
+	x: number
+	y: number
+	init: function(pedestal, number, number, any)
+	update: function(pedestal, number): any
+	draw: function(pedestal)
+	new: function(pedestal, number, number, {any}): pedestal
+end
+
+global record platform is Entity
+	active: boolean
+	category: number
+	dir: string
+	drawable: boolean
+	gravity: number
+	height: number
+	mask: {boolean}
+	r: {any}
+	rotation: number
+	size: number
+	speed: number
+	speedx: number
+	speedy: number
+	startx: number
+	starty: number
+	static: boolean
+	time: number
+	timer: number
+	width: number
+	x: number
+	xdistance: number
+	y: number
+	ydistance: number
+	init: function(platform, number, number, any, any)
+	func: function(platform, any)
+	update: function(platform, number): any
+	draw: function(platform)
+	rightcollide: function(platform, any, Entity): any
+	leftcollide: function(platform, any, Entity): any
+	ceilcollide: function(platform, any, Entity): any
+	floorcollide: function(platform, any, Entity): any
+	passivecollide: function(platform, any, Entity): any
+	new: function(platform, number, number, {any}, any): platform
+end
+
+global record platformspawner is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	draw: function(platformspawner)
+	dir: string
+	r: {any}
+	size: number
+	spawndelay: number
+	speed: number
+	timer: number
+	x: number
+	y: number
+	init: function(platformspawner, number, number, any)
+	update: function(platformspawner, number): any
+	new: function(platformspawner, number, number, {any}): platformspawner
+end
+
+global record portal is Entity
+	x: number
+	y: number
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	animationtimer: number
+	facing1: any
+	facing2: any
+	number: number
+	openscale: {number}
+	portal1color: {number}
+	portal2color: {number}
+	portalframe: number
+	x1: number|boolean
+	x2: number|boolean
+	y1: number|boolean
+	y2: number|boolean
+	init: function(portal, any, any, any)
+	createportal: function(portal, number, any, any, any, any)
+	removeportal: function(portal, number)
+	update: function(portal, number): any
+	draw: function(portal)
+	new: function(portal, any, any, any): portal
+end
+
+global record portalent is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	cox: number
+	coy: number
+	dir: string
+	id: number
+	input1state: number
+	portal: any
+	power: boolean
+	r: {any}
+	x: number
+	y: number
+	init: function(portalent, number, number, any, any)
+	link: function(portalent)
+	update: function(portalent, number): any
+	draw: function(portalent)
+	input: function(portalent, any, any)
+	trigger: function(portalent)
+	rem: function(portalent)
+	new: function(portalent, number, number, any, any): portalent
+end
+
+global record portalparticle is Entity
+	width: number
+	height: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	color: {number}
+	direction: string
+	speedx: number
+	speedy: number
+	timer: number
+	x: number
+	y: number
+	init: function(portalparticle, number, number, any, any)
+	update: function(portalparticle, number): any
+	draw: function(portalparticle)
+	new: function(portalparticle, number, number, any, any): portalparticle
+end
+
+global record portalprojectile is Entity
+	width: number
+	height: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	alpha: number
+	angle: number
+	bounces: number
+	color: {number}
+	endx: number
+	endy: number
+	hit: number
+	lastparticle: number
+	length: number
+	mirror: boolean
+	particles: {any}
+	payload: number
+	payloaddelivered: number
+	sinestart: number
+	speedx: number
+	speedy: number
+	startx: number
+	starty: number
+	time: number
+	timer: number
+	x: number
+	y: number
+	init: function(portalprojectile, number, number, any, any, any, any, any, any, any, any)
+	update: function(portalprojectile, number): any
+	draw: function(portalprojectile)
+	createportal: function(portalprojectile)
+	new: function(portalprojectile, number, number, any, any, any, any, any, any, any, any): portalprojectile
+end
+
+global record portalprojectileparticle is Entity
+	width: number
+	height: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	alpha: number
+	angle: number
+	bounces: number
+	color: {number}
+	endx: number
+	endy: number
+	hit: number
+	lastparticle: number
+	length: number
+	mirror: boolean
+	particles: {any}
+	payload: number
+	payloaddelivered: number
+	sinestart: number
+	speedx: number
+	speedy: number
+	startx: number
+	starty: number
+	time: number
+	timer: number
+	x: number
+	y: number
+	init: function(portalprojectileparticle, number, number, any, any, any, any)
+	update: function(portalprojectileparticle, number): any
+	draw: function(portalprojectileparticle)
+	new: function(portalprojectileparticle, number, number, any, any, any, any): portalprojectileparticle
+end
+
+global record portalwall is Entity
+	speedx: number
+	speedy: number
+	update: function(portalwall, number): any
+	active: boolean
+	category: number
+	height: number
+	mask: {boolean}
+	static: boolean
+	width: number
+	x: number
+	y: number
+	init: function(portalwall, number, number, any, any)
+	draw: function(portalwall)
+	new: function(portalwall, number, number, any, any): portalwall
+end
+
+global record pushbutton is Entity
+	x: number
+	y: number
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	base: number
+	cox: number
+	coy: number
+	dir: string
+	out: boolean
+	outtable: {any}
+	pusheddown: number
+	r: {any}
+	timer: number
+	init: function(pushbutton, number, number, any)
+	update: function(pushbutton, number): any
+	draw: function(pushbutton)
+	addoutput: function(pushbutton, any, any)
+	used: function(pushbutton)
+	new: function(pushbutton, number, number, {any}): pushbutton
+end
+
+global record quad is {any}
+	breakable: number
+	bridge: number
+	coin: number
+	coinblock: number
+	collision: number
+	foreground: number
+	grate: number
+	image: Image
+	invisible: boolean
+	mirror: boolean
+	platform: number
+	portalable: boolean
+	props: any
+	quadobj: Quad
+	slantupleft: number
+	slantupright: number
+	water: number
+	init: function(quad, number, number, any, any, any, any)
+	getproperty: function(quad, any)
+	quad: function(quad)
+	new: function(quad, any, any, any, any, any, any): quad
+end
+
+global record rainboom is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	dir: string
+	frame: number
+	r: {any}
+	timer: number
+	x: number
+	y: number
+	init: function(rainboom, number, number, any)
+	update: function(rainboom, number): any
+	draw: function(rainboom)
+	new: function(rainboom, number, number, any): rainboom
+end
+
+global record regiondrag is {any}
+	grabbed: number
+	height: number
+	movestartx: number
+	movestarty: number
+	movex: number
+	movey: number
+	width: number
+	x: number
+	y: number
+	init: function(regiondrag, number, number, any, any)
+	update: function(regiondrag, number): any
+	draw: function(regiondrag)
+	mousepressed: function(regiondrag, any, any, any)
+	mousereleased: function(regiondrag, any, any, any)
+	inhighlight: function(regiondrag, any, any, any)
+	new: function(regiondrag, number, number, any, any): regiondrag
+end
+
+global record regiontrigger is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	checktable: any
+	cox: number
+	coy: number
+	out: boolean
+	outtable: {any}
+	r: {any}
+	regionX: number
+	regionY: number
+	regionheight: number
+	regionwidth: number
+	x: number
+	y: number
+	init: function(regiontrigger, number, number, any)
+	update: function(regiontrigger, number): any
+	draw: function(regiontrigger)
+	addoutput: function(regiontrigger, any, any)
+	new: function(regiontrigger, number, number, {any}): regiontrigger
+end
+
+global record rightclickmenu is {any}
+	elements: {any}
+	t: {any}
+	tx: number
+	ty: number
+	variables: {any}
+	x: number
+	y: number
+	init: function(rightclickmenu, number, number, any, any, any)
+	update: function(rightclickmenu, number): any
+	draw: function(rightclickmenu)
+	mousepressed: function(rightclickmenu, any, any, any): boolean
+	mousereleased: function(rightclickmenu, any, any, any)
+	keypressed: function(rightclickmenu, any)
+	textinput: function(rightclickmenu, any)
+	linkcallback: function(rightclickmenu, any, any, any)
+	regioncallback: function(rightclickmenu, any, any)
+	directioncallback: function(rightclickmenu, any, any, any)
+	new: function(rightclickmenu, number, number, any, any, any): rightclickmenu
+end
+
+global record rocketlauncher is Entity
+	draw: function(rocketlauncher)
+	active: boolean
+	animationdirection: string
+	autodelete: boolean
+	category: number
+	customscissor: any
+	direction: string
+	drawable: boolean
+	graphic: Image
+	gravity: number
+	height: number
+	id: number
+	killstuff: number
+	mask: {boolean}
+	offsetX: number
+	offsetY: number
+	quad: Quad
+	quadcenterX: number
+	quadcenterY: number
+	rotation: number
+	shot: boolean
+	speedx: number
+	speedy: number
+	startx: number
+	static: boolean
+	time: number
+	timer: number
+	width: number
+	x: number
+	y: number
+	init: function(rocketlauncher, number, number)
+	update: function(rocketlauncher, number): any
+	fire: function(rocketlauncher)
+	randomtime: function(rocketlauncher)
+	new: function(rocketlauncher, number, number): rocketlauncher
+end
+
+global record rsflipflop is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	update: function(rsflipflop, number): any
+	cox: number
+	coy: number
+	output: number
+	outtable: {any}
+	r: {any}
+	visible: boolean
+	x: number
+	y: number
+	init: function(rsflipflop, number, number, any)
+	link: function(rsflipflop)
+	addoutput: function(rsflipflop, any, any)
+	draw: function(rsflipflop)
+	out: function(rsflipflop, any)
+	input: function(rsflipflop, any, any)
+	new: function(rsflipflop, number, number, {any}): rsflipflop
+end
+
+global record scaffold is Entity
+	active: boolean
+	category: number
+	dir: string
+	distance: number
+	drawable: boolean
+	gravity: number
+	height: number
+	input1state: number
+	mask: {boolean}
+	power: boolean
+	r: {any}
+	rotation: number
+	size: number
+	speed: number
+	speedx: number
+	speedy: number
+	startx: number
+	starty: number
+	state: string
+	static: boolean
+	time1: number
+	time2: number
+	timer: number
+	width: number
+	x: number
+	y: number
+	init: function(scaffold, number, number, any)
+	link: function(scaffold)
+	input: function(scaffold, any, any)
+	update: function(scaffold, number): any
+	draw: function(scaffold)
+	rightcollide: function(scaffold, any, Entity): any
+	leftcollide: function(scaffold, any, Entity): any
+	ceilcollide: function(scaffold, any, Entity): any
+	floorcollide: function(scaffold, any, Entity): any
+	passivecollide: function(scaffold, any, Entity): any
+	new: function(scaffold, number, number, {any}): scaffold
+end
+
+global record screenboundary is Entity
+	speedx: number
+	speedy: number
+	draw: function(screenboundary)
+	update: function(screenboundary, number): any
+	active: boolean
+	category: number
+	height: number
+	mask: {boolean}
+	static: boolean
+	width: number
+	x: number
+	y: number
+	init: function(screenboundary, any)
+	new: function(screenboundary, any): screenboundary
+end
+
+global record scrollingscore is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	draw: function(scrollingscore)
+	i: number
+	timer: number
+	x: number
+	y: number
+	init: function(scrollingscore, number, number, any)
+	update: function(scrollingscore, number): any
+	new: function(scrollingscore, any, any, any): scrollingscore
+end
+
+global record scrollingtext is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	s: number
+	timer: number
+	x: number
+	y: number
+	init: function(scrollingtext, number, number, any)
+	update: function(scrollingtext, number): any
+	draw: function(scrollingtext)
+	new: function(scrollingtext, any, any, any): scrollingtext
+end
+
+global record seesaw is Entity
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	dist1: number
+	dist2: number
+	falloff: number
+	falloffside: number
+	lcount: number
+	leftplatform: number
+	r: {any}
+	range: number
+	rcount: number
+	rightplatform: number
+	width: number
+	x: number
+	y: number
+	init: function(seesaw, number, number, any)
+	update: function(seesaw, number): any
+	fallingoff: function(seesaw, any)
+	draw: function(seesaw)
+	callbackleft: function(seesaw, any)
+	callbackright: function(seesaw, any)
+	new: function(seesaw, number, number, {any}): seesaw
+end
+
+global record seesawplatform is Entity
+	active: boolean
+	callback: number
+	category: number
+	dir: string
+	drawable: boolean
+	gravity: number
+	height: number
+	mask: {boolean}
+	rotation: number
+	side: number
+	size: number
+	speedx: number
+	speedy: number
+	startx: number
+	starty: number
+	static: boolean
+	width: number
+	x: number
+	y: number
+	init: function(seesawplatform, number, number, any, any, any)
+	update: function(seesawplatform, number): any
+	draw: function(seesawplatform)
+	rightcollide: function(seesawplatform, any, Entity): any
+	leftcollide: function(seesawplatform, any, Entity): any
+	ceilcollide: function(seesawplatform, any, Entity): any
+	floorcollide: function(seesawplatform, any, Entity): any
+	new: function(seesawplatform, number, number, any, any, any): seesawplatform
+end
+
+global record spring is Entity
+	speedx: number
+	speedy: number
+	active: boolean
+	category: number
+	cox: number
+	coy: number
+	drawable: boolean
+	frame: number
+	height: number
+	mask: {boolean}
+	static: boolean
+	timer: number
+	width: number
+	x: number
+	y: number
+	init: function(spring, number, number)
+	update: function(spring, number): any
+	draw: function(spring)
+	hit: function(spring)
+	new: function(spring, number, number): spring
+end
+
+global record squarewave is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	cox: number
+	coy: number
+	initial: boolean
+	input1state: number
+	outtable: {any}
+	r: {any}
+	time1: number
+	time2: number
+	timer: number
+	visible: boolean
+	x: number
+	y: number
+	init: function(squarewave, number, number, any)
+	addoutput: function(squarewave, any, any)
+	update: function(squarewave, number): any
+	draw: function(squarewave)
+	out: function(squarewave, any)
+	new: function(squarewave, number, number, {any}): squarewave
+end
+
+global record textentity is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	blue: number
+	boolbincache: {any}
+	boolcache: {any}
+	builtincache: any
+	glintcache: any
+	green: number
+	hasaprefix: boolean
+	input1state: number
+	pass: boolean
+	power: boolean
+	r: {any}
+	red: number
+	text: string
+	textsplit: number
+	x: number
+	y: number
+	init: function(textentity, number, number, any)
+	link: function(textentity)
+	input: function(textentity, any, any)
+	update: function(textentity, number): any
+	draw: function(textentity)
+	new: function(textentity, number, number, {any}): textentity
+end
+
+global record tile is {any}
+	active: boolean
+	category: number
+	cox: number
+	coy: number
+	height: number
+	mask: {boolean}
+	speedx: number
+	speedy: number
+	static: boolean
+	width: number
+	x: number
+	y: number
+	init: function(tile, number, number, any)
+	new: function(tile, number, number, any): tile
+end
+
+global record vine is Entity
+	speedx: number
+	speedy: number
+	active: boolean
+	category: number
+	cox: number
+	coy: number
+	drawable: boolean
+	height: number
+	hidetop: number
+	limit: number
+	mask: {boolean}
+	static: boolean
+	t: string
+	timer: number
+	width: number
+	x: number
+	y: number
+	init: function(vine, number, number, any)
+	update: function(vine, number): any
+	draw: function(vine)
+	new: function(vine, number, number, any): vine
+end
+
+global record wallindicator is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	input1state: number
+	lighted: boolean
+	r: {any}
+	x: number
+	y: number
+	init: function(wallindicator, number, number, any)
+	link: function(wallindicator)
+	update: function(wallindicator): any
+	draw: function(wallindicator)
+	input: function(wallindicator, any, any)
+	new: function(wallindicator, number, number, {any}): wallindicator
+end
+
+global record walltimer is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	cox: number
+	coy: number
+	input1state: number
+	lighted: boolean
+	outtable: {any}
+	quad: Quad
+	r: {any}
+	time: number
+	timer: number
+	x: number
+	y: number
+	init: function(walltimer, number, number, any)
+	link: function(walltimer)
+	addoutput: function(walltimer, any, any)
+	update: function(walltimer, number): any
+	draw: function(walltimer)
+	out: function(walltimer, any)
+	input: function(walltimer, any, any)
+	new: function(walltimer, number, number, {any}): walltimer
+end
+
+global record zgbooltrigger is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	checktable: any
+	cox: number
+	coy: number
+	id: number
+	inverted: number
+	invisible: boolean
+	out: boolean
+	outtable: {any}
+	r: {any}
+	x: number
+	y: number
+	init: function(zgbooltrigger, number, number, any)
+	update: function(zgbooltrigger, number): any
+	draw: function(zgbooltrigger)
+	addoutput: function(zgbooltrigger, any, any)
+	new: function(zgbooltrigger, number, number, {any}): zgbooltrigger
+end
+
+global record zginttrigger is Entity
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}
+	checktable: any
+	condition: number
+	conditions: number
+	cox: number
+	coy: number
+	id: number
+	out: boolean
+	outtable: {any}
+	r: {any}
+	value: number
+	x: number
+	y: number
+	init: function(zginttrigger, number, number, any)
+	update: function(zginttrigger, number): any
+	draw: function(zginttrigger)
+	addoutput: function(zginttrigger, any, any)
+	new: function(zginttrigger, number, number, {any}): zginttrigger
+end
+

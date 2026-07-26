@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Compile all src/**/*.tl into build/ via Cyan (tlconfig.lua).
+# Real build path only — no per-file tl gen fallback.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+chmod +x scripts/cyan 2>/dev/null || true
+
+mkdir -p build
+
+count_lua() {
+	find build -name '*.lua' 2>/dev/null | wc -l | tr -d ' '
+}
+
+./scripts/cyan build "$@"
+echo "Teal build (cyan): $(count_lua) lua modules under build/"

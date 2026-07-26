@@ -1,4 +1,4 @@
--- Headless Love smoke: compile all shaders/*.frag then quit.
+-- Headless Love smoke: compile all assets/shaders/*.frag then quit.
 -- Run: make test-shaders
 
 function love.load()

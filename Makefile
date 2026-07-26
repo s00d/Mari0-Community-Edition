@@ -1,14 +1,13 @@
-# Mari0: Community Edition — Love2D helpers
+# Mari0: Community Edition — Love2D + Teal helpers
 #
 # Requires: Love 11.x (https://love2d.org), zip (for package)
+# Optional: luarocks --local cyan  (Teal build; scripts/cyan uses luarocks Lua, not LuaJIT)
 # Override binary:  make run LOVE=/path/to/love
-#                   LOVE=/path/to/love make run
 
 NAME      ?= mari0-ce
 DIST      ?= dist
 LOVE_FILE ?= $(DIST)/$(NAME).love
 
-# Resolve love binary: LOVE env/make var, then PATH (love|love2d), then common macOS paths
 ifndef LOVE
   LOVE := $(shell \
     command -v love 2>/dev/null \
@@ -19,20 +18,24 @@ ifndef LOVE
     || echo love)
 endif
 
-.PHONY: help run play build package clean check snap test test-shaders
+.PHONY: help run play build package clean check snap test test-shaders teal teal-check teal-watch vendor-rocks
 
 .DEFAULT_GOAL := help
 
 help: ## Show this help
 	@echo "Mari0 CE — targets:"
-	@echo "  make run / play   Run the game with Love"
+	@echo "  make teal         Compile src/**/*.tl -> build/ (cyan build)"
+	@echo "  make teal-check   Typecheck Teal sources (cyan check)"
+	@echo "  make teal-watch   Rebuild on change (watchexec/entr/fswatch/poll)"
+	@echo "  make vendor-rocks Sync pure-Lua rocks into lib/ (dkjson/sha1)"
+	@echo "  make run / play   Build Teal then run with Love"
 	@echo "  make build        Build $(LOVE_FILE)"
 	@echo "  make package      Alias for build"
 	@echo "  make check        Verify Love binary is available"
-	@echo "  make test         Run Lua regression / lint / helper tests"
-	@echo "  make test-shaders Compile all shaders/*.frag via Love"
+	@echo "  make test         Teal build + Lua regression suite"
+	@echo "  make test-shaders Compile all assets/shaders/*.frag via Love"
 	@echo "  make snap         Build Linux snap (needs snapcraft)"
-	@echo "  make clean        Remove $(DIST)/ and local snap artifacts"
+	@echo "  make clean        Remove dist/ and build artifacts"
 	@echo ""
 	@echo "Love binary: $(LOVE)"
 	@echo "Override:    make run LOVE=/path/to/love"
@@ -45,22 +48,38 @@ check: ## Verify love can be executed
 		     exit 1; }
 	@"$(LOVE)" --version
 
-test: ## Run pure-Lua test suite (no Love window)
+teal: ## Compile Teal sources into build/ via Cyan
+	@chmod +x scripts/cyan scripts/teal-build
+	@./scripts/teal-build
+
+teal-check: ## Typecheck Teal (cyan check)
+	@chmod +x scripts/cyan
+	@./scripts/cyan check $$(find src -name '*.tl' | sort)
+
+teal-watch: ## Rebuild Teal on src/types changes
+	@chmod +x scripts/cyan scripts/teal-build scripts/teal-watch
+	@./scripts/teal-watch
+
+vendor-rocks: ## Refresh lib/ from LuaRocks pins (dependencies-1.rockspec)
+	@chmod +x scripts/vendor-rocks
+	@./scripts/vendor-rocks
+
+test: teal ## Run pure-Lua test suite (no Love window)
 	@lua tests/run.lua
 
 test-shaders: check ## Compile all .frag shaders under Love
 	@rm -rf "$(DIST)/shader_smoke"
 	@mkdir -p "$(DIST)/shader_smoke/shaders"
 	@cp tests/shader_smoke/main.lua tests/shader_smoke/conf.lua "$(DIST)/shader_smoke/"
-	@cp shaders/*.frag "$(DIST)/shader_smoke/shaders/"
+	@cp assets/shaders/*.frag "$(DIST)/shader_smoke/shaders/"
 	@"$(LOVE)" "$(DIST)/shader_smoke"
 
-run: check ## Launch the game from this directory
+run: check teal ## Launch the game from this directory
 	@"$(LOVE)" .
 
 play: run ## Alias for run
 
-build: $(LOVE_FILE) ## Build .love archive
+build: teal $(LOVE_FILE) ## Build .love archive
 
 package: build ## Alias for build
 
@@ -71,7 +90,12 @@ $(LOVE_FILE):
 		-x './.git/*' \
 		-x './.gitignore' \
 		-x './dist/*' \
+		-x './src/*' \
+		-x './types/*' \
+		-x './scripts/*' \
+		-x './docs/*' \
 		-x './Makefile' \
+		-x './tlconfig.lua' \
 		-x './tests/*' \
 		-x './snap/*' \
 		-x './snap/.snapcraft/*' \
@@ -81,12 +105,12 @@ $(LOVE_FILE):
 		-x '*.snap' \
 		-x '*_source.tar.bz2' \
 		-x '*.DS_Store'
-	@echo "Built $@"
+	@echo "Built $@ (includes precompiled build/ for Teal shims)"
 
 snap: ## Build snap package (Linux; requires snapcraft)
 	snapcraft
 
 clean: ## Remove build artifacts
-	rm -rf "$(DIST)"
+	rm -rf "$(DIST)" build
 	rm -rf snap/.snapcraft parts stage prime
 	rm -f *.snap *_source.tar.bz2

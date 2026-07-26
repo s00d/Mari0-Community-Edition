@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Unpack pinned pure-Lua rocks into lib/ for Love/.love (no C modules).
+# Pins match dependencies-1.rockspec.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+LIB="$ROOT/lib"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+
+mkdir -p "$LIB"
+
+fetch() {
+	local name="$1" ver="$2" src_glob="$3" dest="$4"
+	(
+		cd "$TMP"
+		luarocks download --source "$name" "$ver"
+		luarocks unpack "${name}-${ver}.src.rock"
+		src="$(find "$TMP" -path "$src_glob" | head -1)"
+		if [[ -z "$src" || ! -f "$src" ]]; then
+			echo "error: could not find $src_glob after unpacking $name $ver" >&2
+			exit 1
+		fi
+		cp "$src" "$LIB/$dest"
+		echo "vendored $name $ver -> lib/$dest"
+	)
+}
+
+fetch dkjson 2.10-1 '*/dkjson.lua' dkjson.lua
+fetch sha1 0.5-1 '*/sha1.lua-0.5.0/sha1.lua' sha1.lua
+
+# Drop transitional middleclass if present
+rm -f "$LIB/middleclass.lua"
+
+cat > "$LIB/README.md" << 'EOF'
+# Vendored LuaRocks (pure Lua, Love-safe)
+
+Synced by `scripts/vendor-rocks` from pins in `dependencies-1.rockspec`.
+Do not hand-edit; re-run the script after bumping pins.
+
+| Module | Rock | Why |
+|--------|------|-----|
+| `dkjson` | dkjson 2.10-1 | Pure Lua JSON; Love `.love` friendly (no C `lua-cjson`) |
+| `sha1` | sha1 0.5-1 | Pure Lua SHA-1 (kikito); module is callable |
+
+Optional: `luarocks install --local --deps-only dependencies-1.rockspec`
+(for tooling). Runtime always loads `lib/` via `package.path` in `conf.lua`.
+
+OO uses Teal `global record`s (`types/records.d.tl`); middleclass is not a runtime dep.
+EOF
+
+echo "OK: lib/ refreshed"

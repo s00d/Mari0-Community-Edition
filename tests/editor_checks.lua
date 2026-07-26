@@ -14,9 +14,9 @@ local function check(name, cond, detail)
 	end
 end
 
-dofile(root .. "/stringutil.lua")
-dofile(root .. "/mathutil.lua")
-dofile(root .. "/editorutil.lua")
+require("core.stringutil")
+require("core.mathutil")
+require("util.editorutil")
 
 -- mapsort: double-digit worlds sort after single-digit via special rule
 do
@@ -100,7 +100,7 @@ end
 
 -- editor.lua structural: draw phases + no duplicate defs
 do
-	local f = assert(io.open(root .. "/editor.lua", "r"))
+	local f = assert(io.open(root .. "/src/ui/editor.tl", "r"))
 	local src = f:read("*a")
 	f:close()
 
@@ -237,21 +237,24 @@ do
 	check("link screen pos", x1 == math.floor((3-2-.5)*32) and y1 == math.floor((4-1-1)*32))
 end
 
--- main.lua requires editorutil before editor
+-- boot.tl requires editorutil before editor (require_game moved from main)
 do
-	local f = assert(io.open(root .. "/main.lua", "r"))
-	local main = f:read("*a")
+	local f = assert(io.open(root .. "/src/app/boot.tl", "r"))
+	local boot = f:read("*a")
 	f:close()
-	local eu = main:find('require%s+"editorutil"')
-	local ed = main:find('require%s+"editor"')
-	check("main requires editorutil", eu ~= nil)
+	local mainf = assert(io.open(root .. "/main.lua", "r"))
+	local main = mainf:read("*a")
+	mainf:close()
+	local eu = boot:find('require%s+"util%.editorutil"')
+	local ed = boot:find('require%s+"ui%.editor"')
+	check("boot requires editorutil", eu ~= nil)
 	check("editorutil before editor", eu and ed and eu < ed)
-	local mu = main:find('require%s+"menuutil"')
-	local menu = main:find('require%s+"menu"')
-	check("main requires menuutil", mu ~= nil)
+	local mu = boot:find('require%s+"util%.menuutil"')
+	local menu = boot:find('require%s+"ui%.menu"')
+	check("boot requires menuutil", mu ~= nil)
 	check("menuutil before menu", mu and menu and mu < menu)
-	check("main early stringutil kept", main:find('require%s+"stringutil"') ~= nil)
-	check("main early mathutil kept", main:find('require%s+"mathutil"') ~= nil)
+	check("main early stringutil kept", main:find('require%s+"core%.stringutil"') ~= nil or main:find('require%s+"app%.boot"') ~= nil or main:find('require%s+"app%.love_run"') ~= nil)
+	check("main early mathutil kept", main:find('require%s+"core%.mathutil"') ~= nil or main:find('require%s+"app%.boot"') ~= nil or main:find('require%s+"app%.love_run"') ~= nil)
 end
 
 if select("#", ...) > 0 then

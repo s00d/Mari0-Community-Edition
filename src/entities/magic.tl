@@ -1,0 +1,29 @@
+--[[ Teal port of root magic.lua ]]
+
+rawset(_G, "magic", rawget(_G, "magic") or {})
+
+function magic.new(_: magic): magic
+	local self = setmetatable({}, { __index = magic }) as magic
+	self:init()
+	return self
+end
+
+function magic:init()
+	self.lifetime = 0.5
+	self.t = 0
+	self.x = math.floor(7+math.random()*188)*scale
+	self.y = math.floor(88+math.random()*12)*scale
+	self.color = {202/255+(math.random()-.7)*0.2, 170/255+(math.random()-.7)*0.2, 209/255+(math.random()-.7)*0.2}
+end
+
+function magic:update(dt: number)
+	self.t = self.t + dt
+	if self.t >= self.lifetime then
+		return true
+	end
+end
+
+function magic:draw()
+	love.graphics.setColor(unpack(self.color))
+	love.graphics.draw(magicimg, magicquad[math.floor(self.t/self.lifetime*6)+1], self.x, self.y, 0, scale, scale, 5, 5)
+end

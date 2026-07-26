@@ -14,8 +14,8 @@ local function check(name, cond, detail)
 	end
 end
 
-dofile(root .. "/stringutil.lua")
-dofile(root .. "/menuutil.lua")
+require("core.stringutil")
+require("util.menuutil")
 
 do
 	local n, a, d = menu_parse_settings_text("name=Test Pack\nauthor=Ada\ndescription=Hello world\n")
@@ -38,7 +38,7 @@ end
 
 -- menu.lua uses helpers; draw is orchestrated
 do
-	local f = assert(io.open(root .. "/menu.lua", "r"))
+	local f = assert(io.open(root .. "/src/ui/menu.tl", "r"))
 	local src = f:read("*a")
 	f:close()
 	check("menu parse settings", src:find("menu_parse_settings_text%(") ~= nil)

@@ -1,0 +1,646 @@
+--[[ Early boot: helpers + Logger / AssetStore / Gamestate / World.
+     Called from love.load before the bulk require block.
+]]
+
+local Boot = {}
+
+function Boot.setup_core_helpers()
+	require("core.stringutil")
+	require("core.mathutil")
+	require("core.tableutil")
+end
+
+function Boot.setup_services(debugprints: any, music_type: any): any, any, any, any, any
+	local Logger = require("app.logger")
+	Logger.set_level(debugprints and "debug" or "info")
+	local AssetStore = require("assets.store")
+	local Gamestate = require("app.gamestate")
+	local World = require("world.session")
+	local assets = AssetStore.new(music_type or "stream")
+	local session = World.new()
+	return Logger, AssetStore, Gamestate, World, assets, session
+end
+
+function Boot.run_early(debugprints: any, music_type: any)
+	Boot.setup_core_helpers()
+	local Logger, AssetStore, Gamestate, World, assets, session = Boot.setup_services(debugprints, music_type)
+	_G.Logger = Logger
+	_G.AssetStore = AssetStore
+	_G.Gamestate = Gamestate
+	_G.World = World
+	_G.assets = assets
+	_G.session = session
+	Logger.info("Loading Mari0 SE!")
+	Logger.info("=======================")
+	return Logger, AssetStore, Gamestate, World, assets, session
+end
+
+
+function Boot.require_game()
+	--require ALL the files!
+	--require "netplay"
+	--require "client"
+	--require "server"
+	--require "ui.lobby"
+	--require "ui.onlinemenu"
+	
+	require "assets.shaders"
+	require "app.variables"
+	require "core.tilekey"
+	require "world.zones"
+	require "world.globstate"
+	require "world.bounceutil"
+	require "core.listutil"
+	require "util.updateutil"
+	require "physics.late"
+	require "physics.convert"
+	require "physics.dir"
+	require "physics.emance"
+	require "core.maputil"
+	require "util.playerutil"
+	require "util.hatutil"
+	require "util.portalutil"
+	require "util.scrollutil"
+	require "util.enemyutil"
+	require "world.spawnregistry"
+	require "world.levelio"
+	require "util.userectutil"
+	require "physics.collision"
+	require "physics.checkrect"
+	require "physics.portal"
+	require "physics.handlegroup"
+	require "physics.update"
+	sha1 = require "sha1"
+	-- camera kept for API compatibility; attach/detach unused (scrollutil handles view)
+	require "app.camera"
+	
+	require "entities.animatedquad"
+	require "ui.intro"
+	require "util.menuutil"
+	require "ui.menu"
+	require "ui.levelscreen"
+	require "app.game_update"
+	require "app.game_draw"
+	require "app.game_load"
+	require "app.game_spawn"
+	require "app.game_portal"
+	require "util.editorutil"
+	require "ui.editor"
+	require "ui.animationguiline"
+	require "physics"
+	require "world.quad"
+	require "world.entitylist"
+	require "entities.portalwall"
+	require "world.tile"
+	require "entities.mario"
+	require "entities.hatconfigs"
+	require "entities.bighatconfigs"
+	require "entities.customhats"
+	require "entities.coinblockanimation"
+	require "entities.scrollingscore"
+	require "entities.scrollingtext"
+	require "entities.platform"
+	require "entities.platformspawner"
+	require "entities.portalparticle"
+	require "entities.portalprojectile"
+	require "entities.box"
+	require "entities.emancipationgrill"
+	require "entities.door"
+	require "entities.button"
+	require "entities.groundlight"
+	require "entities.wallindicator"
+	require "entities.walltimer"
+	require "entities.lightbridge"
+	require "entities.faithplate"
+	require "entities.laser"
+	require "entities.laserdetector"
+	require "entities.gel"
+	require "entities.geldispenser"
+	require "entities.cubedispenser"
+	require "entities.pushbutton"
+	require "entities.screenboundary"
+	require "entities.bulletbill"
+	require "entities.fireball"
+	require "ui.gui"
+	require "entities.blockdebris"
+	require "entities.firework"
+	require "entities.castlefire"
+	require "entities.fire"
+	require "entities.bowser"
+	require "entities.vine"
+	require "entities.spring"
+	require "entities.seesaw"
+	require "entities.seesawplatform"
+	require "entities.bubble"
+	require "entities.rainboom"
+	require "entities.miniblock"
+	require "entities.notgate"
+	require "entities.rsflipflop"
+	require "entities.andgate"
+	require "entities.orgate"
+	require "entities.musicentity"
+	require "entities.enemyspawner"
+	require "assets.musicloader"
+	require "entities.magic"
+	require "entities.ceilblocker"
+	require "entities.funnel"
+	require "entities.panel"
+	require "ui.rightclickmenu"
+	require "entities.emancipateanimation"
+	require "entities.emancipationfizzle"
+	require "entities.textentity"
+	require "entities.squarewave"
+	require "entities.scaffold"
+	require "world.animation"
+	require "world.animationsystem"
+	require "entities.regiondrag"
+	require "entities.regiontrigger"
+	require "entities.zgbooltrigger"
+	require "entities.zginttrigger"
+	require "entities.checkpoint"
+	require "entities.portal"
+	require "entities.portalent"
+	require "entities.pedestal"
+	require "entities.actionblock"
+	require "entities.animationtrigger"
+	require "entities.dialogbox"
+	require "entities.itemanimation"
+	require "entities.animatedtimer"
+	require "entities.animatedbooltimer"
+	require "entities.animatedtiletrigger"
+	require "entities.delayer"
+	require "entities.entitylistitem"
+	require "entities.entitytooltip"
+	
+	require "entities.enemy"
+	require "entities.enemies"
+	add("Requires")
+
+end
+
+
+function Boot.load_media()
+	--IMAGES-- (via AssetStore; still exported as legacy *img globals)
+	overwrittenimages = {}
+	imagelist = {"blockdebris", "coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "toad", "peach", "platform", 
+	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "box", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", 
+	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
+	"excursionfunnelend2", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "geldispenser", "cubedispenser", "panel", "pedestalbase",
+	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "musicentity", "smbtiles", "portaltiles",
+	"animatedtiletrigger", "delayer", "title", "menuselect"}
+	
+	for i, v in pairs(imagelist) do
+		local path = "assets/graphics/DEFAULT/" .. v .. ".png"
+		assets:register_image(v, path)
+		local img = assets:get_image(v)
+		_G["default" .. v .. "img"] = img
+		_G[v .. "img"] = img
+	end
+	
+	mappackback = love.graphics.newImage("assets/graphics/mappackback.png")
+	mappacknoicon = love.graphics.newImage("assets/graphics/mappacknoicon.png")
+	mappackoverlay = love.graphics.newImage("assets/graphics/mappackoverlay.png")
+	mappackhighlight = love.graphics.newImage("assets/graphics/mappackhighlight.png")
+	
+	mappackscrollbar = love.graphics.newImage("assets/graphics/mappackscrollbar.png")
+	
+	--tiles
+	tilequads = {}
+	rgblist = {}
+	
+	--add smb tiles
+	local imgwidth, imgheight = smbtilesimg:getWidth(), smbtilesimg:getHeight()
+	local width = math.floor(imgwidth/17)
+	local height = math.floor(imgheight/17)
+	local imgdata = love.image.newImageData("assets/graphics/DEFAULT/smbtiles.png")
+	
+	for y = 1, height do
+		for x = 1, width do
+			table.insert(tilequads, quad:new(smbtilesimg, imgdata, x, y, imgwidth, imgheight))
+			local r, g, b = getaveragecolor(imgdata, x, y)
+			table.insert(rgblist, {r / LOVE_COLOR_MAX, g / LOVE_COLOR_MAX, b / LOVE_COLOR_MAX})
+		end
+	end
+	smbtilecount = width*height
+	
+	--add portal tiles
+	local imgwidth, imgheight = portaltilesimg:getWidth(), portaltilesimg:getHeight()
+	local width = math.floor(imgwidth/17)
+	local height = math.floor(imgheight/17)
+	local imgdata = love.image.newImageData("assets/graphics/DEFAULT/portaltiles.png")
+	
+	for y = 1, height do
+		for x = 1, width do
+			table.insert(tilequads, quad:new(portaltilesimg, imgdata, x, y, imgwidth, imgheight))
+			local r, g, b = getaveragecolor(imgdata, x, y)
+			table.insert(rgblist, {r / LOVE_COLOR_MAX, g / LOVE_COLOR_MAX, b / LOVE_COLOR_MAX})
+		end
+	end
+	portaltilecount = width*height
+	
+	--add entities
+	entitiesimg = love.graphics.newImage("assets/graphics/entities.png")
+	entityquads = {}
+	local imgwidth, imgheight = entitiesimg:getWidth(), entitiesimg:getHeight()
+	local width = math.floor(imgwidth/17)
+	local height = math.floor(imgheight/17)
+	local imgdata = love.image.newImageData("assets/graphics/entities.png")
+	
+	for y = 1, height do
+		for x = 1, width do
+			table.insert(entityquads, entity:new(entitiesimg, x, y, imgwidth, imgheight))
+			entityquads[#entityquads]:sett(#entityquads)
+		end
+	end
+	entitiescount = width*height
+	
+	fontimage2 = love.graphics.newImage("assets/graphics/smallfont.png")
+	numberglyphs = "012458"
+	font2quads = {}
+	for i = 1, 6 do
+		font2quads[string.sub(numberglyphs, i, i)] = love.graphics.newQuad((i-1)*4, 0, 4, 8, 24, 8)
+	end
+	
+	oneuptextimage = love.graphics.newImage("assets/graphics/oneuptext.png")
+	
+	linktoolpointerimg = love.graphics.newImage("assets/graphics/linktoolpointer.png")
+	
+	blockdebrisquads = {}
+	for y = 1, 4 do
+		blockdebrisquads[y] = {}
+		for x = 1, 2 do
+			blockdebrisquads[y][x] = love.graphics.newQuad((x-1)*8, (y-1)*8, 8, 8, 16, 32)
+		end
+	end
+	
+	coinblockanimationquads = {}
+	for i = 1, 30 do
+		coinblockanimationquads[i] = love.graphics.newQuad((i-1)*8, 0, 8, 52, 256, 64)
+	end
+	
+	coinanimationquads = {}
+	for j = 1, 4 do
+		coinanimationquads[j] = {}
+		for i = 1, 5 do
+			coinanimationquads[j][i] = love.graphics.newQuad((i-1)*5, (j-1)*8, 5, 8, 25, 32)
+		end
+	end
+	
+	--coinblock
+	coinblockquads = {}
+	for j = 1, 4 do
+		coinblockquads[j] = {}
+		for i = 1, 5 do
+			coinblockquads[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*16, 16, 16, 80, 64)
+		end
+	end
+	
+	--coin
+	coinquads = {}
+	for j = 1, 4 do
+		coinquads[j] = {}
+		for i = 1, 5 do
+			coinquads[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*16, 16, 16, 80, 64)
+		end
+	end
+	
+	--axe
+	axequads = {}
+	for i = 1, 5 do
+		axequads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 80, 16)
+	end
+	
+	--spring
+	springquads = {}
+	for i = 1, 4 do
+		springquads[i] = {}
+		for j = 1, 3 do
+			springquads[i][j] = love.graphics.newQuad((j-1)*16, (i-1)*31, 16, 31, 48, 124)
+		end
+	end
+	
+	seesawquad = {}
+	for i = 1, 4 do
+		seesawquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
+	end
+	
+	playerselectimg = love.graphics.newImage("assets/graphics/playerselectarrow.png")
+	
+	starquad = {}
+	for i = 1, 4 do
+		starquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
+	end
+	
+	flowerquad = {}
+	for i = 1, 4 do
+		flowerquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
+	end
+	
+	fireballquad = {}
+	for i = 1, 4 do
+		fireballquad[i] = love.graphics.newQuad((i-1)*8, 0, 8, 8, 80, 16)
+	end
+	
+	for i = 5, 7 do
+		fireballquad[i] = love.graphics.newQuad((i-5)*16+32, 0, 16, 16, 80, 16)
+	end
+	
+	vinequad = {}
+	for i = 1, 4 do
+		vinequad[i] = {}
+		for j = 1, 2 do
+			vinequad[i][j] = love.graphics.newQuad((j-1)*16, (i-1)*16, 16, 16, 32, 64) 
+		end
+	end
+	
+	--enemies
+	goombaquad = {}
+	
+	for y = 1, 4 do
+		goombaquad[y] = {}
+		for x = 1, 2 do
+			goombaquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*16, 16, 16, 32, 64)
+		end
+	end
+		
+	spikeyquad = {}
+	for y = 1, 4 do
+		spikeyquad[y] = {}
+		for x = 1, 4 do
+			spikeyquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*16, 16, 16, 64, 64)
+		end
+	end
+	
+	lakitoquad = {}
+	for y = 1, 4 do
+		lakitoquad[y] = {}
+		for x = 1, 2 do
+			lakitoquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*24, 16, 24, 32, 96)
+		end
+	end
+	
+	koopaquad = {}
+	
+	for y = 1, 4 do
+		koopaquad[y] = {}
+		for x = 1, 5 do
+			koopaquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*24, 16, 24, 80, 96)
+		end
+	end
+	cheepcheepquad = {}
+	
+	cheepcheepquad[1] = {}
+	cheepcheepquad[1][1] = love.graphics.newQuad(0, 0, 16, 16, 32, 32)
+	cheepcheepquad[1][2] = love.graphics.newQuad(16, 0, 16, 16, 32, 32)
+	
+	cheepcheepquad[2] = {}
+	cheepcheepquad[2][1] = love.graphics.newQuad(0, 16, 16, 16, 32, 32)
+	cheepcheepquad[2][2] = love.graphics.newQuad(16, 16, 16, 16, 32, 32)
+	
+	squidquad = {}
+	for x = 1, 2 do
+		squidquad[x] = love.graphics.newQuad((x-1)*16, 0, 16, 24, 32, 24)
+	end
+	
+	bulletbillquad = {}
+	
+	for y = 1, 4 do
+		bulletbillquad[y] = love.graphics.newQuad(0, (y-1)*16, 16, 16, 16, 64)
+	end
+	
+	hammerbrosquad = {}
+	for y = 1, 4 do
+		hammerbrosquad[y] = {}
+		for x = 1, 4 do
+			hammerbrosquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*34, 16, 34, 64, 136)
+		end
+	end	
+	
+	hammerquad = {}
+	for j = 1, 4 do
+		hammerquad[j] = {}
+		for i = 1, 4 do
+			hammerquad[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*16, 16, 16, 64, 64)
+		end
+	end
+	
+	plantquads = {}
+	for j = 1, 4 do
+		plantquads[j] = {}
+		for i = 1, 2 do
+			plantquads[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*23, 16, 23, 32, 92)
+		end
+	end
+	
+	firequad = {love.graphics.newQuad(0, 0, 24, 8, 48, 8), love.graphics.newQuad(24, 0, 24, 8, 48, 8)}
+	
+	
+	bowserquad = {}
+	bowserquad[1] = {love.graphics.newQuad(0, 0, 32, 32, 64, 64), love.graphics.newQuad(32, 0, 32, 32, 64, 64)}
+	bowserquad[2] = {love.graphics.newQuad(0, 32, 32, 32, 64, 64), love.graphics.newQuad(32, 32, 32, 32, 64, 64)}
+	
+	decoysquad = {}
+	for y = 1, 7 do
+		decoysquad[y] = love.graphics.newQuad(0, (y-1)*32, 32, 32, 64, 256)
+	end
+	
+	boxquad = {love.graphics.newQuad(0, 0, 12, 12, 32, 16), love.graphics.newQuad(16, 0, 12, 12, 32, 16)}
+	
+	--eh
+	rainboomimg = love.graphics.newImage("assets/graphics/rainboom.png")
+	rainboomquad = {}
+	for x = 1, 7 do
+		for y = 1, 7 do
+			rainboomquad[x+(y-1)*7] = love.graphics.newQuad((x-1)*204, (y-1)*182, 204, 182, 1428, 1274)
+		end
+	end
+	
+	--magic!
+	magicimg = love.graphics.newImage("assets/graphics/magic.png")
+	magicquad = {}
+	for x = 1, 6 do
+		magicquad[x] = love.graphics.newQuad((x-1)*9, 0, 9, 9, 54, 9)
+	end
+	
+	--GUI
+	checkboximg = love.graphics.newImage("assets/graphics/checkbox.png")
+	checkboxquad = {{love.graphics.newQuad(0, 0, 9, 9, 18, 18), love.graphics.newQuad(9, 0, 9, 9, 18, 18)}, {love.graphics.newQuad(0, 9, 9, 9, 18, 18), love.graphics.newQuad(9, 9, 9, 9, 18, 18)}}
+	
+	dropdownarrowimg = love.graphics.newImage("assets/graphics/dropdownarrow.png")
+	
+	--portals
+	portalquad = {}
+	for i = 0, 7 do
+		portalquad[i] = love.graphics.newQuad(0, i*4, 32, 4, 32, 28)
+	end
+	
+	portalparticleimg = love.graphics.newImage("assets/graphics/portalparticle.png")
+	portalcrosshairimg = love.graphics.newImage("assets/graphics/portalcrosshair.png")
+	portaldotimg = love.graphics.newImage("assets/graphics/portaldot.png")
+	portalprojectileimg = love.graphics.newImage("assets/graphics/portalprojectile.png")
+	portalprojectileparticleimg = love.graphics.newImage("assets/graphics/portalprojectileparticle.png")
+	portalbackgroundimg = love.graphics.newImage("assets/graphics/portalbackground.png")
+	
+	--Menu shit
+	huebarimg = love.graphics.newImage("assets/graphics/huehuehuebar.png")
+	huebarmarkerimg = love.graphics.newImage("assets/graphics/huebarmarker.png")
+	volumesliderimg = love.graphics.newImage("assets/graphics/volumeslider.png")
+	
+	--Portal props	
+	buttonquad = {love.graphics.newQuad(0, 0, 32, 5, 64, 5), love.graphics.newQuad(32, 0, 32, 5, 64, 5)}
+	
+	pushbuttonquad = {love.graphics.newQuad(0, 0, 16, 16, 32, 16), love.graphics.newQuad(16, 0, 16, 16, 32, 16)}
+	
+	wallindicatorquad = {love.graphics.newQuad(0, 0, 16, 16, 32, 16), love.graphics.newQuad(16, 0, 16, 16, 32, 16)}
+	
+	walltimerquad = {}
+	for i = 1, 10 do
+		walltimerquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 160, 16)
+	end
+	
+	directionsimg = love.graphics.newImage("assets/graphics/directions.png")
+	directionsquad = {}
+	for x = 1, 6 do
+		directionsquad[x] = love.graphics.newQuad((x-1)*7, 0, 7, 7, 42, 7)
+	end
+	
+	excursionquad = {}
+	for x = 1, 8 do
+		excursionquad[x] = love.graphics.newQuad((x-1)*8, 0, 8, 32, 64, 32)
+	end
+	
+	faithplatequad = {love.graphics.newQuad(0, 0, 32, 16, 32, 32), love.graphics.newQuad(0, 16, 32, 16, 32, 32)}
+	
+	gelquad = {love.graphics.newQuad(0, 0, 12, 12, 36, 12), love.graphics.newQuad(12, 0, 12, 12, 36, 12), love.graphics.newQuad(24, 0, 12, 12, 36, 12)}
+	
+	gradientimg = love.graphics.newImage("assets/graphics/gradient.png");gradientimg:setFilter("linear", "linear")
+	
+	panelquad = {}
+	for x = 1, 2 do
+		panelquad[x] = love.graphics.newQuad((x-1)*16, 0, 16, 16, 32, 16)
+	end
+	
+	add("Images, quads")
+	
+	--AUDIO--
+	--sounds
+	soundstoload = {"jump", "jumpbig", "stomp", "shot", "blockhit", "blockbreak", "coin", "pipe", "boom", "mushroomappear", "mushroomeat", "shrink", "death", "gameover", "fireball",
+					"oneup", "levelend", "castleend", "scorering", "intermission", "fire", "bridgebreak", "bowserfall", "vine", "swim", "rainboom", "konami", "pause", "bulletbill",
+					"lowtime", "tailwag", "planemode", "stab", "portal1open", "portal2open", "portalenter", "portalfizzle", "pushbutton"}
+
+	defaultsoundslist = {}
+	overwrittensounds = {}	
+	soundlist = {}
+	
+	for i, v in pairs(soundstoload) do
+		assets:register_sound(v, "assets/sounds/" .. v .. ".ogg")
+		local src = assets:get_sound(v)
+		soundlist[v] = {}
+		soundlist[v].source = src
+		soundlist[v].lastplayed = 0
+		defaultsoundslist[v] = src
+	end
+	
+	soundlist["scorering"].source:setLooping(true)
+	soundlist["planemode"].source:setLooping(true)
+	soundlist["portal1open"].source:setVolume(0.3)
+	soundlist["portal2open"].source:setVolume(0.3)
+	soundlist["portalenter"].source:setVolume(0.3)
+	soundlist["portalfizzle"].source:setVolume(0.3)
+	
+	delaylist = {}
+	delaylist["blockhit"] = 0.2
+	
+	musicname = "overworld.ogg"
+	
+	add("Sounds")
+
+end
+
+
+function Boot.run_load()
+	Boot.require_game()
+	
+	http = require("socket.http")
+	http.PORT = 55555
+	http.TIMEOUT = 1
+	
+	updatenotification = false
+	if getupdate() then
+		updatenotification = true
+	end
+	http.TIMEOUT = 4
+	
+	playertypei = 1
+	playertype = playertypelist[playertypei] --portal, gelcannon
+	
+	if volumesfx == 0 then
+		soundenabled = false
+	else
+		soundenabled = true
+	end
+	love.filesystem.createDirectory( "mappacks" )
+	love.filesystem.createDirectory( "toconvert" )
+	editormode = false
+	yoffset = 0
+	love.graphics.setPointSize(3*scale)
+	love.graphics.setLineWidth(2*scale)
+	
+	uispace = math.floor(width*16*scale/4)
+	guielements = {}
+	
+	--limit hats
+	for playerno = 1, players do
+		for i = 1, #mariohats[playerno] do
+			if mariohats[playerno][i] > hatcount then
+				mariohats[playerno][i] = hatcount
+			end
+		end
+	end
+	
+	--Backgroundcolors
+	backgroundcolor = {
+						{92 / 255,	148 / 255,	252 / 255},
+						{0 / 255,	0 / 255,	0 / 255},
+						{32 / 255,	56 / 255,	236 / 255},
+						{158 / 255,	219 / 255,	248 / 255},
+						{210 / 255,	159 / 255,	229 / 255},
+						{237 / 255,	241 / 255,	243 / 255},
+						{244 / 255,	178 / 255,	92 / 255},
+						{253 / 255,	246 / 255,	175 / 255},
+						{249 / 255,	183 / 255,	206 / 255},
+					}
+	add("Update Check, variables")
+	
+
+	Boot.load_media()
+	shaders:init()
+	add("Shaders init")
+	for i, v in pairs(dlclist) do
+		delete_mappack(v)
+	end
+
+	Boot.register_gamestates()
+end
+
+function Boot.register_gamestates()
+	if not Gamestate then
+		return
+	end
+	-- Menu family shares menu_update/draw
+	for _, name in ipairs({"menu", "mappackmenu", "onlinemenu", "options", "lobby"}) do
+		Gamestate.register(name, {update = menu_update, draw = menu_draw})
+	end
+	for _, name in ipairs({"levelscreen", "gameover", "sublevelscreen", "mappackfinished"}) do
+		Gamestate.register(name, {update = levelscreen_update, draw = levelscreen_draw})
+	end
+	Gamestate.register("game", {update = game_update, draw = game_draw})
+	Gamestate.register("intro", {update = intro_update, draw = intro_draw})
+	-- Editor draws/updates inside game when editormode; register for future routing
+	if editor_update and editor_draw then
+		Gamestate.register("editor", {update = editor_update, draw = editor_draw})
+	end
+end
+
+_G.Boot = Boot
+return Boot

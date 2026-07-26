@@ -22,6 +22,97 @@ local bans = {
 	{pattern = "%f[%w]texture2D%f[%W]", label = "texture2D", note = "use Texel"},
 }
 
+-- Flat legacy names for modules that live under build/ (dotted require only).
+local banned_flat_requires = {
+	"tilekey", "mathutil", "stringutil", "tableutil", "listutil", "maputil",
+	"zones", "bounceutil", "globstate", "levelio", "spawnregistry",
+	"physicslate", "physicsconvert", "physicsdir", "physicsemance",
+	"physicscollision", "physicscheckrect", "physicsportal",
+	"physicshandlegroup", "physicsupdate",
+	"portalutil", "hatutil", "playerutil", "userectutil", "scrollutil",
+	"updateutil", "menuutil", "enemyutil", "editorutil",
+	"mario", "enemy", "menu", "editor", "gui", "rightclickmenu",
+	"variables", "enemies", "characterloader", "musicloader", "notice",
+	"quad", "tile", "scrollingscore", "scrollingtext",
+	"levelscreen", "intro", "camera", "portal",
+	"game", "game_load", "game_spawn", "game_portal", "game_update", "game_draw",
+	"entity", "animation", "animationsystem", "animationguiline",
+	"funnel",
+	"laser",
+	"laserdetector",
+	"lightbridge",
+	"emancipationgrill",
+	"panel",
+	"button",
+	"door",
+	"faithplate",
+	"gel",
+	"geldispenser",
+	"cubedispenser",
+	"pushbutton",
+	"portalent",
+	"portalparticle",
+	"portalprojectile",
+	"portalwall",
+	"emancipateanimation",
+	"emancipationfizzle",
+	"pedestal",
+	"groundlight",
+	"platform",
+	"platformspawner",
+	"scaffold",
+	"box",
+	"spring",
+	"vine",
+	"bowser",
+	"bulletbill",
+	"fireball",
+	"castlefire",
+	"fire",
+	"firework",
+	"blockdebris",
+	"bubble",
+	"miniblock",
+	"seesaw",
+	"seesawplatform",
+	"coinblockanimation",
+	"itemanimation",
+	"rainboom",
+	"magic",
+	"screenboundary",
+	"ceilblocker",
+	"checkpoint",
+	"enemyspawner",
+	"musicentity",
+	"actionblock",
+	"textentity",
+	"andgate",
+	"notgate",
+	"orgate",
+	"delayer",
+	"squarewave",
+	"rsflipflop",
+	"walltimer",
+	"wallindicator",
+	"regiontrigger",
+	"zgbooltrigger",
+	"zginttrigger",
+	"animationtrigger",
+	"animatedtimer",
+	"animatedbooltimer",
+	"animatedtiletrigger",
+	"animatedquad",
+	"hatconfigs",
+	"bighatconfigs",
+	"customhats",
+	"regiondrag",
+	"dialogbox",
+	"entitylistitem",
+	"entitytooltip",
+	"lobby",
+	"onlinemenu",
+}
+
 local function scan_file(path, rel)
 	local f = io.open(path, "r")
 	if not f then
@@ -29,10 +120,6 @@ local function scan_file(path, rel)
 	end
 	local body = f:read("*a")
 	f:close()
-	-- Skip polyfill definition that wraps exists for Love < 11
-	if rel == "main.lua" then
-		body = body:gsub("function love%.filesystem%.getInfo.-end", "")
-	end
 	for _, ban in ipairs(bans) do
 		local line_no = 0
 		for line in (body .. "\n"):gmatch("(.-)\n") do
@@ -40,13 +127,8 @@ local function scan_file(path, rel)
 			if line:find(ban.pattern) then
 				local trimmed = line:match("^%s*(.*)")
 				if trimmed and not trimmed:match("^%-%-") then
-					-- Love < 11 polyfill in main.lua may call exists
-					if ban.label == "love.filesystem.exists" and rel == "main.lua" then
-						-- ok
-					else
-						check(ban.label .. " absent in " .. rel, false,
-							"line " .. line_no .. " (" .. ban.note .. ")")
-					end
+					check(ban.label .. " absent in " .. rel, false,
+						"line " .. line_no .. " (" .. ban.note .. ")")
 				end
 			end
 		end
@@ -70,7 +152,8 @@ local function list_files(dir, exts)
 		return out
 	end
 	for line in p:lines() do
-		if not line:find("/%.git/") and not line:find("/tests/") then
+		if not line:find("/%.git/") and not line:find("/tests/") and not line:find("/build/")
+			and not line:find("/legacy/") and not line:find("/dist/") then
 			table.insert(out, line)
 		end
 	end
@@ -78,7 +161,7 @@ local function list_files(dir, exts)
 	return out
 end
 
-local files = list_files(root, {"lua", "frag"})
+local files = list_files(root, {"lua", "frag", "tl"})
 check("scanned source files", #files > 0, "count=" .. #files)
 
 local hits_before = failed
@@ -88,6 +171,116 @@ for _, path in ipairs(files) do
 end
 if failed == hits_before then
 	check("no banned Love/GLSL APIs in source", true)
+end
+
+-- Root .lua allowlist only (entry + conf + teal config; rocks live in lib/)
+do
+	local allow = {
+		["conf.lua"] = true,
+		["tlconfig.lua"] = true,
+		["main.lua"] = true,
+	}
+	local extra = 0
+	local p = io.popen(string.format('find "%s" -maxdepth 1 -name "*.lua" -type f 2>/dev/null', root))
+	if p then
+		for path in p:lines() do
+			local name = path:match("([^/]+)$")
+			if name and not allow[name] then
+				extra = extra + 1
+				check("root lua allowlist", false, name .. " not allowed")
+			end
+		end
+		p:close()
+	end
+	if extra == 0 then
+		check("root .lua allowlist only", true)
+	end
+end
+
+-- Ban new root files that are only `return require(...)` shims
+do
+	local shim_hits = 0
+	local p = io.popen(string.format('find "%s" -maxdepth 1 -name "*.lua" -type f 2>/dev/null', root))
+	if p then
+		for path in p:lines() do
+			local f = io.open(path, "r")
+			if f then
+				local body = f:read("*a")
+				f:close()
+				local stripped = body:gsub("%-%-[^\n]*", ""):gsub("%s+", " "):match("^%s*(.-)%s*$")
+				if stripped and stripped:match("^return require%s*%(") then
+					shim_hits = shim_hits + 1
+					local name = path:match("([^/]+)$")
+					check("no root shim re-export " .. name, false, "delete or inline dotted require")
+				end
+			end
+		end
+		p:close()
+	end
+	if shim_hits == 0 then
+		check("no root return-require shim files", true)
+	end
+end
+
+-- Ban flat require of ported modules in non-test sources
+do
+	local flat_hits = 0
+	for _, path in ipairs(files) do
+		local rel = path:sub(#root + 2)
+		if rel:match("%.lua$") or rel:match("%.tl$") then
+			local f = io.open(path, "r")
+			if f then
+				local body = f:read("*a")
+				f:close()
+				local line_no = 0
+				for line in (body .. "\n"):gmatch("(.-)\n") do
+					line_no = line_no + 1
+					local trimmed = line:match("^%s*(.*)")
+					if trimmed and not trimmed:match("^%-%-") then
+						for _, name in ipairs(banned_flat_requires) do
+							if trimmed:find('require%s*[\'"]' .. name .. '[\'"]') then
+								flat_hits = flat_hits + 1
+								check("no flat require \"" .. name .. "\"", false, rel .. ":" .. line_no)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	if flat_hits == 0 then
+		check("no flat requires of ported modules", true)
+	end
+end
+
+-- newImage / newSource only in src/assets/** and app boot/load media helpers
+local media_hits = 0
+for _, path in ipairs(files) do
+	local rel = path:sub(#root + 2)
+	if rel:match("%.tl$") then
+		local allowed = rel:match("^src/assets/") or rel == "src/app/boot.tl" or rel == "src/app/love_load.tl"
+		if not allowed then
+			local f = io.open(path, "r")
+			if f then
+				local body = f:read("*a")
+				f:close()
+				local line_no = 0
+				for line in (body .. "\n"):gmatch("(.-)\n") do
+					line_no = line_no + 1
+					local trimmed = line:match("^%s*(.*)")
+					if trimmed and not trimmed:match("^%-%-") then
+						if trimmed:find("love%.graphics%.newImage") or trimmed:find("love%.audio%.newSource") then
+							media_hits = media_hits + 1
+							check("newImage/newSource only assets+boot+load", false, rel .. ":" .. line_no)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+if media_hits == 0 then
+	check("newImage/newSource confined to assets+boot+load", true)
 end
 
 if select("#", ...) > 0 then

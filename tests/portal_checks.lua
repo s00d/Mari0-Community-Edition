@@ -19,9 +19,9 @@ local function almost(a, b, eps)
 	return math.abs(a - b) < eps
 end
 
-dofile(root .. "/maputil.lua") -- inrange
-dofile(root .. "/portalutil.lua")
-dofile(root .. "/physicsportal.lua")
+require("core.maputil") -- inrange
+require("util.portalutil")
+require("physics.portal")
 
 yacceleration = 80
 gdt = 1 / 60

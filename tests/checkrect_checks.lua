@@ -23,8 +23,8 @@ local function out_has(out, typ, key)
 	return false
 end
 
-dofile(root .. "/physicslate.lua") -- aabb
-dofile(root .. "/physicscheckrect.lua")
+require("physics.late") -- aabb
+require("physics.checkrect")
 
 -- empty world
 do

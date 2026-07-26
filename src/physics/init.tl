@@ -1,0 +1,51 @@
+--[[
+	PHYSICS LIBRARY THING
+	WRITTEN BY MAURICE GUÉGAN FOR MARI0
+	DON'T STEAL MY SHIT
+	Licensed under WTFPL
+]]
+
+--MASK REFERENCE LIST
+---1: *ALWAYS NOT COLLIDE*
+
+---2: WORLD
+---3: MARIO
+---4: GOOMBA
+---5: KOOPA
+---6: MUSHROOM/ONEUP/FLOWER/STAR
+
+---7: GEL DISPENSER
+---8: GEL
+---9: BOX
+--10: SCREENBOUNDARIES
+--11: BULLETBILL
+
+--12: PORTALWALLS
+--13: FIREBALLS
+--14: HAMMERS
+--15: PLATFORMS/SEESAWS
+--16: BOWSER
+
+--17: FIRE
+--18: VINE
+--19: SPRING
+--20: HAMMERBROS
+--21: LAKITO
+
+--22: BUTTON --Not used anymore
+--23: CASTLEFIRE
+--24: CHEEP
+--25: DOOR
+--26: FAITHPLATE
+
+--27: FLYINGFISH
+--28: LIGHTBRIDGE
+--29: PLANT
+--30: SQUID
+--31: UPFIRE
+
+-- Thin facade: movers + AABB query live in dedicated modules.
+require("physics.checkrect")
+require("physics.update")
+
+return {}

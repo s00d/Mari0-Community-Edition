@@ -6,7 +6,7 @@
 local root = ... or "."
 local failed = 0
 
--- variables.lua references screen width/height at load time
+-- app.variables references screen width/height at load time
 width = width or 25
 height = height or 14
 
@@ -19,9 +19,9 @@ local function check(name, cond, detail)
 	end
 end
 
-dofile(root .. "/stringutil.lua")
-dofile(root .. "/variables.lua")
-dofile(root .. "/levelio.lua")
+require("core.stringutil")
+require("app.variables")
+require("world.levelio")
 
 check("loadmap exists", type(loadmap) == "function")
 check("savemap exists", type(savemap) == "function")
@@ -138,20 +138,18 @@ do
 	end
 end
 
--- game.lua must not redefine moved APIs
+-- root game.lua removed; level APIs live in world.levelio / app.game_*
 do
-	local f = io.open(root .. "/game.lua", "r")
-	local body = f and f:read("*a") or ""
-	if f then f:close() end
-	check("game.lua no function loadmap", not body:find("function loadmap%s*%("))
-	check("game.lua no function savemap", not body:find("function savemap%s*%("))
-	check("game.lua no function savelevel", not body:find("function savelevel%s*%("))
-	check("game.lua no function renderpreview", not body:find("function renderpreview%s*%("))
+	check("no root game.lua", io.open(root .. "/game.lua", "r") == nil)
 	local mainf = io.open(root .. "/main.lua", "r")
 	local main = mainf and mainf:read("*a") or ""
 	if mainf then mainf:close() end
-	check("main requires levelio", main:find('require%s+"levelio"') ~= nil)
-	check("main keeps early stringutil", main:find('require%s+"stringutil"') ~= nil)
+	local bootf = io.open(root .. "/src/app/boot.tl", "r")
+	local boot = bootf and bootf:read("*a") or ""
+	if bootf then bootf:close() end
+	check("main/boot requires levelio", main:find('require%s+"world%.levelio"') ~= nil or boot:find('require%s+"world%.levelio"') ~= nil)
+	check("boot requires game phases", boot:find('require%s+"app%.game_load"') ~= nil)
+	check("main keeps early stringutil", main:find('require%s+"core%.stringutil"') ~= nil or main:find('require%s+"app%.boot"') ~= nil or main:find('require%s+"app%.love_run"') ~= nil)
 end
 
 return failed

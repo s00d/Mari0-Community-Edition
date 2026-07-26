@@ -1,0 +1,56 @@
+--[[ Teal port of root portalparticle.lua ]]
+
+rawset(_G, "portalparticle", rawget(_G, "portalparticle") or {})
+
+function portalparticle.new(_: portalparticle, x: number, y: number, color: any, direction: any): portalparticle
+	local self = setmetatable({}, { __index = portalparticle }) as portalparticle
+	self:init(x, y, color, direction)
+	return self
+end
+
+function portalparticle:init(x: number, y: number, color, direction)
+	self.x = x or 0
+	self.y = y or 0
+	self.timer = 0
+	self.color = color or {1, 1, 1, 0}
+	self.direction = direction
+	
+	self.speedx, self.speedy = 0, 0
+	if self.direction == "left" then
+		self.speedx = -portalparticlespeed
+	elseif self.direction == "right" then
+		self.speedx = portalparticlespeed
+	elseif self.direction == "up" then
+		self.speedy = -portalparticlespeed
+	elseif self.direction == "down" then
+		self.speedy = portalparticlespeed
+	end
+end
+
+function portalparticle:update(dt: number)
+	self.timer = self.timer + dt
+	self.x = self.x + self.speedx*dt
+	self.y = self.y + self.speedy*dt
+	
+	self.speedx = self.speedx + math.random(-10, 10)/70
+	self.speedy = self.speedy + math.random(-10, 10)/70
+	
+	if self.direction == "up" then
+		if self.speedy > 0 then
+			self.speedy = 0
+		end
+	end
+	
+	if self.timer > portalparticleduration then
+		return true
+	end
+	
+	return false
+end
+
+function portalparticle:draw()
+	local r, g, b = unpack(self.color)
+	local a = (1 - self.timer/portalparticleduration)
+	love.graphics.setColor(r, g, b, a)
+	love.graphics.draw(portalparticleimg, math.floor((self.x-xscroll)*16*scale), math.floor((self.y-yscroll-.5)*16*scale), 0, scale, scale, .5, .5)
+end

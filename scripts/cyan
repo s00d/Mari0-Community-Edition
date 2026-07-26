@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Run Cyan with the Lua that matches its luarocks tree.
+# Homebrew luarocks installs against Lua 5.5; LuaJIT cannot load that lfs.so.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+export PATH="${HOME}/.luarocks/bin:${PATH}"
+
+if ! command -v luarocks >/dev/null 2>&1; then
+	echo "error: luarocks not found (needed for Cyan)" >&2
+	exit 1
+fi
+
+LUA_BIN=""
+CYAN_MAIN=""
+for ver in 5.5 5.4 5.3 5.2 5.1; do
+	cand="$(find "${HOME}/.luarocks/lib/luarocks/rocks-${ver}" -path '*/cyan/*/bin/cyan' 2>/dev/null | head -1 || true)"
+	if [[ -n "${cand}" && -f "${cand}" ]]; then
+		CYAN_MAIN="${cand}"
+		eval "$(luarocks --lua-version "${ver}" path 2>/dev/null || true)"
+		# Resolve lua interpreter for this version
+		if command -v "lua${ver}" >/dev/null 2>&1; then
+			LUA_BIN="$(command -v "lua${ver}")"
+		elif [[ -x "/opt/homebrew/opt/lua/bin/lua${ver}" ]]; then
+			LUA_BIN="/opt/homebrew/opt/lua/bin/lua${ver}"
+		fi
+		break
+	fi
+done
+
+if [[ -z "${CYAN_MAIN}" || -z "${LUA_BIN}" ]]; then
+	echo "error: cyan/lua not found. Install with: luarocks install --local cyan" >&2
+	exit 1
+fi
+
+cd "$ROOT"
+exec "${LUA_BIN}" "${CYAN_MAIN}" "$@"

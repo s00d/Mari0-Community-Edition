@@ -1,0 +1,1614 @@
+-- Major Mari0 runtime globals for Teal (ambient via love.d.tl → require("game")).
+-- Prefer concrete records from entities.d.tl. Narrow `any` only at legacy boundaries.
+
+require("entities")
+require("records")
+
+global record MouseProxy
+	getX: function(MouseProxy): number
+	getY: function(MouseProxy): number
+	getPosition: function(MouseProxy): number, number
+	isDown: function(MouseProxy, ...: any): boolean
+end
+
+
+
+global record GamestateModule
+	current: string
+	handlers: {string:{string:function}}
+	register: function(GamestateModule, string, {string:function})
+	set: function(GamestateModule, string)
+	get: function(GamestateModule): string
+	update: function(GamestateModule, number)
+	draw: function(GamestateModule)
+end
+
+global record LoggerModule
+	level: string
+	info: function(...: any)
+	debug: function(...: any)
+	warn: function(...: any)
+	error: function(...: any)
+	set_level: function(string)
+end
+
+global record BootModule
+	run_early: function(any, any)
+	require_game: function()
+	load_media: function()
+	run_load: function()
+	register_gamestates: function()
+end
+
+-- Runtime JSON is LuaRocks dkjson (see types/dkjson.d.tl); kept as global JSON.
+global record JSONModule
+	decode: function(string, integer|nil, any|nil): any, integer|nil
+	encode: function(any, {string:any}|nil): string
+	null: any
+	version: string
+end
+
+-- Map / camera / session
+global record MapCell is {any}
+	gels: {string:any}
+	portal: any
+end
+global map: {number:{number:MapCell}}
+global objects: {string:{any:Entity}}
+global playerobjs: {any:mario}
+global xscroll: number
+global yscroll: number
+global mapwidth: number
+global mapheight: number
+global mariotimer: number
+global gamestate: string
+global editormode: boolean
+global paused: boolean
+global players: integer
+global scale: number
+global width: number
+global height: number
+global fullscreen: boolean
+global fullscreenmode: string
+global record DesktopSize
+	width: number
+	height: number
+end
+global desktopsize: DesktopSize
+global mappack: string
+global currentlevel: string|number|{any:any}
+
+-- Typed session / services (World / AssetStore records are already globals)
+global session: World
+global assets: AssetStore
+global Gamestate: GamestateModule
+global Logger: LoggerModule
+global Boot: BootModule
+
+-- Runtime globals for LuaRocks modules (loaded in main / Boot)
+global JSON: JSONModule
+global sha1: function(string): string
+
+-- Entity records live in src/entities/*.tl (global record). Keep ambient helpers.
+
+-- Love 11 color max / disk color space
+global LOVE_COLOR_MAX: number
+global DISK_COLOR_MAX: number
+global MUSIC_SOURCE_TYPE: string
+
+-- Lua 5.1 unpack (gen_target 5.1)
+global unpack: function(list: {any}, ...: number): any...
+
+-- Core helpers exported as globals from src/core/*
+global tilekey: function(x: number, y: number): integer
+global tilekey_xy: function(key: integer): integer, integer
+global TILEKEY_STRIDE: integer
+global inmap: function(x: number|nil, y: number|nil): boolean
+global inrange: function(i: number, a: number, b: number, include: boolean|nil): boolean
+global round: function(num: number, idp: number|nil): number
+global tablecontains: function(t: {any}, entry: any): boolean
+global properprint: function(s: string|number, x: number, y: number, sc: number|nil)
+global getTile: function(...: any): any, any
+global getMouseTile: function(x: number, y: number): number, number
+
+-- Tiles / enemies / characters
+global tilequads: {number:TileQuad}
+global enemiesdata: {string:EnemyDef}
+global enemies: {string}
+global characters: {string:Character}
+global mariocharacter: {string}
+
+-- Class tables are now Teal `global record`s in src/ (see entities/*, ui/gui, world/*).
+-- Do not redeclare them here as `any` ("cannot reassign a type").
+global hat: {number:HatDef}
+global bighat: {number:HatDef}
+
+-- HUD / progress
+global marioworld: number
+global mariolevel: number
+global mariosublevel: number
+global mariotime: number
+global mariotimelimit: number
+global mariolives: {integer}
+global mariolivecount: integer|boolean
+global mariocoincount: number
+global mariocolors: {{{number}}}
+global mariohats: {any}
+global portalhues: {{number}}
+global portalcolor: {{number}}
+global portals: {number:portal}
+global portalsavailable: {boolean}
+global controls: {number:{string:{any}}}
+global mouse: MouseProxy
+global mousex: number
+global mousey: number
+global mouseowner: integer
+global bigmario: boolean
+
+-- Editor / menu UI state
+global editorstate: string
+global currenttile: number|string -- tile id or enemy name
+global editentities: boolean
+global editenemies: boolean
+global record EntityListEntry
+	t: string
+	hidden: boolean
+	category: string
+	description: string
+	iconauthor: string
+	output: boolean
+	i: number
+end
+global entitylist: {any:EntityListEntry}
+global record entitylistcategory
+	t: string
+	entries: {entitylistitem}
+end
+global entitylistitems: {entitylistcategory}
+global rightclickmenues: {string:{any}}
+global rightclickm: rightclickmenu|nil
+global rightclicka: number
+global animationguilines: {string:{animationguiline}}
+global animationguiarea: {number}
+global objectsguiarea: {number}
+global mapbuttons: {string:guielement}
+global optionstab: integer
+global optionsselection: integer
+global skinningplayer: integer
+global mappacklist: {string}
+global mappackselection: integer
+global mappackhorscroll: number
+global mappackhorscrollsmooth: number
+global onlinemappacklist: {string}
+global onlinemappackselection: integer
+global helpui: {number}
+global hotkeys: {string:any}
+global selection: {{any}}
+global brush: {any}
+global record RegionDragging
+	x: number
+	y: number
+	width: number
+	height: number
+	movex: number
+	movey: number
+	update: function(RegionDragging, number): boolean|nil
+	draw: function(RegionDragging)
+	mousepressed: function(RegionDragging, ...: any): any
+end
+global regiondragging: RegionDragging|boolean|nil
+global tileselectionclick1x: number
+global tileselectionclick1y: number
+global minimapscroll: number
+global tilesoffset: number
+global tileliststart: integer
+global middlemode: {any}
+global colorsetedit: integer
+global replaychar: {any}
+global prompt: any
+global rgbselection: number
+global client_load: function(...: any): any
+global server_load: function(...: any): any
+global server_start: function(...: any): any
+
+-- Level / world visuals
+global spriteset: integer
+global custombackground: boolean|string|nil
+global customforeground: boolean|string|nil
+global background: {number}
+global coinmap: {{boolean}}
+global smbtilecount: integer
+global portaltilecount: integer
+global customtilecount: integer
+global modcustomtiles: integer
+global modcustomtilecount: {integer}
+global music: MusicPlayer
+global musicname: string
+global record SoundEntry
+	source: Source
+end
+global soundlist: {string:SoundEntry}
+global record ShadersController is {any}
+	set: function(ShadersController, any, any)
+	update: function(ShadersController, any)
+end
+
+global shaders: ShadersController
+global shaderlist: {string}
+global guielements: {string:guielement}
+global volumesfx: number
+global volumemusic: number
+global speed: number
+global speedtarget: number
+global scrollingscores: {any:Entity}
+global flagx: number|boolean
+global axex: number|boolean
+global startx: {number}
+global starty: {number}
+global levelfinished: boolean
+global ylookmodifier: number
+global gdt: number
+global introprogress: number
+global currentshaderi1: number
+global currentshaderi2: number
+global globints: {string:integer}
+global outputs: {string:any}
+global CATEGORYDELIMITER: {string}
+global MAP_SPAWN_HANDLERS: {string:function}
+global MAP_SPAWN_EARLY_HANDLERS: {string:function}
+
+-- Auto-ambient stubs for legacy globals (narrow later)
+global notice: {string:any}
+global record AnimationDef
+	name: string
+	nicename: string
+	filepath: string
+	triggers: {any}
+	conditions: {any}
+	actions: {any}
+end
+global animations: {number:AnimationDef}
+global currentanimation: number
+global controlstable: {string}
+global customtilesimg: Image
+global yacceleration: number
+global selectionwidth: number
+global newmapwidth: number
+global newmapheight: number
+global characterlist: {any}
+global rightclickcellheight: number
+global pausemenuselected: number
+global custombackgroundimg: Image
+global axey: number|boolean
+global noupdate: boolean
+global autoscroll: boolean
+global rgblist: {{number}}
+global minimapx: number
+global minimapy: number
+global powerlinedrawtable: {{any}}
+global tileselectionclick2x: number
+global tileselectionclick2y: number
+global pastingtiles: boolean
+global editormenuopen: boolean
+global tilelistcount: number
+global mappackscroll: number
+global mappackscrollsmooth: number
+global onlinemappackscroll: number
+global onlinemappackscrollsmooth: number
+global toconvertmappackscroll: number
+global toconvertmappackscrollsmooth: number
+global pausemenuselected2: number
+global blockbouncetime: number
+global record EntityQuad
+	image: Image
+	quad: Quad
+	i: number
+end
+global entityquads: {number:EntityQuad}
+global levelfinishedmisc: {any}
+global playertype: string
+global animatedtimers: {{any}}
+global tileselectionclick1: number|boolean
+global tileselectionclick2: number|boolean
+global playertypei: number
+global lightdrawtable: {any}
+global toconvertmappackselection: number
+global rightclickcellspacing: number
+global smbtilesimg: Image
+global portaltilesimg: Image
+global coinanimation: number
+global intermission: boolean
+global underwater: boolean
+global EQUALSIGN: string
+global seesawtype: number
+global pausemenuoptions: {string}
+global earthquake: number
+global animatedtiles: {{any}}
+global backgroundcolor: {{number}}
+global mazestarts: {string:any}
+global bonusstage: boolean
+global record HttpLib
+	request: function(...: any): any
+	PORT: number
+	TIMEOUT: number
+end
+
+global http: HttpLib
+global custombackgrounds: {any}
+global reachedworlds: {string:any}
+global superfriction: number
+global animatedtilelist: {any}
+global toconvertmappacklist: {any}
+global result: {string:any}
+global yoffset: number
+global uispace: number
+global blockbouncetimer: number
+global pausemenuopen: boolean
+global musiclist: {string}
+global animatedtilecount: number
+global animatedbooltimers: {{any}}
+global allowdrag: boolean
+global rightclickactive: boolean
+global selectionx: number
+global selectiony: number
+global selectionheight: number
+global newmapoffsetx: number
+global newmapoffsety: number
+global blacktime: number
+global ENEMY_SPAWN_HANDLERS: {string:any}
+global playerlist: {any}
+global emancipationgrills: {any:Entity}
+global marioscore: number
+global flagy: number
+global bullettime: boolean
+global replaydata: {{any}}
+global repeatX: boolean
+global haswarpzone: boolean
+global maxwalkspeed: number
+global friction: number
+global mappackhorscrollrange: number
+global currentstate: number|string
+global introduration: number
+global introfadetime: number
+global rightclickwidth: number
+global runanimationtimer: number
+global coinframe: number
+global modcustomtilesimg: Image
+global scrollfactor: number
+global custombackgroundheight: number
+global custombackgroundwidth: number
+global testlevel: boolean
+global checkpointx: number
+global globools: {string:any}
+global pipestartx: number
+global dirscale: number
+global vsync: boolean
+global pipeanimationtime: number
+global sonicrainboom: boolean
+global fireballquad: {{Quad}}
+global arcade: boolean
+global multitilesoffset: number
+global savestates: {{any}}
+global tileselection: boolean|{string:any}
+global pastecenter: {number}
+global changemapwidthmenu: boolean
+global lightdrawX: number
+global mappacktype: string
+global coinblockanimations: {any:Entity}
+global portaldotstimer: number
+global tilenumber: number
+global customtiles: boolean
+global scrollingcomplete: boolean
+global checkpointy: number
+global checkpointsub: number|boolean
+global mariosizes: {any}
+global mazeends: {string:any}
+global walkaccelerationair: number
+global runaccelerationair: number
+global funnelmovespeed: number
+global loaddelayed: boolean
+global success: boolean
+global allowskip: boolean
+global fastestplayer: {string:any}
+global regiondragboxwidth: number
+global seesawquad: {{Quad}}
+global animationlist: {string:AnimationDef}
+global minimapheight: number
+global mtclipboard: {{any}}
+global lightdrawY: number
+global groundlighttable: {string}
+global runanimationframe: number
+global usemagic: boolean
+global modcustomspritebatch: {SpriteBatch}
+global blockbouncex: {any}
+global blockbouncey: {any}
+global fscrollfactor: number
+global infinitetime: boolean
+global portaldelay: number
+global gelcannontimer: number
+global spritebatchX: {any}
+global firestartx: number|boolean
+global pipestarty: number
+global fireanimationtime: number
+global soundenabled: boolean
+global editordebug: boolean
+global portalknockback: boolean
+global s4: {string}
+global starcolors: {any}
+global firepoints: {string:number}
+global mariostarduration: number
+global vineframedelay: number
+global playercollisions: boolean
+global infinitelives: boolean
+global fireworkcount: number
+global collisionexists: function(any, Entity): any
+global mtjustsaved: number
+global pastemode: boolean
+global splitxscroll: {number}
+global multitileobjects: {{any}}
+global tilescrollbarheight: number
+global selectworldcursor: number
+global mappackdescription: {any}
+global axisDeadZones: {any}
+global playerconfig: {any}
+global blockdebristable: {any:Entity}
+global portalprojectiles: {any:Entity}
+global completecanvas: Canvas
+global userects: {any:Entity}
+global menuprompt: boolean
+global itemanimations: {any:Entity}
+global scalefactor: number
+global replayi: number
+global everyonedead: boolean
+global blockbouncecontent: {any}
+global coinblocktimers: {any}
+global minimapdragging: boolean
+global scrollrate: number
+global userscrollrange: number
+global firetimer: number
+global prevsublevel: number|boolean
+global spawnrestrictions: {any}
+global gamefinished: boolean
+global frameskip: boolean
+global mkstation: boolean
+global SERVER: string
+global BLOCKDELIMITER: string
+global airslidefactor: number
+global mariocombo: {number}
+global mariogravity: number
+global uwmaxairwalkspeed: number
+global uwfriction: number
+global shotgravity: number
+global portalanimation: number
+global portalanimationtimer: number
+global flagdescendtime: number
+global springtime: number
+global goombaattack: boolean
+global animationtriggerfuncs: {string:any}
+global seesawimg: Image
+global mapbuttonarea: {any}
+global levelscreenbackname: {any}
+global vprev: number
+global hprev: number
+global multitilegroups: {string:{{any}}}
+global existingmaps: {any}
+global infmarioY: {any}
+global infmarioR: {any}
+global mappackicon: Image
+global onlinemappackdescription: {any}
+global toconvertmappackicon: {any}
+global toconvertmappackdescription: {any}
+global axiserror: {any}
+global cheepcheepquad: {{Quad}}
+global portalparticles: {any:Entity}
+global portaldotstime: number
+global scenecanvas: {any}
+global desktopprompt: boolean
+global suspendprompt: boolean
+global smbspritebatch: {SpriteBatch}
+global portalspritebatch: {SpriteBatch}
+global customspritebatch: {SpriteBatch}
+global levelfinishtype: string
+global castleflagy: number
+global textentities: {any:Entity}
+global smbspritebatchfront: {SpriteBatch}
+global portalspritebatchfront: {SpriteBatch}
+global customspritebatchfront: {SpriteBatch}
+global modcustomspritebatchfront: {SpriteBatch}
+global emancipateanimations: {any:Entity}
+global dialogboxes: {any:Entity}
+global blockbouncecontent2: {any}
+global xpantimer: number
+global ypantimer: number
+global spritebatchY: {any}
+global portalparticletimer: number
+global firedelay: number
+global flyingfishstarted: boolean
+global flyingfishtimer: number
+global bulletbillstarted: boolean
+global bulletbilltimer: number
+global flyingfishzones: {any}
+global bulletbillzones: {any}
+global mazesolved: {any}
+global enemiesspawned: {any}
+global livereplaydelay: number
+global endpressbutton: boolean
+global id: {any}
+global keyprompt: boolean
+global levelscreens: {any}
+global playertypelist: {any}
+global maxrunspeed: number
+global jumpforce: number
+global bubblesspeed: number
+global emanceimgwidth: number
+global pushbuttontime: number
+global pipeanimationdistancedown: number
+global growframedelay: number
+global flagydistance: number
+global konamitable: {any}
+global emancipationfizzletime: number
+global tooltipimages: {{any}}
+global faithplatequad: {{Quad}}
+global endimg: Image
+global excursionquad: {{Quad}}
+global subtracttimer: number
+global vx: number
+global vy: number
+global tooltipa: number
+global clipboardenabled: boolean
+global drawalllinks: boolean
+global skiplevelscreen: boolean
+global multitileobjectnames: {any}
+global ctrlpressed: boolean
+global selectiondragging: boolean
+global outputsi: {number:any}
+global linktoolt: {any}
+global hasHotkey: function(any, any): boolean
+global levelscreentimer: number
+global mappackauthor: string
+global buttonerror: {any}
+global steptimer: number
+global magicdns_timer: number
+global magictimer: number
+global scrollingscoretime: number
+global scrollingtexts: {any}
+global rainbooms: {any:Entity}
+global blockbounceheight: number
+global coinblockquads: {{Quad}}
+global coinquads: {{Quad}}
+global flagimgx: number
+global flagimgy: number
+global sunrot: number
+global replaysystem: boolean
+global replaytimer: number
+global scrollingleftcomplete: boolean
+global userscrollspeed: number
+global downscrollborder: number
+global firestarted: boolean
+global flyingfishdelay: number
+global bulletbilldelay: number
+global respawnsublevel: number
+global livereplaydata: {{any}}
+global joystickdeadzone: number
+global flowercolor: any
+global MULTIPLYDELIMITER: string
+global joystickaimdeadzone: number
+global minspeed: number
+global frictionair: number
+global uwsuperfriction: number
+global bubblesmargin: number
+global bubblestime: {number}
+global staranimationdelay: number
+global bowserfallspeed: number
+global seesawfriction: number
+global fireballspeed: number
+global portalanimationdelay: number
+global portalrotationalignmentspeed: number
+global portalparticlespeed: number
+global portalprojectilesinemul: number
+global portalprojectilesinesize: number
+global emanceparticlespeedmod: number
+global usesquaresize: number
+global vinemovespeed: number
+global growtime: number
+global invicibleblinktime: number
+global fireworkdelay: number
+global castleanimationmariomove: number
+global funnelforce: number
+global emancipateanimationtime: number
+global bowserquad: {{Quad}}
+global buttonquad: {{Quad}}
+global emancemaxspeed: number
+global parstartup: boolean
+global realaction: boolean
+global faithplateplateimg: Image
+global img: {string:any}
+global bowserfall: boolean
+global portalquad: {Quad}
+global vinequad: {{Quad}}
+global brushmax: number
+global minimapscrollspeed: number
+global animationlineinset: number
+global advanceddrawtool: string|boolean
+global linktoolX: number
+global linktoolY: number
+global blackafterintro: boolean
+global levelscreenback: {any}
+global huechangespeed: number
+global continueavailable: boolean
+global menuselectimg: Image
+global selectworldopen: boolean
+global currentfiledownload: {any}
+global mappackname: string
+global downloaderror: boolean
+global onlinemappackicon: {any}
+global onlinemappackauthor: {any}
+global toconvertmappackauthor: {any}
+global touchfrominsidemissing: number
+global runanimationdelay: number
+global adjective: string
+global noun: string
+global actualy: number
+global magics: {any:Entity}
+global port: number
+global portalbouncethreshold: number
+global firstpersonview: boolean
+global currentscissor: {number}
+global coinanimationquads: {{Quad}}
+global pausemenuoptions2: {any}
+global volumesliderimg: Image
+global scroll_batch_offset: number
+global displaywarpzonetext: number|boolean
+global seesaws: {any:Entity}
+global flagscore: number
+global levelfinishedmisc2: number
+global fireworks: {any:Entity}
+global bubbles: {any:Entity}
+global emancipationfizzles: {any:Entity}
+global pedestals: {any:Entity}
+global backgroundstripes: {any}
+global animatedtimerlist: {any}
+global animatedbooltimerlist: {any}
+global firstunder100: {any}
+global autoscrollx: number|boolean
+global autoscrolly: number|boolean
+global xpan: {any}
+global xpantime: number
+global ypan: {any}
+global ypantime: number
+global lastrepeat: {any}
+global flyingfishstartx: number|boolean
+global flyingfishendx: number|boolean
+global bulletbillstartx: number|boolean
+global bulletbillendx: number|boolean
+global lakitoendx: number|boolean
+global mazeinprogress: boolean
+global skipupdate: boolean
+global livereplaystored: boolean
+global fontquads: {string:Quad}
+global delaylist: {string:any}
+global imagelist: {string}
+global marioversion: number
+global tablestodo: {any}
+global mariostarrunout: number
+global runanimationspeed: number
+global portalprojectileparticledelay: number
+global castlefireangleadd: number
+global vineanimationgrowheight: number
+global pipeupdelay: number
+global gameovertime: number
+global sublevelscreentime: number
+global castleanimationbridgedisappeardelay: number
+global endanimationtextsecondline: number
+global rainboomspeed: number
+global emancipatefadeouttime: number
+global pedestaltime: number
+global raccoonstarttime: number
+global blockdebrisquads: {{Quad}}
+global boxquad: {{Quad}}
+global buttonimg: Image
+global hatcount: number
+global doorpieceimg: Image
+global doorcenterimg: Image
+global parstartleft: {any}
+global emanceparticleimg: Image
+global emancesideimg: Image
+global excursionbaseimg: Image
+global geldispenserimg: Image
+global laserimg: Image
+global castleflagmove: boolean
+global castleflagtime: number
+global bridgedisappear: boolean
+global platformimg: Image
+global springquads: {{Quad}}
+global linktoolfadeouttime: number
+global tileswitcherpressed: boolean
+global entitytooltipobject: {any}
+global filecount: number
+global mappackback: Image
+global mappacknoicon: Image
+global mappackoverlay: Image
+global mappackhighlight: Image
+global mappackscrollbar: Image
+global onlinemappackname: {any}
+global toconvertmappackname: {any}
+global js: string
+global ITEM_SPAWN_HANDLERS: {string:any}
+global entitiesimg: Image
+global recording: boolean
+global skippedframes: number
+global recordframe: number
+global touchfrominsidescaling: number
+global chatmessages: {any}
+global localnick: string
+global magicdns_identity: string
+global coinblockanimationquads: {{Quad}}
+global scrollingscoreheight: number
+global portaldotsouter: number
+global portaldotsinner: number
+global firstpersonrotate: {any}
+global incognito: boolean
+global gel1groundimg: Image
+global gel2groundimg: Image
+global gel3groundimg: Image
+global gel4groundimg: Image
+global warpzonenumbers: {any}
+global axequads: {{Quad}}
+global miniblocks: {any:Entity}
+global rainboomearthquake: number
+global tremorx: number
+global tremory: number
+global gradientimg: Image
+global gelcannondelay: number
+global rocketlaunchers: {any}
+global platformspawners: {any}
+global scrollingleftstart: number
+global scrollingstart: number
+global userscrolltime: number
+global upscrollborder: number
+global yscrollingrate: number
+global xpanstart: {any}
+global ypanstart: {any}
+global portalparticletime: number
+global flyingfishstarts: {any}
+global flyingfishends: {any}
+global bulletbillstarts: {any}
+global bulletbillends: {any}
+global lakitoend: {any}
+global mazegates: {any}
+global testlevelworld: number
+global testlevellevel: number
+global font2quads: {{Quad}}
+global debugbinds: {string:any}
+global portal_pair_offsets: function(any, any): number, number, number, number
+global maxyspeed: number
+global overwrittenimages: {string:any}
+global soundstoload: {string}
+global defaultsoundslist: {any}
+global overwrittensounds: {string:any}
+global directionsquad: {{Quad}}
+global starttime: number
+global CLIENT: string
+global s1: {string}
+global s2: {string}
+global s3: {string}
+global tableindex: number
+global nexttablestodo: {any}
+global LAYERDELIMITER: string
+global walkacceleration: number
+global runacceleration: number
+global jumpforceadd: number
+global bounceheight: number
+global passivespeed: number
+global uwfrictionair: number
+global uwairslidefactor: number
+global waterdamping: number
+global horbouncemul: number
+global horbouncespeedy: number
+global horbouncemaxspeedx: number
+global horbounceminspeedx: number
+global mushroomtime: number
+global mariostarblinkrate: number
+global bowseranimationspeed: number
+global bowserspeedforwards: number
+global bowserjumpdelay: number
+global bowserhammertable: {any}
+global platformbonusspeed: number
+global platformjustspeed: number
+global seesawspeed: number
+global seesawgravity: number
+global shotspeedx: number
+global shotjumpforce: number
+global deathanimationjumptime: number
+global coinblocktime: number
+global coinblockdelay: number
+global portalparticleduration: number
+global emancelinecolor: {any}
+global spacerunroom: number
+global doorspeed: number
+global geldispensespeed: number
+global gelmaxspeed: number
+global cubedispensertime: number
+global bulletbillrange: number
+global fireverspeed: number
+global fireanimationdelay: number
+global userange: number
+global blockdebrisanimationtime: number
+global castlefireanimationdelay: number
+global vinespeed: number
+global vinemovedownspeed: number
+global vineframedelaydown: number
+global vineanimationstart: number
+global vineanimationmariostart: number
+global vineanimationstop: number
+global vineanimationdropdelay: number
+global pipeanimationdelay: number
+global pipeanimationdistanceright: number
+global shrinktime: number
+global invincibletime: number
+global blinktime: number
+global blacktimesub: number
+global flagclimbframedelay: number
+global flaganimationdelay: number
+global scoresubtractspeed: number
+global fireworksoundtime: number
+global flagscores: {any}
+global flagvalues: {any}
+global castleanimationchaindisappear: number
+global castleanimationbowserframedelay: number
+global castleanimationtextfirstline: number
+global castleanimationtextsecondline: number
+global endanimationtextfirstline: number
+global endanimationtextthirdline: number
+global endanimationtextfourthline: number
+global endanimationtextfifthline: number
+global endanimationend: number
+global drainmax: number
+global rainboomdelay: number
+global gelcannonspeed: number
+global excursionbaseanimationtime: number
+global funnelbuildupspeed: number
+global emancipationfizzledelay: number
+global raccoonbuttondelay: number
+global raccoontailwagdelay: number
+global raccoonspindelay: number
+global wallindicatorquad: {{Quad}}
+global decoysquad: {{Quad}}
+global fireballimg: Image
+global emanceaccel: number
+global parstartright: {any}
+global parstartdown: {any}
+global firequad: {{Quad}}
+global magicquad: {{Quad}}
+global firework: number|boolean
+global panelquad: {{Quad}}
+global platformbonusimg: Image
+global portalglowimg: Image
+global portalimg: Image
+global rainboomquad: {{Quad}}
+global walltimerquad: {{Quad}}
+global secretcheckboxtext: {string}
+global editorloadopen: boolean
+global largestworld: number
+global line: string
+global dropdownarrowimg: Image
+global livesleft: number|boolean
+global sublevelscreen_level: number
+global RGBchangespeed: number
+global updatenotification: boolean
+global playerselectimg: Image
+global selectworldexists: boolean
+global loadingonlinemappacks: boolean
+global menu_mappack_title: string
+global menu_mappack_author_line: string
+global menu_mappack_desc_lines: {string}
+global huebarimg: Image
+global huebarmarkerimg: Image
+global DEBUG: boolean
+global yadd: number
+global goombaquad: {{Quad}}
+global spikeyquad: {{Quad}}
+global lakitoquad: {{Quad}}
+global koopaquad: {{Quad}}
+global hammerbrosquad: {{Quad}}
+global hammerquad: {{Quad}}
+global plantquads: {{Quad}}
+global versionerror: boolean
+global targetdt: number
+global screenshotimagedata: {any}
+global magicdns_delay: number
+global localnicks: {any}
+global magicdelay: number
+global ip: string
+global magicdns_session: string
+global oneuptextimage: Image
+global portaldotsdistance: number
+global portaldotimg: Image
+global portalcrosshairimg: Image
+global physicsdebug: boolean
+global portalwalldebug: boolean
+global coinblockimg: Image
+global coinimg: Image
+global portalbackgroundimg: Image
+global seethroughportals: boolean
+global superscrollrate: number
+global superscroll: boolean
+global xpandiff: {any}
+global ypandiff: {any}
+global inventory: {string:any}
+global fontimage2: Image
+global portalgundelay: number
+global speeddebug: boolean
+global facing: string
+global xplus: {any}
+global PHYSICS_LATE_SET: {string:boolean}
+global PHYSICS_LATE_LIST: {string}
+global directionsimg: Image
+global fontquadsback: {string:Quad}
+global lastline: string
+global totaltime: number
+global gellifetime: number
+global yaccelerationjumping: number
+global headforce: number
+global uwjumpforce: number
+global uwjumpforceadd: number
+global uwyacceleration: number
+global uwyaccelerationjumping: number
+global waterjumpforce: number
+global uwmaxheight: number
+global uwpushdownspeed: number
+global bubblesmaxy: number
+global gelmaxrunspeed: number
+global gelmaxwalkspeed: number
+global gelrunacceleration: number
+global gelwalkacceleration: number
+global uwgelmaxrunspeed: number
+global uwgelmaxwalkspeed: number
+global uwgelrunacceleration: number
+global uwgelwalkacceleration: number
+global mushroomjumpforce: number
+global mariostarblinkrateslow: number
+global bowserspeedbackwards: number
+global bowserjumpforce: number
+global bowsergravity: number
+global bowserhammerdrawtime: number
+global bowserhealth: number
+global platformspawndelay: number
+global fireballjumpforce: number
+global maxfireballs: number
+global deathanimationjumpforce: number
+global deathgravity: number
+global deathtotaltime: number
+global portalanimationcount: number
+global portalprojectilespeed: number
+global portalprojectiledelay: number
+global emanceparticlespeed: number
+global boxfriction: number
+global boxfrictionair: number
+global faithplatetime: number
+global bulletbilltimemax: number
+global bulletbilltimemin: number
+global firespeed: number
+global blockdebrisgravity: number
+global castlefiredelay: number
+global shrinkframedelay: number
+global levelscreentime: number
+global castleflagstarty: number
+global castleflagspeed: number
+global castlemintime: number
+global endtime: number
+global springhighforce: number
+global springforce: number
+global springytable: {any}
+global castleanimationnextlevel: number
+global castleendmusicstopdelay: number
+global endmusicstopdelay: number
+global drainspeed: number
+global rainboomframes: number
+global konamilength: number
+global konamihash: number
+global maximumbulletbills: number
+global funnelspeed: number
+global funnelminspeed: number
+global funnelmaxspeed: number
+global linktoolfadeouttimefast: number
+global linktoolfadeouttimeslow: number
+global raccoontime: number
+global raccoonascendspeed: number
+global raccoondescendspeed: number
+global defaultvalues: {string:any}
+global nobasevalues: {string}
+global gelquad: {{Quad}}
+global lightbridgeimg: Image
+global lightbridgeglowimg: Image
+global magicimg: Image
+global blay: number
+global portalparticleimg: Image
+global portalprojectileimg: Image
+global portalprojectileparticleimg: Image
+global pushbuttonquad: {{Quad}}
+global rainboomimg: Image
+global scaffoldimg: Image
+global vineimg: Image
+global portal_facing_offset: function(any): number, number
+global maxstates: number
+global prevtile: {any}
+global objectscrollbarheight: number
+global linktoolpointerimg: Image
+global tx: number
+global ty: number
+global rightclickelementslist: {any}
+global guirepeattimer: number
+global editmtobjects: boolean
+global entitiescount: number
+global regiontoolX: number
+global regiontoolY: number
+global regiontoolt: {any}
+global checkboximg: Image
+global checkboxquad: {{Quad}}
+global playedwilhelm: boolean
+global logo: Image
+global logoblood: Image
+global loadingtext: string
+global infmarioYspeed: number
+global infmarioRspeed: number
+global portalcolors: {any}
+global firstload: boolean
+global currentdownload: {any}
+global downloadcount: number
+global savefolderfailed: boolean
+global outdated: boolean
+global shaderssupported: boolean
+global backgroundi: number
+global volume: number
+global previewimg: Image
+global numberglyphs: {any}
+global starquad: {{Quad}}
+global flowerquad: {{Quad}}
+global squidquad: {{Quad}}
+global bulletbillquad: {{Quad}}
+global magicdns_validresponses: {any}
+
+-- Missing globals declared for cyan -u (auto)
+global LOVE_MAJOR: number
+global actionblockimg: Image
+global andgateimg: Image
+global animatedtiletriggerimg: Image
+global animationstab: function(...: any): any
+global arcadeblinkrate: number
+global arcadeexittime: number
+global arcadeleave: function(...: any): any
+global arcadeplaying: boolean
+global arcadetimeout: number
+global axeimg: Image
+global blockdebrisimg: Image
+global bowserimg: Image
+global boximg: Image
+global bubbleimg: Image
+global bulletbilllifetime: number
+global bulletbillspeed: number
+global castleanimationcameraaccelerate: number
+global castleanimationmariostop: number
+global castleflagimg: Image
+global coinanimationimg: Image
+global coinblockanimationimg: Image
+global colors: {any}
+global cubedispenserimg: Image
+global custommusics: {any}
+global debugprints: boolean
+global decoysimg: Image
+global delayerimg: Image
+global dlclist: {any}
+global earthquakespeed: number
+global editor_mode_labels: {any}
+global excursionfunnel2img: Image
+global excursionfunnelend2img: Image
+global excursionfunnelendimg: Image
+global excursionfunnelimg: Image
+global fireimg: Image
+global firstreplayblue: boolean
+global fizzleimg: Image
+global flagimg: Image
+global flyingfishforce: number
+global flyingfishgravity: number
+global fontimage: Image
+global fontimageback: Image
+global gameheight: number
+global gamewidth: number
+global gel1img: Image
+global gel2img: Image
+global gel3img: Image
+global gel4img: Image
+global gel5img: Image
+global groundlightdelay: number
+global guirepeatdelay: number
+global hammeranimationspeed: number
+global hammerbroanimationspeed: number
+global hammerbrojumpforce: number
+global hammerbrojumpforcedown: number
+global hammerbrojumptime: number
+global hammerbropreparetime: number
+global hammerbrospeed: number
+global hammerbrotime: number
+global hammergravity: number
+global hammerspeed: number
+global hammerstarty: number
+global jumpitems: {any}
+global koopacombo: number
+global laserdetectorimg: Image
+global lasersideimg: Image
+global lightbridgesideimg: Image
+global livereplaytimer: number
+global maintab: function(...: any): any
+global mappackbackground: {any}
+global mapstab: function(...: any): any
+global markbaseimg: Image
+global markoverlayimg: Image
+global maxscrollrate: number
+global mccurrentblock: number
+global mtsavehighlighttime: number
+global mtsavetimer: number
+global mushroomspeed: number
+global musicentityimg: Image
+global netplayerid: string
+global netplayernumber: number
+global notgateimg: Image
+global objectstab: function(...: any): any
+global onlinemappackbackground: {any}
+global orgateimg: Image
+global panelimg: Image
+global peachimg: Image
+global pedestalbaseimg: Image
+global pedestalgunimg: Image
+global pipeanimationrunspeed: number
+global plantanimationdelay: number
+global plantintime: number
+global plantmovedist: number
+global plantmovespeed: number
+global plantouttime: number
+global platformhordistance: number
+global platformhortime: number
+global platformverdistance: number
+global platformvertime: number
+global portalbackground: {string:any}
+global powerlinestab: function(...: any): any
+global pushbuttonimg: Image
+global reachedx: function(...: any): any
+global realdt: number
+global recordtarget: string
+global rsflipflopimg: Image
+global scoredelay: number
+global scrollsmoothrate: number
+global spawnarea: {any}
+global speedmodifier: number
+global springimg: Image
+global squarewaveimg: Image
+global squidacceleration: number
+global squiddowndistance: number
+global squidfallspeed: number
+global squidupspeed: number
+global squidxspeed: number
+global starjumpforce: number
+global swimanimationspeed: number
+global testtimer: number
+global tilecount1: number
+global tilecount2: number
+global tilestab: function(...: any): any
+global titleimg: Image
+global toadimg: Image
+global toconvertmappackbackground: {any}
+global toolstab: function(...: any): any
+global upfire: {any}
+global upfireforce: number
+global upfiregravity: number
+global userectdebug: boolean
+global uwgravity: number
+global uwmaxrunspeed: number
+global uwmaxwalkspeed: number
+global uwrunacceleration: number
+global uwwalkacceleration: number
+global uwwalkaccelerationair: number
+global versionstring: string
+global wallindicatorimg: Image
+global walltimerimg: Image
+global zgbooltriggerimg: Image
+global zgbooltriggerquad: {{Quad}}
+
+-- Cross-module function stubs (implementations in src/)
+global aabb: function(...: any): any
+global aabt: function(...: any): any
+global add: function(...: any): any
+global addanimationaction: function(...: any): any
+global addanimationcondition: function(...: any): any
+global addanimationtrigger: function(...: any): any
+global addpoints: function(...: any): any
+global adjustcollside: function(...: any): any
+global animationsystem_draw: function(...: any): any
+global animationsystem_load: function(...: any): any
+global animationsystem_update: function(...: any): any
+global build_blockbounce_lookup: function(...: any): any
+global callcollision: function(...: any): any
+global changebackground: function(...: any): any
+global changecharacter: function(...: any): any
+global changeforeground: function(...: any): any
+global changelevelscreen: function(...: any): any
+global changeline: function(...: any): any
+global changemapheight: function(...: any): any
+global changemapwidth: function(...: any): any
+global changemusic: function(...: any): any
+global changenewmapsize: function(...: any): any
+global changepastemode: function(...: any): any
+global changeportalgun: function(...: any): any
+global changescale: function(...: any): any
+global changespriteset: function(...: any): any
+global checkcollision: function(Entity, Entity, any, any, any, any, number, any)
+global checkforemances: function(...: any): any
+global checkkey: function(...: any): any
+global checkmagic: function(...: any): any
+global checkportalHOR: function(Entity, number): boolean
+global checkportalVER: function(Entity, number): boolean
+global checkportalremove: function(...: any): any
+global checkrect: function(...: any): {any}
+global closerightclickmenu: function(...: any): any
+global collectcoin: function(...: any): any
+global collisionscalls: function(...: any): any
+global configdecrease: function(...: any): any
+global configincrease: function(...: any): any
+global continuegame: function(...: any): any
+global convertentity: function(...: any): any
+global convertfromstandard: function(...: any): any
+global convertmappack: function(...: any): any
+global converttostandard: function(...: any): any
+global count_spawn_handlers: function(...: any): any
+global createdialogbox: function(...: any): any
+global creategame: function(...: any): any
+global createmappack: function(...: any): any
+global createnewanimation: function(...: any): any
+global dbprint: function(...: any): any
+global decreasetimelimit: function(...: any): any
+global defaultbackground: function(...: any): any
+global defaultconfig: function(...: any): any
+global delete_mappack: function(...: any): any
+global deleteanimationguiline: function(string, animationguiline)
+global deleteline: function(...: any): any
+global destroyblock: function(...: any): any
+global dispatch_enemy_entity_spawn: function(...: any): any
+global dispatch_map_entity_spawn: function(...: any): any
+global downkey: function(...: any): any
+global downloadfile: function(...: any): any
+global downloadmappacks: function(...: any): any
+global drawforeground: function(...: any): any
+global drawlevel: function(...: any): any
+global drawlevel_tiles: function(...: any): any
+global drawlinkline: function(...: any): any
+global drawlinkline2: function(...: any): any
+global drawmushrooms: function(...: any): any
+global drawplayer: function(...: any): any
+global drawpowerlines: function(...: any): any
+global drawrectangle: function(...: any): any
+global drawreplay: function(...: any): any
+global editor_draw: function(...: any): any
+global editor_draw_chrome: function(...: any): any
+global editor_draw_linking: function(...: any): any
+global editor_draw_menu: function(...: any): any
+global editor_draw_menu_animations: function(...: any): any
+global editor_draw_menu_changewidth: function(...: any): any
+global editor_draw_menu_lightdrawcustomize: function(...: any): any
+global editor_draw_menu_main: function(...: any): any
+global editor_draw_menu_maps: function(...: any): any
+global editor_draw_menu_objects: function(...: any): any
+global editor_draw_menu_tiles: function(...: any): any
+global editor_draw_menu_tools: function(...: any): any
+global editor_draw_overlay: function(...: any): any
+global editor_draw_status: function(...: any): any
+global editor_keypressed: function(...: any): any
+global editor_load: function(...: any): any
+global editor_mousepressed: function(...: any): any
+global editor_mousepressed_left: function(...: any): any
+global editor_mousepressed_right: function(...: any): any
+global editor_mousepressed_wheel_down: function(...: any): any
+global editor_mousepressed_wheel_up: function(...: any): any
+global editor_mousereleased: function(...: any): any
+global editor_start: function(...: any): any
+global editor_textinput: function(...: any): any
+global editor_update: function(number)
+global editor_update_closed: function(number)
+global editor_update_keyscroll: function(number)
+global editor_update_main: function(number)
+global editor_update_modifiers: function(...: any): any
+global editor_update_objects: function(number)
+global editor_update_rightclick: function(number)
+global editor_update_tiles: function(number)
+global editorclose: function(...: any): any
+global editorexit: function(...: any): any
+global editoropen: function(...: any): any
+global emptySelection: function(...: any): any
+global endgame: function(...: any): any
+global enemies_load: function(...: any): any
+global finishlinking: function(...: any): any
+global finishregion: function(...: any): any
+global fromanimationstab: function(...: any): any
+global fromlightdrawcustomizetab: function(...: any): any
+global frommapstab: function(...: any): any
+global game_draw: function(...: any): any
+global game_draw_debug: function(...: any): any
+global game_draw_fx: function(...: any): any
+global game_draw_hud: function(...: any): any
+global game_draw_objects: function(...: any): any
+global game_draw_pausemenu: function(...: any): any
+global game_draw_player_markers: function(...: any): any
+global game_draw_props: function(...: any): any
+global game_draw_seethrough_portals: function(...: any): any
+global game_joystickaxis: function(...: any): any
+global game_joystickhat: function(...: any): any
+global game_joystickpressed: function(...: any): any
+global game_joystickreleased: function(...: any): any
+global game_keypressed: function(...: any): any
+global game_keyreleased: function(...: any): any
+global game_load: function(...: any): any
+global game_mousepressed: function(...: any): any
+global game_mousereleased: function(...: any): any
+global game_textinput: function(...: any): any
+global game_update: function(...: any): any
+global generateanimationgui: function(...: any): any
+global generateentitylist: function(...: any): any
+global generatespritebatch: function(...: any): any
+global getAngleFrame: function(...: any): any
+global getPortal: function(...: any): any
+global getSelectedTiles: function(...: any): any
+global getTiles: function(...: any): any
+global getaveragecolor: function(...: any): any
+global getentityhighlight: function(...: any): any
+global getfilepath: function(...: any): any
+global getmaps: function(...: any): any
+global getportalposition: function(...: any): any, any
+global getquadprops: function(...: any): any
+global getupdate: function(...: any): any
+global givelive: function(...: any): any
+global globintCH: function(...: any): any
+global globintSH: function(...: any): any
+global globoolSH: function(...: any): any
+global handlegroup: function(...: any): any
+global hitblock: function(...: any): any
+global hitrightside: function(...: any): any
+global horcollision: function(Entity, Entity, any, any, any, any, number): boolean
+global increasetimelimit: function(...: any): any
+global inportal: function(Entity): boolean
+global insideportal: function(...: any): any
+global intro_draw: function(...: any): any
+global intro_keypressed: function(...: any): any
+global intro_load: function(...: any): any
+global intro_mousepressed: function(...: any): any
+global intro_update: function(...: any): any
+global item: function(...: any): any
+global joingame: function(...: any): any
+global keyprompt_update: function(...: any): any
+global keypromptenter: function(...: any): any
+global keypromptstart: function(...: any): any
+global leftkey: function(...: any): any
+global level_count_tile_entries: function(...: any): any
+global level_decode_tile_tokens: function(...: any): any
+global level_delimiters: function(...: any): any
+global level_detect_format_version: function(...: any): any
+global level_filename: function(...: any): any
+global level_parse_tiles_only: function(...: any): any
+global level_serialize_maptiles: function(...: any): any
+global level_split_file_contents: function(...: any): any
+global levelscreen_draw: function(...: any): any
+global levelscreen_load: function(...: any): any
+global levelscreen_update: function(...: any): any
+global livesdecrease: function(...: any): any
+global livesincrease: function(...: any): any
+global loadHotKeys: function(...: any): any
+global loadanimatedtiles: function(...: any): any
+global loadbackground: function(...: any): any
+global loadbackgroundsafe: function(...: any): any
+global loadcharacter: function(...: any): any
+global loadconfig: function(...: any): any
+global loadcustombackgrounds: function(...: any): any
+global loadcustomimages: function(...: any): any
+global loadcustommusics: function(...: any): any
+global loadcustomsounds: function(...: any): any
+global loadcustomtiles: function(...: any): any
+global loadenemy: function(...: any): any
+global loadhat: function(...: any): any
+global loadlevel: function(...: any): any
+global loadlevelscreens: function(...: any): any
+global loadmap: function(...: any): any
+global loadmapold: function(...: any): any
+global loadmappacks: function(...: any): any
+global loadmodcustomtiles: function(...: any): any
+global loadmtgroups: function(...: any): any
+global loadmtobjects: function(...: any): any
+global loadonlinemappacks: function(...: any): any
+global loadstate: function(...: any): any
+global loadtoconvertmappacks: function(...: any): any
+global lobby_draw: function(...: any): any
+global lobby_load: function(...: any): any
+global lobby_update: function(...: any): any
+global magicdns_error: function(...: any): any
+global magicdns_find: function(...: any): any
+global magicdns_keep: function(...: any): any
+global magicdns_make: function(...: any): any
+global magicdns_remove: function(...: any): any
+global mapnumberclick: function(...: any): any
+global mappacks: function(...: any): any
+global mapwidthapply: function(...: any): any
+global mapwidthcancel: function(...: any): any
+global menu_draw: function(...: any): any
+global menu_draw_mappackmenu: function(...: any): any
+global menu_draw_options: function(...: any): any
+global menu_draw_title: function(...: any): any
+global menu_joystickaxis: function(...: any): any
+global menu_joystickhat: function(...: any): any
+global menu_joystickpressed: function(...: any): any
+global menu_joystickreleased: function(...: any): any
+global menu_keypressed: function(...: any): any
+global menu_keyreleased: function(...: any): any
+global menu_load: function(...: any): any
+global menu_mousepressed: function(...: any): any
+global menu_mousereleased: function(...: any): any
+global menu_update: function(number)
+global modifyportaltiles: function(...: any): any
+global modifyportalwalls: function(...: any): any
+global movedownanimationguiline: function(string, animationguiline)
+global moveline: function(...: any): any
+global moveoutportal: function(...: any): any
+global moveupanimationguiline: function(string, animationguiline)
+global newRecoloredImage: function(...: any): any
+global newlevel: function(...: any): any
+global nextcharacter: function(...: any): any
+global nextlevel: function(...: any): any
+global objectclipboardcopy: function(...: any): any
+global onlinemenu_draw: function(...: any): any
+global onlinemenu_load: function(...: any): any
+global onlinemenu_update: function(...: any): any
+global onlineupdatescroll: function(...: any): any
+global openSaveFolder: function(...: any): any
+global openchangewidth: function(...: any): any
+global passivecollision: function(Entity, Entity, any, any, any, any, number): boolean
+global physicsupdate: function(...: any): any
+global placetile: function(...: any): any
+global playmusic: function(...: any): any
+global playsound: function(...: any): any
+global portalcoords: function(number, number, number, number, number, number, number, any, number|boolean, number|boolean, any, number|boolean, number|boolean, any, Entity, boolean|nil): number, number, number, number, number, any
+global prerotatecall: function(...: any): any
+global previouscharacter: function(...: any): any
+global print_r: function(...: any): any
+global properprint2: function(...: any): any
+global properprintbackground: function(...: any): any
+global removelink: function(...: any): any
+global renameline: function(...: any): any
+global renderpreview: function(...: any): any
+global reset_mappacks: function(...: any): any
+global resetconfig: function(...: any): any
+global respawnplayers: function(...: any): any
+global reversefscrollfactor: function(...: any): any
+global reversescrollfactor: function(...: any): any
+global rightkey: function(...: any): any
+global runkey: function(...: any): any
+global saveHotKeys: function(...: any): any
+global saveanimation: function(...: any): any
+global saveconfig: function(...: any): any
+global savelevel: function(...: any): any
+global savemap: function(...: any): any
+global savemtobject: function(...: any): any
+global savesettings: function(...: any): any
+global savestate: function(...: any): any
+global scenedraw: function(...: any): any
+global selectanimation: function(...: any): any
+global selectionbutton: function(...: any): any
+global selectionend: function(...: any): any
+global selectiongettiles: function(...: any): any
+global selectionstart: function(...: any): any
+global selectworld: function(...: any): any
+global sendchat: function(...: any): any
+global serializetable: function(...: any): any
+global shootportal: function(...: any): any
+global spawnenemy: function(...: any): any
+global startlevel: function(...: any): any
+global startlinking: function(...: any): any
+global startregion: function(...: any): any
+global stopmusic: function(...: any): any
+global suspendgame: function(...: any): any
+global test_level: function(...: any): any
+global tilesall: function(...: any): any
+global tilesanimated: function(...: any): any
+global tilescustom: function(...: any): any
+global tilesenemies: function(...: any): any
+global tilesentities: function(...: any): any
+global tilesportal: function(...: any): any
+global tilessmb: function(...: any): any
+global toconvertupdatescroll: function(...: any): any
+global toggleautoscroll: function(...: any): any
+global togglebonusstage: function(...: any): any
+global toggleclipboardenabled: function(...: any): any
+global togglecustombackground: function(...: any): any
+global togglecustomforeground: function(...: any): any
+global toggledrawalllinks: function(...: any): any
+global toggleeditordebug: function(...: any): any
+global toggleintermission: function(...: any): any
+global togglemagic: function(...: any): any
+global toggleskiplevelscreen: function(...: any): any
+global toggleunderwater: function(...: any): any
+global togglewarpzone: function(...: any): any
+global traceline: function(...: any): any
+global trianglepassivecollision: function(...: any): any
+global trianglevercollision: function(...: any): any
+global twistdirection: function(...: any): any
+global unrotate: function(...: any): any
+global updateanimationdropdown: function(...: any): any
+global updatebackground: function(...: any): any
+global updatefscrollfactor: function(...: any): any
+global updateranges: function(...: any): any
+global updatescroll: function(...: any): any
+global updatescrollfactor: function(...: any): any
+global updatesizes: function(...: any): any
+global upkey: function(...: any): any
+global vercollision: function(Entity, Entity, any, any, any, any, number): boolean
+global warpzone: function(...: any): any
+
+-- Typed free-function replacement for legacy string:split (see core.stringutil).
+global strsplit: function(string, string): {string}
+global addzeros: function(any, integer): string
+global loadingtexts: {string}
+global skipintro: boolean
+global fontglyphs: string
+global gethatoffset: function(...: any): {number}
+global getrainbowcolor: function(...: any): {number}
+global remove_indices_desc: function(...: any): any
+global addanimationtriggerbutton: guielement
+global addanimationconditionbutton: guielement
+global addanimationactionbutton: guielement
+global allowenemy: boolean
+global subtractscore: function(...: any): any
+global editor_link_screen_pos: function(...: any): any
+global gettilelistpos: function(...: any): any
+global changeHotKey: function(...: any): any
+global closestplayer: function(...: any): any
+global drawui: function(...: any): any
+global drawtools: number
+global newx: number
+global newy: number
+
+global tileswitcherkey: string
+global editorcoinstart: number
+global mapsymissing: number
+global editor_minimap_xscroll_from_mouse: function(...: any): any
+global editor_minimap_tile_from_click: function(...: any): any
+global editor_filter_map_files: function(...: any): any
+global editor_normalize_rect: function(...: any): any
+global editor_hotkeys_parse: function(...: any): any
+global editor_hotkeys_serialize: function(...: any): any
+global getmtbutton: function(...: any): any
+global getlistpos: function(...: any): any
+global formatscrollnumber: function(...: any): any
+global mapsort: function(...: any): any
+global gradient: function(...: any): any
+global menu_parse_settings_text: function(...: any): any
+global getclosestplayer: function(...: any): any
+global cameraxpan: function(...: any): any
+global cameraypan: function(...: any): any
+global update_and_compact: function(...: any): any
+global adduserect: function(...: any): any
+global userect: function(...: any): any
+global usebase: function(...: any): any
+global buildstartendzones: function(...: any): any
+global remove_indices_desc_multi: function(...: any): any
+global enemy_name_ok: function(...: any): any
+global normalize_enemy_props: function(...: any): any
+global apply_enemy_defaults: function(...: any): any
+global enemy_onscreen: function(...: any): any
+global record LoveLoadModule
+	install_mouse: function(LoveLoadModule)
+	run: function(LoveLoadModule, any)
+end
+global LoveLoad: LoveLoadModule
+global magicdns_session_chars: {string}
+global lkisScancodeDown: function(...: any): any
+global lkisDown: function(...: any): any
+global lmisDown: function(...: any): any
+global joysticks: {any}
+global bdrawui: function(...: any): any
+global iconimg: Image
+

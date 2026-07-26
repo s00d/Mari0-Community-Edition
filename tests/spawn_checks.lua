@@ -14,7 +14,7 @@ local function check(name, cond, detail)
 	end
 end
 
-dofile(root .. "/spawnregistry.lua")
+require("world.spawnregistry")
 
 local map_keys = {
 	"warppipe", "manycoins", "flag", "firestart", "flyingfishstart", "flyingfishend",

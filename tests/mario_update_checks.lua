@@ -16,7 +16,7 @@ local function check(name, cond, detail)
 	end
 end
 
-local f = assert(io.open(root .. "/mario.lua", "r"))
+local f = assert(io.open(root .. "/src/entities/mario.tl", "r"))
 local src = f:read("*a")
 f:close()
 

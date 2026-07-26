@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Rebuild on src/types/tlconfig changes. Prefers watchexec; else poll loop.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+chmod +x scripts/cyan scripts/teal-build scripts/teal-watch 2>/dev/null || true
+
+rebuild() {
+	echo "[teal-watch] $(date '+%H:%M:%S') cyan build"
+	./scripts/teal-build || echo "[teal-watch] build failed (watching…)" >&2
+}
+
+rebuild
+
+if command -v watchexec >/dev/null 2>&1; then
+	exec watchexec \
+		--watch src \
+		--watch types \
+		--watch tlconfig.lua \
+		--exts tl,lua \
+		-- ./scripts/teal-build
+fi
+
+if command -v entr >/dev/null 2>&1; then
+	# shellcheck disable=SC2046
+	while true; do
+		find src types -name '*.tl' -o -name 'tlconfig.lua' 2>/dev/null \
+			| entr -d ./scripts/teal-build
+	done
+fi
+
+if command -v fswatch >/dev/null 2>&1; then
+	fswatch -o src types tlconfig.lua | while read -r _; do
+		rebuild
+	done
+	exit 0
+fi
+
+echo "[teal-watch] no watchexec/entr/fswatch; polling every 2s" >&2
+stamp=""
+while true; do
+	new="$(find src types tlconfig.lua -type f \( -name '*.tl' -o -name 'tlconfig.lua' \) -print0 2>/dev/null \
+		| xargs -0 stat -f '%m %N' 2>/dev/null | sort | cksum | awk '{print $1}')"
+	if [[ "${new}" != "${stamp}" ]]; then
+		stamp="${new}"
+		rebuild
+	fi
+	sleep 2
+done

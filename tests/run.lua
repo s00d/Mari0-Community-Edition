@@ -15,6 +15,16 @@ if not root or root == "" then
 	end
 end
 
+-- Teal build/ + LuaRocks vendors in lib/ (dkjson, sha1)
+package.path = table.concat({
+	root .. "/build/?.lua",
+	root .. "/build/?/init.lua",
+	root .. "/lib/?.lua",
+	root .. "/lib/?/init.lua",
+	root .. "/?.lua",
+	package.path,
+}, ";")
+
 local failed = 0
 local ran = 0
 
@@ -42,6 +52,7 @@ end
 run_file("tests/issue_regression_checks.lua")
 run_file("tests/static_api_lint.lua")
 run_file("tests/helper_checks.lua")
+run_file("tests/teal_checks.lua")
 run_file("tests/collision_checks.lua")
 run_file("tests/portal_checks.lua")
 run_file("tests/checkrect_checks.lua")

@@ -1,6 +1,0 @@
-base=koopa
-{	
-	"description": "will turn around at an edge",
-	
-	"turnaroundoncliff": true
-}

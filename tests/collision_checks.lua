@@ -15,10 +15,10 @@ local function check(name, cond, detail)
 end
 
 -- Deps used by collision module
-dofile(root .. "/physicslate.lua")
-dofile(root .. "/maputil.lua")
-dofile(root .. "/physicsconvert.lua")
-dofile(root .. "/physicscollision.lua")
+require("physics.late")
+require("core.maputil")
+require("physics.convert")
+require("physics.collision")
 
 -- collisionexists: gravity remaps which callback is checked
 do

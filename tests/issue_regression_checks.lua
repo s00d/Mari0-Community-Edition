@@ -60,7 +60,7 @@ do
 			root = "."
 		end
 	end
-	dofile(root .. "/zones.lua")
+	require("world.zones")
 	local zones = buildstartendzones({10, 50}, {20, 60})
 	check("#98 two zones created", #zones == 2)
 	local function inzone(x, zones)
@@ -129,7 +129,7 @@ end
 
 -- #185: spikey has notkilledfromblocksbelow
 do
-	local f = io.open("enemies/spikey.json", "r")
+	local f = io.open("assets/enemies/spikey.json", "r")
 	local s = f:read("*a"); f:close()
 	check("#185 spikey notkilledfromblocksbelow", s:find('"notkilledfromblocksbelow"%s*:%s*true') ~= nil)
 end

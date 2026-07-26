@@ -1,6 +1,7 @@
 --[[
   Structural checks for game_draw / scenedraw / drawlevel phase split (no LÖVE).
   Locks named draw phases, orchestrator calls, portal scissors, editormode.
+  Phases live in game_draw_{world,hud,effects}.tl; facade is game_draw.tl.
 ]]
 
 local root = ... or "."
@@ -15,22 +16,26 @@ local function check(name, cond, detail)
 	end
 end
 
-local f = assert(io.open(root .. "/game.lua", "r"))
-local src = f:read("*a")
-f:close()
-
-local function extract_fn(name)
-	local pat = "function " .. name .. "%b()\n(.-)\nfunction "
-	local body = src:match(pat)
-	if body then
-		return body
-	end
-	-- last function before drawui alias or file region
-	pat = "function " .. name .. "%b()\n(.-)\nend\n"
-	return src:match(pat)
+local function read(path)
+	local f = assert(io.open(path, "r"))
+	local body = f:read("*a")
+	f:close()
+	return body
 end
 
--- Prefer non-greedy until next top-level function
+local src = table.concat({
+	read(root .. "/src/app/game_draw.tl"),
+	"\n",
+	read(root .. "/src/app/game_draw_world.tl"),
+	"\n",
+	read(root .. "/src/app/game_draw_hud.tl"),
+	"\n",
+	read(root .. "/src/app/game_draw_effects.tl"),
+}, "")
+local boot_src = read(root .. "/src/app/boot.tl")
+local update_src = read(root .. "/src/app/game_update.tl")
+local facade = read(root .. "/src/app/game_draw.tl")
+
 local function extract_top(name)
 	local a, b = src:find("function " .. name .. "%b()\n")
 	if not a then
@@ -43,9 +48,6 @@ local function extract_top(name)
 	end
 	if not body then
 		body = rest:match("^(.-)\nend\n")
-		if body then
-			body = body -- without final end
-		end
 	end
 	return body
 end
@@ -72,6 +74,14 @@ end
 
 check("drawui alias", src:find("drawui = game_draw_hud") ~= nil)
 check("no nested scenedraw", src:find("\tfunction scenedraw()") == nil)
+check("boot requires game_draw", boot_src:find('require%s+"app%.game_draw"') ~= nil)
+check("boot requires game_update", boot_src:find('require%s+"app%.game_update"') ~= nil)
+check("no root game.lua", io.open(root .. "/game.lua", "r") == nil)
+check("game_update exists in teal", update_src:find("function game_update%(dt%)") ~= nil)
+check("boot.tl exists", io.open(root .. "/src/app/boot.tl", "r") ~= nil)
+check("facade requires world", facade:find('require%s+"app%.game_draw_world"') ~= nil)
+check("facade requires hud", facade:find('require%s+"app%.game_draw_hud"') ~= nil)
+check("facade requires effects", facade:find('require%s+"app%.game_draw_effects"') ~= nil)
 
 local gd = extract_top("game_draw")
 check("game_draw body", gd ~= nil)
@@ -123,21 +133,21 @@ check("seethrough uses canvas", see and see:find("scenecanvas") ~= nil)
 local hud = extract_top("game_draw_hud")
 check("hud hides in editor", hud and hud:find("editormode == false") ~= nil)
 
--- main.lua: shaders wrap game_draw; early utils kept
-local mf = assert(io.open(root .. "/main.lua", "r"))
-local main = mf:read("*a")
-mf:close()
-check("main early stringutil", main:find('require%s+"stringutil"') ~= nil)
-check("main early mathutil", main:find('require%s+"mathutil"') ~= nil)
-check("main early tableutil", main:find('require%s+"tableutil"') ~= nil)
-check("main shaders predraw before draw", main:find("shaders:predraw%(%)") ~= nil)
-check("main shaders postdraw after draw", main:find("shaders:postdraw%(%)") ~= nil)
-check("main calls game_draw", main:find("game_draw%(%)") ~= nil)
+-- main.lua / love_callbacks: shaders wrap game_draw; early utils via boot
+local main = read(root .. "/main.lua")
+local cbs = read(root .. "/src/app/love_callbacks.tl")
+local boot = read(root .. "/src/app/boot.tl")
+check("main uses app.boot or love_run", main:find('require%s+"app%.boot"') ~= nil or main:find('require%s+"app%.love_run"') ~= nil)
+check("main early stringutil via boot or core", main:find('require%s+"core%.stringutil"') ~= nil or main:find('app%.boot') ~= nil or main:find('app%.love_run') ~= nil)
+check("main early mathutil via boot or core", main:find('require%s+"core%.mathutil"') ~= nil or main:find('app%.boot') ~= nil or main:find('app%.love_run') ~= nil)
+check("main early tableutil via boot or core", main:find('require%s+"core%.tableutil"') ~= nil or main:find('app%.boot') ~= nil or boot:find("setup_core_helpers") ~= nil)
+check("callbacks shaders predraw before draw", cbs:find("shaders:predraw%(%)") ~= nil)
+check("callbacks shaders postdraw after draw", cbs:find("shaders:postdraw%(%)") ~= nil)
+check("callbacks calls game_draw", cbs:find("game_draw%(%)") ~= nil or cbs:find("Gamestate%.draw%(%)") ~= nil)
 
--- ordering: predraw ... game_draw ... postdraw
-local pre = main:find("shaders:predraw%(%)")
-local gdc = main:find("game_draw%(%)")
-local post = main:find("shaders:postdraw%(%)")
+local pre = cbs:find("shaders:predraw%(%)")
+local gdc = cbs:find("game_draw%(%)") or cbs:find("Gamestate%.draw%(%)")
+local post = cbs:find("shaders:postdraw%(%)")
 check("predraw before game_draw", pre and gdc and pre < gdc)
 check("postdraw after game_draw", post and gdc and gdc < post)
 

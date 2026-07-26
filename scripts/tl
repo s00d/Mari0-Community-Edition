@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Emergency single-file Teal CLI under LuaJIT.
+# Prefer: make teal / scripts/cyan (Cyan build). tl alone does not use tlconfig.lua project build.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+eval "$(luarocks path)"
+TL_BIN="$(find "$HOME/.luarocks/lib/luarocks" -path '*/tl/*/bin/tl' 2>/dev/null | head -1)"
+if [[ -z "${TL_BIN}" || ! -f "${TL_BIN}" ]]; then
+	echo "error: tl not found (luarocks install --local tl)" >&2
+	exit 1
+fi
+exec luajit "${TL_BIN}" "$@"

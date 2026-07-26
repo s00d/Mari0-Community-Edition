@@ -1,0 +1,46 @@
+--[[ Lightweight gamestate dispatcher (Teal).
+     Legacy code still uses global `gamestate` string; this module
+     tracks handlers and provides a typed entry point for migration.
+]]
+
+local Gamestate = {}
+
+Gamestate.current = "intro"
+Gamestate.handlers = {} -- {string:{update:function, draw:function}}
+
+function Gamestate.register(name: string, handlers: {string:function})
+	Gamestate.handlers[name] = handlers
+end
+
+function Gamestate.set(name: string)
+	Gamestate.current = name
+	rawset(_G, "gamestate", name)
+end
+
+function Gamestate.get(): string
+	local g = rawget(_G, "gamestate")
+	if type(g) == "string" then
+		Gamestate.current = g
+	end
+	return Gamestate.current
+end
+
+function Gamestate.update(dt: number)
+	local name = Gamestate.get()
+	local h = Gamestate.handlers[name]
+	if h and h.update then
+		h.update(dt)
+	end
+end
+
+function Gamestate.draw()
+	local name = Gamestate.get()
+	local h = Gamestate.handlers[name]
+	if h and h.draw then
+		h.draw()
+	end
+end
+
+_G.Gamestate = Gamestate
+
+return Gamestate
