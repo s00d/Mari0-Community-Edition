@@ -92,30 +92,30 @@ global record Character is {any}
 	nogunbiganimations: {any}
 	animations: {any}
 	biganimations: {any}
-	flowercolor: any
+	flowercolor: {any}
 	defaultcolors: {integer:{{number}}}
 	defaulthat: any
 	colorables: {any}
 	hatoffsets: any
 	bighatoffsets: any
 	idle: {any:any}
-	run: {any:any}
+	run: {any:{any:any}}
 	slide: {any:any}
-	jump: {any:any}
+	jump: {any:{any:any}}
 	die: {any:any}
-	climb: {any:any}
-	swim: {any:any}
+	climb: {any:{any:any}}
+	swim: {any:{any:any}}
 	grow: {any:any}
-	customframe: {any:any}
+	customframe: {any:{any:any}}
 	bigidle: {any:any}
-	bigrun: {any:any}
+	bigrun: {any:{any:any}}
 	bigslide: {any:any}
-	bigjump: {any:any}
+	bigjump: {any:{any:any}}
 	bigfire: {any:any}
-	bigclimb: {any:any}
-	bigswim: {any:any}
+	bigclimb: {any:{any:any}}
+	bigswim: {any:{any:any}}
 	bigduck: {any:any}
-	bigcustomframe: {any:any}
+	bigcustomframe: {any:{any:any}}
 end
 
 -- Tile atlas entry (world.quad / tilequads[i]).

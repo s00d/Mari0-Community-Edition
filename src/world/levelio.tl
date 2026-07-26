@@ -43,10 +43,10 @@ end
 
 global function level_count_tile_entries(t: {any}, multipledelimiter: any): any
 	local entries = 0
-	for i = 1, #t do
+	for i = 1, #(t as {any}) do
 		local parts = strsplit(t[i] as string, multipledelimiter as string)
 		if parts[2] then
-			entries = entries + tonumber(parts[2])
+			entries = (entries as number) + (tonumber(parts[2]) or 0)
 		else
 			entries = entries + 1
 		end
@@ -63,12 +63,12 @@ global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: 
 		map[x] = {}
 		coinmap[x] = {}
 		for y = 1, mapheight do
-			map[x][y] = {}
+			(map as {{{any}}})[x][y] = {}
 		end
 	end
 
 	local x, y = 1, 1
-	for i = 1, #t do
+	for i = 1, #(t as {any}) do
 		if string.find(t[i] as string, multipledelimiter as string) then
 			local r = strsplit(tostring(t[i]), multipledelimiter as string)
 			local coin = false
@@ -78,9 +78,9 @@ global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: 
 			end
 			for _ = 1, tonumber(r[2]) do
 				if coin then
-					coinmap[x][y] = true
+					((coinmap as {{any}})[x] as {any})[y] = true
 				end
-				map[x][y][1] = tonumber(r[1])
+				(map as {{{any}}})[x][y][1] = tonumber(r[1])
 				x = x + 1
 				if x > mapwidth then
 					x = 1
@@ -91,13 +91,13 @@ global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: 
 			local r = strsplit(tostring(t[i]), layerdelimiter as string)
 			if string.sub(r[1], -1) == "c" then
 				r[1] = string.sub(r[1], 1, -2)
-				coinmap[x][y] = true
+				((coinmap as {{any}})[x] as {any})[y] = true
 			end
 			for li = 1, #r do
 				if tonumber(r[li]) then
-					map[x][y][li] = tonumber(r[li])
+					(map as {{{any}}})[x][y][li] = tonumber(r[li])
 				else
-					map[x][y][li] = r[li]
+					(map as {{{any}}})[x][y][li] = r[li]
 				end
 			end
 			x = x + 1
@@ -119,21 +119,21 @@ global function level_serialize_maptiles(...: any): any
 
 	for y = 1, mapheight do
 		for x = 1, mapwidth do
-			local current = map[x][y][1] .. (coinmap[x][y] and "c" or "")
+			local current = (map as {{{any}}})[x][y][1] .. (((coinmap as {{any}})[x] as {any})[y] and "c" or "")
 
 			--check if previous is the same
-			if #map[x][y] == 1 then
+			if #(map as {{{any}}})[x][y] == 1 then
 				if prev == current and (y ~= mapheight or x ~= mapwidth) then
 					mul = mul + 1
 				elseif prev == current and y == mapheight and x == mapwidth then
 					mul = mul + 1
-					s = s .. prev .. MULTIPLYDELIMITER[v] .. mul
+					s = s .. (prev as string) .. MULTIPLYDELIMITER[v] .. mul
 				else
 					if prev then
 						if mul > 1 then
-							s = s .. prev .. MULTIPLYDELIMITER[v] .. mul
+							s = s .. (prev as string) .. MULTIPLYDELIMITER[v] .. mul
 						else
-							s = s .. prev
+							s = s .. (prev as string)
 						end
 
 						if y ~= mapheight or x ~= mapwidth then
@@ -146,15 +146,15 @@ global function level_serialize_maptiles(...: any): any
 						if prev then
 							s = s .. BLOCKDELIMITER[v]
 						end
-						s = s .. prev
+						s = s .. (prev as string)
 					end
 				end
 			else
 				if prev then
 					if mul > 1 then
-						s = s .. prev .. MULTIPLYDELIMITER[v] .. mul
+						s = s .. (prev as string) .. MULTIPLYDELIMITER[v] .. mul
 					else
-						s = s .. prev
+						s = s .. (prev as string)
 					end
 
 					s = s .. BLOCKDELIMITER[v]
@@ -162,18 +162,18 @@ global function level_serialize_maptiles(...: any): any
 				prev = nil
 				mul = 1
 
-				for i = 1, #map[x][y] do
-					if tonumber(map[x][y][i]) and tonumber(map[x][y][i]) < 0 then
-						s = s .. "m" .. math.abs(tostring(map[x][y][i]))
+				for i = 1, #(map as {{{any}}})[x][y] do
+					if tonumber((map as {{{any}}})[x][y][i]) and tonumber((map as {{{any}}})[x][y][i]) < 0 then
+						s = s .. "m" .. math.abs(tostring((map as {{{any}}})[x][y][i]))
 					else
-						s = s .. tostring(map[x][y][i])
+						s = s .. tostring((map as {{{any}}})[x][y][i])
 					end
 
-					if i == 1 and coinmap[x][y] then
+					if i == 1 and ((coinmap as {{any}})[x] as {any})[y] then
 						s = s .. "c"
 					end
 
-					if i ~= #map[x][y] then
+					if i ~= #(map as {{{any}}})[x][y] then
 						s = s .. LAYERDELIMITER[v]
 					end
 				end
@@ -192,12 +192,12 @@ global function level_parse_tiles_only(...: any): any
 	local s = ...
 	local v, mapheight, t, s2, blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign = level_split_file_contents(s)
 	mapheight = mapheight or 15
-	local entries = level_count_tile_entries(t, multipledelimiter)
-	if math_mod(entries, mapheight) ~= 0 then
-		return nil, "Incorrect number of entries: " .. #t
+	local entries: number = level_count_tile_entries(t as {any}, multipledelimiter) as number
+	if math_mod(entries as number, mapheight as number) ~= 0 then
+		return nil, "Incorrect number of entries: " .. #(t as {any})
 	end
-	local mapwidth = entries / mapheight
-	local map, coinmap = level_decode_tile_tokens(t, mapwidth, mapheight, layerdelimiter, multipledelimiter)
+	local mapwidth = (entries as number) / (mapheight as number)
+	local map, coinmap = level_decode_tile_tokens(t as {any}, mapwidth, mapheight, layerdelimiter, multipledelimiter)
 	return {
 		v = v,
 		mapwidth = mapwidth,
@@ -212,13 +212,13 @@ end
 
 global function loadmap(...: any): any
 	local filename, createobjects = ...
-	print("**************************" .. string.rep("*", #(mappack .. filename)))
+	print("**************************" .. string.rep("*", #((mappack as string) .. (filename as string))))
 	print("* Loading mappacks/" .. mappack .. "/" .. filename .. ".txt *")
-	if not love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. filename .. ".txt") then
-		print("mappacks/" .. mappack .. "/" .. filename .. ".txt not found!")
+	if not love.filesystem.getInfo("mappacks/" .. (mappack as string) .. "/" .. (filename as string) .. ".txt") then
+		print("mappacks/" .. (mappack as string) .. "/" .. (filename as string) .. ".txt not found!")
 		return false
 	end
-	local s = love.filesystem.read( "mappacks/" .. mappack .. "/" .. filename .. ".txt" )
+	local s = love.filesystem.read( "mappacks/" .. (mappack as string) .. "/" .. (filename as string) .. ".txt" )
 	
 	local v, parsed_height, t, s2, blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign = level_split_file_contents(s)
 	mapheight = parsed_height
@@ -246,29 +246,29 @@ global function loadmap(...: any): any
 	spritebatchY = {}
 	
 	--get mapwidth
-	local entries = level_count_tile_entries(t, multipledelimiter)
+	local entries: number = level_count_tile_entries(t as {any}, multipledelimiter) as number
 	
 	mapheight = mapheight or 15
-	if math.fmod(entries, mapheight) ~= 0 then
-		print("Incorrect number of entries: " .. #t)
+	if math.fmod(entries as number, mapheight as number) ~= 0 then
+		print("Incorrect number of entries: " .. #(t as {any}))
 		return false
 	end
 	
-	mapwidth = entries/mapheight
+	mapwidth = (entries as number)/(mapheight as number)
 	coinmap = {}
 	
 	for x = 1, mapwidth do
 		map[x] = {}
 		coinmap[x] = {}
 		for y = 1, mapheight do
-			map[x][y] = {}
-			map[x][y]["gels"] = {}
-			map[x][y]["portaloverride"] = {}
+			(map as {{{any}}})[x][y] = {}
+			(map as {{{any}}})[x][y]["gels"] = {}
+			(map as {{{any}}})[x][y]["portaloverride"] = {}
 		end
 	end
 	
 	local x, y = 1, 1
-	for i = 1, #t do
+	for i = 1, #(t as {any}) do
 		if string.find(t[i] as string, multipledelimiter as string) then --new stuff!
 			local r = strsplit(tostring(t[i]), multipledelimiter as string)
 			
@@ -280,14 +280,14 @@ global function loadmap(...: any): any
 			
 			for j = 1, tonumber(r[2]) do
 				if coin then
-					coinmap[x][y] = true
+					((coinmap as {{any}})[x] as {any})[y] = true
 				end
 			
 				if (tonumber(r[1]) > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) and tonumber(r[1]) <= 10000) or tonumber(r[1]) > 10000+animatedtilecount then
 					r[1] = 1
 				end
 				
-				map[x][y][1] = tonumber(r[1])
+				(map as {{{any}}})[x][y][1] = tonumber(r[1])
 				
 			
 				--create object for block
@@ -307,7 +307,7 @@ global function loadmap(...: any): any
 			
 			if string.sub(r[1], -1) == "c" then
 				r[1] = string.sub(r[1], 1, -2)
-				coinmap[x][y] = true
+				((coinmap as {{any}})[x] as {any})[y] = true
 			end
 			
 			if (tonumber(r[1]) > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) and tonumber(r[1]) <= 10000) or tonumber(r[1]) > 10000+animatedtilecount then
@@ -316,9 +316,9 @@ global function loadmap(...: any): any
 			
 			for i = 1, #r do
 				if tonumber(r[i]) then
-					map[x][y][i] = tonumber(r[i])
+					(map as {{{any}}})[x][y][i] = tonumber(r[i])
 				else
-					map[x][y][i] = r[i]
+					(map as {{{any}}})[x][y][i] = r[i]
 				end
 			end
 			
@@ -351,7 +351,7 @@ global function loadmap(...: any): any
 	
 	for y = 1, mapheight do
 		for x = 1, mapwidth do
-			local r = map[x][y]
+			local r = (map as {{{any}}})[x][y]
 			
 			if r[1] > 10000 then
 				if tilequads[r[1]].triggered then
@@ -364,7 +364,7 @@ global function loadmap(...: any): any
 			end
 			
 			if tilequads[r[1] ]:getproperty("coin", x, y) then
-				coinmap[x][y] = true
+				((coinmap as {{any}})[x] as {any})[y] = true
 			end
 			
 			if #r > 1 then 
@@ -409,11 +409,11 @@ global function loadmap(...: any): any
 	for x = 0, -30, -1 do
 		map[x] = {}
 		for y = 1, mapheight-2 do
-			map[x][y] = {1}
+			(map as {{{any}}})[x][y] = {1}
 		end
 		
 		for y = mapheight-1, mapheight do
-			map[x][y] = {2}
+			(map as {{{any}}})[x][y] = {2}
 			if createobjects then
 				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
 			end
@@ -491,8 +491,8 @@ global function loadmap(...: any): any
 		end
 	end
 	
-	print("* DONE!" .. string.rep(" ", #(mappack .. filename)+17) .. " *")
-	print("**************************" .. string.rep("*", #(mappack .. filename)))
+	print("* DONE!" .. string.rep(" ", #((mappack as string) .. (filename as string))+17) .. " *")
+	print("**************************" .. string.rep("*", #((mappack as string) .. (filename as string))))
 	return true
 end
 
@@ -558,12 +558,12 @@ global function savemap(...: any): any
 	love.filesystem.createDirectory( "mappacks" )
 	love.filesystem.createDirectory( "mappacks/" .. mappack )
 	
-	love.filesystem.write("mappacks/" .. mappack .. "/" .. filename .. ".txt", s)
+	love.filesystem.write("mappacks/" .. (mappack as string) .. "/" .. (filename as string) .. ".txt", s)
 	
 	--preview
 	
 	previewimg = renderpreview()
-	previewimg:encode("png", "mappacks/" .. mappack .. "/" .. filename .. ".png")
+	previewimg:encode("png", "mappacks/" .. (mappack as string) .. "/" .. (filename as string) .. ".png")
 	
 	if not silent then
 		print("Map saved as " .. "mappacks/" .. filename .. ".txt")
@@ -579,7 +579,7 @@ global function renderpreview(...: any): any
 	
 	for x = 1, mapwidth do
 		for y = 1, mapheight do
-			if map[x][y][2] and entitylist[map[x][y][2]] and entitylist[map[x][y][2]].t == "spawn" then
+			if (map as {{{any}}})[x][y][2] and entitylist[(map as {{{any}}})[x][y][2]] and entitylist[(map as {{{any}}})[x][y][2]].t == "spawn" then
 				startx, starty = x, y
 				break
 			end

@@ -763,7 +763,7 @@ global function menu_draw_options(...: any): any
 				
 				if controls[skinningplayer][controlstable[i]] then
 					for j = 1, #controls[skinningplayer][controlstable[i]] do
-						s = s .. controls[skinningplayer][controlstable[i]][j]
+						s = s .. tostring((((controls[skinningplayer] as {any})[controlstable[i as integer]] as {any})[j as integer]))
 					end
 				end
 				if s == " " then
@@ -836,9 +836,9 @@ global function menu_draw_options(...: any): any
 		love.graphics.draw(portalglowimg, 142*scale, 57*scale, 0, scale, scale)
 		
 		love.graphics.setColor(unpack(portalcolor[skinningplayer][1]))
-		love.graphics.draw(portalimg, portalquad[portalframe], 174*scale, 46*scale, math.pi, scale, scale)
+		love.graphics.draw(portalimg, portalquad[portalframe as integer], 174*scale, 46*scale, math.pi, scale, scale)
 		love.graphics.setColor(unpack(portalcolor[skinningplayer][2]))
-		love.graphics.draw(portalimg, portalquad[portalframe], 142*scale, 70*scale, 0, scale, scale)
+		love.graphics.draw(portalimg, portalquad[portalframe as integer], 142*scale, 70*scale, 0, scale, scale)
 		
 		love.graphics.setScissor()
 		
@@ -860,10 +860,10 @@ global function menu_draw_options(...: any): any
 			else
 				love.graphics.setColor(0.4, 0.4, 0.4, 1)
 			end
-			if mariohats[skinningplayer][1] == 0 then
+			if (mariohats[skinningplayer] as {any})[1] == 0 then
 				properprint("hat: none", (83)*scale, 90*scale)
 			else
-				properprint("hat: " .. mariohats[skinningplayer][1], (99-string.len(mariohats[skinningplayer][1])*4)*scale, 90*scale)
+				properprint("hat: " .. (mariohats[skinningplayer] as {any})[1], (99-string.len((mariohats[skinningplayer] as {any})[1])*4)*scale, 90*scale)
 			end
 
 			if optionsselection == 5 then
@@ -874,7 +874,7 @@ global function menu_draw_options(...: any): any
 			
 			--NEW SKIN CUSTOMIZATION
 			local v = characters[mariocharacter[skinningplayer]]
-			properprint("{ " .. v.colorables[colorsetedit] .. " }", 120*scale-string.len("{ " .. v.colorables[colorsetedit] .. " }")*4*scale, 105*scale)
+			properprint("{ " .. (v.colorables as {any})[colorsetedit as integer] as string .. " }", 120*scale-string.len("{ " .. (v.colorables as {any})[colorsetedit as integer] as string .. " }")*4*scale, 105*scale)
 			
 			if optionsselection > 5 and optionsselection < 9 then
 				love.graphics.setColor(1, 1, 1, 1)
@@ -986,7 +986,7 @@ global function menu_draw_options(...: any): any
 				properprint("fullscreen", (180-string.len("fullscreen")*8)*scale, 40*scale)
 			end
 		else
-			properprint("*" .. scale, (180-(string.len(scale)+1)*8)*scale, 40*scale)
+			properprint("*" .. tostring(scale), (180-(string.len(scale)+1)*8)*scale, 40*scale)
 		end
 		
 		
@@ -1000,7 +1000,7 @@ global function menu_draw_options(...: any): any
 		if shaderssupported == false then
 			properprint("unsupported", (180-string.len("unsupported")*8)*scale, 55*scale)
 		else
-			properprint(string.lower(shaderlist[currentshaderi1]), (180-string.len(shaderlist[currentshaderi1])*8)*scale, 55*scale)
+			properprint(string.lower(shaderlist[currentshaderi1 as integer]), (180-string.len(shaderlist[currentshaderi1 as integer])*8)*scale, 55*scale)
 		end
 		
 		if optionsselection == 4 then
@@ -1012,7 +1012,7 @@ global function menu_draw_options(...: any): any
 		if shaderssupported == false then
 			properprint("unsupported", (180-string.len("unsupported")*8)*scale, 65*scale)
 		else
-			properprint(string.lower(shaderlist[currentshaderi2]), (180-string.len(shaderlist[currentshaderi2])*8)*scale, 65*scale)
+			properprint(string.lower(shaderlist[currentshaderi2 as integer]), (180-string.len(shaderlist[currentshaderi2 as integer])*8)*scale, 65*scale)
 		end
 		
 		love.graphics.setColor(0.4, 0.4, 0.4, 1)
@@ -1223,7 +1223,7 @@ global function loadbackgroundsafe(...: any): any
 		starty = {13, 13, 13, 13, 13}
 		custombackground = false
 		backgroundi = 1
-		love.graphics.setBackgroundColor(backgroundcolor[backgroundi])
+		love.graphics.setBackgroundColor(backgroundcolor[backgroundi as integer])
 		notice.new("Couldn't properly load|background " .. background .. "!", notice.red)
 		
 		xscroll = 0
@@ -1270,11 +1270,11 @@ global function loadbackground(...: any): any
 	if not love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. backgroundlevel) then
 		return false
 	else
-		loadmap(backgroundlevel:sub(1, -5))
+		loadmap((backgroundlevel as string):sub(1, -5))
 	end
 	
 	--Adjust start X scroll
-	xscroll = startx[1]-scrollingleftcomplete-2
+	xscroll = (startx[1] as number)-(scrollingleftcomplete as number)-2
 	if xscroll > mapwidth - width then
 		xscroll = mapwidth - width
 	end
@@ -1379,7 +1379,7 @@ global function loadmappacks(...: any): any
 		mappackdescription[i] = ""
 		if love.filesystem.getInfo( "mappacks/" .. mappacklist[i] .. "/settings.txt" ) then		
 			local s = love.filesystem.read( "mappacks/" .. mappacklist[i] .. "/settings.txt" )
-			local n, a, d = menu_parse_settings_text(s) as any
+			local n, a, d = menu_parse_settings_text(s)
 			if n then mappackname[i] = n end
 			if a then mappackauthor[i] = a end
 			if d then mappackdescription[i] = d end
@@ -1443,7 +1443,7 @@ global function loadonlinemappacks(...: any): any
 		onlinemappackdescription[i] = nil
 		if love.filesystem.getInfo( "mappacks/" .. onlinemappacklist[i] .. "/settings.txt" ) then		
 			local s = love.filesystem.read( "mappacks/" .. onlinemappacklist[i] .. "/settings.txt" )
-			local n, a, d = menu_parse_settings_text(s) as any
+			local n, a, d = menu_parse_settings_text(s)
 			if n then onlinemappackname[i] = n end
 			if a then onlinemappackauthor[i] = a end
 			if d then onlinemappackdescription[i] = d end
@@ -1476,7 +1476,7 @@ global function loadtoconvertmappacks(...: any): any
 	toconvertmappacklist = love.filesystem.getDirectoryItems( "toconvert" )
 	
 	local delete = {}
-	for i, v in pairs(toconvertmappacklist) do
+	for i, v in pairs(toconvertmappacklist as {any:string}) do
 		if tablecontains(mappacklist, v) then
 			table.insert(delete, 1, i)
 		end
@@ -1505,7 +1505,7 @@ global function loadtoconvertmappacks(...: any): any
 		toconvertmappackdescription[i] = ""
 		if love.filesystem.getInfo( "toconvert/" .. toconvertmappacklist[i] .. "/settings.txt" ) then		
 			local s = love.filesystem.read( "toconvert/" .. toconvertmappacklist[i] .. "/settings.txt" )
-			local n, a, d = menu_parse_settings_text(s) as any
+			local n, a, d = menu_parse_settings_text(s)
 			if n then toconvertmappackname[i] = n end
 			if a then toconvertmappackauthor[i] = a end
 			if d then toconvertmappackdescription[i] = d end
@@ -1540,7 +1540,7 @@ global function downloadmappacks(...: any): any
 	local versionlist = {}
 	local latestversion = marioversion
 	
-	local split1 = strsplit(onlinedata, "<")
+	local split1 = strsplit(onlinedata as string, "<")
 	for i = 2, #split1 do
 		local split2 = strsplit(split1[i], ">")
 		if split2[1] == "latestversion" then
@@ -1588,7 +1588,7 @@ global function downloadmappacks(...: any): any
 				filecount = 0
 				local checksums = {}
 				
-				local split1 = strsplit(onlinedata, "<")
+				local split1 = strsplit(onlinedata as string, "<")
 				for j = 2, #split1 do
 					local split2 = strsplit(split1[j], ">")
 					if split2[1] == "asset" then
@@ -1600,7 +1600,7 @@ global function downloadmappacks(...: any): any
 				
 				currentfiledownload = 1
 				
-				local split1 = strsplit(onlinedata, "<")
+				local split1 = strsplit(onlinedata as string, "<")
 				for j = 2, #split1 do
 					local split2 = strsplit(split1[j], ">")
 					if split2[1] == "asset" then
@@ -1659,7 +1659,7 @@ global function menu_keypressed(...: any): any
 		if selectworldopen then
 			if (key == "right" or key == "d") then
 				local target = selectworldcursor+1
-				while target < 9 and not reachedworlds[mappack][target] do
+				while target < 9 and not (reachedworlds[mappack] as {any})[target as integer] do
 					target = target + 1
 				end
 				if target < 9 then
@@ -1667,7 +1667,7 @@ global function menu_keypressed(...: any): any
 				end
 			elseif (key == "left" or key == "a") then
 				local target = selectworldcursor-1
-				while target > 0 and not reachedworlds[mappack][target] do
+				while target > 0 and not (reachedworlds[mappack] as {any})[target as integer] do
 					target = target - 1
 				end
 				if target > 0 then
@@ -1771,7 +1771,7 @@ global function menu_keypressed(...: any): any
 			end	
 		elseif key == "escape" or (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
 			if mappacktype == "toconvert" then
-				local toconvert = toconvertmappacklist[toconvertmappackselection]
+				local toconvert = toconvertmappacklist[toconvertmappackselection as integer]
 				convertmappack(toconvert)
 				mappack = toconvert
 				gamestate = "menu"
@@ -1809,7 +1809,7 @@ global function menu_keypressed(...: any): any
 			end
 		end
 	elseif gamestate == "onlinemenu" then
-		if CLIENT == false and SERVER == false then
+		if (CLIENT as any) == false and (SERVER as any) == false then
 			if key == "c" then
 				client_load()
 			elseif key == "s" then
@@ -1934,8 +1934,8 @@ global function menu_keypressed(...: any): any
 				if optionsselection == 3 then
 					nextcharacter()
 				elseif characters[mariocharacter[skinningplayer]].colorables and optionsselection == 4 then
-					if mariohats[skinningplayer][1] < #hat then
-						mariohats[skinningplayer][1] = mariohats[skinningplayer][1] + 1
+					if (mariohats[skinningplayer] as {any})[1] < #(hat as {any}) then
+						(mariohats[skinningplayer] as {any})[1] = (mariohats[skinningplayer] as {any})[1] + 1
 					end
 				elseif characters[mariocharacter[skinningplayer]].colorables and optionsselection == 5 then
 					--next color set
@@ -1954,10 +1954,10 @@ global function menu_keypressed(...: any): any
 					if currentshaderi1 > #shaderlist then
 						currentshaderi1 = 1
 					end
-					if shaderlist[currentshaderi1] == "none" then
+					if shaderlist[currentshaderi1 as integer] == "none" then
 						shaders:set(1, nil)
 					else
-						shaders:set(1, shaderlist[currentshaderi1])
+						shaders:set(1, shaderlist[currentshaderi1 as integer])
 					end
 					
 				elseif optionsselection == 4 then
@@ -1965,10 +1965,10 @@ global function menu_keypressed(...: any): any
 					if currentshaderi2 > #shaderlist then
 						currentshaderi2 = 1
 					end
-					if shaderlist[currentshaderi2] == "none" then
+					if shaderlist[currentshaderi2 as integer] == "none" then
 						shaders:set(2, nil)
 					else
-						shaders:set(2, shaderlist[currentshaderi2])
+						shaders:set(2, shaderlist[currentshaderi2 as integer])
 					end
 					
 				elseif optionsselection == 5 then
@@ -2020,8 +2020,8 @@ global function menu_keypressed(...: any): any
 				if optionsselection == 3 then
 					previouscharacter()
 				elseif characters[mariocharacter[skinningplayer]].colorables and optionsselection == 4 then
-					if mariohats[skinningplayer][1] > 0 then
-						mariohats[skinningplayer][1] = mariohats[skinningplayer][1] - 1
+					if (mariohats[skinningplayer] as {any})[1] > 0 then
+						(mariohats[skinningplayer] as {any})[1] = (mariohats[skinningplayer] as {any})[1] - 1
 					end
 				elseif characters[mariocharacter[skinningplayer]].colorables and optionsselection == 5 then
 					--previous color set
@@ -2041,10 +2041,10 @@ global function menu_keypressed(...: any): any
 						currentshaderi1 = #shaderlist
 					end
 					
-					if shaderlist[currentshaderi1] == "none" then
+					if shaderlist[currentshaderi1 as integer] == "none" then
 						shaders:set(1, nil)
 					else
-						shaders:set(1, shaderlist[currentshaderi1])
+						shaders:set(1, shaderlist[currentshaderi1 as integer])
 					end
 				elseif optionsselection == 4 then
 					currentshaderi2 = currentshaderi2 - 1
@@ -2052,10 +2052,10 @@ global function menu_keypressed(...: any): any
 						currentshaderi2 = #shaderlist
 					end
 					
-					if shaderlist[currentshaderi2] == "none" then
+					if shaderlist[currentshaderi2 as integer] == "none" then
 						shaders:set(2, nil)
 					else
-						shaders:set(2, shaderlist[currentshaderi2])
+						shaders:set(2, shaderlist[currentshaderi2 as integer])
 					end
 					
 				elseif optionsselection == 5 then
@@ -2227,13 +2227,13 @@ global function downloadfile(...: any): any
 		return false
 	end
 	
-	if checksum ~= sha1(data) then
+	if checksum ~= sha1(data as string) then
 		print("Checksum doesn't match!")
 		return false
 	end
 	
 	if data then
-		love.filesystem.write(target, data)
+		love.filesystem.write(target, data as string)
 		return true
 	else
 		return false
@@ -2251,16 +2251,16 @@ end
 
 global function delete_mappack(...: any): any
 	local pack = ...
-	if not love.filesystem.getInfo("mappacks/" .. pack .. "/") then
+	if not love.filesystem.getInfo("mappacks/" .. (pack as string) .. "/") then
 		return false
 	end
 	
-	local list = love.filesystem.getDirectoryItems("mappacks/" .. pack .. "/")
+	local list = love.filesystem.getDirectoryItems("mappacks/" .. (pack as string) .. "/")
 	for i = 1, #list do
-		love.filesystem.remove("mappacks/" .. pack .. "/" .. list[i])
+		love.filesystem.remove("mappacks/" .. (pack as string) .. "/" .. list[i])
 	end
 	
-	love.filesystem.remove("mappacks/" .. pack .. "/")
+	love.filesystem.remove("mappacks/" .. (pack as string) .. "/")
 end
 
 global function createmappack(...: any): any
@@ -2283,7 +2283,7 @@ global function createmappack(...: any): any
 	--Create folders for all sorts of stuff.
 	local folderlist = {"animated", "animations", "backgrounds", "enemies", "graphics", "levelscreens", "music", "sounds"}
 	
-	for i, v in pairs(folderlist) do
+	for i, v in pairs(folderlist as {any:any}) do
 		love.filesystem.createDirectory("mappacks/" .. mappack .. "/" .. v .. "/")
 	end
 end
@@ -2332,9 +2332,9 @@ end
 
 global function previouscharacter(...: any): any
 	--get current character
-	local char
+	local char: any
 	for i = 1, #characterlist do
-		if characterlist[i] == mariocharacter[skinningplayer] then
+		if characterlist[i as integer] == mariocharacter[skinningplayer] then
 			char = i
 			break
 		end
@@ -2351,9 +2351,9 @@ end
 
 global function nextcharacter(...: any): any
 	--get current character
-	local char
+	local char: any
 	for i = 1, #characterlist do
-		if characterlist[i] == mariocharacter[skinningplayer] then
+		if characterlist[i as integer] == mariocharacter[skinningplayer] then
 			char = i
 			break
 		end
@@ -2370,20 +2370,20 @@ end
 
 global function changecharacter(...: any): any
 	local i = (... as integer)
-	mariocharacter[skinningplayer] = characterlist[i]
+	mariocharacter[skinningplayer] = characterlist[i as integer]
 	
 	--change colors
 	mariocolors[skinningplayer] = {}
-	if characters[characterlist[i]].defaultcolors then
-		if characters[characterlist[i]].defaultcolors[skinningplayer] then
-			for j = 1, #characters[characterlist[i]].defaultcolors[skinningplayer] do
-				mariocolors[skinningplayer][j] = {characters[characterlist[i]].defaultcolors[skinningplayer][j][1], characters[characterlist[i]].defaultcolors[skinningplayer][j][2], characters[characterlist[i]].defaultcolors[skinningplayer][j][3]}
+	if characters[characterlist[i as integer]].defaultcolors then
+		if characters[characterlist[i as integer]].defaultcolors[skinningplayer] then
+			for j = 1, #characters[characterlist[i as integer]].defaultcolors[skinningplayer] do
+				mariocolors[skinningplayer][j] = {characters[characterlist[i as integer]].defaultcolors[skinningplayer][j][1], characters[characterlist[i as integer]].defaultcolors[skinningplayer][j][2], characters[characterlist[i as integer]].defaultcolors[skinningplayer][j][3]}
 			end
 		end
 	end
 	
-	if characters[characterlist[i]].defaulthat then
-		mariohats[skinningplayer] = { characters[characterlist[i]].defaulthat}
+	if characters[characterlist[i as integer]].defaulthat then
+		mariohats[skinningplayer] = { characters[characterlist[i as integer]].defaulthat}
 	end
 	
 	colorsetedit = 1
@@ -2391,9 +2391,9 @@ end
 
 global function convertmappack(...: any): any
 	local name = ...
-	local oldmappackpath = "toconvert/" .. name .. "/"
-	local newmappackpath = "mappacks/" .. name .. "/"
-	mappack = name
+	local oldmappackpath = "toconvert/" .. (name as string) .. "/"
+	local newmappackpath = "mappacks/" .. (name as string) .. "/"
+	mappack = name as string
 	
 	local cw = 1
 	local cl = 1
@@ -2439,7 +2439,7 @@ global function convertmappack(...: any): any
 	end
 	
 	local customstart = smbtilecount + portaltilecount + 1
-	for i = customstart, #tilequads do
+	for i = customstart, #(tilequads as {any}) do
 		tilequads[i] = nil
 		rgblist[i] = nil
 	end
@@ -2453,7 +2453,7 @@ global function convertmappack(...: any): any
 		
 		for y = 1, height do
 			for x = 1, width do
-				table.insert(tilequads, quad:new(customtilesimg, imgdata, x, y, imgwidth, imgheight))
+				table.insert(tilequads as {any}, quad:new(customtilesimg, imgdata, x, y, imgwidth, imgheight))
 				local r, g, b = getaveragecolor(imgdata, x, y)
 				table.insert(rgblist, {r / LOVE_COLOR_MAX, g / LOVE_COLOR_MAX, b / LOVE_COLOR_MAX})
 			end

@@ -90,7 +90,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 		self.height = 24/16
 		
 		if self.size == 3 then
-			self.colors = self.char.flowercolor or flowercolor as {any}
+			self.colors = (self.char.flowercolor or flowercolor) as {any}
 		end
 	end
 	
@@ -243,7 +243,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 		self.vinemovetimer = 0
 		playsound("vine")
 		
-		if #objects["vine"] == 0 then
+		if #(objects["vine"] as {any}) == 0 then
 			table.insert(objects["vine"], vine:new(5, mapheight+1, "start"))
 		end
 	end
@@ -255,7 +255,7 @@ function mario:adddata()
 	
 	--local colors = {}
 	--for i = 1, #self.colors do
-	--	colors[i] = {unpack(self.colors[i])}
+	--	colors[i] = {unpack((self.colors as {any})[i])}
 	--end
 	
 	table.insert(livereplaydata[self.playernumber], {time=love.timer.getTime()-livereplaytimer})
@@ -293,7 +293,7 @@ function mario:adddata()
 		animationdirection=self.animationdirection
 	}
 	
-	for i, v in pairs(data) do
+	for i, v in pairs(data as {any:any}) do
 		if livereplaystored[self.playernumber][i] == nil or livereplaystored[self.playernumber][i] ~= v then
 			livereplaydata[self.playernumber][#livereplaydata[self.playernumber]][i] = v as any
 			livereplaystored[self.playernumber][i] = v
@@ -412,7 +412,7 @@ function mario:update_star(dt: number)
 		
 		if self.startimer >= mariostarduration then
 			if self.size == 3 then --flower colors
-				self.colors = self.char.flowercolor or flowercolor as {any}
+				self.colors = (self.char.flowercolor or flowercolor) as {any}
 			else
 				self.colors = mariocolors[self.playernumber as integer]
 			end
@@ -538,7 +538,7 @@ function mario:update_animation(dt: number): any
 		if (self.x >= (flagx as number) + add or self.speedx < maxwalkspeed/2) and self.active then
 			self.drawable = false
 			self.active = false
-			if mariotime > 0 then
+			if (mariotime as number) > 0 then
 				playsound("scorering")
 				subtractscore = true
 				subtracttimer = 0
@@ -547,16 +547,16 @@ function mario:update_animation(dt: number): any
 			end
 		end
 		
-		if subtractscore == true and mariotime >= 0 then
+		if subtractscore == true and (mariotime as number) >= 0 then
 			subtracttimer = subtracttimer + dt
 			while subtracttimer > scoresubtractspeed do
 				subtracttimer = subtracttimer - scoresubtractspeed
-				if mariotime > 0 then
-					mariotime = math.ceil(mariotime - 1)
+				if (mariotime as number) > 0 then
+					mariotime = math.ceil((mariotime as number) - 1)
 					marioscore = marioscore + 50
 				end
 				
-				if mariotime <= 0 then
+				if (mariotime as number) <= 0 then
 					subtractscore = false
 					soundlist["scorering"].source:stop()
 					soundlist["scorering"].source:seek(0)
@@ -889,7 +889,7 @@ function mario:update_animation(dt: number): any
 		end
 		
 		if self.animationtimer - dt < growtime and self.animationtimer > growtime then
-			self.animationstate = self.animationmisc
+			self.animationstate = self.animationmisc as string
 			self.animation = false as any
 			noupdate = false
 			self.quadcenterY = self.char.bigquadcenterY
@@ -910,7 +910,7 @@ function mario:update_animation(dt: number): any
 			self.animation = false as any
 			noupdate = false
 			self.animationtimer = 0
-			self.colors = self.char.flowercolor or flowercolor as {any}
+			self.colors = (self.char.flowercolor or flowercolor) as {any}
 		end
 		return true
 	end
@@ -1163,7 +1163,7 @@ function mario:update_controls(dt: number): any
 				self.animationmisc2 = tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3]) or 1
 				self.animationmisc3 = tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][4]) or 1
 				
-				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", "pipe" .. map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3])
+				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", "pipe" .. tostring(map)[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3])
 				return true
 			end				
 		end
@@ -1301,14 +1301,17 @@ function mario:updateangle(): any
 	--UPDATE THE PLAYER ANGLE
 	if self.playernumber == mouseowner then
 		local scale = scale
-		if shaders and shaders.scale then scale = shaders.scale end
+		do
+			local _ss = shaders as any
+			if _ss and _ss.scale then scale = _ss.scale end
+		end
 		self.pointingangle = math.atan2(self.x+6/16-xscroll-(mouse.getX()/16/scale), (self.y-yscroll+6/16-.5)-(mouse.getY()/16/scale))
 	elseif #controls[self.playernumber as integer]["aimx"] > 0 then
 		local x: number
 		local y: number
 		
 		local s = controls[self.playernumber as integer]["aimx"]
-		local j = love.joystick.getJoysticks()[s[2]]
+		local j = love.joystick.getJoysticks()[s[2] as integer]
 		if s[1] == "joy" then
 			x = j and -j:getAxis(s[4]) or 0
 			if s[5] == "neg" then
@@ -1317,7 +1320,7 @@ function mario:updateangle(): any
 		end
 		
 		s = controls[self.playernumber as integer]["aimy"]
-		j = love.joystick.getJoysticks()[s[2]]
+		j = love.joystick.getJoysticks()[s[2] as integer]
 		if s[1] == "joy" then
 			y = j and -j:getAxis(s[4]) or 0
 			if s[5] == "neg" then
@@ -1892,7 +1895,7 @@ function mario:setquad(anim: any, s: any)
 		elseif animationstate == "grow" then
 			self.quad = self.char.grow[angleframe]
 		end
-	elseif size > 1 then
+	elseif (size as number) > 1 then
 		if self.char.raccoon and self.raccoontimer > 0 and self.falling and animationstate ~= "climbing" then
 			self.quad = self.char.bigcustomframe[angleframe][self.tailwagframe+9]
 		elseif self.char.raccoon and self.raccoonspinframe then
@@ -2068,7 +2071,7 @@ function mario:grow(): any
 			self.y = self.y - 12/16
 			self.height = 24/16
 		elseif self.size == 3 then
-			self.colors = self.char.flowercolor or flowercolor as {any}
+			self.colors = (self.char.flowercolor or flowercolor) as {any}
 		end
 		
 		if self.size == 2 then
@@ -2261,7 +2264,7 @@ function mario:stompenemy(a: any, b: Entity, c: any, d: any, side: any): any
 			playsound("shot")
 			if b.speedx == 0 then
 				if self.combo < #mariocombo then
-					addpoints(mariocombo[self.combo], self.x, self.y)
+					addpoints((mariocombo as {any})[self.combo as integer], self.x, self.y)
 					if not b.stompcombosuppressor then
 						self.combo = self.combo + 1
 					end
@@ -2285,7 +2288,7 @@ function mario:stompenemy(a: any, b: Entity, c: any, d: any, side: any): any
 		
 		if b.speedx == 0 or (b.flying and b.small == false) then
 			if self.combo < #mariocombo then
-				addpoints(mariocombo[self.combo], self.x, self.y)
+				addpoints((mariocombo as {any})[self.combo as integer], self.x, self.y)
 				self.combo = self.combo + 1
 			else
 				if mariolivecount ~= false then
@@ -2330,7 +2333,7 @@ function mario:stompenemy(a: any, b: Entity, c: any, d: any, side: any): any
 			self.y = b.y - self.height-1/16
 		end
 		if self.combo < #mariocombo then
-			addpoints(mariocombo[self.combo], self.x, self.y)
+			addpoints((mariocombo as {any})[self.combo as integer], self.x, self.y)
 			if not b.stompcombosuppressor then
 				self.combo = self.combo + 1
 			end
@@ -2394,7 +2397,7 @@ function mario:rightcollide(a: any, b: Entity, c: any, d: any): any
 		else
 			if self.raccoonspinframe and b.shotted then
 				b:shotted("right", true, true)
-				addpoints(firepoints[b.t] or 100, self.x, self.y)
+				addpoints((firepoints as {any})[(b as {string:any}).t] or 100, self.x, self.y)
 				return false
 			end
 			if b.shellanimal and b.small and b.speedx == 0 then
@@ -2517,7 +2520,7 @@ function mario:leftcollide(a: any, b: Entity, c: any, d: any): any
 		else
 			if self.raccoonspinframe and b.shotted then
 				b:shotted("left", true, true)
-				addpoints(firepoints[b.t] or 100, self.x, self.y)
+				addpoints((firepoints as {any})[(b as {string:any}).t] or 100, self.x, self.y)
 				return false
 			end
 			
@@ -2740,23 +2743,23 @@ function mario:globalcollide(a: any, b: Entity, c: any, d: any, dir: any): any
 		return true
 	elseif b.givesacoin then
 		local GCA = b.givescoinamount or 1
-		if mariocoincount + GCA >= 100 then
+		if mariocoincount + (GCA as number) >= 100 then
 			if mariolivecount ~= false then
 					for i = 1, players do
 						mariolives[i] = mariolives[i] + 1
 						respawnplayers()
 					end
 			end
-				mariocoincount = mariocoincount + GCA - 100
+				mariocoincount = mariocoincount + (GCA as number) - 100
 				playsound("oneup")
 				return true
 		else 
-		mariocoincount = mariocoincount + GCA
+		mariocoincount = mariocoincount + (GCA as number)
 		playsound(b.collectsound or "coin")
 		return true
 		end
 	elseif b.givestime then
-		mariotime = mariotime + (b.givestimeamount or 20)
+		mariotime = (mariotime as number) + ((b as {string:any}).givestimeamount as number or 20)
 		playsound(b.collectsound or "tailwag")
 		return true
 	elseif b.givesalife then
@@ -2834,7 +2837,7 @@ function mario:starcollide(a: any, b: Entity, c: any, d: any): any
 	--enemies that die
 	if a == "enemy" then
 		b:shotted("right", nil, nil, false, true)
-		addpoints(firepoints[b.t] or 100, self.x, self.y)
+		addpoints((firepoints as {any})[(b as {string:any}).t] or 100, self.x, self.y)
 		return true
 	elseif a == "bowser" then
 		b:shotted("right")
@@ -2932,26 +2935,26 @@ global function hitblock(x: number, y: number, t: any, koopa: any): any
 			local x3 = x1
 			local y3 = y1
 			
-			if v.facing1 == "up" then
+			if (v as portal).facing1 == "up" then
 				x3 = x3+1
-			elseif v.facing1 == "right" then
+			elseif (v as portal).facing1 == "right" then
 				y3 = y3+1
-			elseif v.facing1 == "down" then
+			elseif (v as portal).facing1 == "down" then
 				x3 = x3-1
-			elseif v.facing1 == "left" then
+			elseif (v as portal).facing1 == "left" then
 				y3 = y3-1
 			end
 			
 			local x4 = x2
 			local y4 = y2
 			
-			if v.facing2 == "up" then
+			if (v as portal).facing2 == "up" then
 				x4 = x4+1
-			elseif v.facing2 == "right" then
+			elseif (v as portal).facing2 == "right" then
 				y4 = y4+1
-			elseif v.facing2 == "down" then
+			elseif (v as portal).facing2 == "down" then
 				x4 = x4-1
-			elseif v.facing2 == "left" then
+			elseif (v as portal).facing2 == "left" then
 				y4 = y4-1
 			end
 			
@@ -3162,7 +3165,7 @@ global function hitblock(x: number, y: number, t: any, koopa: any): any
 end
 
 function mario:goinvincible(): any
-	self.animationstate = self.animationmisc
+	self.animationstate = self.animationmisc as string
 	self.animation = "invincible" as any
 	self.invincible = true
 	noupdate = false
@@ -3186,26 +3189,26 @@ global function destroyblock(x: number, y: number): any
 		local x3 = x1
 		local y3 = y1
 		
-		if v.facing1 == "up" then
+		if (v as portal).facing1 == "up" then
 			x3 = x3+1
-		elseif v.facing1 == "right" then
+		elseif (v as portal).facing1 == "right" then
 			y3 = y3+1
-		elseif v.facing1 == "down" then
+		elseif (v as portal).facing1 == "down" then
 			x3 = x3-1
-		elseif v.facing1 == "left" then
+		elseif (v as portal).facing1 == "left" then
 			y3 = y3-1
 		end
 		
 		local x4 = x2
 		local y4 = y2
 		
-		if v.facing2 == "up" then
+		if (v as portal).facing2 == "up" then
 			y4 = y4-1
-		elseif v.facing2 == "right" then
+		elseif (v as portal).facing2 == "right" then
 			x4 = x4+1
-		elseif v.facing2 == "down" then
+		elseif (v as portal).facing2 == "down" then
 			y4 = y4+1
-		elseif v.facing2 == "left" then
+		elseif (v as portal).facing2 == "left" then
 			x4 = x4-1
 		end
 		
@@ -3522,7 +3525,7 @@ function mario:pipe(x: number, y: number, dir: any, i: any): any
 
 	self.active = false
 	self.infunnel = false
-	self.animation = "pipe" .. dir
+	self.animation = "pipe" .. tostring(dir)
 	self.invincible = false
 	self.drawable = true
 	self.animationx = x
@@ -3835,8 +3838,8 @@ function mario:portaled(dir: any): any
 		
 		for i, v in pairs(objects["enemy"]) do
 			v:shotted()
-			if v ~= "bowser" then
-				addpoints(firepoints[v.t] or 100, v.x, v.y)
+			if (v as any) ~= "bowser" then
+				addpoints((firepoints as {any})[(v as {string:any}).t] or 100, v.x, v.y)
 			else
 				for i = 1, 6 do
 					v:shotted()
@@ -3854,8 +3857,8 @@ function mario:shootgel(i: any)
 	local xspeed = math.cos(-self.pointingangle-math.pi/2)*gelcannonspeed
 	local yspeed = math.sin(-self.pointingangle-math.pi/2)*gelcannonspeed
 	
-	objects["gel"][#objects["gel"]].speedy = yspeed
-	objects["gel"][#objects["gel"]].speedx = xspeed
+	objects["gel"][#(objects["gel"] as {any})].speedy = yspeed
+	objects["gel"][#(objects["gel"] as {any})].speedx = xspeed
 end
 
 function mario:respawn(): any
@@ -3870,7 +3873,8 @@ function mario:respawn(): any
 	
 	fastestplayer = playerobjs[i]
 	
-	local spawnx, spawny
+	local spawnx: number = 0
+	local spawny: number = 0
 	
 	if fastestplayer then
 		for i = 2, players do
@@ -3997,7 +4001,7 @@ function mario:portalpickup(i: any): any
 		end
 	end
 	
-	self.portalsavailable[i] = true
+	self.portalsavailable[i as integer] = true
 end
 
 return mario

@@ -1018,7 +1018,7 @@ table.insert(toenter, {name = "dotoallint",
 })
 
 --SORT ALPHABETICALLY (I didn't even know you could greater/less compare strings.)
-table.sort(toenter, function(a, b) return a.t.nicename < b.t.nicename end)
+table.sort(toenter as {any}, function(a: any, b: any): boolean return (a.t as {string:any}).nicename < (b.t as {string:any}).nicename end)
 
 local typelist = {"trigger", "condition", "action"}
 
@@ -1028,7 +1028,7 @@ for i = 1, #typelist do
 	animationstrings[typelist[i] ] = {}
 end
 
-for i, v in pairs(toenter) do
+for i, v in pairs(toenter as {any:any}) do
 	animationlist[v.name] = v.t
 	table.insert(animationstrings[v.t.t], v.t.nicename)
 end
@@ -1041,12 +1041,12 @@ function animationguiline:init(tabl, t2): any
 	self.elements = {}
 	self.elements[1] = {}
 	local start = 1
-	for i = 1, #animationstrings[self.type] do
-		if animationlist[self.t[1]] and animationlist[self.t[1]].nicename == animationstrings[self.type][i] then
-			start = i
+	for i = 1, #(animationstrings[self.type] as {any}) do
+		if (animationlist as {any:any})[self.t[1]] and (animationlist as {any:any})[self.t[1]].nicename == (animationstrings[self.type] as {any})[i] then
+			start = i as integer
 		end
 	end
-	local firstwidth = 22--#animationstrings[self.type][start]
+	local firstwidth = 22--#(animationstrings[self.type] as {any})[start]
 	
 	self.deletebutton = guielement:new("button", 0, 0, "x", function() self:delete() end, nil, nil, nil, 8, 0.1)
 	self.deletebutton.textcolor = {0.6, 0, 0}
@@ -1057,12 +1057,12 @@ function animationguiline:init(tabl, t2): any
 	self.upbutton = guielement:new("button", 0, 0, "_dir4", function() self:moveup() end, nil, nil, nil, 8, 0.1)
 	self.upbutton.textcolor = {1, 1, 1}
 	
-	self.elements[1].gui = guielement:new("dropdown", 0, 0, firstwidth, function(val) self:changemainthing(val) end, start, unpack(animationstrings[self.type]))
+	self.elements[1].gui = guielement:new("dropdown", 0, 0, firstwidth, function(val) self:changemainthing(val) end, start, unpack(animationstrings[self.type] as {any}))
 	self.elements[1].width = 14+firstwidth*8
 	
 	if not self.t[1] then
-		for i, v in pairs(animationlist) do
-			if v.nicename == animationstrings[self.type][1] then
+		for i, v in pairs(animationlist as {any:any}) do
+			if v.nicename == (animationstrings[self.type] as {any})[1] then
 				self.t[1] = i
 				break
 			end
@@ -1071,7 +1071,7 @@ function animationguiline:init(tabl, t2): any
 	
 	local tid = 1
 	if animationlist[self.t[1] ] then
-		for i, v in ipairs(animationlist[self.t[1] ].entries) do
+		for i, v in ipairs(((animationlist as {any:any})[self.t[1]] as {string:any}).entries as {any}) do
 			local temp = {}
 			
 			if v.t == "text" then
@@ -1082,8 +1082,8 @@ function animationguiline:init(tabl, t2): any
 				tid = tid + 1
 				
 				local dropdown = false
-				local dropwidth
-				local args
+				local dropwidth: number = 0
+				local args: {any} = {}
 				
 				if v.t == "input" then
 					local width = 15
@@ -1173,7 +1173,7 @@ function animationguiline:update(dt: number): any
 	self.upbutton:update(dt)
 end
 
-function animationguiline:draw(x, y): any
+function animationguiline:draw(x: number, y: number): any
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.rectangle("fill", x*scale, y*scale, (width*16-x)*scale, 11*scale)
 	love.graphics.setColor(1, 1, 1)
@@ -1198,18 +1198,18 @@ function animationguiline:draw(x, y): any
 		if self.elements[i].t == "text" then
 			love.graphics.setColor(1, 1, 1)
 			properprint(self.elements[i].value, (x+xadd-1)*scale, (y+2)*scale)
-			xadd = xadd + self.elements[i].width
+			xadd = (xadd as number) + (self.elements[i].width as number)
 		else
 			if not self.elements[i].gui.extended then
 				self.elements[i].gui.x = x+xadd
 				self.elements[i].gui.y = y
 			end
-			xadd = xadd + self.elements[i].width
+			xadd = (xadd as number) + (self.elements[i].width as number)
 		end
 	end
 end
 
-function animationguiline:click(x, y, button): any
+function animationguiline:click(x: number, y: number, button: any): any
 	if self.deletebutton:click(x, y, button) then
 		return true
 	end
@@ -1222,7 +1222,7 @@ function animationguiline:click(x, y, button): any
 		return true
 	end
 	
-	local rettrue
+	local rettrue: boolean = false
 	
 	local i = 1
 	while i <= #self.elements do
@@ -1237,7 +1237,7 @@ function animationguiline:click(x, y, button): any
 	return rettrue
 end
 
-function animationguiline:unclick(x, y, button): any
+function animationguiline:unclick(x: number, y: number, button: any): any
 	self.downbutton:unclick(x, y, button)
 	self.upbutton:unclick(x, y, button)
 	
@@ -1263,7 +1263,7 @@ function animationguiline:movedown(): any
 	movedownanimationguiline(self.type, self)
 end
 
-function animationguiline:keypressed(key): any
+function animationguiline:keypressed(key: string): any
 	for i = 1, #self.elements do
 		if self.elements[i].gui then
 			self.elements[i].gui:keypress(key)
@@ -1271,7 +1271,7 @@ function animationguiline:keypressed(key): any
 	end
 end
 
-function animationguiline:textinput(text): any
+function animationguiline:textinput(text: string): any
 	for i = 1, #self.elements do
 		if self.elements[i].gui then
 			self.elements[i].gui:textinput(text)
@@ -1280,9 +1280,9 @@ function animationguiline:textinput(text): any
 end
 
 function animationguiline:changemainthing(value): any
-	local name
-	for i, v in pairs(animationlist) do
-		if v.nicename == animationstrings[self.type][value] then
+	local name: any = nil
+	for i, v in pairs(animationlist as {any:any}) do
+		if v.nicename == (animationstrings[self.type] as {any})[value] then
 			name = i
 		end
 	end
@@ -1290,11 +1290,11 @@ function animationguiline:changemainthing(value): any
 end
 
 function animationguiline:submenuchange(value, id): any
-	self.elements[id].gui.var = value
+	self.elements[id as integer].gui.var = value
 end
 
 function animationguiline:haspriority(): any
-	for i, v in pairs(self.elements) do
+	for i, v in pairs(self.elements as {any:any}) do
 		if v.gui then
 			if v.gui.priority then
 				return true

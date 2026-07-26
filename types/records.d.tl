@@ -165,10 +165,10 @@ global record animation is {any}
 	new: function(animation, any, any): animation
 end
 
-global record animationguielement
+global record animationguielement is {any}
 	gui: guielement
-	width: number
-	t: string
+	width: any
+	t: any
 	value: any
 	default: any
 end
@@ -176,23 +176,23 @@ end
 global record animationguiline is {any}
 	deletebutton: guielement
 	downbutton: guielement
-	elements: {animationguielement}
-	t: string
-	type: string
+	elements: {any:animationguielement}
+	t: any
+	type: any
 	upbutton: guielement
-	init: function(animationguiline, number, number)
-	update: function(animationguiline, number): any
-	draw: function(animationguiline, any, any)
-	click: function(animationguiline, any, any, any)
-	unclick: function(animationguiline, any, any, any)
-	delete: function(animationguiline)
-	moveup: function(animationguiline)
-	movedown: function(animationguiline)
-	keypressed: function(animationguiline, any)
-	textinput: function(animationguiline, any)
-	changemainthing: function(animationguiline, any)
-	submenuchange: function(animationguiline, any, any)
-	haspriority: function(animationguiline)
+	init: function(animationguiline, any, any): any
+	update: function(animationguiline, any): any
+	draw: function(animationguiline, any, any): any
+	click: function(animationguiline, any, any, any): any
+	unclick: function(animationguiline, any, any, any): any
+	delete: function(animationguiline): any
+	moveup: function(animationguiline): any
+	movedown: function(animationguiline): any
+	keypressed: function(animationguiline, any): any
+	textinput: function(animationguiline, any): any
+	changemainthing: function(animationguiline, any): any
+	submenuchange: function(animationguiline, any, any): any
+	haspriority: function(animationguiline): any
 	new: function(animationguiline, any, any): animationguiline
 end
 
@@ -1373,6 +1373,7 @@ global record guielement is {any}
 	usemousewheel: any
 	value: any
 	var: any
+	actualvalue: any
 	width: number
 	width2: number
 	x: number

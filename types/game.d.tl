@@ -121,7 +121,7 @@ global getMouseTile: function(x: number, y: number): number, number
 -- Tiles / enemies / characters
 global tilequads: {any:TileQuad}
 global enemiesdata: {any:EnemyDef}
-global enemies: {number:string}
+global enemies: {string}
 global characters: {string:Character}
 global mariocharacter: {number:string}
 
@@ -134,7 +134,7 @@ global bighat: {any:HatDef}
 global marioworld: number
 global mariolevel: number
 global mariosublevel: number
-global mariotime: number
+global mariotime: any
 global mariotimelimit: number
 global mariolives: {integer}
 global mariolivecount: any
@@ -191,8 +191,8 @@ global mappackhorscrollsmooth: number
 global onlinemappacklist: {string}
 global onlinemappackselection: integer
 global helpui: {number}
-global hotkeys: {string:{any}}
-global selection: any
+global hotkeys: any
+global selection: number
 global selectionlist: {SelectionTile}
 global brush: {number}
 global record RegionDragging
@@ -217,7 +217,7 @@ global middlemode: {any} -- [1]=bool dragging, [2]=x, [3]=y
 global colorsetedit: integer
 global replaychar: {any}
 global record PromptState
-	joystick: {number:any}
+	joystick: {any:any}
 	joysticks: number
 end
 global prompt: PromptState
@@ -227,7 +227,7 @@ global server_load: function(...: any): any
 global server_start: function(...: any): any
 
 -- Level / world visuals
-global spriteset: integer
+global spriteset: any
 global custombackground: any
 global customforeground: any
 global background: {any}
@@ -345,7 +345,7 @@ end
 global entityquads: {number:EntityQuad}
 global levelfinishedmisc: any
 global playertype: string
-global animatedtimers: {{any}}
+global animatedtimers: {any:{any:any}}
 global tileselectionclick1: any
 global tileselectionclick2: any
 global playertypei: number
@@ -382,9 +382,9 @@ global yoffset: number
 global uispace: number
 global blockbouncetimer: {any:number}
 global pausemenuopen: boolean
-global musiclist: {number:string}
+global musiclist: {string}
 global animatedtilecount: number
-global animatedbooltimers: {{any}}
+global animatedbooltimers: {any:{any:any}}
 global allowdrag: boolean
 global rightclickactive: boolean
 global selectionx: number
@@ -405,7 +405,7 @@ global haswarpzone: any
 global maxwalkspeed: number
 global friction: number
 global mappackhorscrollrange: number
-global currentstate: number|string
+global currentstate: number
 global introduration: number
 global introfadetime: number
 global rightclickwidth: number
@@ -450,7 +450,7 @@ global allowskip: boolean
 global fastestplayer: {string:any}
 global regiondragboxwidth: number
 global seesawquad: {{Quad}}
-global animationlist: {string:AnimationDef}
+global animationlist: {any:any}
 global minimapheight: number
 global mtclipboard: {{any}}
 global lightdrawY: number
@@ -473,7 +473,7 @@ global editordebug: any
 global portalknockback: boolean
 global s4: {number:string}
 global starcolors: {number:{{number}}}
-global firepoints: {string:number}
+global firepoints: {any:number}
 global mariostarduration: number
 global vineframedelay: number
 global playercollisions: boolean
@@ -481,7 +481,7 @@ global infinitelives: boolean
 global fireworkcount: number
 global collisionexists: function(any, Entity): any
 global mtjustsaved: number
-global pastemode: boolean
+global pastemode: any
 global splitxscroll: {number}
 global multitileobjects: {{any}}
 global tilescrollbarheight: number
@@ -512,7 +512,7 @@ global mkstation: boolean
 global SERVER: string
 global BLOCKDELIMITER: {any:string}
 global airslidefactor: number
-global mariocombo: {number}
+global mariocombo: {any:number}
 global mariogravity: number
 global uwmaxairwalkspeed: number
 global uwfriction: number
@@ -594,13 +594,13 @@ global vx: number
 global vy: number
 global tooltipa: number
 global clipboardenabled: any
-global drawalllinks: boolean
+global drawalllinks: any
 global skiplevelscreen: any
 global multitileobjectnames: {any}
 global ctrlpressed: boolean
 global selectiondragging: boolean
 global outputsi: {number:any}
-global linktoolt: {any}
+global linktoolt: any
 global hasHotkey: function(any, any): string|boolean|nil
 global levelscreentimer: number
 global mappackauthor: {any}
@@ -628,7 +628,7 @@ global bulletbilldelay: number
 global respawnsublevel: number
 global livereplaydata: {number:{{string:any}}}
 global joystickdeadzone: number
-global flowercolor: any
+global flowercolor: {any}
 global MULTIPLYDELIMITER: {any:string}
 global joystickaimdeadzone: number
 global minspeed: number
@@ -963,8 +963,8 @@ global oneuptextimage: Image
 global portaldotsdistance: number
 global portaldotimg: Image
 global portalcrosshairimg: Image
-global physicsdebug: boolean
-global portalwalldebug: boolean
+global physicsdebug: any
+global portalwalldebug: any
 global coinblockimg: Image
 global coinimg: Image
 global portalbackgroundimg: Image
@@ -1082,7 +1082,7 @@ global editmtobjects: boolean
 global entitiescount: number
 global regiontoolX: number
 global regiontoolY: number
-global regiontoolt: {any}
+global regiontoolt: any
 global checkboximg: Image
 global checkboxquad: {{Quad}}
 global playedwilhelm: boolean
@@ -1394,7 +1394,7 @@ global generatespritebatch: function(...: any): any
 global getAngleFrame: function(number, number): number
 global getPortal: function(number, number, any): any
 global getSelectedTiles: function(...: any): {{any}}
-global getTiles: function(...: any): {{any}}
+global getTiles: function(...: any): any
 global getaveragecolor: function(ImageData, number, number): number, number, number
 global getentityhighlight: function(...: any): any
 global getfilepath: function(...: any): any
@@ -1623,7 +1623,7 @@ global getlistpos: function(...: any): any
 global formatscrollnumber: function(...: any): any
 global mapsort: function(...: any): any
 global gradient: function({number}, {number}, number): {number}
-global menu_parse_settings_text: function(...: any): any
+global menu_parse_settings_text: function(...: any): any, any, any
 global getclosestplayer: function(...: any): any
 global cameraxpan: function(...: any): any
 global cameraypan: function(...: any): any
@@ -1650,3 +1650,21 @@ global joysticks: {any}
 global bdrawui: function(...: any): any
 global iconimg: Image
 
+
+global submode: any
+
+global completewidth: number
+
+global added: number
+
+global slx1: number
+
+global slx2: number
+
+global sly1: number
+
+global sly2: number
+
+global animationstrings: {any:{any}}
+
+global GCA: number
