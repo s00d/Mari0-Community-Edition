@@ -8,13 +8,13 @@ function mario.new(_: mario, x: number, y: number, i: any, animation: any, size:
 	return self
 end
 
-function mario:init(x: number, y: number, i: any, animation: any, size: any, t: any): any
+function mario:init(x: number, y: number, i: any, animation: any, size: any, t: any)
 	if (SERVER or CLIENT) and i ~= netplayernumber then
 		self.remote = true
 	end
 	
 	self.alwaysactive = true
-	self.char = characters[mariocharacter[i as number] as string]
+	self.char = characters[mariocharacter[i as integer] as string]
 	
 	self.playernumber = (i or 1) as number
 	if bigmario then
@@ -23,7 +23,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 		self.size = (size or 1) as number
 	end
 	self.t = (t or "portal") as string
-	self.portalsavailable = {unpack(portalsavailable)}
+	self.portalsavailable = {unpack(portalsavailable)} as {boolean}
 	
 	--PHYSICS STUFF
 	self.speedx = 0
@@ -50,7 +50,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 					false, true, false, false, false,
 					false, false, false, false, false,
 					false, false, false, false, false,
-					false, false, false, false, false}
+					false, false, false, false, false} as {boolean}
 					
 	if playercollisions then
 		self.mask[3] = false
@@ -69,7 +69,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	
 	self.drawable = true
 	self.quad = self.char.idle[3]
-	self.colors = mariocolors[self.playernumber]
+	self.colors = mariocolors[self.playernumber as integer]
 	self.customscale = self.char.customscale
 	if self.size == 1 then
 		self.offsetX = self.char.smalloffsetX
@@ -100,7 +100,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	end
 	
 	--hat
-	self.hats = mariohats[self.playernumber]
+	self.hats = mariohats[self.playernumber as integer]
 	self.drawhat = true
 	
 	--Change height according to hats
@@ -250,7 +250,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	self:setquad()
 end
 
-function mario:adddata(): any
+function mario:adddata()
 	--i, x, y, cscale,     offsetX, offsetY, rotation, quadcenterX, quadcenterY, animationstate, underwater, ducking, hats, graphic, quad, pointingangle, shot, upsidedown, colors, lastportal, portal1color, portal2color)
 	
 	--local colors = {}
@@ -341,7 +341,7 @@ function mario:update(dt: number): any
 	self:update_drains(dt)
 end
 
-function mario:update_raccoon_effects(dt: number): any
+function mario:update_raccoon_effects(dt: number)
 	--Tailwag!
 	if self.char.raccoon and (self.tailwag or self.tailwagtimer > 0) then
 		if self.tailwagtimer == 0 then
@@ -375,7 +375,7 @@ function mario:update_raccoon_effects(dt: number): any
 	end
 end
 
-function mario:update_star(dt: number): any
+function mario:update_star(dt: number)
 	if self.startimer < mariostarduration and not self.dead then
 		self.startimer = self.startimer + dt
 		self.starblinktimer = self.starblinktimer + dt
@@ -414,7 +414,7 @@ function mario:update_star(dt: number): any
 			if self.size == 3 then --flower colors
 				self.colors = self.char.flowercolor or flowercolor as any
 			else
-				self.colors = mariocolors[self.playernumber]
+				self.colors = mariocolors[self.playernumber as integer]
 			end
 			self.starred = false
 			self.startimer = mariostarduration
@@ -917,7 +917,7 @@ function mario:update_animation(dt: number): any
 	return false
 end
 
-function mario:update_funnels(dt: number): any
+function mario:update_funnels(dt: number)
 	--Funnels and fuck
 	if self.funnel and not self.infunnel then
 		self:enteredfunnel(true)
@@ -1003,7 +1003,7 @@ function mario:update_springs(dt: number): any
 	return false
 end
 
-function mario:update_world_pickups(dt: number): any
+function mario:update_world_pickups(dt: number)
 	--coins
 	if not editormode then
 		local x = math.floor(self.x+self.width/2)+1
@@ -1044,7 +1044,7 @@ function mario:update_world_pickups(dt: number): any
 	end
 end
 
-function mario:update_replay(dt: number): any
+function mario:update_replay(dt: number)
 	if replaysystem then
 		livereplaydelay[self.playernumber] = livereplaydelay[self.playernumber] + dt
 		while livereplaydelay[self.playernumber] >= 1/60 do
@@ -1055,7 +1055,7 @@ function mario:update_replay(dt: number): any
 	
 end
 
-function mario:update_gravity(dt: number): any
+function mario:update_gravity(dt: number)
 	if self.jumping then
 		if self.underwater then
 			self.gravity = uwyaccelerationjumping
@@ -1080,7 +1080,7 @@ function mario:update_gravity(dt: number): any
 	end
 end
 
-function mario:update_fire_animation(dt: number): any
+function mario:update_fire_animation(dt: number)
 	if self.fireanimationtimer < fireanimationtime then
 		self.fireanimationtimer = self.fireanimationtimer + dt
 		if self.fireanimationtimer > fireanimationtime then
@@ -1089,7 +1089,7 @@ function mario:update_fire_animation(dt: number): any
 	end
 end
 
-function mario:update_zones(dt: number): any
+function mario:update_zones(dt: number)
 	if firestartx then
 		if self.x >= (firestartx as number) - 1 then
 			firestarted = true
@@ -1277,7 +1277,7 @@ function mario:update_controls(dt: number): any
 	return false
 end
 
-function mario:update_drains(dt: number): any
+function mario:update_drains(dt: number)
 	--drains
 	local x = math.floor(self.x+self.width/2)+1
 	
@@ -1303,10 +1303,10 @@ function mario:updateangle(): any
 		local scale = scale
 		if shaders and shaders.scale then scale = shaders.scale end
 		self.pointingangle = math.atan2(self.x+6/16-xscroll-(mouse.getX()/16/scale), (self.y-yscroll+6/16-.5)-(mouse.getY()/16/scale))
-	elseif #controls[self.playernumber]["aimx"] > 0 then
+	elseif #controls[self.playernumber as integer]["aimx"] > 0 then
 		local x, y
 		
-		local s = controls[self.playernumber]["aimx"]
+		local s = controls[self.playernumber as integer]["aimx"]
 		local j = love.joystick.getJoysticks()[s[2]]
 		if s[1] == "joy" then
 			x = j and -j:getAxis(s[4]) or 0
@@ -1315,7 +1315,7 @@ function mario:updateangle(): any
 			end
 		end
 		
-		s = controls[self.playernumber]["aimy"]
+		s = controls[self.playernumber as integer]["aimy"]
 		j = love.joystick.getJoysticks()[s[2]]
 		if s[1] == "joy" then
 			y = j and -j:getAxis(s[4]) or 0
@@ -1337,7 +1337,7 @@ function mario:updateangle(): any
 	end
 end
 
-function mario:movement(dt: number): any
+function mario:movement(dt: number)
 	local maxrunspeed = maxrunspeed
 	local maxwalkspeed = maxwalkspeed
 	local runacceleration = runacceleration
@@ -1676,7 +1676,7 @@ function mario:movement(dt: number): any
 	end
 end
 
-function mario:runanimation(dt: number): any
+function mario:runanimation(dt: number)
 	self.runanimationprogress = self.runanimationprogress + (math.abs(self.speedx)+4)/5*dt*(self.char.rundelay or runanimationspeed)
 	while self.runanimationprogress > self.char.runframes+1 do
 		self.runanimationprogress = self.runanimationprogress - self.char.runframes
@@ -1684,7 +1684,7 @@ function mario:runanimation(dt: number): any
 	self.runframe = math.floor(self.runanimationprogress)
 end
 
-function mario:underwatermovement(dt: number): any
+function mario:underwatermovement(dt: number)
 	if self.jumping or self.falling then
 		--Swim animation
 		if self.animationstate == "jumping" or self.animationstate == "falling" then
@@ -1860,7 +1860,7 @@ function mario:underwatermovement(dt: number): any
 	end
 end
 
-function mario:setquad(anim: any, s: any): any
+function mario:setquad(anim: any, s: any)
 	local angleframe
 	if self.char.nopointing then
 		angleframe = 1
@@ -2006,7 +2006,7 @@ function mario:jump(force: any): any
 	end
 end
 
-function mario:stopjump(force: any): any
+function mario:stopjump(force: any)
 	if self.controlsenabled or force then
 		if self.jumping == true then
 			self.jumping = false
@@ -2015,7 +2015,7 @@ function mario:stopjump(force: any): any
 	end
 end
 
-function mario:rightkey(): any
+function mario:rightkey()
 	if self.controlsenabled and self.vine then
 		if self.vineside == "left" then
 			local targetx = self.x + 8/16
@@ -2031,7 +2031,7 @@ function mario:rightkey(): any
 	end
 end
 
-function mario:leftkey(): any
+function mario:leftkey()
 	if self.controlsenabled and self.vine then
 		if self.vineside == "right" then
 			local targetx = self.x - 8/16
@@ -2095,7 +2095,7 @@ function mario:shrink(): any
 	
 	self.size = 1
 	
-	self.colors = mariocolors[self.playernumber]
+	self.colors = mariocolors[self.playernumber as integer]
 	
 	self.animation = "shrink" as any
 	self.drawable = true
@@ -2844,7 +2844,7 @@ function mario:starcollide(a: any, b: Entity, c: any, d: any): any
 	end
 end
 
-function mario:hitspring(b: Entity): any
+function mario:hitspring(b: Entity)
 	b:hit()
 	self.springb = b
 	self.springx = self.x
@@ -2859,7 +2859,7 @@ function mario:hitspring(b: Entity): any
 	self:setquad()
 end
 
-function mario:leavespring(): any
+function mario:leavespring()
 	self.y = self.springy - self.height-31/16
 	if self.springhigh then
 		self.speedy = -springhighforce
@@ -2874,7 +2874,7 @@ function mario:leavespring(): any
 	self.mask[19] = false
 end
 
-function mario:dropvine(dir: any): any
+function mario:dropvine(dir: any)
 	if dir == "right" then
 		self.x = self.x + 8/16
 	else
@@ -3229,13 +3229,13 @@ global function destroyblock(...: any): any
 	generatespritebatch()
 end
 
-function mario:faithplate(dir: any): any
+function mario:faithplate(dir: any)
 	self.animationstate = "jumping"
 	self.falling = true
 	self:setquad()
 end
 
-function mario:startfall(): any
+function mario:startfall()
 	if self.falling == false then
 		self.falling = true
 		self.animationstate = "falling"
@@ -3379,7 +3379,7 @@ global function getAngleFrame(...: any): any
 	return angleframe
 end
 
-function mario:emancipate(a: any): any
+function mario:emancipate(a: any)
 	self:removeportals()
 	
 	local delete = {}
@@ -3428,13 +3428,13 @@ function mario:use(xcenter: number, ycenter: number): any
 	end
 end
 
-function mario:pickupbox(box: Entity): any
+function mario:pickupbox(box: Entity)
 	self.pickup = box
 	box.speedx = 0
 	box.speedy = 0
 end
 
-function mario:dropbox(): any
+function mario:dropbox()
 	self.pickup:dropped()
 	
 	self.pickup.gravitydirection = self.gravitydirection
@@ -3491,11 +3491,11 @@ function mario:dropbox(): any
 	self.pickup = false
 end
 
-function mario:cubeemancipate(): any
+function mario:cubeemancipate()
 	self.pickup = false
 end
 
-function mario:duck(ducking: any) --goose
+function mario:duck(ducking: any): any --goose
 	if self.infunnel then
 		self.ducking = false
 		return
@@ -3517,7 +3517,7 @@ function mario:duck(ducking: any) --goose
 	end
 end
 
-function mario:pipe(x: number, y: number, dir: any, i: any)	
+function mario:pipe(x: number, y: number, dir: any, i: any): any	
 	if editormode then
 		return
 	end
@@ -3557,7 +3557,7 @@ function mario:pipe(x: number, y: number, dir: any, i: any)
 	self:setquad()
 end
 
-function mario:savereplaydata(): any
+function mario:savereplaydata()
 	local i = 1
 	while love.filesystem.getInfo("replay" .. i .. ".txt") do
 		i = i + 1
@@ -3588,7 +3588,7 @@ function mario:savereplaydata(): any
 	end
 end
 
-function mario:flag()	
+function mario:flag(): any	
 	for i = 1, players do
 		playerobjs[i].invincible = true
 	end
@@ -3711,7 +3711,7 @@ function mario:axe(): any
 	axex = false
 end
 
-function mario:vineanimation(): any
+function mario:vineanimation()
 	self.infunnel = false
 	self.animation = "vine" as any
 	self.invincible = false
@@ -3724,7 +3724,7 @@ function mario:vineanimation(): any
 	self.vine = false
 end
 
-function mario:star(): any
+function mario:star()
 	addpoints(1000)
 	self.startimer = 0
 	self.colors = starcolors[1]
@@ -3733,7 +3733,7 @@ function mario:star(): any
 	music:play("starmusic.ogg")
 end
 
-function mario:fire(): any
+function mario:fire()
 	if (not noupdate and self.animation ~= "grow1" and self.animation ~= "grow2") and self.char.raccoon and self.size >= 2 and not self.ducking and not self.raccoonspinframe then --Wiggle wiggle wag wag
 		self.raccoonspinframe = 1
 		self.raccoonspintimer = 0
@@ -3767,7 +3767,7 @@ function mario:fire(): any
 	end
 end
 
-function mario:spinhit(x: number, y: number, dir: any): any
+function mario:spinhit(x: number, y: number, dir: any)
 	local col = checkrect(x, y, 0, 0, "all", true)
 	for i = 1, #col, 2 do
 		local a = col[i]
@@ -3781,7 +3781,7 @@ function mario:spinhit(x: number, y: number, dir: any): any
 	end
 end
 
-function mario:fireballcallback(): any
+function mario:fireballcallback()
 	self.fireballcount = self.fireballcount - 1
 end
 
@@ -3851,7 +3851,7 @@ function mario:portaled(dir: any): any
 	end
 end
 
-function mario:shootgel(i: any): any
+function mario:shootgel(i: any)
 	table.insert(objects["gel"], gel:new(self.x+self.width/2+8/16, self.y+self.height/2+6/16, i))
 	
 	local xspeed = math.cos(-self.pointingangle-math.pi/2)*gelcannonspeed
@@ -3919,7 +3919,7 @@ function mario:respawn(): any
 		end
 	end
 	
-	self.colors = mariocolors[self.playernumber]
+	self.colors = mariocolors[self.playernumber as integer]
 	self.speedy = 0
 	self.speedx = 0
 	self.dead = false
@@ -3948,7 +3948,7 @@ function mario:respawn(): any
 	self.active = true
 end
 
-function mario:dive(water: any): any
+function mario:dive(water: any)
 	if water then
 		self.gravity = uwgravity
 		self.underwater = true
@@ -3966,7 +3966,7 @@ function mario:dive(water: any): any
 	self:setquad()
 end
 
-function mario:enteredfunnel(inside: any): any
+function mario:enteredfunnel(inside: any)
 	if inside then
 		if self.ducking then
 			self:duck(false)
@@ -3977,13 +3977,13 @@ function mario:enteredfunnel(inside: any): any
 	end
 end
 
-function mario:animationwalk(dir: any): any
+function mario:animationwalk(dir: any)
 	self.animation = "animationwalk" as any
 	self.animationstate = "running"
 	self.animationmisc = dir
 end
 
-function mario:stopanimation(): any
+function mario:stopanimation()
 	self.animation = false as any
 end
 

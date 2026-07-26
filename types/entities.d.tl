@@ -133,11 +133,11 @@ global record Portal
 	animationtimer: number
 	portalframe: integer
 	openscale: {any}
-	x1: number|boolean
-	y1: number|boolean
+	x1: any
+	y1: any
 	facing1: any
-	x2: number|boolean
-	y2: number|boolean
+	x2: any
+	y2: any
 	facing2: any
 	timer: number
 	i: integer

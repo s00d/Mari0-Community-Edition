@@ -108,7 +108,7 @@ global inrange: function(i: number, a: number, b: number, include: boolean|nil):
 global round: function(num: number, idp: number|nil): number
 global tablecontains: function(t: {any}, entry: any): boolean
 global properprint: function(s: string|number, x: number, y: number, sc: number|nil)
-global getTile: function(...: any): any, any
+global getTile: function(...: any): any...
 global getMouseTile: function(x: number, y: number): number, number
 
 -- Tiles / enemies / characters
@@ -183,7 +183,7 @@ global onlinemappacklist: {string}
 global onlinemappackselection: integer
 global helpui: {number}
 global hotkeys: {string:any}
-global selection: {{any}}
+global selection: any
 global brush: {any}
 global record RegionDragging
 	x: number
@@ -195,8 +195,9 @@ global record RegionDragging
 	update: function(RegionDragging, number): boolean|nil
 	draw: function(RegionDragging)
 	mousepressed: function(RegionDragging, ...: any): any
+	mousereleased: function(RegionDragging, ...: any): any
 end
-global regiondragging: RegionDragging|boolean|nil
+global regiondragging: any
 global tileselectionclick1x: number
 global tileselectionclick1y: number
 global minimapscroll: number
@@ -323,7 +324,7 @@ global EQUALSIGN: string
 global seesawtype: number
 global pausemenuoptions: {string}
 global earthquake: number
-global animatedtiles: {{any}}
+global animatedtiles: {any}
 global backgroundcolor: {{number}}
 global mazestarts: {string:any}
 global bonusstage: boolean
@@ -492,9 +493,9 @@ global vprev: number
 global hprev: number
 global multitilegroups: {string:{{any}}}
 global existingmaps: {any}
-global infmarioY: {any}
-global infmarioR: {any}
-global mappackicon: Image
+global infmarioY: number
+global infmarioR: number
+global mappackicon: {any}
 global onlinemappackdescription: {any}
 global toconvertmappackicon: {any}
 global toconvertmappackdescription: {any}
@@ -565,7 +566,7 @@ global outputsi: {number:any}
 global linktoolt: {any}
 global hasHotkey: function(any, any): boolean
 global levelscreentimer: number
-global mappackauthor: string
+global mappackauthor: {any}
 global buttonerror: {any}
 global steptimer: number
 global magicdns_timer: number
@@ -639,7 +640,7 @@ global continueavailable: boolean
 global menuselectimg: Image
 global selectworldopen: boolean
 global currentfiledownload: {any}
-global mappackname: string
+global mappackname: {any}
 global downloaderror: boolean
 global onlinemappackicon: {any}
 global onlinemappackauthor: {any}
@@ -899,9 +900,9 @@ global updatenotification: boolean
 global playerselectimg: Image
 global selectworldexists: boolean
 global loadingonlinemappacks: boolean
-global menu_mappack_title: string
-global menu_mappack_author_line: string
-global menu_mappack_desc_lines: {string}
+global menu_mappack_title: function(...: any): any
+global menu_mappack_author_line: function(...: any): any
+global menu_mappack_desc_lines: function(...: any): string, string, string
 global huebarimg: Image
 global huebarmarkerimg: Image
 global DEBUG: boolean
@@ -940,7 +941,8 @@ global fontimage2: Image
 global portalgundelay: number
 global speeddebug: boolean
 global facing: string
-global xplus: {any}
+global xplus: number
+global yplus: number
 global PHYSICS_LATE_SET: {string:boolean}
 global PHYSICS_LATE_LIST: {string}
 global directionsimg: Image
@@ -1247,7 +1249,7 @@ global checkkey: function(...: any): any
 global checkmagic: function(...: any): any
 global checkportalHOR: function(Entity, number): boolean
 global checkportalVER: function(Entity, number): boolean
-global checkportalremove: function(...: any): any
+global checkportalremove: function(...: any): any...
 global checkrect: function(...: any): {any}
 global closerightclickmenu: function(...: any): any
 global collectcoin: function(...: any): any
@@ -1354,14 +1356,14 @@ global generateanimationgui: function(...: any): any
 global generateentitylist: function(...: any): any
 global generatespritebatch: function(...: any): any
 global getAngleFrame: function(...: any): any
-global getPortal: function(...: any): any
-global getSelectedTiles: function(...: any): any
-global getTiles: function(...: any): any
+global getPortal: function(...: any): any...
+global getSelectedTiles: function(...: any): {{any}}
+global getTiles: function(...: any): {{any}}
 global getaveragecolor: function(...: any): any
 global getentityhighlight: function(...: any): any
 global getfilepath: function(...: any): any
 global getmaps: function(...: any): any
-global getportalposition: function(...: any): any, any
+global getportalposition: function(...: any): any...
 global getquadprops: function(...: any): any
 global getupdate: function(...: any): any
 global givelive: function(...: any): any
@@ -1374,7 +1376,7 @@ global hitrightside: function(...: any): any
 global horcollision: function(Entity, Entity, any, any, any, any, number): boolean
 global increasetimelimit: function(...: any): any
 global inportal: function(Entity): boolean
-global insideportal: function(...: any): any
+global insideportal: function(...: any): any...
 global intro_draw: function(...: any): any
 global intro_keypressed: function(...: any): any
 global intro_load: function(...: any): any
@@ -1453,7 +1455,7 @@ global modifyportaltiles: function(...: any): any
 global modifyportalwalls: function(...: any): any
 global movedownanimationguiline: function(string, animationguiline)
 global moveline: function(...: any): any
-global moveoutportal: function(...: any): any
+global moveoutportal: function(...: any): any...
 global moveupanimationguiline: function(string, animationguiline)
 global newRecoloredImage: function(...: any): any
 global newlevel: function(...: any): any
@@ -1532,7 +1534,7 @@ global togglemagic: function(...: any): any
 global toggleskiplevelscreen: function(...: any): any
 global toggleunderwater: function(...: any): any
 global togglewarpzone: function(...: any): any
-global traceline: function(...: any): any
+global traceline: function(...: any): any...
 global trianglepassivecollision: function(...: any): any
 global trianglevercollision: function(...: any): any
 global twistdirection: function(...: any): any
@@ -1562,7 +1564,7 @@ global addanimationconditionbutton: guielement
 global addanimationactionbutton: guielement
 global allowenemy: boolean
 global subtractscore: function(...: any): any
-global editor_link_screen_pos: function(...: any): any
+global editor_link_screen_pos: function(...: any): number, number
 global gettilelistpos: function(...: any): any
 global changeHotKey: function(...: any): any
 global closestplayer: function(...: any): any
@@ -1577,7 +1579,7 @@ global mapsymissing: number
 global editor_minimap_xscroll_from_mouse: function(...: any): any
 global editor_minimap_tile_from_click: function(...: any): any
 global editor_filter_map_files: function(...: any): any
-global editor_normalize_rect: function(...: any): any
+global editor_normalize_rect: function(...: any): number, number, number, number
 global editor_hotkeys_parse: function(...: any): any
 global editor_hotkeys_serialize: function(...: any): any
 global getmtbutton: function(...: any): any

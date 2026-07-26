@@ -2,13 +2,13 @@
 
 rawset(_G, "portalwall", rawget(_G, "portalwall") or {})
 
-function portalwall.new(_: portalwall, x: number, y: number, width: any, height: any): portalwall
+function portalwall.new(_: portalwall, x: number, y: number, width: any, height: any, _ignore: any): portalwall
 	local self = setmetatable({}, { __index = portalwall }) as portalwall
 	self:init(x, y, width, height)
 	return self
 end
 
-function portalwall:init(x: number, y: number, width, height)
+function portalwall:init(x: number, y: number, width, height, _ignore: any)
 	self.x = x
 	self.y = y	
 	self.width = width

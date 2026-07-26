@@ -235,10 +235,10 @@ function editor_load()
 	local mappackauthor = ""
 	local mappackdescription = ""
 	if love.filesystem.getInfo("mappacks/" .. mappack .. "/settings.txt") then
-		local data = love.filesystem.read("mappacks/" .. mappack .. "/settings.txt")
-		local split1 = data:split("\n")
+		local data = (love.filesystem.read("mappacks/" .. mappack .. "/settings.txt") or "") as string
+		local split1 = strsplit(data, "\n")
 		for i = 1, #split1 do
-			local split2 = split1[i]:split("=")
+			local split2 = strsplit(split1[i], "=")
 			if split2[1] == "name" then
 				mappackname = split2[2]:lower()
 			elseif split2[1] == "author" then
@@ -450,9 +450,9 @@ function editor_update_keyscroll(dt)
 				guielements["autoscrollcheckbox"].var = autoscroll
 				generatespritebatch()
 				
-				if regiondragging and regiondragging.movex and regiondragging.movey then
-					regiondragging.movex = regiondragging.movex + (oldxscroll-xscroll)*16*scale
-					regiondragging.movey = regiondragging.movey + (oldyscroll-yscroll)*16*scale
+				if regiondragging and (regiondragging as RegionDragging).movex and (regiondragging as RegionDragging).movey then
+					(regiondragging as RegionDragging).movex = (regiondragging as RegionDragging).movex + (oldxscroll-xscroll)*16*scale
+					(regiondragging as RegionDragging).movey = (regiondragging as RegionDragging).movey + (oldyscroll-yscroll)*16*scale
 				end
 			end
 		end
@@ -490,7 +490,7 @@ end
 function editor_update_closed(dt)
 	if editorstate == "lightdraw" then
 		if love.mouse.isDown("l") then
-			local mousex, mousey = mouse.getPosition()
+			local emx, emy = mouse.getPosition()
 			local currentx, currenty = getMouseTile(mousex, mousey+8*scale)
 			
 			if lightdrawX and (currentx ~= lightdrawX or currenty ~= lightdrawY) then
@@ -703,7 +703,7 @@ end
 
 function editor_update_main(dt)
 	if love.mouse.isDown("l") then
-		local mousex, mousey = mouse.getPosition()
+		local emx, emy = mouse.getPosition()
 		if mousey >= minimapy*scale and mousey < (minimapy+minimapheight*2+4)*scale then
 			if mousex >= minimapx*scale and mousex < (minimapx+394)*scale then
 				--HORIZONTAL
@@ -806,26 +806,26 @@ end
 function editor_draw()
 	love.graphics.setColor(1, 1, 1)
 
-	local mousex, mousey = mouse.getPosition()
+	local emx, emy = mouse.getPosition()
 
 	if editormenuopen == false then
-		editor_draw_overlay(mousex, mousey)
-		editor_draw_linking(mousex, mousey)
+		editor_draw_overlay(emx, emy)
+		editor_draw_linking(emx, emy)
 		editor_draw_status()
 	else
-		editor_draw_menu(mousex, mousey)
+		editor_draw_menu(emx, emy)
 	end
 
 	editor_draw_chrome()
 end
 
-function editor_draw_overlay(mousex, mousey)
+function editor_draw_overlay(emx, emy)
 	if editorstate == "selection" then
 		if selectiondragging or selectionwidth then
 			local x, y, width, height = 0, 0, 0, 0
 			x, y = selectionx, selectiony
 			if selectiondragging then
-				width, height = mousex-selectionx, mousey-selectiony
+				width, height = emx-selectionx, emy-selectiony
 			else
 				width, height = selectionwidth, selectionheight
 			end
@@ -879,7 +879,7 @@ function editor_draw_overlay(mousex, mousey)
 
 				-- now replace everything thats == map[cox][coy][1] to: currenttile
 				local mousetile = map[cox][coy][1]
-				for i, v in ipairs(map) do
+				for i, v in ipairs(map as {{MapCell}}) do
 					for j, w in ipairs(v) do
 						local quad = tilequads[currenttile as number]:quad() --[[tilequads[w].quad]]
 						if w[1] == mousetile then
@@ -1007,17 +1007,18 @@ function editor_draw_overlay(mousex, mousey)
 						end
 					end
 				else
-					local offy = math.ceil(currenttile/22)-1
-					local offx = currenttile-offy*22
-					local cox, coy = getMouseTile(middlemode[2], middlemode[3]-8*scale)
+					local ctile = currenttile as number
+					local offy = math.ceil(ctile/22)-1
+					local offx = ctile-offy*22
+					local cox, coy = getMouseTile(middlemode[2] as number, (middlemode[3] as number)-8*scale)
 					for a = 1, tilelistcount+1 do
 						local i = a+tileliststart-1
 						love.graphics.setColor(1, 1, 1, 0.2)
-						if i == currenttile then
+						if i == ctile then
 							love.graphics.setColor(1, 1, 1, 0.8)
 						end
 						love.graphics.draw(tilequads[i].image, tilequads[i]:quad(), (math.fmod((i-1), 22)-offx)*17*scale+cox*16*scale+scale, (math.floor((i-1)/22)-offy)*17*scale+coy*16*scale-8*scale, 0, scale, scale)
-						if i == currenttile then
+						if i == ctile then
 							love.graphics.setColor(1, 0, 0, 0.6)
 							drawrectangle((math.fmod((i-1), 22)-offx)*17+cox*16, (math.floor((i-1)/22)-offy)*17+coy*16-9, 18, 18)
 						end
@@ -1026,31 +1027,33 @@ function editor_draw_overlay(mousex, mousey)
 				love.graphics.pop()
 			elseif pastingtiles == false then
 				love.graphics.setColor(1, 1, 1, 0.8)
-				local cox, coy = middlemode[2], middlemode[3]
+				local cox, coy = middlemode[2] as number, middlemode[3] as number
 				if love.mouse.isDown("m") then
 					cox, coy = getMouseTile(love.mouse.getX(), love.mouse.getY()-8*scale)
 				end
 				if editentities == false then
-					local quad = tilequads[currenttile as number]:quad()
-					if currenttile > 10000 then
-						quad = tilequads[currenttile as number]:quad()
+					local ctile = currenttile as number
+					local tileq = tilequads[ctile]:quad()
+					if ctile > 10000 then
+						tileq = tilequads[ctile]:quad()
 					end
-					for t1 = 1, brush[1] do
-						for t2 = 1, brush[2] do
-							love.graphics.draw(tilequads[currenttile as number].image, quad, math.floor((cox-xscroll-1+(t1-1))*16*scale), math.floor(((coy-yscroll-1+(t2-1))*16+8)*scale), 0, scale, scale)
+					for t1 = 1, brush[1] as number do
+						for t2 = 1, brush[2] as number do
+							love.graphics.draw(tilequads[ctile].image, tileq, math.floor((cox-xscroll-1+(t1-1))*16*scale), math.floor(((coy-yscroll-1+(t2-1))*16+8)*scale), 0, scale, scale)
 						end
 					end
 				elseif editenemies == false then
-					for t1 = 1, brush[1] do
-						for t2 = 1, brush[2] do
-							love.graphics.draw(entityquads[currenttile as number].image, entityquads[currenttile as number].quad, math.floor((cox-xscroll-1+(t1-1))*16*scale), math.floor(((coy-yscroll-1+(t2-1))*16+8)*scale), 0, scale, scale)
+					local ctile = currenttile as number
+					for t1 = 1, brush[1] as number do
+						for t2 = 1, brush[2] as number do
+							love.graphics.draw(entityquads[ctile].image, entityquads[ctile].quad, math.floor((cox-xscroll-1+(t1-1))*16*scale), math.floor(((coy-yscroll-1+(t2-1))*16+8)*scale), 0, scale, scale)
 						end
 					end
 				else
 					local v = enemiesdata[currenttile as string]
 					local xoff, yoff = (((v.spawnoffsetx or 0)+v.width/2-.5)*16 - v.offsetX + v.quadcenterX)*scale, (((v.spawnoffsety or 0)-v.height+1)*16-v.offsetY - v.quadcenterY)*scale
-					for t1 = 1, brush[1] do
-						for t2 = 1, brush[2] do
+					for t1 = 1, brush[1] as number do
+						for t2 = 1, brush[2] as number do
 							love.graphics.draw(v.graphic, v.quad, math.floor((cox-xscroll-1+(t1-1))*16*scale+xoff), math.floor(((coy-yscroll+(t2-1))*16)*scale+yoff), 0, scale, scale)
 						end
 					end
@@ -1061,18 +1064,18 @@ function editor_draw_overlay(mousex, mousey)
 	
 end
 
-function editor_draw_linking(mousex, mousey)
+function editor_draw_linking(mx: number, my: number)
 	if rightclickactive and not regiondragging then
-		local cox, coy = getMouseTile(mousex, mousey+8*scale)
+		local cox, coy = getMouseTile(mx, my+8*scale)
 		
-		local table1 = {}
+		local table1: {any} = {}
 		for i, v in pairs(outputsi) do
 			table.insert(table1, v)
 		end
 		
 		for x = math.floor(xscroll), math.floor(xscroll)+width+1 do
 			for y = math.floor(yscroll), math.floor(yscroll)+height+1 do
-				for i, v in pairs(table1) do
+				for i, v in ipairs(table1) do
 					if inmap(x, y) and #map[x][y] > 1 and map[x][y][2] == v then							
 						local r = map[x][y]
 						local drawline = false
@@ -1093,113 +1096,121 @@ function editor_draw_linking(mousex, mousey)
 		local added = 0
 		for x = 1, mapwidth do
 			for y = 1, mapheight do
-				local tx, ty = x, y
-				local x1, y1 = 0, 0
-				local x2, y2 = 0, 0
-				x1, y1 = editor_link_screen_pos(tx, ty)
+				local ltx, lty = x, y
+				local lx1, ly1 = editor_link_screen_pos(ltx, lty)
+				local lx2, ly2 = 0.0, 0.0
 				
-				local drawtable = {}
+				local drawtable: {{any}} = {}
 				
-				for i = 1, #map[tx][ty] do
-					if map[tx][ty][i] == "link" and tonumber(map[tx][ty][i+2]) and tonumber(map[tx][ty][i+3]) then
-						x2, y2 = math.floor((map[tx][ty][i+2]-xscroll-.5)*16*scale), math.floor((map[tx][ty][i+3]-yscroll-1)*16*scale)
+				for i = 1, #map[ltx][lty] do
+					if map[ltx][lty][i] == "link" and tonumber(map[ltx][lty][i+2] as any) and tonumber(map[ltx][lty][i+3] as any) then
+						lx2, ly2 = math.floor(((map[ltx][lty][i+2] as number)-xscroll-.5)*16*scale), math.floor(((map[ltx][lty][i+3] as number)-yscroll-1)*16*scale)
 						
-						local t = map[tx][ty][i+1]
+						local t = map[ltx][lty][i+1]
 						added = added + 0.2
 						local color = getrainbowcolor(0.7)
-						table.insert(drawtable, {x1, y1, x2, y2, t, color})
+						table.insert(drawtable, {lx1, ly1, lx2, ly2, t, color})
 					end
 				end
 				
-				table.sort(drawtable, function(a,b) return math.abs(a[3]-a[1])>math.abs(b[3]-b[1]) end)
+				table.sort(drawtable, function(a: {any}, b: {any}): boolean return math.abs((a[3] as number)-(a[1] as number))>math.abs((b[3] as number)-(b[1] as number)) end)
 				
 				for i = 1, #drawtable do
-					local x1, y1, x2, y2, t, c = unpack(drawtable[i])
-					local r, g, b = unpack(c)
+					local dx1 = drawtable[i][1] as number
+					local dy1 = drawtable[i][2] as number
+					local dx2 = drawtable[i][3] as number
+					local dy2 = drawtable[i][4] as number
+					local t = drawtable[i][5]
+					local c = drawtable[i][6] as {number}
+					local r, g, b = c[1], c[2], c[3]
 					love.graphics.setColor(r, g, b, math.max(0, 1-rightclicka))
 					
 					if math.fmod(i, 2) == 0 then
-						drawlinkline2(x1, y1, x2, y2)
+						drawlinkline2(dx1, dy1, dx2, dy2)
 					else
-						drawlinkline(x1, y1, x2, y2)
+						drawlinkline(dx1, dy1, dx2, dy2)
 					end
-					properprintbackground(t, math.floor(x2-string.len(t)*4*scale), y2+10*scale, true, {r, g, b, math.max(0, (1-rightclicka))})
+					properprintbackground(t as string, math.floor(dx2-string.len(t as string)*4*scale), dy2+10*scale, true, {r, g, b, math.max(0, (1-rightclicka))})
 				end
 			end
 		end
 	end
 	
-	if (rightclickactive or rightclickm) and editorstate ~= "lightdraw" or rightclicka > 0 then
-		local tx, ty = 0, 0
-		local x1, y1 = 0, 0
-		local x2, y2 = 0, 0
+	if ((rightclickactive or rightclickm ~= nil) and editorstate ~= "lightdraw") or rightclicka > 0 then
+		local ltx, lty = 0.0, 0.0
+		local lx1, ly1 = 0.0, 0.0
+		local lx2, ly2 = 0.0, 0.0
 		if rightclickm then
-			tx = (rightclickm as rightclickmenu).tx
-			ty = (rightclickm as rightclickmenu).ty
-			x1, y1 = editor_link_screen_pos(tx, ty)
+			ltx = (rightclickm as rightclickmenu).tx as number
+			lty = (rightclickm as rightclickmenu).ty as number
+			lx1, ly1 = editor_link_screen_pos(ltx, lty)
 		else
-			tx = linktoolX
-			ty = linktoolY
-			x1, y1 = editor_link_screen_pos(tx, ty)
+			ltx = linktoolX
+			lty = linktoolY
+			lx1, ly1 = editor_link_screen_pos(ltx, lty)
 		end
 		
-		local drawtable = {}
+		local drawtable: {{any}} = {}
 		
-		if tx and ty and map[tx] and map[tx][ty] then
-			for i = 1, #map[tx][ty] do
-				if map[tx][ty][i] == "link" and tonumber(map[tx][ty][i+2]) and tonumber(map[tx][ty][i+3]) then
-					x2, y2 = math.floor((map[tx][ty][i+2]-xscroll-.5)*16*scale), math.floor((map[tx][ty][i+3]-yscroll-1)*16*scale)
+		if map[ltx] and map[ltx][lty] then
+			for i = 1, #map[ltx][lty] do
+				if map[ltx][lty][i] == "link" and tonumber(map[ltx][lty][i+2] as any) and tonumber(map[ltx][lty][i+3] as any) then
+					lx2, ly2 = math.floor(((map[ltx][lty][i+2] as number)-xscroll-.5)*16*scale), math.floor(((map[ltx][lty][i+3] as number)-yscroll-1)*16*scale)
 					
-					local t = map[tx][ty][i+1]
-					table.insert(drawtable, {x1, y1, x2, y2, t})
+					local t = map[ltx][lty][i+1]
+					table.insert(drawtable, {lx1, ly1, lx2, ly2, t})
 				end
 			end
 		end
 		
-		table.sort(drawtable, function(a,b) return math.abs(a[3]-a[1])>math.abs(b[3]-b[1]) end)
+		table.sort(drawtable, function(a: {any}, b: {any}): boolean return math.abs((a[3] as number)-(a[1] as number))>math.abs((b[3] as number)-(b[1] as number)) end)
 		
 		for i = 1, #drawtable do
-			local x1, y1, x2, y2, t = unpack(drawtable[i])
+			local dx1 = drawtable[i][1] as number
+			local dy1 = drawtable[i][2] as number
+			local dx2 = drawtable[i][3] as number
+			local dy2 = drawtable[i][4] as number
+			local t = drawtable[i][5]
 			love.graphics.setColor(0.5, 0.5, i/#drawtable, rightclicka)
 			
 			if math.fmod(i, 2) == 0 then
-				drawlinkline2(x1, y1, x2, y2)
+				drawlinkline2(dx1, dy1, dx2, dy2)
 			else
-				drawlinkline(x1, y1, x2, y2)
+				drawlinkline(dx1, dy1, dx2, dy2)
 			end
 			
-			properprintbackground(t, math.floor(x2-string.len(t)*4*scale), y2+10*scale, true, {0, 0, 0, rightclicka})
+			properprintbackground(t as string, math.floor(dx2-string.len(t as string)*4*scale), dy2+10*scale, true, {0, 0, 0, rightclicka})
 		end
 		
 		if linktoolt then
-			local x1, y1 = editor_link_screen_pos(linktoolX, linktoolY)
-			local x2, y2 = mousex, mousey
+			local px1, py1 = editor_link_screen_pos(linktoolX, linktoolY)
+			local px2, py2 = mx, my
 			
 			love.graphics.setColor(255 / 255, 172 / 255, 47 / 255, 1)
 			
-			drawlinkline(x1, y1, x2, y2)
+			drawlinkline(px1, py1, px2, py2)
 			
 			love.graphics.setColor(200 / 255, 140 / 255, 30 / 255, 1)
 			
-			love.graphics.draw(linktoolpointerimg, x2-math.ceil(scale/2), y2, 0, scale, scale, 3, 3)
+			love.graphics.draw(linktoolpointerimg, px2-math.ceil(scale/2), py2, 0, scale, scale, 3, 3)
 			
-			properprintbackground(linktoolt, math.floor(x2+4*scale), y2-4*scale, true)
+			properprintbackground(linktoolt as string, math.floor(px2+4*scale), py2-4*scale, true)
 		end
 		
 		--faithplate paths
-		if entitylist[map[tx][ty][2]].t == "faithplate" then
-			local yoffset = -8/16
-			local x = tx
-			local y = ty-1
-			local pointstable = {{x=x, y=y+yoffset}}
+		if entitylist[map[ltx][lty][2] as number].t == "faithplate" then
+			local yoff = -8/16
+			local x = ltx
+			local y = lty-1
+			local pointstable: {{string:number}} = {{x=x, y=y+yoff}}
 			
-			local speedx, speedy = 0, 0
+			local speedx, speedy = 0.0, 0.0
 			if rightclickm then
-				speedx = (rightclickm as rightclickmenu).t[2].value
-				speedy = -(rightclickm as rightclickmenu).t[4].value
+				speedx = ((rightclickm as rightclickmenu).t[2].value) as number
+				speedy = -(((rightclickm as rightclickmenu).t[4].value) as number)
 			else
-				speedx = tonumber(map[tx][ty][3])
-				speedy = -tonumber(map[tx][ty][4])
+				speedx = tonumber(map[ltx][lty][3] as any) or 0
+				speedy = -(tonumber(map[ltx][lty][4] as any) or 0)
 			end
 			
 			local step = 1/60
@@ -1207,7 +1218,7 @@ function editor_draw_linking(mousex, mousey)
 			repeat
 				x, y = x+speedx*step, y+speedy*step
 				speedy = speedy + yacceleration*step
-				table.insert(pointstable, {x=x, y=y+yoffset})
+				table.insert(pointstable, {x=x, y=y+yoff})
 			until y > yscroll+height+.5
 			
 			love.graphics.setColor(62 / 255, 213 / 255, 244 / 255, 0.6*rightclicka)
@@ -1287,7 +1298,7 @@ function editor_draw_status()
 	end
 end
 
-function editor_draw_menu(mousex, mousey)
+function editor_draw_menu(emx, emy)
 	if changemapwidthmenu then
 		editor_draw_menu_changewidth()
 		return
@@ -1303,17 +1314,17 @@ function editor_draw_menu(mousex, mousey)
 	
 
 	if editorstate == "tiles" then
-		editor_draw_menu_tiles(mousex, mousey)
+		editor_draw_menu_tiles(emx, emy)
 	elseif editorstate == "main" then
-		editor_draw_menu_main(mousex, mousey)
+		editor_draw_menu_main(emx, emy)
 	elseif editorstate == "maps" then
 		editor_draw_menu_maps()
 	elseif editorstate == "tools" then
 		editor_draw_menu_tools()
 	elseif editorstate == "animations" then
-		editor_draw_menu_animations(mousex, mousey)
+		editor_draw_menu_animations(emx, emy)
 	elseif editorstate == "objects" then
-		editor_draw_menu_objects(mousex, mousey)
+		editor_draw_menu_objects(emx, emy)
 	elseif editorstate == "lightdrawcustomize" then
 		editor_draw_menu_lightdrawcustomize()
 	end
@@ -1374,7 +1385,7 @@ function editor_draw_menu_changewidth()
 	guielements["mapwidthcancel"].x, guielements["mapwidthcancel"].y = width*8+65, mapy+h+4
 end
 
-function editor_draw_menu_tiles(mousex, mousey)
+function editor_draw_menu_tiles(emx, emy)
 	
 	--TILES
 	love.graphics.setColor(1, 1, 1)
@@ -1591,7 +1602,7 @@ function editor_draw_menu_tiles(mousex, mousey)
 	love.graphics.setColor(1, 1, 1)
 end
 
-function editor_draw_menu_main(mousex, mousey)
+function editor_draw_menu_main(emx, emy)
 
 	--MINIMAP
 	love.graphics.setColor(1, 1, 1)
@@ -1692,7 +1703,7 @@ function editor_draw_menu_tools()
 
 end
 
-function editor_draw_menu_animations(mousex, mousey)
+function editor_draw_menu_animations(emx, emy)
 	if #animations > 0 then
 		love.graphics.setScissor(animationguiarea[1]*scale, animationguiarea[2]*scale, (animationguiarea[3]-animationguiarea[1])*scale, (animationguiarea[4]-animationguiarea[2])*scale)
 		local completeheight = 14+#animationguilines.triggers*13+12+#animationguilines.conditions*13+12+#animationguilines.actions*13
@@ -1772,7 +1783,7 @@ function editor_draw_menu_animations(mousex, mousey)
 	end
 end
 
-function editor_draw_menu_objects(mousex, mousey)
+function editor_draw_menu_objects(emx, emy)
 	love.graphics.setScissor(objectsguiarea[1]*scale, objectsguiarea[2]*scale, (objectsguiarea[3]-objectsguiarea[1])*scale, (objectsguiarea[4]-objectsguiarea[2])*scale)
 	
 	local mtbutton = getmtbutton(love.mouse.getX())
@@ -2171,7 +2182,7 @@ end
 
 function generateentitylist()
 	entitylistitems = {}
-	for i, v in ipairs(entitylist) do
+	for i, v in ipairs(entitylist as {EntityListEntry}) do
 		if v.t ~= "" and not v.hidden then
 			local cat = v.category or "misc"
 			
@@ -2342,9 +2353,9 @@ function saveanimation()
 	
 	local json = JSON.encode(out, { indent = true })
 	
-	ok, err = pcall(love.filesystem.write, animations[currentanimation].filepath, json)
+	local ok, err = pcall(love.filesystem.write, animations[currentanimation].filepath, json)
 	if not ok then
-		print(err .. " - File: " .. animations[currentanimation].filepath)
+		print(tostring(err) .. " - File: " .. animations[currentanimation].filepath)
 	end
 end
 
@@ -2367,19 +2378,20 @@ function loadmtobjects()
 	multitileobjectnames = nil
 	multitileobjectnames = {}
 	if love.filesystem.getInfo("mappacks/" .. mappack .. "/objects.txt") then
-		local data = love.filesystem.read("mappacks/" .. mappack .. "/objects.txt")
+		local data = ((love.filesystem.read("mappacks/" .. mappack .. "/objects.txt")) or "") as string
 		if #data > 0 then
 			data = string.sub(data, 1, -2)
 			--print(data)
-			local split1 = data:split("\n")
-			local split2, split3 = nil, nil
+			local split1 = strsplit(data, "\n")
+			local split2: {string} = {}
+			local split3: {string} = {}
 			for i = 1, #split1 do
 				-- objects
-				split2 = split1[i]:split("=")
+				split2 = strsplit(split1[i], "=")
 				table.insert(multitileobjectnames, split2[1])
 				-- rows
 				if string.find(split1[i],":") then
-					split3 = split2[2]:split(":")
+					split3 = strsplit(split2[2], ":")
 				else
 					split3 = {split2[2]}
 				end
@@ -2387,7 +2399,7 @@ function loadmtobjects()
 				local oo = {}
 				for j = 1, #split3 do
 					ox = {}
-					local split4 = split3[j]:split(",")
+					local split4 = strsplit(split3[j], ",")
 					for u = 1, #split4 do
 						table.insert(ox, tonumber(split4[u]))
 						--print(split4[u]..",")
@@ -2405,17 +2417,18 @@ function loadmtgroups()
 	multitilegroups = nil
 	multitilegroups = {}
 	if love.filesystem.getInfo("mappacks/" .. mappack .. "/groups.txt") then
-		local data = love.filesystem.read("mappacks/" .. mappack .. "/groups.txt")
+		local data = ((love.filesystem.read("mappacks/" .. mappack .. "/groups.txt")) or "") as string
 		if #data > 0 then
 			data = string.sub(data, 1, -2)
-			local split1 = data:split("\n")
-			local split2, split3 = nil, nil
+			local split1 = strsplit(data, "\n")
+			local split2: {string} = {}
+			local split3: {string} = {}
 			for i = 1, #split1 do
 				-- groups
-				split2 = split1[i]:split("=")
+				split2 = strsplit(split1[i], "=")
 				-- rows
 				if string.find(split1[i],":") then
-					split3 = split2[2]:split(":")
+					split3 = strsplit(split2[2], ":")
 				else
 					split3 = {split2[2]}
 				end
@@ -2423,7 +2436,7 @@ function loadmtgroups()
 				local oo = {}
 				for j = 1, #split3 do
 					ox = {}
-					local split4 = split3[j]:split(",")
+					local split4 = strsplit(split3[j], ",")
 					for u = 1, #split4 do
 						table.insert(ox, tonumber(split4[u]))
 					end
@@ -2876,52 +2889,53 @@ function getmaps()
 	existingmaps = {}
 	largestworld = 0
 	mapbuttons = {}
-	local yadd = 2
-	local worlds = {}
-	local levels = {}
-	local sublevels = {}
+	local yadd: number = 2
+	local worlds: number = 0
+	local levels: number = 0
+	local sublevels: number | string = 0
 	local files = love.filesystem.getDirectoryItems("mappacks/" .. mappack)
 	editor_filter_map_files(files)
 	table.sort(files, mapsort)
 	for i = 1, #files do
 		if string.match(files[i], "(%d+)-(%d+).txt") then
-			worlds, levels = string.match(files[i], "(%d+)-(%d+).txt")
-			worlds = tonumber(worlds)
-			levels = tonumber(levels)
+			local ws, ls = string.match(files[i], "(%d+)-(%d+).txt")
+			worlds = tonumber(ws) or 0
+			levels = tonumber(ls) or 0
 			sublevels = "0"
 			mapbuttons["text" .. worlds .. "-" .. levels] = guielement:new("text", 4, yadd+21, "world " .. worlds .. "-" .. levels)
 			mapbuttons["text" .. worlds .. "-" .. levels].starty = yadd+21
-			mapbuttons["plus" .. worlds .. "-" .. levels] = guielement:new("button", 62+(string.len(worlds)+string.len(levels))*8, yadd+19, "+", mapnumberclick, 0, {worlds, levels, 1})
+			mapbuttons["plus" .. worlds .. "-" .. levels] = guielement:new("button", 62+(string.len(tostring(worlds))+string.len(tostring(levels)))*8, yadd+19, "+", mapnumberclick, 0, {worlds, levels, 1})
 			mapbuttons["plus" .. worlds .. "-" .. levels].starty = yadd+19
 			yadd = yadd + 10
+			local mapkey = worlds .. "-" .. levels .. "_" .. (sublevels or 0)
 			if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. worlds .. "-" .. levels .. ".png") then
-				mapbuttons[worlds .. "-" .. levels .. "_" .. sublevels or 0] = guielement:new("button", 4, yadd+21, AssetStore.load_image("mappacks/" .. mappack .. "/" .. worlds .. "-" .. levels .. ".png"), mapnumberclick, 0, {worlds, levels})
+				mapbuttons[mapkey] = guielement:new("button", 4, yadd+21, AssetStore.load_image("mappacks/" .. mappack .. "/" .. worlds .. "-" .. levels .. ".png"), mapnumberclick, 0, {worlds, levels})
 			else
-				mapbuttons[worlds .. "-" .. levels .. "_" .. sublevels or 0] = guielement:new("button", 4, yadd+21, "no preview", mapnumberclick, 0, {worlds, levels})
+				mapbuttons[mapkey] = guielement:new("button", 4, yadd+21, "no preview", mapnumberclick, 0, {worlds, levels})
 			end
-			mapbuttons[worlds .. "-" .. levels .. "_" .. sublevels].starty = yadd+21
+			mapbuttons[mapkey].starty = yadd+21
 			yadd = yadd + 20
 			if largestworld < worlds then
 				largestworld = worlds
 			end
-			if existingmaps[worlds] == nil or existingmaps[worlds] < levels then
+			if existingmaps[worlds] == nil or (existingmaps[worlds] as number) < levels then
 				existingmaps[worlds] = levels
 			end
 		elseif string.match(files[i], "(%d+)-(%d+)_(%d+).txt") then
-			worlds, levels, sublevels = string.match(files[i], "(%d+)-(%d+)_(%d+).txt")
-			worlds = tonumber(worlds)
-			levels = tonumber(levels)
-			sublevels = tonumber(sublevels)
+			local ws, ls, ss = string.match(files[i], "(%d+)-(%d+)_(%d+).txt")
+			worlds = tonumber(ws) or 0
+			levels = tonumber(ls) or 0
+			sublevels = tonumber(ss) or 0
 			if not mapbuttons["text" .. worlds .. "-" .. levels] then
 				mapbuttons["text" .. worlds .. "-" .. levels] = guielement:new("text", 4, yadd+21, "world " .. worlds .. "-" .. levels, {0.5, 0.5, 0.5})
 				mapbuttons["text" .. worlds .. "-" .. levels].starty = yadd+21
-				mapbuttons["plus" .. worlds .. "-" .. levels] = guielement:new("button", 62+(string.len(worlds)+string.len(levels))*8, yadd+19, "+", mapnumberclick, 0, {worlds, levels, sublevels + 1})
+				mapbuttons["plus" .. worlds .. "-" .. levels] = guielement:new("button", 62+(string.len(tostring(worlds))+string.len(tostring(levels)))*8, yadd+19, "+", mapnumberclick, 0, {worlds, levels, (sublevels as number) + 1})
 				mapbuttons["plus" .. worlds .. "-" .. levels].starty = yadd+19
 				yadd = yadd + 10
 			end
 			mapbuttons["text" .. worlds .. "-" .. levels .. "_" .. sublevels] = guielement:new("text", 4, yadd+26, "sub " .. sublevels, {0.5, 0.5, 0.5})
 			mapbuttons["text" .. worlds .. "-" .. levels .. "_" .. sublevels].starty = yadd+26
-			xadd = 50
+			local xadd = 50
 			if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. worlds .. "-" .. levels .. "_" .. sublevels ..".png") then
 				mapbuttons[worlds .. "-" .. levels .. "_" .. sublevels] = guielement:new("button", 54, yadd+21, AssetStore.load_image("mappacks/" .. mappack .. "/" .. worlds .. "-" .. levels .. "_" .. sublevels .. ".png"), mapnumberclick, 0, {worlds, levels, sublevels})
 				mapbuttons[worlds .. "-" .. levels .. "_" .. sublevels].starty = yadd+21
@@ -2931,8 +2945,8 @@ function getmaps()
 			end
 			yadd = yadd + 20
 			
-			if mapbuttons["plus" .. worlds .. "-" .. levels] and mapbuttons["plus" .. worlds .. "-" .. levels].arguments[3] < sublevels + 1 then
-				mapbuttons["plus" .. worlds .. "-" .. levels].arguments[3] = sublevels + 1
+			if mapbuttons["plus" .. worlds .. "-" .. levels] and (mapbuttons["plus" .. worlds .. "-" .. levels].arguments[3] as number) < (sublevels as number) + 1 then
+				mapbuttons["plus" .. worlds .. "-" .. levels].arguments[3] = (sublevels as number) + 1
 			end
 		end
 	end
@@ -2941,17 +2955,17 @@ function getmaps()
 end
 
 function newlevel()	
-	i = tonumber(guielements["mapsworldbox"].value)
-	j = tonumber(guielements["mapslevelbox"].value)
+	local i = tonumber(guielements["mapsworldbox"].value)
+	local j = tonumber(guielements["mapslevelbox"].value)
 	
 	if i ~= nil and j ~= nil then
 		mapnumberclick(i, j)
 	elseif i == nil and j ~= nil then
 		mapnumberclick(marioworld, j)
 	elseif i ~= nil and j == nil then
-		mapnumberclick(i, (existingmaps[i] or 0)+1)
+		mapnumberclick(i, ((existingmaps[i] as number) or 0)+1)
 	elseif marioworld ~= nil and existingmaps[marioworld] ~= nil then
-		mapnumberclick(marioworld, existingmaps[marioworld]+1)
+		mapnumberclick(marioworld, (existingmaps[marioworld] as number)+1)
 	else
 		mapnumberclick(1, 1)
 	end
@@ -2961,37 +2975,38 @@ function savestate()
 	while #savestates >= maxstates do
 		table.remove(savestates, 1)
 	end
-	local t = {}
-	t.coinmap = {}
+	local t: {any} = {}
+	t.coinmap = {} as {any}
 	for x = 1, #map do
 		t[x] = {}
-		t.coinmap[x] = {}
+		;(t.coinmap as {any})[x] = {}
 		for y = 1, #map[x] do
-			t[x][y] = {}
-			t.coinmap[x][y] = coinmap[x][y]
-			for i, v in pairs(map[x][y] as {string:any}) do
-				t[x][y][i] = v
+			(t[x] as {any})[y] = {}
+			;((t.coinmap as {any})[x] as {any})[y] = coinmap[x][y]
+			for i, v in pairs(map[x][y] as {any:any}) do
+				((t[x] as {any})[y] as {any})[i] = v
 			end
 		end
 	end
 	table.insert(savestates, t)
 end
 
-function loadstate(s)
-	local s = s or currentstate
-	currentstate = s
+function loadstate(s: any)
+	local si = (s or currentstate) as number
+	currentstate = si
 	
-	local v = savestates[s]
+	local v = savestates[si] as {any}
 	map = {}
 	coinmap = {}
 	for x = 1, #v do
 		map[x] = {}
 		coinmap[x] = {}
-		for y = 1, #v[x] do
-			map[x][y] = {}
-			coinmap[x][y] = v.coinmap[x][y]
-			for i, w in pairs(v[x][y]) do
-				map[x][y][i] = w
+		local col = v[x] as {any}
+		for y = 1, #col do
+			map[x][y] = {} as MapCell
+			coinmap[x][y] = ((v.coinmap as {any})[x] as {any})[y] as boolean
+			for i, w in pairs(col[y] as {any:any}) do
+				map[x][y][i as number] = w
 			end
 		end
 	end
@@ -3179,7 +3194,7 @@ function editor_mousepressed_left(x, y)
 							tilesall()
 							-- now replace everything thats == map[cox][coy][1] to: currenttile
 							local mousetile = map[cox][coy][1]
-							for i, v in ipairs(map) do
+							for i, v in ipairs(map as {{MapCell}}) do
 								for j, w in ipairs(v) do
 									if w[1] == mousetile then
 										map[i][j][1] = currenttile
@@ -3566,10 +3581,10 @@ function editor_keypressed(key)
 				
 				--Deletes any group corresponding to the tile
 				if love.filesystem.getInfo("mappacks/" .. mappack .. "/groups.txt") then
-					local txt = love.filesystem.read("mappacks/" .. mappack .. "/groups.txt")
-					local s = txt:split("\n")
+					local txt = ((love.filesystem.read("mappacks/" .. mappack .. "/groups.txt")) or "") as string
+					local s = strsplit(txt, "\n")
 					for i = 1, #s do
-						local s2 = s[i]:split("=")
+						local s2 = strsplit(s[i], "=")
 						if s2[1] == name then
 							deleteline("mappacks/" .. mappack .. "/groups.txt", i) --Just to guarantee
 							break
@@ -3630,10 +3645,10 @@ function editor_keypressed(key)
 					if tile and tile <= tilelistcount+1 then
 						local name = tostring(tile)
 						if love.filesystem.getInfo("mappacks/" .. mappack .. "/groups.txt") then
-							local txt = love.filesystem.read("mappacks/" .. mappack .. "/groups.txt")
-							local s = txt:split("\n")
+							local txt = ((love.filesystem.read("mappacks/" .. mappack .. "/groups.txt")) or "") as string
+							local s = strsplit(txt, "\n")
 							for i = 1, #s do
-								local s2 = s[i]:split("=")
+								local s2 = strsplit(s[i], "=")
 								if s2[1] == name then
 									deleteline("mappacks/" .. mappack .. "/groups.txt", i)
 									break
@@ -4029,7 +4044,14 @@ end
 
 function emptySelection()
 	--print("del")
-	local lx1, ly1, lx2, ly2, slx1, sly1, slx2, sly2 = 0, 0, 0, 0, 0, 0, 0, 0
+	local lx1: number = 0
+	local ly1: number = 0
+	local lx2: number = 0
+	local ly2: number = 0
+	local slx1: number = 0
+	local sly1: number = 0
+	local slx2: number = 0
+	local sly2: number = 0
 	lx1 = math.min(tileselectionclick1x, tileselectionclick2x)
 	ly1 = math.min(tileselectionclick1y, tileselectionclick2y)
 	lx2 = math.max(tileselectionclick1x, tileselectionclick2x)
@@ -4047,7 +4069,7 @@ function emptySelection()
 	
 	for i = 1, xnum do
 		for j = 1, ynum do
-			map[tile1x + i - 1][tile1y + j - 1] = {1}
+			map[tile1x + i - 1][tile1y + j - 1] = {1} as MapCell
 			map[tile1x + i - 1][tile1y + j - 1]["gels"] = {}
 		end
 	end
@@ -4055,7 +4077,14 @@ function emptySelection()
 end
 
 function getSelectedTiles()
-	local lx1, ly1, lx2, ly2, slx1, sly1, slx2, sly2 = 0, 0, 0, 0, 0, 0, 0, 0
+	local lx1: number = 0
+	local ly1: number = 0
+	local lx2: number = 0
+	local ly2: number = 0
+	local slx1: number = 0
+	local sly1: number = 0
+	local slx2: number = 0
+	local sly2: number = 0
 	lx1 = math.min(tileselectionclick1x, tileselectionclick2x)
 	ly1 = math.min(tileselectionclick1y, tileselectionclick2y)
 	lx2 = math.max(tileselectionclick1x, tileselectionclick2x)
@@ -4069,9 +4098,9 @@ function getSelectedTiles()
 	return getTiles({slx1+8*scale, sly1+8*scale},{slx2+8*scale, sly2+8*scale})
 end
 
-function getTiles(pos1, pos2)
-	local objecttable = {}
-	local tx = {}
+function getTiles(pos1: {number}, pos2: {number}): {{any}}
+	local objecttable: {{any}} = {}
+	local tx: {any} = {}
 	local tile1x,tile1y = getMouseTile(pos1[1], pos1[2])
 	local tile2x,tile2y = getMouseTile(pos2[1], pos2[2])
 	local xnum = tile2x - tile1x
@@ -4090,24 +4119,24 @@ end
 function loadHotKeys()
 	hotkeys = {}
 	if love.filesystem.getInfo("mappacks/" .. mappack .. "/hotkeys.txt") then
-		local data = love.filesystem.read("mappacks/" .. mappack .. "/hotkeys.txt")
+		local data = (love.filesystem.read("mappacks/" .. mappack .. "/hotkeys.txt") or "") as string
 		hotkeys = editor_hotkeys_parse(data)
 	end
 end
 
 function saveHotKeys()
-	love.filesystem.write("mappacks/" .. mappack .. "/hotkeys.txt", editor_hotkeys_serialize(hotkeys))
+	love.filesystem.write("mappacks/" .. mappack .. "/hotkeys.txt", editor_hotkeys_serialize(hotkeys) as string)
 end
 
 function savesettings()
 	local s = ""
-	s = s .. "name=" .. guielements["edittitle"].value .. "\n"
-	s = s .. "author=" .. guielements["editauthor"].value .. "\n"
-	s = s .. "description=" .. guielements["editdescription"].value .. "\n"
+	s = s .. "name=" .. (guielements["edittitle"].value as string) .. "\n"
+	s = s .. "author=" .. (guielements["editauthor"].value as string) .. "\n"
+	s = s .. "description=" .. (guielements["editdescription"].value as string) .. "\n"
 	if mariolivecount == false then
 		s = s .. "lives=0\n"
 	else
-		s = s .. "lives=" .. mariolivecount .. "\n"
+		s = s .. "lives=" .. (mariolivecount as integer) .. "\n"
 	end
 	
 	love.filesystem.createDirectory( "mappacks" )
@@ -4123,28 +4152,31 @@ end
 --CATEGORYDELIMITER = "¸"
 --MULTIPLYDELIMITER = "·"
 --EQUALSIGN = "¨"
-function savemtobject(objecttable, name, file)
+function savemtobject(objecttable: {{any}}, name: string|nil, file: string|nil)
 	-- 1 read objects file
 	file = file or "objects"
 	
-	local data, data2, datalines, objectname = nil, nil, nil, nil
+	local data: string = ""
+	local datalines: {string} = {}
 	if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. file .. ".txt") then
-		data = love.filesystem.read("mappacks/" .. mappack .. "/" .. file .. ".txt")
+		data = (love.filesystem.read("mappacks/" .. mappack .. "/" .. file .. ".txt") or "") as string
 	else
 		data = ""
 	end
 	if name then
 		data = data .. name .. "="
 	else
-		datalines = data:split("\n")
+		datalines = strsplit(data, "\n")
 		data = data .. "object " .. tostring(#datalines) .. " } mtobjsize="
 	end
 	-- 2 append new object (with \n at the end!)
-	local s, m, n = nil, nil, nil
+	local s: {any} = {}
+	local m: number = 0
+	local n: number = 0
 	for i = 1, #objecttable do
 		s = objecttable[i] -- x's
 		for j = 1, #s do
-			data = data .. s[j] .. ","
+			data = data .. tostring(s[j]) .. ","
 			n = j
 		end
 		data = string.sub(data, 1, -2)
@@ -4158,15 +4190,16 @@ function savemtobject(objecttable, name, file)
 	mtjustsaved = 1
 end
 
-function objectclipboardcopy(objecttable)
-	local data, data2, datalines, objectname = nil, nil, nil, nil
-	data = ""
+function objectclipboardcopy(objecttable: {{any}})
+	local data: string = ""
 	-- 2 append new object (with \n at the end!)
-	local s, m, n = nil, nil, nil
+	local s: {any} = {}
+	local m: number = 0
+	local n: number = 0
 	for i = 1, #objecttable do
 		s = objecttable[i] -- x's
 		for j = 1, #s do
-			data = data .. s[j] .. ","
+			data = data .. tostring(s[j]) .. ","
 			n = j
 		end
 		data = string.sub(data, 1, -2)
@@ -4177,7 +4210,7 @@ function objectclipboardcopy(objecttable)
 	love.system.setClipboardText(data)
 end
 
-function moveline(file, line, direction)
+function moveline(file: string, line: any, direction: string): boolean|nil
 	if not love.filesystem.getInfo(file) then
 		return false
 	end
@@ -4190,30 +4223,31 @@ function moveline(file, line, direction)
 		return false
 	end
 	
-	line = tonumber(line)
+	local linenum = tonumber(line as any) or 0
 	
-	local data, newdata, split1, changeto, linetmp1, linetmp2 = nil, nil, nil, nil, nil, nil
-	data = love.filesystem.read(file)
+	local data: string = (love.filesystem.read(file) or "") as string
 	data = string.sub(data, 1, -2)
-	newdata = ""
-	split1 = data:split("\n")
+	local newdata = ""
+	local split1 = strsplit(data, "\n")
 	
 	-- cant move last one down
-	if line == #split1 and direction == "down" then
+	if linenum == #split1 and direction == "down" then
 		return false
 	end
 	
-	linetmp1 = split1[line]
+	local linetmp1 = split1[linenum]
+	local changeto: number = 0
+	local linetmp2 = ""
 	if direction == "up" then
-		changeto = line-1
+		changeto = linenum-1
 		linetmp2 = split1[changeto]
 	else
-		changeto = line+1
+		changeto = linenum+1
 		linetmp2 = split1[changeto]
 	end
 	
 	for i, v in ipairs(split1) do
-		if i == line then
+		if i == linenum then
 			newdata = newdata .. linetmp2 .. "\n"
 		elseif i == changeto then
 			newdata = newdata .. linetmp1 .. "\n"
@@ -4222,65 +4256,66 @@ function moveline(file, line, direction)
 		end
 	end
 	love.filesystem.write(file, newdata)
+	return nil
 end
 
-function deleteline(file, line)
+function deleteline(file: string, line: any): boolean|nil
 	if not love.filesystem.getInfo(file) then
 		return false
 	end
-	line = tonumber(line)
-	local data, newdata, split1 = nil, nil, nil
-	data = love.filesystem.read(file)
+	local linenum = tonumber(line as any) or 0
+	local data: string = (love.filesystem.read(file) or "") as string
 	data = string.sub(data, 1, -2)
-	newdata = ""
-	split1 = data:split("\n")
+	local newdata = ""
+	local split1 = strsplit(data, "\n")
 	for i, v in ipairs(split1) do
-		if i ~= line then
+		if i ~= linenum then
 			newdata = newdata .. split1[i] .. "\n"
 		end
 	end
 	love.filesystem.write(file, newdata)
+	return nil
 end
 
-function renameline(file, line, newName)
+function renameline(file: string, line: any, newName: string): boolean|nil
 	if not love.filesystem.getInfo(file) then
 		return false
 	end
-	line = tonumber(line)
-	local data, newdata, split1 = nil, nil, nil
-	data = love.filesystem.read(file)
+	local linenum = tonumber(line as any) or 0
+	local data: string = (love.filesystem.read(file) or "") as string
 	data = string.sub(data, 1, -2)
-	newdata = ""
-	split1 = data:split("\n")
+	local newdata = ""
+	local split1 = strsplit(data, "\n")
 	for i, v in ipairs(split1) do
-		if i == line then
-			local split2 = split1[i]:split("=")
+		if i == linenum then
+			local split2 = strsplit(split1[i], "=")
 			newdata = newdata .. newName .. "=" .. split2[#split2] .. "\n"
 		else
 			newdata = newdata .. split1[i] .. "\n"
 		end
 	end
 	love.filesystem.write(file, newdata)
+	return nil
 end
 
-function changeline(file, linenumber, newstring)
+function changeline(file: string, linenumber: any, newstring: string): boolean|nil
 	if not love.filesystem.getInfo(file) then
 		return false
 	end
-	line = tonumber(line)
-	local data, newdata, split1 = nil, nil, nil
-	data = love.filesystem.read(file)
+	local linenum = tonumber(linenumber as any) or 0
+	local data: string = (love.filesystem.read(file) or "") as string
 	data = string.sub(data, 1, -2)
-	newdata = ""
-	split1 = data:split("\n")
+	local newdata = ""
+	local split1 = strsplit(data, "\n")
 	for i, v in ipairs(split1) do
-		if i ~= line then
+		if i ~= linenum then
 			newdata = newdata .. split1[i] .. "\n"
 		else
 			newdata = newdata .. newstring .. "\n"
 		end
 	end
 	love.filesystem.write(file, newdata)
+	return nil
 end
 
 function livesdecrease()
@@ -4288,12 +4323,12 @@ function livesdecrease()
 		return
 	end
 	
-	mariolivecount = mariolivecount - 1
+	mariolivecount = (mariolivecount as integer) - 1
 	if mariolivecount == 0 then
 		mariolivecount = false
 		guielements["livesincrease"].x = 212 + 24
 	else
-		guielements["livesincrease"].x = 212 + string.len(mariolivecount)*8
+		guielements["livesincrease"].x = 212 + string.len(tostring(mariolivecount))*8
 	end
 end
 
@@ -4357,13 +4392,13 @@ function closerightclickmenu()
 			local x, y = edittable[i].x, edittable[i].y
 			
 			--remove all values until link or region
-			while map[x][y][3] and map[x][y][3] ~= "link" and tostring(map[x][y][3]):split(":")[1] ~= "region" do
+			while map[x][y][3] and map[x][y][3] ~= "link" and strsplit(tostring(map[x][y][3]), ":")[1] ~= "region" do
 				table.remove(map[x][y], 3)
 			end
 			
 			--add values to link
-			for i = #rightclickm.variables, 1, -1 do
-				local v = rightclickm.variables[i]
+			for i = #(rightclickm as rightclickmenu).variables, 1, -1 do
+				local v = (rightclickm as rightclickmenu).variables[i]
 				local value = nil
 				if v.t == "scrollbar" then
 					value = (rightclickm as rightclickmenu).t[i].value
@@ -4412,7 +4447,7 @@ function startregion(x, y, t)
 	
 	local j = 0
 	for i = 3, #map[x][y] do
-		local s = tostring(map[x][y][i]):split(":")
+		local s = strsplit(tostring(map[x][y][i]), ":")
 		if s[1] == t then
 			j = i
 			break
@@ -4420,7 +4455,7 @@ function startregion(x, y, t)
 	end
 	
 	if j then
-		local s = map[x][y][j]:split(":")
+		local s = strsplit(map[x][y][j], ":")
 		
 		local rx, ry = s[2], s[3]
 		
@@ -4445,14 +4480,14 @@ function finishregion()
 		
 		local j = 0
 		for i = 3, #map[x][y] do
-			local s = tostring(map[x][y][i]):split(":")
+			local s = strsplit(tostring(map[x][y][i]), ":")
 			if s[1] == t then
 				j = i
 				break
 			end
 		end
 		
-		local rx, ry = regiondragging.x-x+1, regiondragging.y-y+1
+		local rx, ry = (regiondragging as RegionDragging).x-x+1, (regiondragging as RegionDragging).y-y+1
 		
 		if rx < 0 then
 			rx = "m" .. -rx
@@ -4462,7 +4497,7 @@ function finishregion()
 			ry = "m" .. -ry
 		end
 		
-		map[x][y][j] = t .. ":" .. rx .. ":" .. ry .. ":" .. regiondragging.width .. ":" .. regiondragging.height
+		map[x][y][j] = t .. ":" .. rx .. ":" .. ry .. ":" .. (regiondragging as RegionDragging).width .. ":" .. (regiondragging as RegionDragging).height
 		
 		regiondragging = nil
 		rightclickactive = false
@@ -4567,7 +4602,7 @@ function selectionbutton()
 end
 
 function selectionstart()
-	local mousex, mousey = mouse.getPosition()
+	local emx, emy = mouse.getPosition()
 	selectionx = mousex
 	selectiony = mousey
 	
@@ -4575,7 +4610,7 @@ function selectionstart()
 end
 
 function selectionend()
-	local mousex, mousey = mouse.getPosition()
+	local emx, emy = mouse.getPosition()
 	selectionwidth = mousex - selectionx
 	selectionheight = mousey - selectiony
 	

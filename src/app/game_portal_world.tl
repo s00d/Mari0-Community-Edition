@@ -3,8 +3,9 @@
 global function modifyportalwalls(...: any): any
 	--Create and remove new stuff
 	for a, b in pairs(portals) do
+		local pb = b as portal
 		for i = 1, 2 do
-			if (b as {string:any})["x" .. i] then
+			if (pb as {string:any})["x" .. i] then
 				if (b as {string:any})["facing" .. i] == "up" then
 					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
 					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, (b as {string:any})["y" .. i], 1, 0, true)
@@ -145,7 +146,7 @@ global function modifyportaltiles(...: any): any
 	end
 end
 
-global function getportalposition(...: any): any, any
+global function getportalposition(...: any): any...
 	local i, x, y, side, tendency, mirexc = ... --returns the "optimal" position according to the parsed arguments (or false if no possible position was found)
 	local xplus, yplus = 0, 0
 	if side == "up" then
@@ -225,7 +226,7 @@ global function getportalposition(...: any): any, any
 	return false
 end
 
-global function getTile(x, y, portalable, portalcheck, facing, ignoregrates, dir, mirexc): any, any --returns masktable value of block (As well as the ID itself as second return parameter) also includes a portalcheck and returns false if a portal is on that spot.
+global function getTile(x, y, portalable, portalcheck, facing, ignoregrates, dir, mirexc): any... --returns masktable value of block (As well as the ID itself as second return parameter) also includes a portalcheck and returns false if a portal is on that spot.
 	if portalcheck then
 		for i, v in pairs(portals) do
 			--Get the extra block of each portal
@@ -324,7 +325,7 @@ global function getTile(x, y, portalable, portalcheck, facing, ignoregrates, dir
 	end
 end
 
-global function getPortal(x, y, dir) --returns the block where you'd come out when you'd go in the argument's block
+global function getPortal(x, y, dir): any... --returns the block where you'd come out when you'd go in the argument's block
 	for i, v in pairs(portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 			--Get the extra block of each portal
@@ -397,7 +398,7 @@ global function getPortal(x, y, dir) --returns the block where you'd come out wh
 	return false
 end
 
-global function insideportal(x, y, width, height) --returns whether an object is in, and which, portal.
+global function insideportal(x, y, width, height): any... --returns whether an object is in, and which, portal.
 	if width == nil then
 		width = 12/16
 	end
@@ -407,7 +408,11 @@ global function insideportal(x, y, width, height) --returns whether an object is
 	for i, v in pairs(portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 			for j = 1, 2 do				
-				local portalx, portaly, portalfacing
+				local portalx: any
+				local portaly: any
+				local portalfacing: any
+				local xplus: number = 0
+				local yplus: number = 0
 				if j == 1 then
 					portalx = v.x1
 					portaly = v.y1
@@ -453,7 +458,7 @@ global function insideportal(x, y, width, height) --returns whether an object is
 	return false
 end
 
-global function moveoutportal() --pushes objects out of the portal i in.
+global function moveoutportal(): any... --pushes objects out of the portal i in.
 	for i, v in pairs(objects) do
 		if i ~= "tile" and i ~= "portalwall" then
 			for j, w in pairs(v) do
@@ -461,15 +466,18 @@ global function moveoutportal() --pushes objects out of the portal i in.
 					local p1, p2 = insideportal(w.x, w.y, w.width, w.height)
 					
 					if p1 ~= false then
-						local portalfacing, portalx, portaly
+						local portalent = p1 as portal
+						local portalfacing: any
+						local portalx: any
+						local portaly: any
 						if p2 == 1 then
-							portalfacing = p1.facing1
-							portalx = p1.x1
-							portaly = p1.y1
+							portalfacing = portalent.facing1
+							portalx = portalent.x1
+							portaly = portalent.y1
 						else
-							portalfacing = p1.facing2
-							portalx = p1.x2
-							portaly = p1.y2
+							portalfacing = portalent.facing2
+							portalx = portalent.x2
+							portaly = portalent.y2
 						end
 						
 						if portalfacing == "right" then
@@ -488,10 +496,10 @@ global function moveoutportal() --pushes objects out of the portal i in.
 	end
 end
 
-global function traceline(...: any): any
+global function traceline(...: any): any...
 	local sourcex, sourcey, radians, reportal = ...
-	local currentblock = {}
-	local x, y = sourcex, sourcey
+	local currentblock: {number} = {}
+	local x, y = sourcex as number, sourcey as number
 	currentblock[1] = math.floor(x)
 	currentblock[2] = math.floor(y+1)
 		
@@ -632,14 +640,14 @@ global function traceline(...: any): any
 	end
 end
 
-global function checkportalremove(...: any): any
+global function checkportalremove(...: any): any...
 	local x, y = ...
 	for i, v in pairs(portals) do
 		--Get the extra block of each portal
 		local portal1xplus, portal1yplus, portal2xplus, portal2yplus = portal_pair_offsets(v.facing1, v.facing2)
 		
 		if v.x1 ~= false then
-			if (x == v.x1 or x == v.x1+portal1xplus) and (sy == v.y1 or y == v.y1+portal1yplus) then--and (facing == nil or v.facing1 == facing) then
+			if (x == v.x1 or x == v.x1+portal1xplus) and (y == v.y1 or y == v.y1+portal1yplus) then--and (facing == nil or v.facing1 == facing) then
 				v:removeportal(1)
 			end
 		end

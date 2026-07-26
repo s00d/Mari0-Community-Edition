@@ -191,7 +191,7 @@ global record love
 		newShader: function(code: string): Shader
 		newSpriteBatch: function(image: Image, size: integer|nil, usage: string|nil): SpriteBatch
 		setColor: function(...: number)
-		setBackgroundColor: function(...: number)
+		setBackgroundColor: function(...: any)
 		clear: function(...: number)
 		draw: function(...: any)
 		getWidth: function(): number
@@ -236,6 +236,7 @@ global record love
 		getSaveDirectory: function(): string
 		getSource: function(): string
 		mount: function(archive: string, mountpoint: string): boolean
+		remove: function(path: string): boolean
 	end
 
 	record keyboard
@@ -282,6 +283,13 @@ global record love
 		setTitle: function(title: string)
 		setIcon: function(data: any)
 		getFullscreenModes: function(): {{string:any}}
+	end
+
+	record system
+		setClipboardText: function(text: string)
+		getClipboardText: function(): string
+		getOS: function(): string
+		openURL: function(url: string): boolean
 	end
 
 	record event

@@ -249,7 +249,7 @@ global record bowser is Entity
 	emancipatecheck: boolean
 	fall: number
 	fireframe: number
-	graphic: Image
+	graphic: any
 	gravity: number
 	gravitydirection: number
 	hammers: number
@@ -262,7 +262,7 @@ global record bowser is Entity
 	mask: {boolean}
 	offsetX: number
 	offsetY: number
-	quad: Quad
+	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	rotation: number
@@ -305,7 +305,7 @@ global record box is Entity
 	emancipatecheck: boolean
 	falling: boolean
 	funnel: boolean
-	graphic: Image
+	graphic: any
 	gravity: number
 	gravitydirection: number
 	height: number
@@ -319,7 +319,7 @@ global record box is Entity
 	portaledframe: boolean
 	portaloverride: boolean
 	pushed: boolean
-	quad: Quad
+	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	rotation: number
@@ -377,7 +377,7 @@ global record bulletbill is Entity
 	customscissor: any
 	direction: string
 	drawable: boolean
-	graphic: Image
+	graphic: any
 	gravity: number
 	height: number
 	id: number
@@ -385,7 +385,7 @@ global record bulletbill is Entity
 	mask: {boolean}
 	offsetX: number
 	offsetY: number
-	quad: Quad
+	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	rotation: number
@@ -473,14 +473,14 @@ global record castlefire is Entity
 	delay: number
 	dir: string
 	drawable: boolean
-	graphic: Image
+	graphic: any
 	height: number
 	kills: boolean
 	length: number
 	mask: {boolean}
 	offsetX: number
 	offsetY: number
-	quad: Quad
+	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	quadi: number
@@ -510,14 +510,14 @@ global record castlefirefire is Entity
 	delay: number
 	dir: string
 	drawable: boolean
-	graphic: Image
+	graphic: any
 	height: number
 	kills: boolean
 	length: number
 	mask: {boolean}
 	offsetX: number
 	offsetY: number
-	quad: Quad
+	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	quadi: number
@@ -717,7 +717,7 @@ global record emancipateanimation is Entity
 	img: Image
 	offsetX: number
 	offsetY: number
-	quad: Quad
+	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	rotation: number
@@ -836,7 +836,7 @@ global record enemy is Entity
 	funnel: boolean
 	givecoinwhenshot: boolean
 	givecoinwhenstomped: number
-	graphic: Image
+	graphic: any
 	gravity: number
 	gravitydirection: number
 	health: number
@@ -876,7 +876,7 @@ global record enemy is Entity
 	pistonstate: number
 	pistontimer: number
 	playerneardist: number
-	quad: Quad
+	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	quadcenterx: number
@@ -1041,7 +1041,7 @@ end
 
 global record entity is {any}
 	image: Image
-	quad: Quad
+	quad: any
 	t: string
 	init: function(entity, number, number, any, any, any)
 	sett: function(entity, any)
@@ -1103,13 +1103,13 @@ global record fire is Entity
 	autodelete: boolean
 	category: number
 	drawable: boolean
-	graphic: Image
+	graphic: any
 	gravity: number
 	height: number
 	mask: {boolean}
 	offsetX: number
 	offsetY: number
-	quad: Quad
+	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	quadi: number
@@ -1140,7 +1140,7 @@ global record fireball is Entity
 	drawable: boolean
 	emancipatecheck: boolean
 	fireballthrower: number
-	graphic: Image
+	graphic: any
 	gravity: number
 	gravitydirection: number
 	height: number
@@ -1148,7 +1148,7 @@ global record fireball is Entity
 	mask: {boolean}
 	offsetX: number
 	offsetY: number
-	quad: Quad
+	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	quadi: number
@@ -1213,7 +1213,7 @@ global record funnel is Entity
 	lastblock: number
 	objtable: {any}
 	power: boolean
-	quad: Quad
+	quad: any
 	r: {any}
 	reverse: number
 	speed: number
@@ -1236,7 +1236,7 @@ global record gel is Entity
 	destroy: boolean
 	drawable: boolean
 	funnel: boolean
-	graphic: Image
+	graphic: any
 	gravity: number
 	height: number
 	id: number
@@ -1244,7 +1244,7 @@ global record gel is Entity
 	mask: {boolean}
 	offsetX: number
 	offsetY: number
-	quad: Quad
+	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	rotation: number
@@ -1354,7 +1354,7 @@ global record guielement is {any}
 	numerical: number
 	offset: number
 	priority: boolean
-	quad: Quad
+	quad: any
 	range: number
 	repeatdelay: number
 	repeatdelaytimer: number
@@ -1578,15 +1578,15 @@ global record mario is Entity
 	animation: any
 	animationbridgex: number
 	animationdirection: string
-	animationmisc: number|boolean
-	animationmisc2: number|boolean
-	animationmisc3: number|boolean
+	animationmisc: any
+	animationmisc2: any
+	animationmisc3: any
 	animationstate: string
 	animationtimer: number
 	animationtimer2: number
-	animationx: number|boolean
-	animationy: number|boolean
-	biggraphic: Image
+	animationx: any
+	animationy: any
+	biggraphic: any
 	bubbletime: number
 	bubbletimer: number
 	category: number
@@ -1607,7 +1607,7 @@ global record mario is Entity
 	fireanimationtimer: number
 	fireballcount: number
 	funnel: boolean
-	graphic: Image
+	graphic: any
 	gravity: number
 	gravitydirection: number
 	hats: any
@@ -1618,7 +1618,7 @@ global record mario is Entity
 	jumpframe: number
 	jumping: boolean
 	lastcollision: number
-	lastground: number
+	lastground: {number}
 	lastportal: number
 	looktimer: number
 	mask: {boolean}
@@ -1627,7 +1627,7 @@ global record mario is Entity
 	offsetY: number
 	passivemoved: boolean
 	pickup: any
-	platform: number|boolean
+	platform: any
 	playernumber: number
 	pointingangle: number
 	portal: any
@@ -1635,12 +1635,12 @@ global record mario is Entity
 	portal2color: {number}
 	portalsavailable: {boolean}
 	previouslyonground: boolean
-	quad: Quad
+	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	raccoonascendtimer: number
 	raccoonjump: boolean
-	raccoonspinframe: number|boolean
+	raccoonspinframe: any
 	raccoonspintimer: number
 	raccoonstarttimer: number
 	raccoontimer: number
@@ -1651,7 +1651,7 @@ global record mario is Entity
 	runframe: number
 	shot: boolean
 	size: number
-	smallgraphic: Image
+	smallgraphic: any
 	speedx: number
 	speedy: number
 	spring: boolean
@@ -1686,72 +1686,72 @@ global record mario is Entity
 	init: function(mario, number, number, any, any, any, any)
 	adddata: function(mario)
 	update: function(mario, number): any
-	update_raccoon_effects: function(mario, any)
-	update_star: function(mario, any)
-	update_animation: function(mario, any)
-	update_funnels: function(mario, any)
-	update_vine: function(mario, any)
-	update_springs: function(mario, any)
-	update_world_pickups: function(mario, any)
-	update_replay: function(mario, any)
-	update_gravity: function(mario, any)
-	update_fire_animation: function(mario, any)
-	update_zones: function(mario, any)
-	update_controls: function(mario, any)
-	update_drains: function(mario, any)
-	updateangle: function(mario)
-	movement: function(mario, any)
-	runanimation: function(mario, any)
-	underwatermovement: function(mario, any)
+	update_raccoon_effects: function(mario, number)
+	update_star: function(mario, number)
+	update_animation: function(mario, number): any
+	update_funnels: function(mario, number)
+	update_vine: function(mario, number): any
+	update_springs: function(mario, number): any
+	update_world_pickups: function(mario, number)
+	update_replay: function(mario, number)
+	update_gravity: function(mario, number)
+	update_fire_animation: function(mario, number)
+	update_zones: function(mario, number)
+	update_controls: function(mario, number): any
+	update_drains: function(mario, number)
+	updateangle: function(mario): any
+	movement: function(mario, number)
+	runanimation: function(mario, number)
+	underwatermovement: function(mario, number)
 	setquad: function(mario, any, any)
-	jump: function(mario, any)
+	jump: function(mario, any): any
 	stopjump: function(mario, any)
 	rightkey: function(mario)
 	leftkey: function(mario)
-	grow: function(mario)
-	shrink: function(mario)
+	grow: function(mario): any
+	shrink: function(mario): any
 	floorcollide: function(mario, any, Entity, any, any): any
-	bluegel: function(mario, any)
-	stompenemy: function(mario, any, any, any, any, any)
+	bluegel: function(mario, any): any
+	stompenemy: function(mario, any, Entity, any, any, any): any
 	rightcollide: function(mario, any, Entity, any, any): any
 	leftcollide: function(mario, any, Entity, any, any): any
 	ceilcollide: function(mario, any, Entity, any, any): any
 	globalcollide: function(mario, any, Entity, any, any, any): any
 	passivecollide: function(mario, any, Entity, any, any): any
 	starcollide: function(mario, any, Entity, any, any): any
-	hitspring: function(mario, any)
+	hitspring: function(mario, Entity)
 	leavespring: function(mario)
 	dropvine: function(mario, any)
-	grabvine: function(mario, any)
-	goinvincible: function(mario)
+	grabvine: function(mario, Entity): any
+	goinvincible: function(mario): any
 	faithplate: function(mario, any)
 	startfall: function(mario)
-	die: function(mario, any)
-	laser: function(mario, any)
+	die: function(mario, any): any
+	laser: function(mario, any): any
 	emancipate: function(mario, any)
 	removeportals: function(mario, any)
-	use: function(mario, any, any)
-	pickupbox: function(mario, any)
+	use: function(mario, number, number): any
+	pickupbox: function(mario, Entity)
 	dropbox: function(mario)
 	cubeemancipate: function(mario)
-	duck: function(mario, any)
-	pipe: function(mario, any, any, any, any)
+	duck: function(mario, any): any
+	pipe: function(mario, number, number, any, any): any
 	savereplaydata: function(mario)
-	flag: function(mario)
-	axe: function(mario)
+	flag: function(mario): any
+	axe: function(mario): any
 	vineanimation: function(mario)
 	star: function(mario)
 	fire: function(mario)
-	spinhit: function(mario, any, any, any)
+	spinhit: function(mario, number, number, any)
 	fireballcallback: function(mario)
-	portaled: function(mario, any)
+	portaled: function(mario, any): any
 	shootgel: function(mario, any)
-	respawn: function(mario)
+	respawn: function(mario): any
 	dive: function(mario, any)
 	enteredfunnel: function(mario, any)
 	animationwalk: function(mario, any)
 	stopanimation: function(mario)
-	portalpickup: function(mario, any)
+	portalpickup: function(mario, any): any
 	new: function(mario, number, number, any, any, any, any): mario
 end
 
@@ -1987,10 +1987,10 @@ global record portal is Entity
 	portal1color: {number}
 	portal2color: {number}
 	portalframe: number
-	x1: number|boolean
-	x2: number|boolean
-	y1: number|boolean
-	y2: number|boolean
+	x1: any
+	x2: any
+	y1: any
+	y2: any
 	init: function(portal, any, any, any)
 	createportal: function(portal, number, any, any, any, any)
 	removeportal: function(portal, number)
@@ -2131,9 +2131,9 @@ global record portalwall is Entity
 	width: number
 	x: number
 	y: number
-	init: function(portalwall, number, number, any, any)
+	init: function(portalwall, number, number, any, any, any)
 	draw: function(portalwall)
-	new: function(portalwall, number, number, any, any): portalwall
+	new: function(portalwall, number, number, any, any, any): portalwall
 end
 
 global record pushbutton is Entity
@@ -2286,7 +2286,7 @@ global record rocketlauncher is Entity
 	customscissor: any
 	direction: string
 	drawable: boolean
-	graphic: Image
+	graphic: any
 	gravity: number
 	height: number
 	id: number
@@ -2294,7 +2294,7 @@ global record rocketlauncher is Entity
 	mask: {boolean}
 	offsetX: number
 	offsetY: number
-	quad: Quad
+	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	rotation: number
@@ -2659,7 +2659,7 @@ global record walltimer is Entity
 	input1state: number
 	lighted: boolean
 	outtable: {any}
-	quad: Quad
+	quad: any
 	r: {any}
 	time: number
 	timer: number

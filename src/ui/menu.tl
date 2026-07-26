@@ -426,10 +426,10 @@ global function menu_draw_mappackmenu(...: any): any
 				if mappackdescription[i] then
 					local d1, d2, d3 = menu_mappack_desc_lines(mappackdescription[i])
 					properprint(d1, 83*scale, (47+(i-1)*60)*scale)
-					if mappackdescription[i]:len() > 17 then
+					if string.len((mappackdescription[i]) as string) > 17 then
 						properprint(d2, 83*scale, (56+(i-1)*60)*scale)
 					end
-					if mappackdescription[i]:len() > 34 then
+					if string.len((mappackdescription[i]) as string) > 34 then
 						properprint(d3, 83*scale, (65+(i-1)*60)*scale)
 					end
 				end
@@ -520,10 +520,10 @@ global function menu_draw_mappackmenu(...: any): any
 				if onlinemappackdescription[i] then
 					local d1, d2, d3 = menu_mappack_desc_lines(onlinemappackdescription[i])
 					properprint(d1, 83*scale, (47+(i-1)*60)*scale)
-					if onlinemappackdescription[i]:len() > 17 then
+					if string.len((onlinemappackdescription[i]) as string) > 17 then
 						properprint(d2, 83*scale, (56+(i-1)*60)*scale)
 					end
-					if onlinemappackdescription[i]:len() > 34 then
+					if string.len((onlinemappackdescription[i]) as string) > 34 then
 						properprint(d3, 83*scale, (65+(i-1)*60)*scale)
 					end
 				end
@@ -601,10 +601,10 @@ global function menu_draw_mappackmenu(...: any): any
 				if toconvertmappackdescription[i] then
 					local d1, d2, d3 = menu_mappack_desc_lines(toconvertmappackdescription[i])
 					properprint(d1, 83*scale, (47+(i-1)*60)*scale)
-					if toconvertmappackdescription[i]:len() > 17 then
+					if string.len((toconvertmappackdescription[i]) as string) > 17 then
 						properprint(d2, 83*scale, (56+(i-1)*60)*scale)
 					end
-					if toconvertmappackdescription[i]:len() > 34 then
+					if string.len((toconvertmappackdescription[i]) as string) > 34 then
 						properprint(d3, 83*scale, (65+(i-1)*60)*scale)
 					end
 				end

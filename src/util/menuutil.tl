@@ -24,20 +24,20 @@ end
 _G.menu_parse_settings_text = menu_parse_settings_text
 
 
-local function menu_mappack_title(name: any): any
+local function menu_mappack_title(name: any): string
 	return string.sub((name or ""):lower(), 1, 17)
 end
 _G.menu_mappack_title = menu_mappack_title
 
 
-local function menu_mappack_author_line(author: any): any
+local function menu_mappack_author_line(author: any): string
 	return string.sub(("by " .. (author or "")):lower(), 1, 16)
 end
 _G.menu_mappack_author_line = menu_mappack_author_line
 
 
 -- Three fixed-width description rows used by mappack list UI.
-local function menu_mappack_desc_lines(desc: any): any
+local function menu_mappack_desc_lines(desc: any): string, string, string
 	desc = (desc or ""):lower()
 	return string.sub(desc, 1, 17), string.sub(desc, 18, 34), string.sub(desc, 35, 51)
 end

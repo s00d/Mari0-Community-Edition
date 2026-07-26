@@ -77,8 +77,8 @@ function portal:createportal(i: number, cox: any, coy: any, side: any, tendency:
 			end
 			
 			if oldx == false then --Remove blocks from other portal
-				local x: number|boolean
-				local y: number|boolean
+				local x: any
+				local y: any
 				local side: any
 				if otheri == 1 then
 					side = self.facing1
