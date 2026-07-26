@@ -2,7 +2,7 @@
 -- Loaded via require from types/game.d.tl (global_env_def chain).
 
 -- Enemy JSON / enemiesdata values (assets/enemies/*.json).
-global record EnemyDef
+global record EnemyDef is {any}
 	quadcount: integer
 	quadno: integer
 	width: number
@@ -219,7 +219,7 @@ global record AssetStoreEntry
 	default_path: string
 end
 
-global record AssetStore
+global record AssetStore is {any}
 	images: {string:AssetStoreEntry}
 	sounds: {string:AssetStoreEntry}
 	music_type: string

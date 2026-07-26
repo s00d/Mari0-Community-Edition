@@ -1,11 +1,10 @@
 --[[ scale / print / custom media / helpers ]]
 
-global function loadcustomimages(...: any): any
-	local path = ...
+global function loadcustomimages(path: string): any
 	-- Restore image defaults via AssetStore, then apply mappack overrides.
 	assets:restore_image_defaults()
 	for _, s in ipairs(imagelist) do
-		_G[s .. "img"] = assets:get_image(s)
+		(_G as {string:any})[s .. "img"] = assets:get_image(s)
 	end
 	overwrittenimages = {}
 
@@ -16,7 +15,7 @@ global function loadcustomimages(...: any): any
 			local s = string.sub(v, 1, -5)
 			if tablecontains(imagelist, s) then
 				assets:override_image(s, path .. "/" .. v)
-				_G[s .. "img"] = assets:get_image(s)
+				(_G as {string:any})[s .. "img"] = assets:get_image(s)
 				table.insert(overwrittenimages, s)
 			end
 		end
@@ -30,7 +29,7 @@ global function loadcustomimages(...: any): any
 	local imgwidth, imgheight = smbtilesimg:getWidth(), smbtilesimg:getHeight()
 	local width = math.floor(imgwidth/17)
 	local height = math.floor(imgheight/17)
-	local imgdata
+	local imgdata: ImageData
 	if love.filesystem.getInfo(path .. "/smbtiles.png") then
 		imgdata = love.image.newImageData(path .. "/smbtiles.png")
 	else
@@ -39,7 +38,7 @@ global function loadcustomimages(...: any): any
 	
 	for y = 1, height do
 		for x = 1, width do
-			table.insert(tilequads, quad:new(smbtilesimg, imgdata, x, y, imgwidth, imgheight))
+			table.insert(tilequads as {TileQuad}, quad:new(smbtilesimg, imgdata, x, y, imgwidth, imgheight) as TileQuad)
 			local r, g, b = getaveragecolor(imgdata, x, y)
 			table.insert(rgblist, {r / LOVE_COLOR_MAX, g / LOVE_COLOR_MAX, b / LOVE_COLOR_MAX})
 		end
@@ -50,7 +49,7 @@ global function loadcustomimages(...: any): any
 	local imgwidth, imgheight = portaltilesimg:getWidth(), portaltilesimg:getHeight()
 	local width = math.floor(imgwidth/17)
 	local height = math.floor(imgheight/17)
-	local imgdata
+	local imgdata: ImageData
 	if love.filesystem.getInfo(path .. "/portaltiles.png") then
 		imgdata = love.image.newImageData(path .. "/portaltiles.png")
 	else
@@ -59,7 +58,7 @@ global function loadcustomimages(...: any): any
 	
 	for y = 1, height do
 		for x = 1, width do
-			table.insert(tilequads, quad:new(portaltilesimg, imgdata, x, y, imgwidth, imgheight))
+			table.insert(tilequads as {TileQuad}, quad:new(portaltilesimg, imgdata, x, y, imgwidth, imgheight) as TileQuad)
 			local r, g, b = getaveragecolor(imgdata, x, y)
 			table.insert(rgblist, {r / LOVE_COLOR_MAX, g / LOVE_COLOR_MAX, b / LOVE_COLOR_MAX})
 		end
@@ -67,8 +66,7 @@ global function loadcustomimages(...: any): any
 	portaltilecount = width*height
 end
 
-global function loadcustomsounds(...: any): any
-	local path = ...
+global function loadcustomsounds(path: string): any
 	assets:restore_sound_defaults()
 	for _, id in ipairs(soundstoload) do
 		if assets.sounds[id] then

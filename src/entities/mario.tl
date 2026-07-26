@@ -23,7 +23,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 		self.size = (size or 1) as number
 	end
 	self.t = (t or "portal") as string
-	self.portalsavailable = {unpack(portalsavailable)} as {boolean}
+	self.portalsavailable = portalsavailable as {number:boolean}
 	
 	--PHYSICS STUFF
 	self.speedx = 0
@@ -1224,7 +1224,7 @@ function mario:update_controls(dt: number): any
 			end
 		end
 		
-		local soundPlaying
+		local soundPlaying: any
 		soundPlaying = soundlist["planemode"].source:isPlaying()
 		
 		if not self.raccoonjump and self.raccoontimer == 0 and soundPlaying then 
@@ -1304,7 +1304,8 @@ function mario:updateangle(): any
 		if shaders and shaders.scale then scale = shaders.scale end
 		self.pointingangle = math.atan2(self.x+6/16-xscroll-(mouse.getX()/16/scale), (self.y-yscroll+6/16-.5)-(mouse.getY()/16/scale))
 	elseif #controls[self.playernumber as integer]["aimx"] > 0 then
-		local x, y
+		local x: number
+		local y: number
 		
 		local s = controls[self.playernumber as integer]["aimx"]
 		local j = love.joystick.getJoysticks()[s[2]]
@@ -1861,7 +1862,7 @@ function mario:underwatermovement(dt: number)
 end
 
 function mario:setquad(anim: any, s: any)
-	local angleframe
+	local angleframe: any
 	if self.char.nopointing then
 		angleframe = 1
 	elseif not self.portalsavailable[1] and not self.portalsavailable[2] and not self.char.nogunanimations then
@@ -3359,7 +3360,7 @@ global function getAngleFrame(angle: number, rotation: number): any
 	end
 
 	local mouseabs = math.abs(angle)
-	local angleframe
+	local angleframe: any
 	
 	if mouseabs < math.pi/8 then
 		angleframe = 1

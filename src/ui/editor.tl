@@ -903,8 +903,8 @@ function editor_draw_overlay(emx: number, emy: number)
 				elseif tileselectionclick2 == false then
 					-- first click done - draw area: click1xy->mousexy
 					local lx1, ly1 = 0, 0
-					lx1 = math.min(tileselectionclick1x, x)
-					ly1 = math.min(tileselectionclick1y, y)
+					lx1 = math.min(tileselectionclick1x as integer, x as integer)
+					ly1 = math.min(tileselectionclick1y as integer, y as integer)
 					
 					love.graphics.setColor(0.44,0.44,1,0.44)
 					love.graphics.rectangle("fill",math.floor((lx1-xscroll-1)*16*scale), (((ly1-1)*16+8)*scale)-yscroll*16*scale, (math.max(tileselectionclick1x, x)-lx1)*16*scale+16*scale, (math.max(tileselectionclick1y, y)-ly1)*16*scale+16*scale)
@@ -963,8 +963,9 @@ function editor_draw_overlay(emx: number, emy: number)
 							break
 						end
 					end
-					local offy = math.ceil(currenttile/22)-1
-					local offx = currenttile-offy*22
+					local ct = currenttile as number
+					local offy = math.ceil(ct/22)-1
+					local offx = ct-offy*22
 					local cox, coy = getMouseTile(middlemode[2] as number, (middlemode[3] as number)-8*scale)
 					for i = 1, #enemies do
 						local v = enemiesdata[ enemies[i] ]
@@ -4632,11 +4633,11 @@ function selectionend()
 	selectiondragging = false
 end
 
-function selectiongettiles(x: number, y: number, width: number, height: number)
+function selectiongettiles(x: number, y: number, width: number, height: number): {SelectionTile}
 	x, y = round(x), round(y)
 	width, height = round(width), round(height)
 
-	local out = {}
+	local out: {SelectionTile} = {}
 	
 	local xstart, ystart = getMouseTile(x, y+7*scale)
 	local xend, yend = getMouseTile(x+width, y+height+7*scale)

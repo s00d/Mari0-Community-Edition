@@ -16,7 +16,7 @@ global function drawlevel_tiles(...: any): any
 			love.graphics.draw(modcustomspritebatch[i], batchx, batchy)
 		end
 	end
-	local lmap = map
+	local lmap = map as {number:{number:MapCell}}
 	
 	local flooredxscroll: number = 0
 	if xscroll >= 0 then
@@ -39,7 +39,7 @@ global function drawlevel_tiles(...: any): any
 		for x = 1, xtodraw do
 			if inmap(flooredxscroll+x, flooredyscroll+y) then
 				local bounceyoffset = 0
-				local bi = bounce_at[tilekey(flooredxscroll+x, flooredyscroll+y)]
+				local bi = bounce_at[tilekey(flooredxscroll+x, flooredyscroll+y)] as any
 				if bi then
 					if blockbouncetimer[bi] < blockbouncetime/2 then
 						bounceyoffset = blockbouncetimer[bi] / (blockbouncetime/2) * blockbounceheight
@@ -126,10 +126,11 @@ global function drawlevel_tiles(...: any): any
 					end
 					
 					if entitylist[map[x][y][2]] and entitylist[map[x][y][2]].t == "platform" then
-						local dir, dist
-						if rightclickm and rightclickm.tx == x and rightclickm.ty == y then
-							dir = rightclickm.variables[2].value
-							dist = tonumber(rightclickm.t[6].value)
+						local dir: any
+						local dist: any
+						if rightclickm and (rightclickm as rightclickmenu).tx == x and (rightclickm as rightclickmenu).ty == y then
+							dir = (rightclickm as rightclickmenu).variables[2].value
+							dist = tonumber((rightclickm as rightclickmenu).t[6].value as string)
 						else
 							dir = map[x][y][3]
 							dist = tonumber(map[x][y][5])
@@ -158,7 +159,7 @@ global function drawlevel(...: any): any
 	love.graphics.setColor(love.graphics.getBackgroundColor())
 	love.graphics.rectangle("fill", 0, 0, width*16*scale, height*16*scale)
 	love.graphics.setColor(1, 1, 1, 1)
-	local xtodraw
+	local xtodraw: number
 	if mapwidth < width+1 then
 		xtodraw = math.ceil(mapwidth)
 	else
@@ -169,7 +170,7 @@ global function drawlevel(...: any): any
 		end
 	end
 	
-	local ytodraw
+	local ytodraw: number
 	if mapheight < height+1 then
 		ytodraw = math.ceil(mapheight)
 	else
@@ -193,8 +194,8 @@ global function drawlevel(...: any): any
 				end
 			end
 		else
-			if custombackgroundimg[custombackground] then
-				for i = #custombackgroundimg[custombackground], 1, -1  do
+			if custombackgroundimg[custombackground as string] then
+				for i = #custombackgroundimg[custombackground as string], 1, -1  do
 					local xscroll = xscroll / (i * scrollfactor + 1)
 					if reversescrollfactor() == 1 then
 						xscroll = 0
@@ -205,9 +206,9 @@ global function drawlevel(...: any): any
 						yscroll = 0
 					end
 					
-					for y = 1, math.ceil(height/custombackgroundheight[custombackground][i])+1 do
-						for x = 1, math.ceil(width/custombackgroundwidth[custombackground][i])+1 do
-							love.graphics.draw(custombackgroundimg[custombackground][i], math.floor(((x-1)*custombackgroundwidth[custombackground][i])*16*scale) - math.floor(math.fmod(xscroll, custombackgroundwidth[custombackground][i])*16*scale), math.floor(((y-1)*custombackgroundheight[custombackground][i])*16*scale) - math.floor(math.fmod(yscroll, custombackgroundheight[custombackground][i])*16*scale), 0, scale, scale)
+					for y = 1, math.ceil(height/custombackgroundheight[custombackground as string][i])+1 do
+						for x = 1, math.ceil(width/custombackgroundwidth[custombackground as string][i])+1 do
+							love.graphics.draw(custombackgroundimg[custombackground as string][i], math.floor(((x-1)*custombackgroundwidth[custombackground as string][i])*16*scale) - math.floor(math.fmod(xscroll, custombackgroundwidth[custombackground as string][i])*16*scale), math.floor(((y-1)*custombackgroundheight[custombackground as string][i])*16*scale) - math.floor(math.fmod(yscroll, custombackgroundheight[custombackground as string][i])*16*scale), 0, scale, scale)
 						end
 					end
 				end
@@ -249,9 +250,9 @@ global function drawforeground(...: any): any
 	end
 	
 	--ANY NON STATIC BLOCKS AND STUFF.
-	local lmap = map
+	local lmap = map as {number:{number:MapCell}}
 	
-	local xtodraw
+	local xtodraw: number
 	if mapwidth < width+1 then
 		xtodraw = math.ceil(mapwidth)
 	else
@@ -262,7 +263,7 @@ global function drawforeground(...: any): any
 		end
 	end
 	
-	local ytodraw
+	local ytodraw: number
 	if mapheight < height+1 then
 		ytodraw = math.ceil(mapheight)
 	else
@@ -574,7 +575,7 @@ global function game_draw_objects(...: any): any
 				if v.drawable and v.graphic and v.quad then
 					love.graphics.setScissor()
 					love.graphics.setColor(1, 1, 1)
-					local dirscale
+					local dirscale: number
 
 					if j == "player" then
 						if (v.portalsavailable[1] or v.portalsavailable[2]) then
@@ -621,7 +622,12 @@ global function game_draw_objects(...: any): any
 					end
 
 					local portal, portaly = insideportal(v.x, v.y, v.width, v.height)
-					local entryX, entryY, entryfacing, exitX, exitY, exitfacing
+					local entryX: number
+					local entryY: number
+					local entryfacing: any
+					local exitX: number
+					local exitY: number
+					local exitfacing: any
 
 					--SCISSOR FOR ENTRY
 					if v.customscissor and v.portalable ~= false then

@@ -25,11 +25,12 @@ global function level_delimiters(v: any): string, string, string, string, string
 end
 
 -- Split raw level text into version, height, tile tokens, and category sections.
-global function level_split_file_contents(s: string): any
+global function level_split_file_contents(s: string): any, any, any, any, any, any, any, any, any
 	local v = level_detect_format_version(s)
 	local blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign = level_delimiters(v)
 	local s2 = strsplit(s, categorydelimiter)
-	local mapheight, t
+	local mapheight: any
+	local t: any
 	if string.find(s2[1], blockdelimiter) then
 		mapheight = 15
 		t = strsplit(s2[1], blockdelimiter)
@@ -40,11 +41,10 @@ global function level_split_file_contents(s: string): any
 	return v, mapheight, t, s2, blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign
 end
 
-global function level_count_tile_entries(...: any): any
-	local t, multipledelimiter = ...
+global function level_count_tile_entries(t: {any}, multipledelimiter: any): any
 	local entries = 0
 	for i = 1, #t do
-		local parts = strsplit(t[i], multipledelimiter)
+		local parts = strsplit(t[i] as string, multipledelimiter as string)
 		if parts[2] then
 			entries = entries + tonumber(parts[2])
 		else
@@ -56,8 +56,7 @@ end
 
 -- Decode tile tokens into map/coinmap tables (no objects, no tile-ID clamp).
 -- Column-major order matches loadmap (x then wrap to next y).
-global function level_decode_tile_tokens(...: any): any
-	local t, mapwidth, mapheight, layerdelimiter, multipledelimiter = ...
+global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: number, layerdelimiter: any, multipledelimiter: any): any, any
 	local map = {}
 	local coinmap = {}
 	for x = 1, mapwidth do
@@ -70,8 +69,8 @@ global function level_decode_tile_tokens(...: any): any
 
 	local x, y = 1, 1
 	for i = 1, #t do
-		if string.find(t[i], multipledelimiter) then
-			local r = strsplit(tostring(t[i]), multipledelimiter)
+		if string.find(t[i] as string, multipledelimiter as string) then
+			local r = strsplit(tostring(t[i]), multipledelimiter as string)
 			local coin = false
 			if string.sub(r[1], -1) == "c" then
 				r[1] = string.sub(r[1], 1, -2)
@@ -89,7 +88,7 @@ global function level_decode_tile_tokens(...: any): any
 				end
 			end
 		else
-			local r = strsplit(tostring(t[i]), layerdelimiter)
+			local r = strsplit(tostring(t[i]), layerdelimiter as string)
 			if string.sub(r[1], -1) == "c" then
 				r[1] = string.sub(r[1], 1, -2)
 				coinmap[x][y] = true
@@ -270,8 +269,8 @@ global function loadmap(...: any): any
 	
 	local x, y = 1, 1
 	for i = 1, #t do
-		if string.find(t[i], multipledelimiter) then --new stuff!
-			local r = strsplit(tostring(t[i]), multipledelimiter)
+		if string.find(t[i] as string, multipledelimiter as string) then --new stuff!
+			local r = strsplit(tostring(t[i]), multipledelimiter as string)
 			
 			local coin = false
 			if string.sub(r[1], -1) == "c" then
@@ -304,7 +303,7 @@ global function loadmap(...: any): any
 			end
 			
 		else --Old stuff.
-			local r = strsplit(tostring(t[i]), layerdelimiter)
+			local r = strsplit(tostring(t[i]), layerdelimiter as string)
 			
 			if string.sub(r[1], -1) == "c" then
 				r[1] = string.sub(r[1], 1, -2)

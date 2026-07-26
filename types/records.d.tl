@@ -782,7 +782,7 @@ global record emancipationgrill is Entity
 	link: function(emancipationgrill)
 	update: function(emancipationgrill, number): any
 	draw: function(emancipationgrill)
-	getTileInvolved: function(emancipationgrill, any, any)
+	getTileInvolved: function(Entity, ...: any): any
 	input: function(emancipationgrill, any, any)
 	new: function(emancipationgrill, number, number, {any}): emancipationgrill
 end
@@ -809,7 +809,7 @@ global record enemy is Entity
 	combo: number
 	currentcustomtimerstage: number
 	customscissor: any
-	customtimer: {any}
+	customtimer: {{any}}
 	customtimertimer: number
 	dead: boolean
 	deathtimer: number
@@ -845,7 +845,7 @@ global record enemy is Entity
 	infunnel: boolean
 	jumpforce: number
 	jumpforcedown: number
-	jumping: any
+	jumping: boolean
 	jumpingy: number
 	jumps: number
 	jumptime: number
@@ -920,7 +920,7 @@ global record enemy is Entity
 	spawnenemytimer: number
 	spawnenemytowardsplayer: number
 	spawner: any
-	spawnmax: number
+	spawnmax: any
 	spawnoffsetx: number
 	spawnoffsety: number
 	spawnonlyonextended: boolean
@@ -987,10 +987,10 @@ global record enemy is Entity
 	y: number
 	init: function(enemy, number, number, string, any)
 	update: function(enemy, number): any
-	addoutput: function(enemy, any, any)
-	shotted: function(Entity, ...: any): any
-	decodearg: function(enemy, any)
-	customtimeraction: function(enemy, any, any)
+	addoutput: function(enemy, any, any): any
+	shotted: function(enemy, any, any, any, any, any): any
+	decodearg: function(enemy, any): any
+	customtimeraction: function(enemy, any, any): any
 	func: function(enemy, any)
 	globalcollide: function(enemy, any, Entity, any, any, any): any
 	leftcollide: function(enemy, any, Entity, any, any): any
@@ -998,19 +998,18 @@ global record enemy is Entity
 	ceilcollide: function(enemy, any, Entity, any, any): any
 	floorcollide: function(enemy, any, Entity, any, any): any
 	passivecollide: function(enemy, any, Entity, any, any): any
-	startfall: function(enemy)
-	stomp: function(Entity, ...: any): any
-	autodeleted: function(enemy)
-	output: function(enemy)
-	addoutput: function(enemy, any, any)
-	portaled: function(enemy)
-	spawnenemy: function(enemy, any)
-	transform: function(enemy, any)
-	emancipate: function(enemy)
-	laser: function(enemy, any, any)
-	enteredfunnel: function(enemy, any)
-	getspawnedenemies: function(enemy)
-	onscreen: function(enemy)
+	startfall: function(enemy): any
+	stomp: function(enemy, any, Entity): any
+	autodeleted: function(enemy): any
+	output: function(enemy): any
+	portaled: function(enemy): any
+	spawnenemy: function(enemy, any): any
+	transform: function(enemy, any): any
+	emancipate: function(enemy): any
+	laser: function(enemy, any, any): any
+	enteredfunnel: function(enemy, any): any
+	getspawnedenemies: function(enemy): any
+	onscreen: function(enemy): any
 	new: function(enemy, number, number, string, any): enemy
 end
 
@@ -1397,8 +1396,8 @@ global record guielement is {any}
 	click: function(guielement, number, number, any): any
 	textinput: function(guielement, string): any
 	keypress: function(guielement, string): any
-	unclick: function(guielement, number, number, any)
-	inhighlight: function(guielement, any, any): any
+	unclick: function(guielement, number, number, any): any
+	inhighlight: function(guielement, number, number): any
 	new: function(guielement, ...: any): guielement
 end
 
@@ -1494,7 +1493,7 @@ global record lightbridge is Entity
 	coy: number
 	destroy: boolean
 	dir: string
-	gels: number
+	gels: {string:number}
 	glowa: number
 	glowtimer: number
 	height: number
@@ -1530,7 +1529,7 @@ global record lightbridgebody is Entity
 	coy: number
 	destroy: boolean
 	dir: string
-	gels: number
+	gels: {string:number}
 	glowa: number
 	glowtimer: number
 	height: number
@@ -1640,7 +1639,7 @@ global record mario is Entity
 	quadcenterY: number
 	raccoonascendtimer: number
 	raccoonjump: boolean
-	raccoonspinframe: number
+	raccoonspinframe: any
 	raccoonspintimer: number
 	raccoonstarttimer: number
 	raccoontimer: number
@@ -2256,12 +2255,16 @@ global record regiontrigger is Entity
 	new: function(regiontrigger, number, number, {any}): regiontrigger
 end
 
+global record RightClickVar
+	value: any
+end
+
 global record rightclickmenu is {any}
 	elements: {any}
-	t: {any}
+	t: {RightClickVar}
 	tx: number
 	ty: number
-	variables: {any}
+	variables: {RightClickVar}
 	x: number
 	y: number
 	init: function(rightclickmenu, number, number, any, any, any)
@@ -2730,3 +2733,7 @@ global record zginttrigger is Entity
 	new: function(zginttrigger, number, number, {any}): zginttrigger
 end
 
+
+global record upfire is Entity
+	new: function(any, number, number, any): upfire
+end

@@ -440,7 +440,8 @@ function guielement:draw(a: number, offx: number, offy: number)
 		
 		--cursor
 		if self.inputting and self.cursorblink then
-			local x, y
+			local x: number
+			local y: number
 			if #newstring == 0 then
 				x, y = 1, 1
 			else
@@ -773,7 +774,8 @@ function guielement:inhighlight(x: number, y: number): any
 				return true
 			end
 		else
-			local myx, widthadd = self.x, 0
+			local myx: number = self.x
+			local widthadd: number = 0
 			if self.scrollbar then
 				myx = self.x - self.scrollbar.width+1
 				widthadd = self.scrollbar.width-1
@@ -788,13 +790,13 @@ function guielement:inhighlight(x: number, y: number): any
 			end
 		end
 	elseif self.type == "submenu" then
-		local r = false
+		local r: any = false
 		if x >= self.x*scale and x < (self.x+10+self.width*8)*scale and y >= self.y*scale and y < (self.y+11)*scale then
 			r = 0
 		end
 		if self.extended then
-			local subx = self.subx
-			local widthadd = 0
+			local subx: number = self.subx
+			local widthadd: number = 0
 			if self.scrollbar then
 				subx = subx - self.scrollbar.width
 				widthadd = self.scrollbar.width

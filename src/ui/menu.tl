@@ -26,7 +26,7 @@ global function menu_load(...: any): any
 	colorsetedit = 1
 	love.graphics.setBackgroundColor(backgroundcolor[1])
 	
-	controlstable = {"left", "right", "up", "down", "run", "jump", "reload", "use", "aimx", "aimy", "portal1", "portal2"}
+	controlstable = {"left", "right", "up", "down", "run", "jump", "reload", "use", "aimx", "aimy", "portal1", "portal2"} as {number:string}
 	
 	portalanimation = 1
 	portalanimationtimer = 0
@@ -187,14 +187,14 @@ global function menu_update(dt: number)
 				if portalhues[skinningplayer][1] > 1 then
 					portalhues[skinningplayer][1] = 1
 				end
-				portalcolor[skinningplayer][1] = getrainbowcolor(portalhues[skinningplayer][1]) as any
+				portalcolor[skinningplayer][1] = getrainbowcolor(portalhues[skinningplayer][1]) as {number}
 				
 			elseif (love.keyboard.isDown("left") or love.keyboard.isDown("a")) and portalhues[skinningplayer][1] > 0 then
 				portalhues[skinningplayer][1] = portalhues[skinningplayer][1] - huechangespeed*dt
 				if portalhues[skinningplayer][1] < 0 then
 					portalhues[skinningplayer][1] = 0
 				end
-				portalcolor[skinningplayer][1] = getrainbowcolor(portalhues[skinningplayer][1]) as any
+				portalcolor[skinningplayer][1] = getrainbowcolor(portalhues[skinningplayer][1]) as {number}
 			end
 			
 		elseif (characters[mariocharacter[skinningplayer]].colorables and optionsselection == 10) or (not characters[mariocharacter[skinningplayer]].colorables and optionsselection == 5) then
@@ -203,14 +203,14 @@ global function menu_update(dt: number)
 				if portalhues[skinningplayer][2] > 1 then
 					portalhues[skinningplayer][2] = 1
 				end
-				portalcolor[skinningplayer][2] = getrainbowcolor(portalhues[skinningplayer][2]) as any
+				portalcolor[skinningplayer][2] = getrainbowcolor(portalhues[skinningplayer][2]) as {number}
 				
 			elseif (love.keyboard.isDown("left") or love.keyboard.isDown("a")) and portalhues[skinningplayer][2] > 0 then
 				portalhues[skinningplayer][2] = portalhues[skinningplayer][2] - huechangespeed*dt
 				if portalhues[skinningplayer][2] < 0 then
 					portalhues[skinningplayer][2] = 0
 				end
-				portalcolor[skinningplayer][2] = getrainbowcolor(portalhues[skinningplayer][2]) as any
+				portalcolor[skinningplayer][2] = getrainbowcolor(portalhues[skinningplayer][2]) as {number}
 			end
 		end
 	elseif gamestate == "onlinemenu" then

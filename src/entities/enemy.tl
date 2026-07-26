@@ -661,7 +661,7 @@ function enemy:update(dt: number): any
 		if self.jumptimer > self.jumptime then
 			self.jumptimer = self.jumptimer - self.jumptime
 			--decide whether up or down
-			local dir
+			local dir: string
 			if self.y > 12 then
 				dir = "up"
 			elseif self.y < 6 then
@@ -759,8 +759,9 @@ function enemy:update(dt: number): any
 					
 				end
 			end
-		elseif type(self.playerneardist) == "table" and #self.playerneardist == 4 then
-			local col = checkrect(self.x+self.playerneardist[1], self.y+self.playerneardist[2], self.x+self.playerneardist[1]+self.playerneardist[3], self.y+self.playerneardist[2]+self.playerneardist[4], {"player"})
+		elseif type(self.playerneardist) == "table" and #(self.playerneardist as {number}) == 4 then
+			local pnd = self.playerneardist as {number}
+			local col = checkrect(self.x+pnd[1], self.y+pnd[2], self.x+pnd[1]+pnd[3], self.y+pnd[2]+pnd[4], {"player"})
 			if #col > 0 then
 				if self.transformtrigger == "playernear" then
 					self:transform(self.transformsinto)
@@ -828,15 +829,17 @@ function enemy:update(dt: number): any
 	
 	if self.customtimer then
 		self.customtimertimer = self.customtimertimer + dt
-		while self.customtimertimer > self.customtimer[self.currentcustomtimerstage][1] do
-			self.customtimertimer = self.customtimertimer - self.customtimer[self.currentcustomtimerstage][1]
-			if self.customtimer[self.currentcustomtimerstage][2] and self.customtimer[self.currentcustomtimerstage][3] then
-				self:customtimeraction(self.customtimer[self.currentcustomtimerstage][2], self.customtimer[self.currentcustomtimerstage][3])
-			elseif self.customtimer[self.currentcustomtimerstage][2] then
-				self:customtimeraction(self.customtimer[self.currentcustomtimerstage][2])
+		while self.customtimertimer > (self.customtimer as {{any}})[self.currentcustomtimerstage][1] as number do
+			local ct = self.customtimer as {{any}}
+			local stage = ct[self.currentcustomtimerstage]
+			self.customtimertimer = self.customtimertimer - stage[1] as number
+			if stage[2] and stage[3] then
+				self:customtimeraction(stage[2], stage[3])
+			elseif stage[2] then
+				self:customtimeraction(stage[2])
 			end
 			self.currentcustomtimerstage = self.currentcustomtimerstage + 1
-			if self.currentcustomtimerstage > #self.customtimer then
+			if self.currentcustomtimerstage > #ct then
 				self.currentcustomtimerstage = 1
 			end
 		end

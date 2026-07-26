@@ -7,7 +7,7 @@ local unpack = rawget(_G, "unpack") or table.unpack
 -- Early loadmap types (run before createobjects gate).
 MAP_SPAWN_EARLY_HANDLERS = {}
 
-MAP_SPAWN_EARLY_HANDLERS["spawn"] = function(x, y, r): any
+MAP_SPAWN_EARLY_HANDLERS["spawn"] = function(x: number, y: number, r: {any}): any
 	local r2 = {unpack(r)}
 	table.remove(r2, 1)
 	table.remove(r2, 1)
@@ -31,7 +31,7 @@ MAP_SPAWN_EARLY_HANDLERS["spawn"] = function(x, y, r): any
 	end
 end
 
-MAP_SPAWN_EARLY_HANDLERS["textentity"] = function(x, y, r): any
+MAP_SPAWN_EARLY_HANDLERS["textentity"] = function(x: number, y: number, r: {any}): any
 	if not editormode then
 		table.insert(textentities, textentity:new(x-1, y-1, r))
 	end
@@ -40,60 +40,60 @@ end
 -- loadmap createobjects entity types (legacy elseif chain).
 MAP_SPAWN_HANDLERS = {}
 
-MAP_SPAWN_HANDLERS["warppipe"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["warppipe"] = function(x: number, y: number, r: {any}): any
 	table.insert(warpzonenumbers, {x, y, r[3]})
 end
 
-MAP_SPAWN_HANDLERS["manycoins"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["manycoins"] = function(x: number, y: number, r: {any}): any
 	map[x][y][3] = 7
 end
 
-MAP_SPAWN_HANDLERS["flag"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["flag"] = function(x: number, y: number, r: {any}): any
 	flagx = x-1
 	flagy = y
 end
 
-MAP_SPAWN_HANDLERS["firestart"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["firestart"] = function(x: number, y: number, r: {any}): any
 	firestartx = x
 end
 
-MAP_SPAWN_HANDLERS["flyingfishstart"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["flyingfishstart"] = function(x: number, y: number, r: {any}): any
 	flyingfishstartx = x -- keep legacy single-zone vars for compatibility
 	table.insert(flyingfishstarts, x)
 end
 
-MAP_SPAWN_HANDLERS["flyingfishend"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["flyingfishend"] = function(x: number, y: number, r: {any}): any
 	flyingfishendx = x
 	table.insert(flyingfishends, x)
 end
 
-MAP_SPAWN_HANDLERS["bulletbillstart"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["bulletbillstart"] = function(x: number, y: number, r: {any}): any
 	bulletbillstartx = x
 	table.insert(bulletbillstarts, x)
 end
 
-MAP_SPAWN_HANDLERS["bulletbillend"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["bulletbillend"] = function(x: number, y: number, r: {any}): any
 	bulletbillendx = x
 	table.insert(bulletbillends, x)
 end
 
-MAP_SPAWN_HANDLERS["axe"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["axe"] = function(x: number, y: number, r: {any}): any
 	axex = x
 	axey = y
 end
 
-MAP_SPAWN_HANDLERS["lakitoend"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["lakitoend"] = function(x: number, y: number, r: {any}): any
 	lakitoendx = x
 end
 
-MAP_SPAWN_HANDLERS["pipespawn"] = function(x, y, r): any
-	if prevsublevel == r[3]-1 or (mariosublevel == r[3]-1 and blacktime == sublevelscreentime) then
+MAP_SPAWN_HANDLERS["pipespawn"] = function(x: number, y: number, r: {any}): any
+	if prevsublevel == (r[3] as number)-1 or (mariosublevel == (r[3] as number)-1 and blacktime == sublevelscreentime) then
 		pipestartx = x
 		pipestarty = y
 	end
 end
 
-MAP_SPAWN_HANDLERS["gel"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["gel"] = function(x: number, y: number, r: {any}): any
 	if tilequads[map[x][y][1]]:getproperty("collision", x, y) then
 		if r[4] == "true" then
 			map[x][y]["gels"]["left"] = r[3]
@@ -110,183 +110,183 @@ MAP_SPAWN_HANDLERS["gel"] = function(x, y, r): any
 	end
 end
 
-MAP_SPAWN_HANDLERS["checkpoint"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["checkpoint"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["checkpoints"], checkpoint:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["mazestart"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["mazestart"] = function(x: number, y: number, r: {any}): any
 	if not tablecontains(mazestarts, x) then
 		table.insert(mazestarts, x)
 	end
 end
 
-MAP_SPAWN_HANDLERS["mazeend"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["mazeend"] = function(x: number, y: number, r: {any}): any
 	if not tablecontains(mazeends, x) then
 		table.insert(mazeends, x)
 	end
 end
 
-MAP_SPAWN_HANDLERS["emance"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["emance"] = function(x: number, y: number, r: {any}): any
 	table.insert(emancipationgrills, emancipationgrill:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["door"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["door"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["door"], door:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["button"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["button"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["button"], button:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["pushbutton"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["pushbutton"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["pushbutton"], pushbutton:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["wallindicator"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["wallindicator"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["wallindicator"], wallindicator:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["groundlightver"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["groundlightver"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["groundlight"], groundlight:new(x, y, 1, r))
 end
 
-MAP_SPAWN_HANDLERS["groundlighthor"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["groundlighthor"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["groundlight"], groundlight:new(x, y, 2, r))
 end
 
-MAP_SPAWN_HANDLERS["groundlightupright"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["groundlightupright"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["groundlight"], groundlight:new(x, y, 3, r))
 end
 
-MAP_SPAWN_HANDLERS["groundlightrightdown"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["groundlightrightdown"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["groundlight"], groundlight:new(x, y, 4, r))
 end
 
-MAP_SPAWN_HANDLERS["groundlightdownleft"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["groundlightdownleft"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["groundlight"], groundlight:new(x, y, 5, r))
 end
 
-MAP_SPAWN_HANDLERS["groundlightleftup"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["groundlightleftup"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["groundlight"], groundlight:new(x, y, 6, r))
 end
 
-MAP_SPAWN_HANDLERS["faithplate"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["faithplate"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["faithplate"], faithplate:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["laser"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["laser"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["laser"], laser:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["lightbridge"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["lightbridge"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["lightbridge"], lightbridge:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["laserdetector"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["laserdetector"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["laserdetector"], laserdetector:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["boxtube"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["boxtube"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["cubedispenser"], cubedispenser:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["walltimer"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["walltimer"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["walltimer"], walltimer:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["notgate"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["notgate"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["notgate"], notgate:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["rsflipflop"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["rsflipflop"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["rsflipflop"], rsflipflop:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["orgate"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["orgate"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["orgate"], orgate:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["andgate"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["andgate"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["andgate"], andgate:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["musicentity"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["musicentity"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["musicentity"], musicentity:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["enemyspawner"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["enemyspawner"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["enemyspawner"], enemyspawner:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["squarewave"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["squarewave"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["squarewave"], squarewave:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["platformspawner"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["platformspawner"] = function(x: number, y: number, r: {any}): any
 	table.insert(platformspawners, platformspawner:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["scaffold"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["scaffold"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["scaffold"], scaffold:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["box"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["box"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["box"], box:new(x, y))
 end
 
-MAP_SPAWN_HANDLERS["portal1"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["portal1"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["portalent"], portalent:new(x, y, 1, r))
 end
 
-MAP_SPAWN_HANDLERS["portal2"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["portal2"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["portalent"], portalent:new(x, y, 2, r))
 end
 
-MAP_SPAWN_HANDLERS["spring"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["spring"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["spring"], spring:new(x, y))
 end
 
-MAP_SPAWN_HANDLERS["seesaw"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["seesaw"] = function(x: number, y: number, r: {any}): any
 	table.insert(seesaws, seesaw:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["ceilblocker"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["ceilblocker"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["ceilblocker"], ceilblocker:new(x))
 end
 
-MAP_SPAWN_HANDLERS["funnel"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["funnel"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["funnel"], funnel:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["regiontrigger"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["regiontrigger"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["regiontrigger"], regiontrigger:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["zgbooltrigger"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["zgbooltrigger"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["zgbooltrigger"], zgbooltrigger:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["zginttrigger"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["zginttrigger"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["zginttrigger"], zginttrigger:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["animationtrigger"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["animationtrigger"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["animationtrigger"], animationtrigger:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["pedestal"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["pedestal"] = function(x: number, y: number, r: {any}): any
 	table.insert(pedestals, pedestal:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["actionblock"] = function(x, y, r): any
-	table.insert(objects["actionblock"], actionblock:new(x, y, r))
+MAP_SPAWN_HANDLERS["actionblock"] = function(x: number, y: number, r: {any}): any
+	table.insert(objects["actionblock"], actionblock:new(x, y))
 end
 
-MAP_SPAWN_HANDLERS["animatedtiletrigger"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["animatedtiletrigger"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["animatedtiletrigger"], animatedtiletrigger:new(x, y, r))
 end
 
-MAP_SPAWN_HANDLERS["delayer"] = function(x, y, r): any
+MAP_SPAWN_HANDLERS["delayer"] = function(x: number, y: number, r: {any}): any
 	table.insert(objects["delayer"], delayer:new(x, y, r))
 end
 
@@ -294,7 +294,7 @@ end
 -- Return true only when this spawn should trigger the 5x1 neighbor enemy cascade.
 ENEMY_SPAWN_HANDLERS = {}
 
-ENEMY_SPAWN_HANDLERS["cheepcheep"] = function(x, y, r, allowenemy): any
+ENEMY_SPAWN_HANDLERS["cheepcheep"] = function(x: number, y: number, r: {any}, allowenemy: any): any
 	if not allowenemy then
 		return false
 	end
@@ -306,47 +306,47 @@ ENEMY_SPAWN_HANDLERS["cheepcheep"] = function(x, y, r, allowenemy): any
 	return true
 end
 
-ENEMY_SPAWN_HANDLERS["bowser"] = function(x, y, r, allowenemy): any
+ENEMY_SPAWN_HANDLERS["bowser"] = function(x: number, y: number, r: {any}, allowenemy: any): any
 	objects["bowser"][1] = bowser:new(x, y-1/16)
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["castlefire"] = function(x, y, r, allowenemy): any
+ENEMY_SPAWN_HANDLERS["castlefire"] = function(x: number, y: number, r: {any}, allowenemy: any): any
 	table.insert(objects["castlefire"], castlefire:new(x, y, r))
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["platform"] = function(x, y, r, allowenemy): any
+ENEMY_SPAWN_HANDLERS["platform"] = function(x: number, y: number, r: {any}, allowenemy: any): any
 	table.insert(objects["platform"], platform:new(x, y, r)) --Platform
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["platformfall"] = function(x, y, r, allowenemy): any
+ENEMY_SPAWN_HANDLERS["platformfall"] = function(x: number, y: number, r: {any}, allowenemy: any): any
 	table.insert(objects["platform"], platform:new(x, y, {0, 0, r[3]}, "fall")) --Platform fall
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["platformbonus"] = function(x, y, r, allowenemy): any
+ENEMY_SPAWN_HANDLERS["platformbonus"] = function(x: number, y: number, r: {any}, allowenemy: any): any
 	table.insert(objects["platform"], platform:new(x, y, {0, 0, 3}, "justright"))
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["bulletbill"] = function(x, y, r, allowenemy): any
+ENEMY_SPAWN_HANDLERS["bulletbill"] = function(x: number, y: number, r: {any}, allowenemy: any): any
 	table.insert(rocketlaunchers, rocketlauncher:new(x, y))
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["geldispenser"] = function(x, y, r, allowenemy): any
+ENEMY_SPAWN_HANDLERS["geldispenser"] = function(x: number, y: number, r: {any}, allowenemy: any): any
 	table.insert(objects["geldispenser"], geldispenser:new(x, y, r))
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["upfire"] = function(x, y, r, allowenemy): any
+ENEMY_SPAWN_HANDLERS["upfire"] = function(x: number, y: number, r: {any}, allowenemy: any): any
 	table.insert(objects["upfire"], upfire:new(x, y, r))
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["panel"] = function(x, y, r, allowenemy): any
+ENEMY_SPAWN_HANDLERS["panel"] = function(x: number, y: number, r: {any}, allowenemy: any): any
 	table.insert(objects["panel"], panel:new(x-1, y-1, r))
 	return false
 end
@@ -354,7 +354,7 @@ end
 -- Block-content item() types (enemiesdata[i] remains dynamic fallback).
 ITEM_SPAWN_HANDLERS = {}
 
-ITEM_SPAWN_HANDLERS["powerup"] = function(x, y, size): any
+ITEM_SPAWN_HANDLERS["powerup"] = function(x: number, y: number, size: any): any
 	if size == 1 then
 		table.insert(itemanimations, itemanimation:new(x, y, "mushroom"))
 	else
@@ -362,46 +362,45 @@ ITEM_SPAWN_HANDLERS["powerup"] = function(x, y, size): any
 	end
 end
 
-ITEM_SPAWN_HANDLERS["vine"] = function(x, y, size): any
+ITEM_SPAWN_HANDLERS["vine"] = function(x: number, y: number, size: any): any
 	table.insert(objects["vine"], vine:new(x, y))
 end
 
 global function dispatch_map_entity_spawn(...: any): any
 	local t, x, y, r, createobjects, editormode = ...
-	local early = MAP_SPAWN_EARLY_HANDLERS[t]
+	local early = MAP_SPAWN_EARLY_HANDLERS[t as string]
 	if early then
-		early(x, y, r)
+		early(x as number, y as number, r as {any})
 		return
 	end
 	if createobjects and not editormode then
-		local h = MAP_SPAWN_HANDLERS[t]
+		local h = MAP_SPAWN_HANDLERS[t as string]
 		if h then
-			h(x, y, r)
+			h(x as number, y as number, r as {any})
 		end
 	end
 end
 
 global function dispatch_enemy_entity_spawn(...: any): any
 	local t, x, y, r, allowenemy = ...
-	local h = ENEMY_SPAWN_HANDLERS[t]
+	local h = ENEMY_SPAWN_HANDLERS[t as string] as function(number, number, {any}, any): any
 	if h then
-		return h(x, y, r, allowenemy) and true or false
+		return h(x as number, y as number, r as {any}, allowenemy) and true or false
 	end
 	return false
 end
 
 global function item(...: any): any
 	local i, x, y, size = ...
-	local h = ITEM_SPAWN_HANDLERS[i]
+	local h = ITEM_SPAWN_HANDLERS[i as string] as function(number, number, any): any
 	if h then
-		h(x, y, size)
+		h(x as number, y as number, size)
 	elseif enemiesdata[i] then
-		table.insert(itemanimations, itemanimation:new(x, y, i))
+		table.insert(itemanimations, itemanimation:new(x as number, y as number, i))
 	end
 end
 
-global function count_spawn_handlers(...: any): any
-	local t = ...
+global function count_spawn_handlers(t: {any:any}): any
 	local n = 0
 	for _ in pairs(t) do
 		n = n + 1
