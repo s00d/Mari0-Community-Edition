@@ -3,7 +3,7 @@
 -- Portal facing → second-tile offsets (duplicated across game/physics/mario).
 
 -- Returns xplus, yplus for the "extra" portal block relative to facing.
-local function portal_facing_offset(facing: any)
+local function portal_facing_offset(facing: any): number, number
 	if facing == "up" then
 		return 1, 0
 	elseif facing == "right" then
@@ -19,7 +19,7 @@ _G.portal_facing_offset = portal_facing_offset
 
 
 -- Both portal ends at once (common local unpack pattern).
-local function portal_pair_offsets(facing1: any, facing2: any)
+local function portal_pair_offsets(facing1: any, facing2: any): number, number, number, number
 	local x1, y1 = portal_facing_offset(facing1)
 	local x2, y2 = portal_facing_offset(facing2)
 	return x1, y1, x2, y2

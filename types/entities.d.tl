@@ -93,7 +93,8 @@ global record Character is {any}
 	animations: {any}
 	biganimations: {any}
 	flowercolor: any
-	defaultcolors: any
+	defaultcolors: {integer:{{number}}}
+	defaulthat: any
 	colorables: {any}
 	hatoffsets: any
 	bighatoffsets: any

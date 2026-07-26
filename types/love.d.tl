@@ -98,7 +98,7 @@ global interface Entity is {any}
 	notkilledfromblocksbelow: boolean
 	jumpsfromblocksbelow: boolean
 	jumpforce: number
-	shotted: any
+	shotted: function(Entity, ...: any): any
 	rangex: number
 	rangey: number
 	removeportals: any
@@ -147,7 +147,7 @@ global interface Entity is {any}
 	pickupbox: any
 	savereplaydata: any
 	updaterange: any
-	getTileInvolved: any
+	getTileInvolved: function(Entity, ...: any): any
 	updateangle: any
 	input: any
 	floorcollide: function(Entity, any, Entity, any, any): any
@@ -155,7 +155,7 @@ global interface Entity is {any}
 	rightcollide: function(Entity, any, Entity, any, any): any
 	ceilcollide: function(Entity, any, Entity, any, any): any
 	addoutput: function(Entity, any, any)
-	stomp: any
+	stomp: function(Entity, ...: any): any
 end
 
 -- Minimal LÖVE 11 API surface for Teal (expand as modules need more).

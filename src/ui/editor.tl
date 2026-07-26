@@ -146,7 +146,7 @@ function editor_load()
 	guielements["musicdropdown"] = guielement:new("dropdown", 17, 125, 11, changemusic, musici, unpack(args))
 	guielements["spritesetdropdown"] = guielement:new("dropdown", 17, 150, 11, changespriteset, spriteset, "overworld", "underground", "castle", "underwater")
 	guielements["timelimitdecrease"] = guielement:new("button", 17, 175, "{", decreasetimelimit, 0, nil, nil, nil, true)
-	guielements["timelimitincrease"] = guielement:new("button", 31 + string.len(mariotimelimit)*8, 175, "}", increasetimelimit, 0, nil, nil, nil, true)
+	guielements["timelimitincrease"] = guielement:new("button", 31 + string.len(tostring(mariotimelimit))*8, 175, "}", increasetimelimit, 0, nil, nil, nil, true)
 	
 	local i = 1
 	if portalsavailable[1] and not portalsavailable[2] then
@@ -624,19 +624,19 @@ function editor_update_closed(dt)
 			end
 		end
 	elseif love.mouse.isDown("m") and not middlemode[1] then
-		if math.abs(love.mouse.getX() - middlemode[2]) >= 8*scale or math.abs(love.mouse.getY() - middlemode[3]) >= 8*scale then
+		if (math.abs(love.mouse.getX() - middlemode[2] as number) as number) >= 8*scale or (math.abs(love.mouse.getY() - middlemode[3] as number) as number) >= 8*scale then
 			middlemode[1] = true
 			love.mouse.setVisible(false)
 		end
 	end
 	
 	if middlemode[1] then
-		local xx, yy = love.mouse.getX() - middlemode[2], love.mouse.getY() - middlemode[3]
+		local xx, yy = love.mouse.getX() - (middlemode[2] as number), love.mouse.getY() - (middlemode[3] as number)
 		
-		if math.abs(xx) < 8*scale and math.abs(yy) < 8*scale then
+		if (math.abs(xx) as number) < 8*scale and (math.abs(yy) as number) < 8*scale then
 			--ignore
 		else
-			if math.abs(yy) > math.abs(xx) then
+			if (math.abs(yy) as number) > (math.abs(xx) as number) then
 				xx = 0
 				if yy < 0 then yy = -1 else yy = 1 end
 			else
@@ -650,16 +650,17 @@ function editor_update_closed(dt)
 						break
 					end
 				end
+				local ct = currenttile as number
 				if xx > 0 then
-					currenttile = math.min(currenttile+1, math.ceil(currenttile/22)*22, #enemies)
+					ct = math.min(ct+1, math.ceil(ct/22)*22, #enemies)
 				elseif xx < 0 then
-					currenttile = math.max(currenttile-1, math.ceil(currenttile/22)*22-21, 1)
-				elseif yy > 0 and currenttile+22 <= #enemies then
-					currenttile = currenttile+22
-				elseif yy < 0 and currenttile-22 >= 1 then
-					currenttile = currenttile-22
+					ct = math.max(ct-1, math.ceil(ct/22)*22-21, 1)
+				elseif yy > 0 and ct+22 <= #enemies then
+					ct = ct+22
+				elseif yy < 0 and ct-22 >= 1 then
+					ct = ct-22
 				end
-				currenttile = enemies[currenttile as integer]
+				currenttile = enemies[ct as integer]
 			elseif editentities then
 				local list = 1
 				local id = 1
@@ -684,19 +685,20 @@ function editor_update_closed(dt)
 				end
 				currenttile = entitylistitems[list].entries[id].i
 			else
+				local ct = currenttile as number
 				if xx > 0 then
-					currenttile = math.min(currenttile+1, math.ceil(currenttile/22)*22, tilelistcount+tileliststart)
+					ct = math.min(ct+1, math.ceil(ct/22)*22, tilelistcount+tileliststart)
 				elseif xx < 0 then
-					currenttile = math.max(currenttile-1, math.ceil(currenttile/22)*22-21, tileliststart)
-				elseif yy > 0 and currenttile+22 <= tilelistcount+tileliststart then
-					currenttile = currenttile+22
-				elseif yy < 0 and currenttile-22 >= tileliststart then
-					currenttile = currenttile-22
+					ct = math.max(ct-1, math.ceil(ct/22)*22-21, tileliststart)
+				elseif yy > 0 and ct+22 <= tilelistcount+tileliststart then
+					ct = ct+22
+				elseif yy < 0 and ct-22 >= tileliststart then
+					ct = ct-22
 				end
-				currenttile = math.max(1, currenttile)
+				currenttile = math.max(1, ct)
 				currenttile = math.min(currenttile, smbtilecount + portaltilecount + customtilecount + (modcustomtilecount[modcustomtiles] or 0))
 			end
-			love.mouse.setPosition(middlemode[2], middlemode[3])
+			love.mouse.setPosition(middlemode[2] as number, middlemode[3] as number)
 		end
 	end
 end
@@ -773,7 +775,7 @@ function editor_update_main(dt)
 end
 
 function editor_update_tiles(dt)
-	tilesoffset = guielements["tilesscrollbar"].value * tilescrollbarheight * scale
+	tilesoffset = (guielements["tilesscrollbar"].value as number) * tilescrollbarheight * scale
 	if editentities and not editenemies then
 		local x, y = mouse.getPosition()
 		local tile = getentityhighlight(x, y) as entitylistitem|nil
@@ -796,7 +798,7 @@ function editor_update_tiles(dt)
 end
 
 function editor_update_objects(dt)
-	multitilesoffset = guielements["objectscrollbar"].value * objectscrollbarheight * scale
+	multitilesoffset = (guielements["objectscrollbar"].value as number) * objectscrollbarheight * scale
 	if guielements["renamebar"].active then
 		guielements["renamebar"].y = objectsguiarea[2]+1-multitilesoffset/scale + (guielements["renamebar"].tile*17)
 		-- guielements["renamebar"]:update(dt)
@@ -819,10 +821,10 @@ function editor_draw()
 	editor_draw_chrome()
 end
 
-function editor_draw_overlay(emx, emy)
+function editor_draw_overlay(emx: number, emy: number)
 	if editorstate == "selection" then
 		if selectiondragging or selectionwidth then
-			local x, y, width, height = 0, 0, 0, 0
+			local x, y, width, height: number, number, number, number = 0, 0, 0, 0
 			x, y = selectionx, selectiony
 			if selectiondragging then
 				width, height = emx-selectionx, emy-selectiony
@@ -937,7 +939,11 @@ function editor_draw_overlay(emx, emy)
 					love.graphics.setColor(selectColors)
 					
 					if mtjustsaved > 0 then
-						local r, g, b, a = gradient(selectColors, saveColors, mtjustsaved)
+						local _grad = gradient(selectColors, saveColors, mtjustsaved as number)
+						local r = (_grad[1] or 1) as number
+						local g = (_grad[2] or 1) as number
+						local b = (_grad[3] or 1) as number
+						local a = (_grad[4] or 1) as number
 						love.graphics.setColor(r, g, b, a)
 						
 						mtjustsaved = math.max(mtjustsaved - love.timer.getDelta(), 0)
@@ -959,7 +965,7 @@ function editor_draw_overlay(emx, emy)
 					end
 					local offy = math.ceil(currenttile/22)-1
 					local offx = currenttile-offy*22
-					local cox, coy = getMouseTile(middlemode[2], middlemode[3]-8*scale)
+					local cox, coy = getMouseTile(middlemode[2] as number, (middlemode[3] as number)-8*scale)
 					for i = 1, #enemies do
 						local v = enemiesdata[ enemies[i] ]
 						love.graphics.setColor(1, 1, 1, 0.2)
@@ -991,7 +997,7 @@ function editor_draw_overlay(emx, emy)
 					
 					local offy = list-1
 					local offx = id
-					local cox, coy = getMouseTile(middlemode[2], middlemode[3]-8*scale)
+					local cox, coy = getMouseTile(middlemode[2] as number, (middlemode[3] as number)-8*scale)
 					for i2, v in ipairs(entitylistitems) do
 						for j, w in ipairs(v.entries) do
 							local i = (i2-1)*22+j
@@ -1027,7 +1033,7 @@ function editor_draw_overlay(emx, emy)
 				love.graphics.pop()
 			elseif pastingtiles == false then
 				love.graphics.setColor(1, 1, 1, 0.8)
-				local cox, coy = middlemode[2] as number, middlemode[3] as number
+				local cox, coy = (middlemode[2] as number), (middlemode[3] as number)
 				if love.mouse.isDown("m") then
 					cox, coy = getMouseTile(love.mouse.getX(), love.mouse.getY()-8*scale)
 				end
@@ -1298,7 +1304,7 @@ function editor_draw_status()
 	end
 end
 
-function editor_draw_menu(emx, emy)
+function editor_draw_menu(emx: number, emy: number)
 	if changemapwidthmenu then
 		editor_draw_menu_changewidth()
 		return
@@ -1351,7 +1357,7 @@ function editor_draw_menu_changewidth()
 			if x > -newmapoffsetx and x <= newmapwidth-newmapoffsetx and y > -newmapoffsety and y <= newmapheight-newmapoffsety then
 				local id = map[x][y][1]
 				if id ~= nil and rgblist[id] and id ~= 0 and tilequads[id]:getproperty("invisible", x, y) == false then
-					love.graphics.setColor(unpack(rgblist[id]))
+					love.graphics.setColor(unpack(rgblist[id as number]))
 					love.graphics.rectangle("fill", (mapx+(x-1+newmapoffsetx)*s)*scale, (mapy+(y-1+newmapoffsety)*s)*scale, s*scale, s*scale)
 				end
 			end
@@ -1471,19 +1477,19 @@ function editor_draw_menu_tiles(emx, emy)
 		end
 	end
 	
-	local tile = gettilelistpos(mouse.getX(), mouse.getY())
+	local tile = gettilelistpos(mouse.getX(), mouse.getY()) as number
 	if editentities == false then
 		if tile and tile <= tilelistcount+1 then
-			local hotkey = hasHotkey(1, tile+tileliststart-1+(animatedtilelist and 10000 or 0))
+			local hotkey = hasHotkey(1, (tile as number)+tileliststart-1+(animatedtilelist and 10000 or 0))
 			if hotkey then
 				love.graphics.setColor(1, 0, 0, .5)
 			else
 				love.graphics.setColor(1, 1, 1, 0.5)
 			end
-			love.graphics.rectangle("fill", (5+math.fmod((tile-1), 22)*17)*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset, 16*scale, 16*scale)
+			love.graphics.rectangle("fill", (5+math.fmod(((tile as number)-1), 22)*17)*scale, (38+math.floor(((tile as number)-1)/22)*17)*scale-tilesoffset, 16*scale, 16*scale)
 			if hotkey then
 				love.graphics.setColor(1, 1, 1, 1)
-				properprint(hotkey, (5+math.fmod((tile-1), 22)*17)*scale+7*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset+8*scale)
+				properprint(hotkey, (5+math.fmod(((tile as number)-1), 22)*17)*scale+7*scale, (38+math.floor(((tile as number)-1)/22)*17)*scale-tilesoffset+8*scale)
 			end
 		end
 	elseif editenemies then
@@ -1494,10 +1500,10 @@ function editor_draw_menu_tiles(emx, emy)
 			else
 				love.graphics.setColor(1, 1, 1, 0.5)
 			end
-			love.graphics.rectangle("fill", (5+math.fmod((tile-1), 22)*17)*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset, 16*scale, 16*scale)
+			love.graphics.rectangle("fill", (5+math.fmod(((tile as number)-1), 22)*17)*scale, (38+math.floor(((tile as number)-1)/22)*17)*scale-tilesoffset, 16*scale, 16*scale)
 			if hotkey then
 				love.graphics.setColor(1, 1, 1, 1)
-				properprint(hotkey, (5+math.fmod((tile-1), 22)*17)*scale+7*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset+8*scale)
+				properprint(hotkey, (5+math.fmod(((tile as number)-1), 22)*17)*scale+7*scale, (38+math.floor(((tile as number)-1)/22)*17)*scale-tilesoffset+8*scale)
 			end
 		end
 	end
@@ -1538,7 +1544,7 @@ function editor_draw_menu_tiles(emx, emy)
 			properprint("total time: " .. t, 3*scale, 215*scale)
 		end
 	else
-		if tile and tilequads[tile+tileliststart-1] and tile+tileliststart-1 <= tilelistcount+tileliststart then
+		if tile and tilequads[(tile as number)+tileliststart-1] and (tile as number)+tileliststart-1 <= tilelistcount+tileliststart then
 			--Local variables
 			local propertylist = {"collision", "invisible", "breakable", "coinblock", "coin", "slantupleft", "slantupright", "mirror", "grate", "platform", "water", "bridge", "spikesleft", "spikestop","spikesright", "spikesbottom", "foreground", "big"}
 			local propertytable = {}
@@ -1548,7 +1554,7 @@ function editor_draw_menu_tiles(emx, emy)
 			--2*2 Tile
 			
 			--Unportalable
-			if not tilequads[tile+tileliststart-1]:getproperty("portalable") then
+			if not tilequads[(tile as number)+tileliststart-1]:getproperty("portalable") then
 				table.insert(propertytable, "unportalable")
 				propertycount = propertycount + 10
 				if 12 >= longestpropertylength then
@@ -1557,7 +1563,7 @@ function editor_draw_menu_tiles(emx, emy)
 			end
 			--Properties
 			for i = 1, #propertylist do
-				if tilequads[tile+tileliststart-1]:getproperty(propertylist[i]) then
+				if tilequads[(tile as number)+tileliststart-1]:getproperty(propertylist[i]) then
 					table.insert(propertytable, propertylist[i])
 					propertycount = propertycount + 10
 					if string.len(propertylist[i]) >= longestpropertylength then
@@ -1566,7 +1572,7 @@ function editor_draw_menu_tiles(emx, emy)
 				end
 			end
 			--Eraser
-			if tile+tileliststart-1 == 1 then
+			if (tile as number)+tileliststart-1 == 1 then
 				table.insert(propertytable, "eraser")
 				propertycount = propertycount + 10
 				if 6 >= longestpropertylength then
@@ -1594,7 +1600,7 @@ function editor_draw_menu_tiles(emx, emy)
 				x = 0
 			end
 			--Finally actually draw it
-			properprint("tile id: " .. tile+tileliststart-1, 3*scale, 205*scale)
+			properprint("tile id: " .. (tile as number)+tileliststart-1, 3*scale, 205*scale)
 			properprintbackground(s, x, y, false)
 			properprint(s, x, y)
 		end
@@ -1621,7 +1627,7 @@ function editor_draw_menu_main(emx, emy)
 				local id = lmap[x][y][1]
 				if id ~= nil and id ~= 0 and tilequads[id]:getproperty("invisible", x, y) == false then
 					if rgblist[id] then
-						love.graphics.setColor(unpack(rgblist[id]))
+						love.graphics.setColor(unpack(rgblist[id as number]))
 						love.graphics.rectangle("fill", (minimapx+x*2-minimapscroll*2)*scale, (minimapy+(y+1)*2-(math.floor(yscroll)+1)*2-math.fmod(yscroll, 1)*2)*scale, 2*scale, 2*scale)
 					end
 				end
@@ -1670,7 +1676,7 @@ function editor_draw_menu_maps()
 	end
 	properprint("do not forget to save your current map before|changing!", 5*scale, 120*scale)--]]
 	
-	local scroll = guielements["mapscrollbar"].value * mapsymissing
+	local scroll = (guielements["mapscrollbar"].value as number) * mapsymissing
 	love.graphics.setScissor(mapbuttonarea[1]*scale, mapbuttonarea[2]*scale, (mapbuttonarea[3]-mapbuttonarea[1])*scale, (mapbuttonarea[4]-mapbuttonarea[2])*scale)
 	
 	for i, v in pairs(mapbuttons) do
@@ -1707,7 +1713,7 @@ function editor_draw_menu_animations(emx, emy)
 	if #animations > 0 then
 		love.graphics.setScissor(animationguiarea[1]*scale, animationguiarea[2]*scale, (animationguiarea[3]-animationguiarea[1])*scale, (animationguiarea[4]-animationguiarea[2])*scale)
 		local completeheight = 14+#animationguilines.triggers*13+12+#animationguilines.conditions*13+12+#animationguilines.actions*13
-		local offy = math.max(0, guielements["animationsscrollbarver"].value/1*(completeheight-(animationguiarea[4]-animationguiarea[2])))
+		local offy = math.max(0, (guielements["animationsscrollbarver"].value as number)/1*(completeheight-(animationguiarea[4]-animationguiarea[2])))
 		local completewidth = 0
 		for i, v in pairs(animationguilines) do
 			for k, w in ipairs(v) do
@@ -1721,7 +1727,7 @@ function editor_draw_menu_animations(emx, emy)
 			end
 		end
 		
-		local offx = -math.max(0, guielements["animationsscrollbarhor"].value/1*(completewidth-(animationguiarea[3]-animationguiarea[1])))
+		local offx = -math.max(0, (guielements["animationsscrollbarhor"].value as number)/1*(completewidth-(animationguiarea[3]-animationguiarea[1])))
 		
 		love.graphics.setColor(1, 1, 1)
 		
@@ -2204,12 +2210,12 @@ function generateentitylist()
 	end
 	
 	--sort categories
-	table.sort(entitylistitems, function(a, b) return a.t > b.t end)
+	table.sort(entitylistitems, function(a: entitylistcategory, b: entitylistcategory): boolean return a.t > b.t end)
 	
 	--calculate X and Y positions..
 	local yadd = -3
 	for i, v in ipairs(entitylistitems) do
-		table.sort(v.entries, function(a, b) return a.t < b.t end)
+		table.sort(v.entries, function(a: entitylistitem, b: entitylistitem): boolean return a.t < b.t end)
 		
 		--Category name space
 		yadd = yadd + 14
@@ -2277,7 +2283,7 @@ function updateanimationdropdown()
 	guielements["animationselectdrop"] = guielement:new("dropdown", 15, 20, 15, selectanimation, currentanimation, unpack(args))
 end
 	
-function deleteanimationguiline(t, tabl)
+function deleteanimationguiline(t: string, tabl: animationguiline)
 	for i, v in ipairs((animationguilines[t .. "s"]) as {animationguiline}) do
 		if v == tabl then
 			table.remove(animationguilines[t .. "s"], i)
@@ -2285,7 +2291,7 @@ function deleteanimationguiline(t, tabl)
 	end
 end
 
-function movedownanimationguiline(t, tabl)
+function movedownanimationguiline(t: string, tabl: animationguiline)
 	for i, v in ipairs((animationguilines[t .. "s"]) as {animationguiline}) do
 		if v == tabl then
 			if i ~= #animationguilines[t .. "s"] then
@@ -2296,7 +2302,7 @@ function movedownanimationguiline(t, tabl)
 	end
 end
 
-function moveupanimationguiline(t, tabl)
+function moveupanimationguiline(t: string, tabl: animationguiline)
 	for i, v in ipairs((animationguilines[t .. "s"]) as {animationguiline}) do
 		if v == tabl then
 			if i ~= 1 then
@@ -2490,7 +2496,7 @@ function mapwidthapply()
 			end
 			
 			if tilequads[newmap[x][y][1]]:getproperty("collision", x, y) then
-				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1, 1, 1, true)
+				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1, 1, 1, true) as Entity
 			end
 		end
 	end
@@ -2534,8 +2540,8 @@ function mapwidthapply()
 		for y = 1, mapheight do
 			for i, v in pairs(map[x][y] as {string:any}) do
 				if v == "link" then
-					map[x][y][i+2] = map[x][y][i+2] + newmapoffsetx
-					map[x][y][i+3] = map[x][y][i+3] + newmapoffsety
+					map[x][y][i+2] = (map[x][y][i+2] as number) + newmapoffsetx
+					map[x][y][i+3] = (map[x][y][i+3] as number) + newmapoffsety
 				end
 			end
 		end
@@ -2740,7 +2746,7 @@ function tilesenemies()
 	currenttile = enemies[1]
 end
 
-function placetile(x, y, t, ent, preventMultiTile)
+function placetile(x: number, y: number, t: any, ent: any, preventMultiTile: any)
 	local editentities = ent or editentities
 	local currenttile = t or currenttile
 	local cox, coy = getMouseTile(x, y+8*scale)
@@ -2755,9 +2761,9 @@ function placetile(x, y, t, ent, preventMultiTile)
 			return
 		end
 	
-		if tilequads[currenttile as number]:getproperty("collision") == true and tilequads[map[cox][coy][1]]:getproperty("collision") == false then
-			objects["tile"][tilekey(cox, coy)] = tile:new(cox-1, coy-1, 1, 1, true)
-		elseif tilequads[currenttile as number]:getproperty("collision") == false and tilequads[map[cox][coy][1]]:getproperty("collision") == true then
+		if tilequads[currenttile as number]:getproperty("collision") == true and tilequads[map[cox][coy][1] as number]:getproperty("collision") == false then
+			objects["tile"][tilekey(cox, coy)] = tile:new(cox-1, coy-1, 1, 1, true) as Entity
+		elseif tilequads[currenttile as number]:getproperty("collision") == false and tilequads[map[cox][coy][1] as number]:getproperty("collision") == true then
 			objects["tile"][tilekey(cox, coy)] = nil
 		end
 		if map[cox][coy][1] ~= currenttile then
@@ -2841,7 +2847,7 @@ function editoropen()
 	if mariolivecount == false then
 		guielements["livesincrease"].x = 212 + 24
 	else
-		guielements["livesincrease"].x = 212 + string.len(mariolivecount)*8
+		guielements["livesincrease"].x = 212 + string.len(tostring(mariolivecount))*8
 	end
 	guirepeattimer = 0
 	getmaps()
@@ -2873,7 +2879,7 @@ function mapnumberclick(i, j, k)
 		local needs_to_be_saved = false
 		if k then
 			k = tonumber(k)
-			needs_to_be_saved = loadlevel(i .. "-" .. j .. "_" .. k)
+			needs_to_be_saved = loadlevel(i .. "-" .. j .. "_" .. (k as number))
 		else
 			needs_to_be_saved = loadlevel(i .. "-" .. j)
 		end
@@ -2892,16 +2898,16 @@ function getmaps()
 	local yadd: number = 2
 	local worlds: number = 0
 	local levels: number = 0
-	local sublevels: number | string = 0
+	local sublevels: number = 0
 	local files = love.filesystem.getDirectoryItems("mappacks/" .. mappack)
 	editor_filter_map_files(files)
 	table.sort(files, mapsort)
 	for i = 1, #files do
 		if string.match(files[i], "(%d+)-(%d+).txt") then
 			local ws, ls = string.match(files[i], "(%d+)-(%d+).txt")
-			worlds = tonumber(ws) or 0
-			levels = tonumber(ls) or 0
-			sublevels = "0"
+			worlds = (tonumber(ws) or 0) as number
+			levels = (tonumber(ls) or 0) as number
+			sublevels = 0
 			mapbuttons["text" .. worlds .. "-" .. levels] = guielement:new("text", 4, yadd+21, "world " .. worlds .. "-" .. levels)
 			mapbuttons["text" .. worlds .. "-" .. levels].starty = yadd+21
 			mapbuttons["plus" .. worlds .. "-" .. levels] = guielement:new("button", 62+(string.len(tostring(worlds))+string.len(tostring(levels)))*8, yadd+19, "+", mapnumberclick, 0, {worlds, levels, 1})
@@ -2923,9 +2929,9 @@ function getmaps()
 			end
 		elseif string.match(files[i], "(%d+)-(%d+)_(%d+).txt") then
 			local ws, ls, ss = string.match(files[i], "(%d+)-(%d+)_(%d+).txt")
-			worlds = tonumber(ws) or 0
-			levels = tonumber(ls) or 0
-			sublevels = tonumber(ss) or 0
+			worlds = (tonumber(ws) or 0) as number
+			levels = (tonumber(ls) or 0) as number
+			sublevels = (tonumber(ss) or 0) as number
 			if not mapbuttons["text" .. worlds .. "-" .. levels] then
 				mapbuttons["text" .. worlds .. "-" .. levels] = guielement:new("text", 4, yadd+21, "world " .. worlds .. "-" .. levels, {0.5, 0.5, 0.5})
 				mapbuttons["text" .. worlds .. "-" .. levels].starty = yadd+21
@@ -3057,7 +3063,7 @@ end
 	mapsymissing = math.max(0, yadd-200)
 end]]
 
-function editor_mousepressed(x, y, button)
+function editor_mousepressed(x: number, y: number, button: any)
 	if regiondragging then
 		if (regiondragging as RegionDragging):mousepressed(x, y, button) then
 			finishregion()
@@ -3105,7 +3111,7 @@ function editor_mousepressed(x, y, button)
 	end
 end
 
-function editor_mousepressed_left(x, y)
+function editor_mousepressed_left(x: number, y: number)
 	if editormenuopen == false then
 		if editorstate == "lightdraw" then
 			lightdrawX, lightdrawY = getMouseTile(x, y+8*scale)
@@ -3222,7 +3228,7 @@ function editor_mousepressed_left(x, y)
 		end
 	else
 		if editorstate == "tiles" then
-			local tile = gettilelistpos(x, y)
+			local tile = gettilelistpos(x, y) as number
 			if editentities == false then
 				if tile and tile <= tilelistcount+1 then
 					if animatedtilelist then
@@ -3290,7 +3296,7 @@ function editor_mousepressed_left(x, y)
 						guielements["renamebar"].y = objectsguiarea[2]+1-multitilesoffset/scale + (tile*17)
 						guielements["renamebar"].func = function()
 							if guielements["renamebar"].value ~= "" then
-								guielements["renamebar"].value = string.gsub(guielements["renamebar"].value, "=", " ")
+								guielements["renamebar"].value = string.gsub((guielements["renamebar"].value as string), "=", " ")
 								renameline("mappacks/" .. mappack .. "/objects.txt",tile+1,guielements["renamebar"].value)
 							end
 							guielements["renamebar"].active = false
@@ -3315,7 +3321,7 @@ function editor_mousepressed_left(x, y)
 	end
 end
 
-function editor_mousepressed_wheel_up(x, y)
+function editor_mousepressed_wheel_up(x: number, y: number)
 	if not editormenuopen then
 		if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
 			brush[1] = math.min(brushmax, brush[1]+1)
@@ -3355,7 +3361,7 @@ function editor_mousepressed_wheel_up(x, y)
 				-- end
 			-- end
 		else
-			if currenttile > 0 and currenttile <= 10000 then
+			if (currenttile as number) > 0 and (currenttile as number) <= 10000 then
 				currenttile = currenttile - 1
 				if currenttile == 0 then
 					currenttile = smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0)
@@ -3371,7 +3377,7 @@ function editor_mousepressed_wheel_up(x, y)
 	
 end
 
-function editor_mousepressed_wheel_down(x, y)
+function editor_mousepressed_wheel_down(x: number, y: number)
 	if not editormenuopen then
 		if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
 			brush[1] = math.max(1, brush[1]-1)
@@ -3429,7 +3435,7 @@ function editor_mousepressed_wheel_down(x, y)
 	
 end
 
-function editor_mousepressed_right(x, y)
+function editor_mousepressed_right(x: number, y: number)
 	if editormenuopen == false then
 		local tileX, tileY = getMouseTile(x, y+8*scale)
 		if inmap(tileX, tileY) == false then
@@ -3474,7 +3480,7 @@ function editor_mousepressed_right(x, y)
 end
 
 
-function editor_mousereleased(x, y, button)
+function editor_mousereleased(x: number, y: number, button: any)
 	if regiondragging then
 		if regiondragging:mousereleased(x, y, button) then
 			regiondragging = nil
@@ -3636,7 +3642,7 @@ function editor_keypressed(key)
 		if key == "u" then
 			if editorstate == "tiles" then
 				local x, y = love.mouse.getPosition()
-				local tile = gettilelistpos(x, y)
+				local tile = gettilelistpos(x, y) as number
 				if editentities then
 					-- nothing
 				elseif editmtobjects then
@@ -3664,7 +3670,7 @@ function editor_keypressed(key)
 				if key == tostring(i) then
 					if editorstate == "tiles" then
 						local x, y = love.mouse.getPosition()
-						local tile = gettilelistpos(x, y)
+						local tile = gettilelistpos(x, y) as number
 						if editentities and editenemies then
 							if tile and tile <= #enemies then
 								changeHotKey(i,3,tile)
@@ -3995,13 +4001,13 @@ function decreasetimelimit()
 		mariotimelimit = 0
 	end
 	mariotime = mariotimelimit
-	guielements["timelimitincrease"].x = 31 + string.len(mariotimelimit)*8
+	guielements["timelimitincrease"].x = 31 + string.len(tostring(mariotimelimit))*8
 end
 
 function increasetimelimit()
 	mariotimelimit = mariotimelimit + 10
 	mariotime = mariotimelimit
-	guielements["timelimitincrease"].x = 31 + string.len(mariotimelimit)*8
+	guielements["timelimitincrease"].x = 31 + string.len(tostring(mariotimelimit))*8
 end
 
 function test_level()
@@ -4338,7 +4344,7 @@ function livesincrease()
 	else
 		mariolivecount = mariolivecount + 1
 	end
-	guielements["livesincrease"].x = 212 + string.len(mariolivecount)*8
+	guielements["livesincrease"].x = 212 + string.len(tostring(mariolivecount))*8
 end
 
 function defaultbackground(i)
@@ -4537,7 +4543,7 @@ function removelink(x, y, t)
 	end
 end
 
-function finishlinking(x, y)
+function finishlinking(x: number, y: number)
 	if rightclickactive then
 		local startx, starty = linktoolX, linktoolY
 		local endx, endy = getMouseTile(x, y+8*scale)
@@ -4626,7 +4632,7 @@ function selectionend()
 	selectiondragging = false
 end
 
-function selectiongettiles(x, y, width, height)
+function selectiongettiles(x: number, y: number, width: number, height: number)
 	x, y = round(x), round(y)
 	width, height = round(width), round(height)
 

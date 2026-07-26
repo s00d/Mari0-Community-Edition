@@ -193,7 +193,7 @@ _G.formatscrollnumber = formatscrollnumber
 
 
 -- Normalize drag rect so width/height are non-negative (selection overlay).
-local function editor_normalize_rect(x: any, y: any, width: any, height: any): number, number, number, number
+local function editor_normalize_rect(x: number, y: number, width: number, height: number): number, number, number, number
 	if width < 0 then
 		x = x + width
 		width = -width
@@ -208,7 +208,7 @@ _G.editor_normalize_rect = editor_normalize_rect
 
 
 -- HUD labels for closed-menu editor status strip.
-local function editor_mode_labels(state: any, enemies: any, entities: any, advtool: any): any
+local function editor_mode_labels(state: any, enemies: any, entities: any, advtool: any): string, string|boolean
 	if state == "selection" then
 		return "selection", false
 	end

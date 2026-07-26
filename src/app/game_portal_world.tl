@@ -5,43 +5,43 @@ global function modifyportalwalls(...: any): any
 	for a, b in pairs(portals) do
 		local pb = b as portal
 		for i = 1, 2 do
-			if (pb as {string:any})["x" .. i] then
+			if ((pb as {string:any})["x" .. i] as number) then
 				if (b as {string:any})["facing" .. i] == "up" then
 					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, (b as {string:any})["y" .. i], 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-3"] = portalwall:new((b as {string:any})["x" .. i], (b as {string:any})["y" .. i], 1, 0, true)
+					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 1, 0, true)
+					objects["portalwall"][a .. "-" .. i .. "-3"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 1, 0, true)
 					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new(((b as {string:any})["x" .. i] as number)+1, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
 					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 0, 0, true)
 					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new(((b as {string:any})["x" .. i] as number)+1, ((b as {string:any})["y" .. i] as number)-1, 0, 0, true)
 					
-					modifyportaltiles((b as {string:any})["x" .. i], (b as {string:any})["y" .. i], 1, 0, portals[a], i, "remove")
+					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 1, 0, portals[a], i, "remove")
 				elseif (b as {string:any})["facing" .. i] == "down" then
 					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new(((b as {string:any})["x" .. i] as number)-2, ((b as {string:any})["y" .. i] as number)-1, 1, 0, true)
 					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 1, 0, true)
 					objects["portalwall"][a .. "-" .. i .. "-3"] = portalwall:new(((b as {string:any})["x" .. i] as number)-2, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new((b as {string:any})["x" .. i], ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(((b as {string:any})["x" .. i] as number)-2, (b as {string:any})["y" .. i], 0, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new((b as {string:any})["x" .. i], (b as {string:any})["y" .. i], 0, 0, true)
+					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
+					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(((b as {string:any})["x" .. i] as number)-2, ((b as {string:any})["y" .. i] as number), 0, 0, true)
+					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 0, 0, true)
 					
-					modifyportaltiles((b as {string:any})["x" .. i], (b as {string:any})["y" .. i], -1, 0, portals[a], i, "remove")
+					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), -1, 0, portals[a], i, "remove")
 				elseif (b as {string:any})["facing" .. i] == "left" then
-					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new((b as {string:any})["x" .. i], ((b as {string:any})["y" .. i] as number)-2, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new((b as {string:any})["x" .. i], ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
+					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-2, 0, 1, true)
+					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
 					objects["portalwall"][a .. "-" .. i .. "-3"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-2, 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, (b as {string:any})["y" .. i], 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, (b as {string:any})["y" .. i], 0, 0, true)
+					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 1, 0, true)
+					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 0, 0, true)
 					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-2, 0, 0, true)
 					
-					modifyportaltiles((b as {string:any})["x" .. i], (b as {string:any})["y" .. i], 0, -1, portals[a], i, "remove")
+					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 0, -1, portals[a], i, "remove")
 				elseif (b as {string:any})["facing" .. i] == "right" then
 					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, (b as {string:any})["y" .. i], 0, 1, true)
+					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 0, 1, true)
 					objects["portalwall"][a .. "-" .. i .. "-3"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 1, 0, true)
 					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)+1, 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new((b as {string:any})["x" .. i], ((b as {string:any})["y" .. i] as number)-1, 0, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new((b as {string:any})["x" .. i], ((b as {string:any})["y" .. i] as number)+1, 0, 0, true)
+					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-1, 0, 0, true)
+					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)+1, 0, 0, true)
 					
-					modifyportaltiles((b as {string:any})["x" .. i], (b as {string:any})["y" .. i], 0, 1, portals[a], i, "remove")
+					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 0, 1, portals[a], i, "remove")
 				end
 			end
 		end
@@ -62,8 +62,8 @@ global function modifyportalwalls(...: any): any
 					end
 					--B.J PORTAL WILL REMOVE WALLS OF D.OTHERJ, SO B.OTHERJ MUST EXIST
 					
-					if (b as {string:any})["x" .. j] and (b as {string:any})["x" .. otherj] and (d as {string:any})["x" .. i] then
-						local conside, conx, cony = (b as {string:any})["facing" .. j], (b as {string:any})["x" .. j], (b as {string:any})["y" .. j]
+					if ((b as {string:any})["x" .. j] as number) and ((b as {string:any})["x" .. otherj] as number) and ((d as {string:any})["x" .. i] as number) then
+						local conside, conx, cony = (b as {string:any})["facing" .. j], ((b as {string:any})["x" .. j] as number), ((b as {string:any})["y" .. j] as number)
 						
 						for k = 1, 4 do
 							local w = objects["portalwall"][c .. "-" .. i .. "-" .. k]
@@ -119,15 +119,22 @@ global function modifyportalwalls(...: any): any
 end
 
 global function modifyportaltiles(...: any): any
-	local x, y, xplus, yplus, portal, i, mode = ...
+	local args: {any} = {...}
+	local x = args[1] as number
+	local y = args[2] as number
+	local xplus = args[3] as number
+	local yplus = args[4] as number
+	local portal = args[5] as portal
+	local i = args[6]
+	local mode = args[7]
 	if not x or not y then
 		return
 	end
 	if i == 1 then
 		if portal.facing2 ~= false then
 			if mode == "add" then
-				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
-				objects["tile"][tilekey(x+xplus, y+yplus)] = tile:new(x-1+xplus, y-1+yplus)
+				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
+				objects["tile"][tilekey(x+xplus, y+yplus)] = tile:new(x-1+xplus, y-1+yplus) as Entity
 			else
 				objects["tile"][tilekey(x, y)] = nil
 				objects["tile"][tilekey(x+xplus, y+yplus)] = nil
@@ -136,8 +143,8 @@ global function modifyportaltiles(...: any): any
 	else
 		if portal.facing1 ~= false then
 			if mode == "add" then
-				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
-				objects["tile"][tilekey(x+xplus, y+yplus)] = tile:new(x-1+xplus, y-1+yplus)
+				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
+				objects["tile"][tilekey(x+xplus, y+yplus)] = tile:new(x-1+xplus, y-1+yplus) as Entity
 			else
 				objects["tile"][tilekey(x, y)] = nil
 				objects["tile"][tilekey(x+xplus, y+yplus)] = nil
@@ -147,8 +154,16 @@ global function modifyportaltiles(...: any): any
 end
 
 global function getportalposition(...: any): any...
-	local i, x, y, side, tendency, mirexc = ... --returns the "optimal" position according to the parsed arguments (or false if no possible position was found)
-	local xplus, yplus = 0, 0
+	local args: {any} = {...}
+	local i = args[1]
+	local x = args[2] as number
+	local y = args[3] as number
+	local side = args[4] as string
+	local tendency = args[5]
+	local mirexc = args[6]
+	--returns the "optimal" position according to the parsed arguments (or false if no possible position was found)
+	local xplus: number = 0
+	local yplus: number = 0
 	if side == "up" then
 		yplus = -1
 	elseif side == "right" then
@@ -226,20 +241,20 @@ global function getportalposition(...: any): any...
 	return false
 end
 
-global function getTile(x, y, portalable, portalcheck, facing, ignoregrates, dir, mirexc): any... --returns masktable value of block (As well as the ID itself as second return parameter) also includes a portalcheck and returns false if a portal is on that spot.
+global function getTile(x: number, y: number, portalable: any, portalcheck: any, facing: any, ignoregrates: any, dir: any, mirexc: any): any... --returns masktable value of block (As well as the ID itself as second return parameter) also includes a portalcheck and returns false if a portal is on that spot.
 	if portalcheck then
 		for i, v in pairs(portals) do
 			--Get the extra block of each portal
 			local portal1xplus, portal1yplus, portal2xplus, portal2yplus = portal_pair_offsets(v.facing1, v.facing2)
 			
 			if v.x1 ~= false then
-				if (x == v.x1 or x == v.x1+portal1xplus) and (y == v.y1 or y == v.y1+portal1yplus) and (facing == nil or v.facing1 == facing) then
+				if (x == v.x1 or x == (v.x1 as number)+portal1xplus) and (y == v.y1 or y == (v.y1 as number)+portal1yplus) and (facing == nil or v.facing1 == facing) then
 					return false
 				end
 			end
 		
 			if v.x2 ~= false then
-				if (x == v.x2 or x == v.x2+portal2xplus) and (y == v.y2 or y == v.y2+portal2yplus) and (facing == nil or v.facing2 == facing) then
+				if (x == v.x2 or x == (v.x2 as number)+portal2xplus) and (y == v.y2 or y == (v.y2 as number)+portal2yplus) and (facing == nil or v.facing2 == facing) then
 					return false
 				end
 			end
@@ -282,12 +297,12 @@ global function getTile(x, y, portalable, portalcheck, facing, ignoregrates, dir
 		return false, 1
 	end
 	
-	if tilequads[map[x][y][1]]:getproperty("invisible", x, y) then
+	if tilequads[map[x][y][1] as number]:getproperty("invisible", x, y) then
 		return false
 	end
 	
 	if portalcheck then
-		local side
+		local side: string = ""
 		if facing == "up" then
 			side = "top"
 		elseif facing == "right" then
@@ -311,30 +326,31 @@ global function getTile(x, y, portalable, portalcheck, facing, ignoregrates, dir
 		
 		if map[x][y]["gels"] and map[x][y]["gels"][side] == 3 then
 			return true, map[x][y][1]
-		elseif tilequads[map[x][y][1]]:getproperty("mirror", x, y) and mirexc then
+		elseif tilequads[map[x][y][1] as number]:getproperty("mirror", x, y) and mirexc then
 			return "mirror"
 		else
-			return tilequads[map[x][y][1]]:getproperty("collision", x, y) and tilequads[map[x][y][1]]:getproperty("portalable", x, y) and tilequads[map[x][y][1]]:getproperty("grate", x, y) == false and tilequads[map[x][y][1]]:getproperty("mirror", x, y) == false, map[x][y][1]
+			return tilequads[map[x][y][1] as number]:getproperty("collision", x, y) and tilequads[map[x][y][1] as number]:getproperty("portalable", x, y) and tilequads[map[x][y][1] as number]:getproperty("grate", x, y) == false and tilequads[map[x][y][1] as number]:getproperty("mirror", x, y) == false, map[x][y][1]
 		end
 	else
 		if ignoregrates then
-			return tilequads[map[x][y][1]]:getproperty("collision", x, y) and tilequads[map[x][y][1]]:getproperty("grate", x, y) == false, map[x][y][1]
+			return tilequads[map[x][y][1] as number]:getproperty("collision", x, y) and tilequads[map[x][y][1] as number]:getproperty("grate", x, y) == false, map[x][y][1]
 		else
-			return tilequads[map[x][y][1]]:getproperty("collision", x, y), map[x][y][1]
+			return tilequads[map[x][y][1] as number]:getproperty("collision", x, y), map[x][y][1]
 		end
 	end
 end
 
-global function getPortal(x, y, dir): any... --returns the block where you'd come out when you'd go in the argument's block
+global function getPortal(x: number, y: number, dir: any): any... --returns the block where you'd come out when you'd go in the argument's block
 	for i, v in pairs(portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 			--Get the extra block of each portal
 			local portal1xplus, portal1yplus, portal2xplus, portal2yplus = portal_pair_offsets(v.facing1, v.facing2)
 			
 			if v.x1 ~= false and (not dir or v.facing1 == dir) then
-				if (x == v.x1 or x == v.x1+portal1xplus) and (y == v.y1 or y == v.y1+portal1yplus) and (facing == nil or v.facing1 == facing) then
+				if (x == v.x1 or x == (v.x1 as number)+portal1xplus) and (y == v.y1 or y == (v.y1 as number)+portal1yplus) and (facing == nil or v.facing1 == facing) then
 					if v.facing1 ~= v.facing2 then
-						local xplus, yplus = 0, 0
+						local xplus: number = 0
+						local yplus: number = 0
 						if v.facing1 == "left" or v.facing1 == "right" then
 							if y == v.y1 then
 								if v.facing2 == "left" or v.facing2 == "right" then
@@ -344,7 +360,7 @@ global function getPortal(x, y, dir): any... --returns the block where you'd com
 								end
 							end
 							
-							return v.x2+xplus, v.y2+yplus, v.facing2, v.facing1, v.x2, v.y2, v.x1, v.y1
+							return (v.x2 as number)+xplus, (v.y2 as number)+yplus, v.facing2, v.facing1, v.x2, v.y2, v.x1, v.y1
 						else
 							if x == v.x1 then
 								if v.facing2 == "left" or v.facing2 == "right" then
@@ -354,18 +370,19 @@ global function getPortal(x, y, dir): any... --returns the block where you'd com
 								end
 							end
 							
-							return v.x2+xplus, v.y2+yplus, v.facing2, v.facing1, v.x2, v.y2, v.x1, v.y1
+							return (v.x2 as number)+xplus, (v.y2 as number)+yplus, v.facing2, v.facing1, v.x2, v.y2, v.x1, v.y1
 						end	
 					else
-						return v.x2+(x-v.x1), v.y2+(y-v.y1), v.facing2, v.facing1, v.x2, v.y2, v.x1, v.y1
+						return (v.x2 as number)+(x-(v.x1 as number)), (v.y2 as number)+(y-(v.y1 as number)), v.facing2, v.facing1, v.x2, v.y2, v.x1, v.y1
 					end
 				end
 			end
 		
 			if v.x2 ~= false and (not dir or v.facing2 == dir) then
-				if (x == v.x2 or x == v.x2+portal2xplus) and (y == v.y2 or y == v.y2+portal2yplus) and (facing == nil or v.facing2 == facing) then
+				if (x == v.x2 or x == (v.x2 as number)+portal2xplus) and (y == v.y2 or y == (v.y2 as number)+portal2yplus) and (facing == nil or v.facing2 == facing) then
 					if v.facing1 ~= v.facing2 then
-						local xplus, yplus = 0, 0
+						local xplus: number = 0
+						local yplus: number = 0
 						if v.facing2 == "left" or v.facing2 == "right" then
 							if y == v.y2 then
 								if v.facing1 == "left" or v.facing1 == "right" then
@@ -375,7 +392,7 @@ global function getPortal(x, y, dir): any... --returns the block where you'd com
 								end
 							end
 							
-							return v.x1+xplus, v.y1+yplus, v.facing1, v.facing2, v.x1, v.y1, v.x2, v.y2
+							return (v.x1 as number)+xplus, (v.y1 as number)+yplus, v.facing1, v.facing2, v.x1, v.y1, v.x2, v.y2
 						else
 							if x == v.x2 then
 								if v.facing1 == "left" or v.facing1 == "right" then
@@ -385,10 +402,10 @@ global function getPortal(x, y, dir): any... --returns the block where you'd com
 								end
 							end
 							
-							return v.x1+xplus, v.y1+yplus, v.facing1, v.facing2, v.x1, v.y1, v.x2, v.y2
+							return (v.x1 as number)+xplus, (v.y1 as number)+yplus, v.facing1, v.facing2, v.x1, v.y1, v.x2, v.y2
 						end	
 					else
-						return v.x1+(x-v.x2), v.y1+(y-v.y2), v.facing1, v.facing2, v.x1, v.y1, v.x2, v.y2
+						return (v.x1 as number)+(x-(v.x2 as number)), (v.y1 as number)+(y-(v.y2 as number)), v.facing1, v.facing2, v.x1, v.y1, v.x2, v.y2
 					end
 				end
 			end
@@ -398,7 +415,7 @@ global function getPortal(x, y, dir): any... --returns the block where you'd com
 	return false
 end
 
-global function insideportal(x, y, width, height): any... --returns whether an object is in, and which, portal.
+global function insideportal(x: number, y: number, width: number, height: number): any... --returns whether an object is in, and which, portal.
 	if width == nil then
 		width = 12/16
 	end
@@ -408,18 +425,18 @@ global function insideportal(x, y, width, height): any... --returns whether an o
 	for i, v in pairs(portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 			for j = 1, 2 do				
-				local portalx: any
-				local portaly: any
-				local portalfacing: any
+				local portalx: number = 0
+				local portaly: number = 0
+				local portalfacing: string|boolean = false
 				local xplus: number = 0
 				local yplus: number = 0
 				if j == 1 then
-					portalx = v.x1
-					portaly = v.y1
+					portalx = v.x1 as number
+					portaly = v.y1 as number
 					portalfacing = v.facing1
 				else
-					portalx = v.x2
-					portaly = v.y2
+					portalx = v.x2 as number
+					portaly = v.y2 as number
 					portalfacing = v.facing2
 				end
 				
@@ -463,21 +480,23 @@ global function moveoutportal(): any... --pushes objects out of the portal i in.
 		if i ~= "tile" and i ~= "portalwall" then
 			for j, w in pairs(v) do
 				if w.active and w.static == false then
-					local p1, p2 = insideportal(w.x, w.y, w.width, w.height)
+					local p1: any = nil
+					local p2: any = nil
+					p1, p2 = insideportal(w.x, w.y, w.width, w.height)
 					
 					if p1 ~= false then
 						local portalent = p1 as portal
-						local portalfacing: any
-						local portalx: any
-						local portaly: any
+						local portalfacing: string|boolean = false
+						local portalx: number = 0
+						local portaly: number = 0
 						if p2 == 1 then
 							portalfacing = portalent.facing1
-							portalx = portalent.x1
-							portaly = portalent.y1
+							portalx = portalent.x1 as number
+							portaly = portalent.y1 as number
 						else
 							portalfacing = portalent.facing2
-							portalx = portalent.x2
-							portaly = portalent.y2
+							portalx = portalent.x2 as number
+							portaly = portalent.y2 as number
 						end
 						
 						if portalfacing == "right" then
@@ -497,6 +516,9 @@ global function moveoutportal(): any... --pushes objects out of the portal i in.
 end
 
 global function traceline(...: any): any...
+	local portalx: number = 0
+	local portaly: number = 0
+	local portalfacing: string|boolean = false
 	local sourcex, sourcey, radians, reportal = ...
 	local currentblock: {number} = {}
 	local x, y = sourcex as number, sourcey as number
@@ -527,15 +549,17 @@ global function traceline(...: any): any...
 		return false, false, false, false, x, y
 	end
 	
-	local side
+	local side: string = ""
 	
-	while currentblock[1]+1 > 0 and currentblock[1]+1 <= mapwidth and (flagx == false or currentblock[1]+1 <= flagx or radians > 0) and (axex == false or currentblock[1]+1 <= axex) and (currentblock[2] > 0 or currentblock[2] >= math.floor(sourcey+0.5)) and currentblock[2] < mapheight+1 do --while in map range
+	while currentblock[1]+1 > 0 and currentblock[1]+1 <= mapwidth and (flagx == false or currentblock[1]+1 <= (flagx as number) or radians > 0) and (axex == false or currentblock[1]+1 <= (axex as number)) and (currentblock[2] > 0 or currentblock[2] >= math.floor(sourcey+0.5)) and currentblock[2] < mapheight+1 do --while in map range
 		local oldy = y
 		local oldx = x
 		
 		--calculate X and Y diff..
-		local ydiff, xdiff
-		local side1, side2
+		local ydiff: number = 0
+		local xdiff: number = 0
+		local side1: string = ""
+	local side2: string = ""
 		
 		if inrange(radians, -math.pi/2, math.pi/2, true) then --up
 			ydiff = (y-(currentblock[2]-1)) / math.cos(radians)
@@ -647,13 +671,13 @@ global function checkportalremove(...: any): any...
 		local portal1xplus, portal1yplus, portal2xplus, portal2yplus = portal_pair_offsets(v.facing1, v.facing2)
 		
 		if v.x1 ~= false then
-			if (x == v.x1 or x == v.x1+portal1xplus) and (y == v.y1 or y == v.y1+portal1yplus) then--and (facing == nil or v.facing1 == facing) then
+			if (x == v.x1 or x == (v.x1 as number)+portal1xplus) and (y == v.y1 or y == (v.y1 as number)+portal1yplus) then--and (facing == nil or v.facing1 == facing) then
 				v:removeportal(1)
 			end
 		end
 	
 		if v.x2 ~= false then
-			if (x == v.x2 or x == v.x2+portal2xplus) and (y == v.y2 or y == v.y2+portal2yplus) then--and (facing == nil or v.facing2 == facing) then
+			if (x == v.x2 or x == (v.x2 as number)+portal2xplus) and (y == v.y2 or y == (v.y2 as number)+portal2yplus) then--and (facing == nil or v.facing2 == facing) then
 				v:removeportal(2)
 			end
 		end

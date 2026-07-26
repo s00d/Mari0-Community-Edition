@@ -282,7 +282,7 @@ global record bowser is Entity
 	update: function(bowser, number): any
 	draw: function(bowser)
 	newtargetx: function(bowser, any)
-	shotted: function(bowser, any)
+	shotted: function(Entity, ...: any): any
 	firedeath: function(bowser)
 	leftcollide: function(bowser, any, Entity): any
 	rightcollide: function(bowser, any, Entity): any
@@ -401,8 +401,8 @@ global record bulletbill is Entity
 	y: number
 	init: function(bulletbill, number, number, any)
 	update: function(bulletbill, number): any
-	stomp: function(bulletbill, any)
-	shotted: function(bulletbill, any)
+	stomp: function(Entity, ...: any): any
+	shotted: function(Entity, ...: any): any
 	rightcollide: function(bulletbill, any, Entity): any
 	leftcollide: function(bulletbill, any, Entity): any
 	ceilcollide: function(bulletbill, any, Entity): any
@@ -988,7 +988,7 @@ global record enemy is Entity
 	init: function(enemy, number, number, any, any)
 	update: function(enemy, number): any
 	addoutput: function(enemy, any, any)
-	shotted: function(enemy, any, any, any, any, any)
+	shotted: function(Entity, ...: any): any
 	decodearg: function(enemy, any)
 	customtimeraction: function(enemy, any, any)
 	func: function(enemy, any)
@@ -999,7 +999,7 @@ global record enemy is Entity
 	floorcollide: function(enemy, any, Entity, any, any): any
 	passivecollide: function(enemy, any, Entity, any, any): any
 	startfall: function(enemy)
-	stomp: function(enemy, any, any)
+	stomp: function(Entity, ...: any): any
 	autodeleted: function(enemy)
 	output: function(enemy)
 	addoutput: function(enemy, any, any)
@@ -1372,7 +1372,7 @@ global record guielement is {any}
 	timer: number
 	type: string|number
 	usemousewheel: boolean|number
-	value: any
+	value: number|string
 	var: any
 	width: number
 	width2: number
@@ -1628,7 +1628,7 @@ global record mario is Entity
 	passivemoved: boolean
 	pickup: any
 	platform: any
-	playernumber: number
+	playernumber: integer
 	pointingangle: number
 	portal: any
 	portal1color: {number}
@@ -1980,17 +1980,17 @@ global record portal is Entity
 	category: number
 	mask: {boolean}
 	animationtimer: number
-	facing1: any
-	facing2: any
+	facing1: string|boolean
+	facing2: string|boolean
 	number: number
 	openscale: {number}
 	portal1color: {number}
 	portal2color: {number}
 	portalframe: number
-	x1: any
-	x2: any
-	y1: any
-	y2: any
+	x1: number|boolean
+	x2: number|boolean
+	y1: number|boolean
+	y2: number|boolean
 	init: function(portal, any, any, any)
 	createportal: function(portal, number, any, any, any, any)
 	removeportal: function(portal, number)
@@ -2595,8 +2595,8 @@ global record tile is {any}
 	width: number
 	x: number
 	y: number
-	init: function(tile, number, number, any)
-	new: function(tile, number, number, any): tile
+	init: function(tile, number, number, any, any, any)
+	new: function(tile, number, number, any, any, any): tile
 end
 
 global record vine is Entity

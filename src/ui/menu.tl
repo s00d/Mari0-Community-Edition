@@ -2369,7 +2369,7 @@ global function nextcharacter(...: any): any
 end
 
 global function changecharacter(...: any): any
-	local i = ...
+	local i = (... as integer)
 	mariocharacter[skinningplayer] = characterlist[i]
 	
 	--change colors
