@@ -19,7 +19,7 @@ ifndef LOVE
     || echo love)
 endif
 
-.PHONY: help run play build package clean check snap
+.PHONY: help run play build package clean check snap test test-shaders
 
 .DEFAULT_GOAL := help
 
@@ -29,6 +29,8 @@ help: ## Show this help
 	@echo "  make build        Build $(LOVE_FILE)"
 	@echo "  make package      Alias for build"
 	@echo "  make check        Verify Love binary is available"
+	@echo "  make test         Run Lua regression / lint / helper tests"
+	@echo "  make test-shaders Compile all shaders/*.frag via Love"
 	@echo "  make snap         Build Linux snap (needs snapcraft)"
 	@echo "  make clean        Remove $(DIST)/ and local snap artifacts"
 	@echo ""
@@ -42,6 +44,16 @@ check: ## Verify love can be executed
 		     echo "Install from https://love2d.org or set LOVE=/path/to/love"; \
 		     exit 1; }
 	@"$(LOVE)" --version
+
+test: ## Run pure-Lua test suite (no Love window)
+	@lua tests/run.lua
+
+test-shaders: check ## Compile all .frag shaders under Love
+	@rm -rf "$(DIST)/shader_smoke"
+	@mkdir -p "$(DIST)/shader_smoke/shaders"
+	@cp tests/shader_smoke/main.lua tests/shader_smoke/conf.lua "$(DIST)/shader_smoke/"
+	@cp shaders/*.frag "$(DIST)/shader_smoke/shaders/"
+	@"$(LOVE)" "$(DIST)/shader_smoke"
 
 run: check ## Launch the game from this directory
 	@"$(LOVE)" .
@@ -60,6 +72,7 @@ $(LOVE_FILE):
 		-x './.gitignore' \
 		-x './dist/*' \
 		-x './Makefile' \
+		-x './tests/*' \
 		-x './snap/*' \
 		-x './snap/.snapcraft/*' \
 		-x './parts/*' \

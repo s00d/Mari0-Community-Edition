@@ -294,17 +294,47 @@ function mario:adddata()
 end
 
 function mario:update(dt)
-	if replaysystem then
-		livereplaydelay[self.playernumber] = livereplaydelay[self.playernumber] + dt
-		while livereplaydelay[self.playernumber] >= 1/60 do
-			self:adddata()
-			livereplaydelay[self.playernumber] = livereplaydelay[self.playernumber] - 1/60
-		end
-	end
+	self:update_replay(dt)
 	
 	self.passivemoved = false
 	self.rotation = unrotate(self.rotation, self.gravitydirection, dt)
 	
+	self:update_raccoon_effects(dt)
+	self:update_star(dt)
+	
+	self:update_gravity(dt)
+	
+	if self:update_animation(dt) then
+		return
+	end
+	
+	if noupdate then
+		return
+	end
+	
+	self:update_fire_animation(dt)
+	
+	self:update_funnels(dt)
+
+	if self:update_vine(dt) then
+		return
+	end
+
+	if self:update_springs(dt) then
+		return
+	end
+
+	self:update_world_pickups(dt)
+
+	if self:update_controls(dt) then
+		return
+	end
+
+	self:update_drains(dt)
+end
+
+
+function mario:update_raccoon_effects(dt)
 	--Tailwag!
 	if self.char.raccoon and (self.tailwag or self.tailwagtimer > 0) then
 		if self.tailwagtimer == 0 then
@@ -336,7 +366,9 @@ function mario:update(dt)
 			end
 		end
 	end
-	
+end
+
+function mario:update_star(dt)
 	if self.startimer < mariostarduration and not self.dead then
 		self.startimer = self.startimer + dt
 		self.starblinktimer = self.starblinktimer + dt
@@ -381,30 +413,9 @@ function mario:update(dt)
 			self.startimer = mariostarduration
 		end
 	end
-	
-	if self.jumping then
-		if self.underwater then
-			self.gravity = uwyaccelerationjumping
-		else
-			self.gravity = yaccelerationjumping
-		end
-		
-		if self.speedy > 0 then
-			self.jumping = false
-			self.falling = true
-		end
-	else
-		if self.underwater then
-			self.gravity = uwyacceleration
-		else
-			self.gravity = yacceleration
-		end
-	end
-	
-	if self.size ~= 1 then
-		self.gravitydirection = math.pi/2
-	end
-	
+end
+
+function mario:update_animation(dt)
 	--animationS
 	if self.animation == "animationwalk" then
 		if self.animationmisc == "right" then
@@ -414,7 +425,7 @@ function mario:update(dt)
 		end
 		self:runanimation(dt)
 		self:setquad()
-		return
+		return true
 	elseif self.animation == "pipedown" and self.animationy and self.animationx then
 		self.animationtimer = self.animationtimer + dt
 		if self.animationtimer < pipeanimationtime then
@@ -431,7 +442,7 @@ function mario:update(dt)
 				end
 			end
 		end
-		return
+		return true
 	elseif self.animation == "pipeup" and self.animationy and self.animationx then
 		self.animationtimer = self.animationtimer + dt
 		if self.animationtimer < pipeupdelay then
@@ -448,7 +459,7 @@ function mario:update(dt)
 				self.customscissor = false
 			end
 		end
-		return
+		return true
 	elseif self.animation == "piperight" and self.animationy and self.animationx then
 		self.animationtimer = self.animationtimer + dt
 		if self.animationtimer < pipeanimationtime then
@@ -471,7 +482,7 @@ function mario:update(dt)
 				end
 			end
 		end
-		return
+		return true
 	elseif self.animation == "flag" and flagx then
 		if self.animationtimer < flagdescendtime then 	
 			flagimgy = flagy-10+1/16 + flagydistance * (self.animationtimer/flagdescendtime)
@@ -499,7 +510,7 @@ function mario:update(dt)
 				self.animationdirection = "left"
 				self.x = flagx + 6/16
 			end
-			return
+			return true
 		elseif self.animationtimer < flagdescendtime+flaganimationdelay then
 			self.animationtimer = self.animationtimer + dt
 			
@@ -551,7 +562,7 @@ function mario:update(dt)
 		if castleflagmove then
 			if self.animationtimer < castlemintime then
 				castleflagtime = self.animationtimer
-				return
+				return true
 			end
 			castleflagy = castleflagy - castleflagspeed*dt
 			
@@ -574,7 +585,7 @@ function mario:update(dt)
 			
 			if timedelta > math.max(fireworkcount*fireworkdelay, soundlist["levelend"].source:getDuration()-castleflagtime)+endtime then
 				nextlevel()
-				return
+				return true
 			end
 		end
 		
@@ -585,7 +596,7 @@ function mario:update(dt)
 			self:runanimation(dt)
 			self:setquad()
 		end
-		return
+		return true
 	
 	elseif self.animation == "axe" then
 		self.animationtimer = self.animationtimer + dt
@@ -607,7 +618,7 @@ function mario:update(dt)
 					if tilequads[map[self.animationbridgex][y][1]]:getproperty("bridge", self.animationbridgex, y) then
 						removedtile = true
 						map[self.animationbridgex][y][1] = 1
-						objects["tile"][self.animationbridgex .. "-" .. y] = nil
+						objects["tile"][tilekey(self.animationbridgex, y)] = nil
 					end
 				end
 				
@@ -632,7 +643,7 @@ function mario:update(dt)
 				v.gravity = 27.5
 				playsound("bowserfall")
 				self.animationtimer = 0
-				return
+				return true
 			end
 		end
 		
@@ -704,7 +715,7 @@ function mario:update(dt)
 			self:runanimation(dt)
 			self:setquad()
 		end
-		return
+		return true
 		
 	elseif self.animation == "death" or self.animation == "deathpit" then
 		self.animationtimer = self.animationtimer + dt
@@ -729,7 +740,7 @@ function mario:update(dt)
 			end
 		end
 		
-		return
+		return true
 	elseif self.animation == "intermission" then
 		--Run animation
 		if self.animationstate == "running" then
@@ -737,7 +748,7 @@ function mario:update(dt)
 			self:setquad()
 		end
 		
-		return
+		return true
 		
 	elseif self.animation == "vine" then
 		self.y = self.y - vinemovespeed*dt
@@ -751,7 +762,7 @@ function mario:update(dt)
 		if self.y < -4 then
 			levelscreen_load("vine", self.animationmisc)
 		end
-		return
+		return true
 	elseif self.animation == "vinestart" then
 		self.animationtimer = self.animationtimer + dt
 		if self.vineanimationdropoff == false and self.animationtimer - dt <= vineanimationmariostart and self.animationtimer > vineanimationmariostart then
@@ -785,7 +796,7 @@ function mario:update(dt)
 			self.animation = false
 		end
 		
-		return
+		return true
 	
 	elseif self.animation == "shrink" then
 		self.animationtimer = self.animationtimer + dt
@@ -825,7 +836,7 @@ function mario:update(dt)
 		if self.animationtimer - dt < shrinktime and self.animationtimer > shrinktime then
 			self:goinvincible()
 		end
-		return
+		return true
 	elseif self.animation == "invincible" then
 		self.animationtimer = self.animationtimer + dt
 		
@@ -880,7 +891,7 @@ function mario:update(dt)
 			self.quadcenterX = self.char.bigquadcenterX
 			self.offsetY = self.char.bigoffsetY
 		end
-		return
+		return true
 		
 	elseif self.animation == "grow2" then
 		self.animationtimer = self.animationtimer + dt
@@ -894,20 +905,13 @@ function mario:update(dt)
 			self.animationtimer = 0
 			self.colors = self.char.flowercolor or flowercolor
 		end
-		return
+		return true
 	end
-	
-	if noupdate then
-		return
-	end
-	
-	if self.fireanimationtimer < fireanimationtime then
-		self.fireanimationtimer = self.fireanimationtimer + dt
-		if self.fireanimationtimer > fireanimationtime then
-			self.fireanimationtimer = fireanimationtime
-		end
-	end
-	
+	return false
+end
+
+
+function mario:update_funnels(dt)
 	--Funnels and fuck
 	if self.funnel and not self.infunnel then
 		self:enteredfunnel(true)
@@ -923,7 +927,9 @@ function mario:update(dt)
 	end
 	
 	self.funnel = false
-	
+end
+
+function mario:update_vine(dt)
 	--vine controls and shit
 	if self.vine then
 		self.gravity = 0
@@ -972,9 +978,12 @@ function mario:update(dt)
 		end
 		
 		self:setquad()
-		return
+		return true
 	end
-	
+	return false
+end
+
+function mario:update_springs(dt)
 	--springs
 	if self.spring then
 		self.x = self.springx
@@ -983,9 +992,12 @@ function mario:update(dt)
 		if self.springtimer > springtime then
 			self:leavespring()
 		end
-		return
+		return true
 	end
-	
+	return false
+end
+
+function mario:update_world_pickups(dt)
 	--coins
 	if not editormode then
 		local x = math.floor(self.x+self.width/2)+1
@@ -1024,20 +1036,130 @@ function mario:update(dt)
 	if axex and x == axex and y == axey then
 		self:axe()
 	end
+end
+
+
+function mario:update_replay(dt)
+	if replaysystem then
+		livereplaydelay[self.playernumber] = livereplaydelay[self.playernumber] + dt
+		while livereplaydelay[self.playernumber] >= 1/60 do
+			self:adddata()
+			livereplaydelay[self.playernumber] = livereplaydelay[self.playernumber] - 1/60
+		end
+	end
 	
+end
+
+function mario:update_gravity(dt)
+	if self.jumping then
+		if self.underwater then
+			self.gravity = uwyaccelerationjumping
+		else
+			self.gravity = yaccelerationjumping
+		end
+		
+		if self.speedy > 0 then
+			self.jumping = false
+			self.falling = true
+		end
+	else
+		if self.underwater then
+			self.gravity = uwyacceleration
+		else
+			self.gravity = yacceleration
+		end
+	end
+	
+	if self.size ~= 1 then
+		self.gravitydirection = math.pi/2
+	end
+end
+
+function mario:update_fire_animation(dt)
+	if self.fireanimationtimer < fireanimationtime then
+		self.fireanimationtimer = self.fireanimationtimer + dt
+		if self.fireanimationtimer > fireanimationtime then
+			self.fireanimationtimer = fireanimationtime
+		end
+	end
+end
+
+function mario:update_zones(dt)
+	if firestartx then
+		if self.x >= firestartx - 1 then
+			firestarted = true
+		else
+			--check for all players
+			local disable = true
+			for i = 1, players do
+				if objects["player"][i].x >= firestartx - 1 then
+					disable = false
+				end
+			end
+			
+			if disable then
+				firestarted = false
+			end
+		end
+	end
+	
+	if flyingfishzones and #flyingfishzones > 0 then
+		flyingfishstarted = false
+		for i = 1, #flyingfishzones do
+			local z = flyingfishzones[i]
+			if self.x >= z[1] - 1 and (not z[2] or self.x < z[2] - 1) then
+				flyingfishstarted = true
+				break
+			end
+		end
+	else
+		if flyingfishstartx and self.x >= flyingfishstartx - 1 then
+			flyingfishstarted = true
+		end
+			
+		if flyingfishendx and self.x >= flyingfishendx - 1 then
+			flyingfishstarted = false
+		end
+	end
+	
+	if bulletbillzones and #bulletbillzones > 0 then
+		bulletbillstarted = false
+		for i = 1, #bulletbillzones do
+			local z = bulletbillzones[i]
+			if self.x >= z[1] - 1 and (not z[2] or self.x < z[2] - 1) then
+				bulletbillstarted = true
+				break
+			end
+		end
+	else
+		if bulletbillstartx and self.x >= bulletbillstartx - 1 then
+			bulletbillstarted = true
+		end
+		
+		if bulletbillendx and self.x >= bulletbillendx - 1 then
+			bulletbillstarted = false
+		end
+	end
+	
+	if lakitoendx and self.x >= lakitoendx then
+		lakitoend = true
+	end
+end
+
+function mario:update_controls(dt)
 	if self.controlsenabled then
 		--check for pipe pipe pipe�
 		if inmap(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16)) and downkey(self.playernumber) and self.falling == false and self.jumping == false then
 			local t2 = map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][2]
 			if t2 and entitylist[t2] and entitylist[t2].t == "pipe" then
 				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3]-1))
-				return
+				return true
 			elseif t2 and entitylist[t2] and entitylist[t2].t == "warppipe" then
 				self.animationmisc2 = tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3]) or 1
 				self.animationmisc3 = tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][4]) or 1
 				
 				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", "pipe" .. map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3])
-				return
+				return true
 			end				
 		end
 		
@@ -1139,65 +1261,7 @@ function mario:update(dt)
 			self:flag()
 		end
 		
-		if firestartx then
-			if self.x >= firestartx - 1 then
-				firestarted = true
-			else
-				--check for all players
-				local disable = true
-				for i = 1, players do
-					if objects["player"][i].x >= firestartx - 1 then
-						disable = false
-					end
-				end
-				
-				if disable then
-					firestarted = false
-				end
-			end
-		end
-		
-		if flyingfishzones and #flyingfishzones > 0 then
-			flyingfishstarted = false
-			for i = 1, #flyingfishzones do
-				local z = flyingfishzones[i]
-				if self.x >= z[1] - 1 and (not z[2] or self.x < z[2] - 1) then
-					flyingfishstarted = true
-					break
-				end
-			end
-		else
-			if flyingfishstartx and self.x >= flyingfishstartx - 1 then
-				flyingfishstarted = true
-			end
-				
-			if flyingfishendx and self.x >= flyingfishendx - 1 then
-				flyingfishstarted = false
-			end
-		end
-		
-		if bulletbillzones and #bulletbillzones > 0 then
-			bulletbillstarted = false
-			for i = 1, #bulletbillzones do
-				local z = bulletbillzones[i]
-				if self.x >= z[1] - 1 and (not z[2] or self.x < z[2] - 1) then
-					bulletbillstarted = true
-					break
-				end
-			end
-		else
-			if bulletbillstartx and self.x >= bulletbillstartx - 1 then
-				bulletbillstarted = true
-			end
-			
-			if bulletbillendx and self.x >= bulletbillendx - 1 then
-				bulletbillstarted = false
-			end
-		end
-		
-		if lakitoendx and self.x >= lakitoendx then
-			lakitoend = true
-		end
+		self:update_zones(dt)
 	else
 		if not self.underwater then
 			self:movement(dt)
@@ -1205,7 +1269,10 @@ function mario:update(dt)
 			self:underwatermovement(dt)
 		end
 	end
-	
+	return false
+end
+
+function mario:update_drains(dt)
 	--drains
 	local x = math.floor(self.x+self.width/2)+1
 	
@@ -1857,59 +1924,6 @@ function mario:setquad(anim, s)
 	end
 end
 
-function gethatoffset(char, graphic, animationstate, runframe, jumpframe, climbframe, swimframe, underwater, infunnel, fireanimationtimer, ducking)
-	local hatoffset
-	if graphic == char.animations or graphic == char.nogunanimations then
-		if not char.hatoffsets then
-			return
-		end
-		
-		if infunnel then
-			hatoffset = char.hatoffsets["jumping"][jumpframe]
-		elseif underwater and (animationstate == "jumping" or animationstate == "falling") then
-			hatoffset = char.hatoffsets["swimming"][swimframe]
-		elseif animationstate == "jumping" then
-			hatoffset = char.hatoffsets["jumping"][jumpframe]
-		elseif animationstate == "running" or animationstate == "falling" then
-			hatoffset = char.hatoffsets["running"][runframe]
-		elseif animationstate == "climbing" then
-			hatoffset = char.hatoffsets["climbing"][climbframe]
-		end
-	else
-		if not char.bighatoffsets then
-			return
-		end
-		-- Underwater swim offsets must win over jumping (operator precedence used to pick jumping).
-		if infunnel then
-			hatoffset = char.bighatoffsets["jumping"][jumpframe]
-		elseif underwater and (animationstate == "jumping" or animationstate == "falling") then
-			hatoffset = char.bighatoffsets["swimming"][swimframe]
-		elseif animationstate == "jumping" and not ducking then
-			hatoffset = char.bighatoffsets["jumping"][jumpframe]
-		elseif ducking then
-			hatoffset = char.bighatoffsets["ducking"]
-		elseif fireanimationtimer < fireanimationtime then
-			hatoffset = char.bighatoffsets["fire"]
-		else
-			if animationstate == "running" or animationstate == "falling" then
-				hatoffset = char.bighatoffsets["running"][runframe]
-			elseif animationstate == "climbing" then
-				hatoffset = char.bighatoffsets["climbing"][climbframe]
-			end
-		end
-	end
-	
-	if not hatoffset then
-		if graphic == char.animations or graphic == char.nogunanimations then
-			hatoffset = char.hatoffsets[animationstate]
-		else
-			hatoffset = char.bighatoffsets[animationstate]
-		end
-	end
-	
-	return hatoffset
-end
-
 function mario:jump(force)
 	if ((not noupdate or self.animation == "grow1" or self.animation == "grow2") and self.controlsenabled) or force then
 	
@@ -1980,7 +1994,7 @@ function mario:jump(force)
 					self.jumping = false
 					self.falling = true
 				else
-					self:ceilcollide("tile", objects["tile"][x .. "-" .. y], "player", self)
+					self:ceilcollide("tile", objects["tile"][tilekey(x, y)], "player", self)
 				end
 			end
 		end
@@ -2748,50 +2762,6 @@ function mario:globalcollide(a, b, c, d, dir)
 	end
 end
 
-function twistdirection(gravitydir, dir)
-	if not gravitydir or (gravitydir > math.pi/4*1 and gravitydir <= math.pi/4*3) then
-		if dir == "floor" then
-			return "floor"
-		elseif dir == "left" then
-			return "left"
-		elseif dir == "ceil" then
-			return "ceil"
-		elseif dir == "right" then
-			return "right"
-		end
-	elseif gravitydir > math.pi/4*3 and gravitydir <= math.pi/4*5 then
-		if dir == "floor" then
-			return "left"
-		elseif dir == "left" then
-			return "ceil"
-		elseif dir == "ceil" then
-			return "right"
-		elseif dir == "right" then
-			return "floor"
-		end
-	elseif gravitydir > math.pi/4*5 and gravitydir <= math.pi/4*7 then
-		if dir == "floor" then
-			return "ceil"
-		elseif dir == "left" then
-			return "right"
-		elseif dir == "ceil" then
-			return "floor"
-		elseif dir == "right" then
-			return "left"
-		end
-	else
-		if dir == "floor" then
-			return "right"
-		elseif dir == "left" then
-			return "floor"
-		elseif dir == "ceil" then
-			return "left"
-		elseif dir == "right" then
-			return "ceil"
-		end
-	end
-end
-
 function mario:passivecollide(a, b, c, d)
 	if self:globalcollide(a, b, c, d, "passive") then
 		return false
@@ -3240,7 +3210,7 @@ function destroyblock(x, y)
 	end
 	
 	map[x][y][1] = 1
-	objects["tile"][x .. "-" .. y] = nil
+	objects["tile"][tilekey(x, y)] = nil
 	map[x][y]["gels"] = {}
 	playsound("blockbreak")
 	addpoints(50)
@@ -3413,11 +3383,7 @@ function mario:emancipate(a)
 		end
 	end
 	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(portalprojectiles, v) --remove
-	end
+	remove_indices_desc(portalprojectiles, delete)
 end
 
 function mario:removeportals(i)	

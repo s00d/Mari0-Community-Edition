@@ -43,9 +43,9 @@ function animatedtimer:update(dt)
 		
 		if oldcol ~= props.collision then
 			if props.collision then
-				objects["tile"][self.x .. "-" .. self.y] = tile:new(self.x-1, self.y-1)
+				objects["tile"][tilekey(self.x, self.y)] = tile:new(self.x-1, self.y-1)
 			else
-				objects["tile"][self.x .. "-" .. self.y] = nil
+				objects["tile"][tilekey(self.x, self.y)] = nil
 				checkportalremove(self.x, self.y)
 			end
 		end

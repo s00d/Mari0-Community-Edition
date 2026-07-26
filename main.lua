@@ -230,6 +230,7 @@ end
 function love.load(arg)
 	marioversion = 1107
 	versionstring = "version 1.0se"
+	debugprints = false
 
 	math.mod = math.fmod
 	math.random = love.math.random
@@ -239,6 +240,10 @@ function love.load(arg)
 	lastline = debug.getinfo(1).currentline
 	starttime = love.timer.getTime()
 	totaltime = 0
+	-- Helpers used before the main require block (string:split, round, tablecontains)
+	require "stringutil"
+	require "mathutil"
+	require "tableutil"
 	JSON = require "JSON"
 	require "notice"
 	--Get biggest screen size
@@ -483,15 +488,41 @@ function love.load(arg)
 	
 	require "shaders"
 	require "variables"
+	require "tilekey"
+	require "zones"
+	require "globstate"
+	require "bounceutil"
+	require "listutil"
+	require "updateutil"
+	require "physicslate"
+	require "physicsconvert"
+	require "physicsdir"
+	require "physicsemance"
+	require "maputil"
+	require "playerutil"
+	require "hatutil"
+	require "portalutil"
+	require "scrollutil"
+	require "enemyutil"
+	require "spawnregistry"
+	require "levelio"
+	require "userectutil"
+	require "physicscollision"
+	require "physicscheckrect"
+	require "physicsportal"
+	require "physicshandlegroup"
+	require "physicsupdate"
 	require "sha1"
 	class = require "middleclass"
 	require "camera"
 	
 	require "animatedquad"
 	require "intro"
+	require "menuutil"
 	require "menu"
 	require "levelscreen"
 	require "game"
+	require "editorutil"
 	require "editor"
 	require "animationguiline"
 	require "physics"
@@ -1979,42 +2010,6 @@ end
 -- love.gamepadreleased = love.joystickreleased
 -- love.gamepadaxis = love.joystickaxis
 
-function round(num, idp) --Not by me
-	local mult = 10^(idp or 0)
-	return math.floor(num * mult + 0.5) / mult
-end
-
-function getrainbowcolor(i)
-	local r, g, b
-	if i < 1/6 then
-		r = 1
-		g = i*6
-		b = 0
-	elseif i >= 1/6 and i < 2/6 then
-		r = (1/6-(i-1/6))*6
-		g = 1
-		b = 0
-	elseif i >= 2/6 and i < 3/6 then
-		r = 0
-		g = 1
-		b = (i-2/6)*6
-	elseif i >= 3/6 and i < 4/6 then
-		r = 0
-		g = (1/6-(i-3/6))*6
-		b = 1
-	elseif i >= 4/6 and i < 5/6 then
-		r = (i-4/6)*6
-		g = 0
-		b = 1
-	else
-		r = 1
-		g = 0
-		b = (1/6-(i-5/6))*6
-	end
-	
-	return {r, g, b, 1}
-end
-
 function newRecoloredImage(path, tablein, tableout)
 	local imagedata = love.image.newImageData( path )
 	local width, height = imagedata:getWidth(), imagedata:getHeight()
@@ -2035,28 +2030,6 @@ function newRecoloredImage(path, tablein, tableout)
 	end
 	
 	return love.graphics.newImage(imagedata)
-end
-
-function string:split(delimiter) --Not by me
-	local result = {}
-	local from  = 1
-	local delim_from, delim_to = string.find( self, delimiter, from  )
-	while delim_from do
-		table.insert( result, string.sub( self, from , delim_from-1 ) )
-		from = delim_to + 1
-		delim_from, delim_to = string.find( self, delimiter, from  )
-	end
-	table.insert( result, string.sub( self, from  ) )
-	return result
-end
-
-function tablecontains(t, entry)
-	for i, v in pairs(t) do
-		if v == entry then
-			return true
-		end
-	end
-	return false
 end
 
 function getaveragecolor(imgdata, cox, coy)	
@@ -2450,16 +2423,8 @@ function mouse.getY()
 	end
 end
 
-function dbprint(x) --debugprint, can easily comment out the "print" thing
-	print(x)
-end
-
-function gradient(color1, color2, progress)
-	local ret = {}
-	for i = 1, math.max(#color1, #color2) do
-		local c1 = color1[i] or color2[i]
-		local c2 = color2[i] or color1[i]
-		ret[i] = c1 + (c2-c1)*progress
+function dbprint(x) --debugprint; set debugprints=true to enable
+	if debugprints then
+		print(x)
 	end
-	return ret
 end

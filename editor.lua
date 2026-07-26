@@ -377,6 +377,43 @@ function editor_update(dt)
 		middlemode[2], middlemode[3] = getMouseTile(love.mouse.getX(), love.mouse.getY()-8*scale)
 	end
 	
+	editor_update_rightclick(dt)
+	
+	if changemapwidthmenu then
+		return
+	end
+	
+	editor_update_keyscroll(dt)
+	
+	if regiondragging then
+		if regiondragging:update(dt) then
+			regiondragging = nil
+		end
+		return
+	end
+	
+	editor_update_modifiers()
+	
+	if editormenuopen == false then
+		editor_update_closed(dt)
+	elseif editorstate == "main" then
+		editor_update_main(dt)
+	elseif editorstate == "tiles" then
+		editor_update_tiles(dt)
+	elseif editorstate == "objects" then
+		editor_update_objects(dt)
+	end
+	
+	if animationguilines then
+		for i, v in pairs(animationguilines) do
+			for k, w in pairs(v) do
+				w:update(dt)
+			end
+		end
+	end
+end
+
+function editor_update_rightclick(dt)
 	if rightclickm then
 		rightclickm:update(dt)
 		if rightclicka < 1 then
@@ -387,12 +424,10 @@ function editor_update(dt)
 			rightclicka = math.max(0, rightclicka - dt/linktoolfadeouttime)
 		end
 	end
-	
-	if changemapwidthmenu then
-		return
-	end
-	
-	--key scroll
+end
+
+function editor_update_keyscroll(dt)
+--key scroll
 	if editormenuopen == false then
 		if not (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
 			local xdir = love.keyboard.isDown("left") and -1 or (love.keyboard.isDown("right") and 1 or 0)
@@ -419,20 +454,15 @@ function editor_update(dt)
 			end
 		end
 	end
-	
-	if regiondragging then
-		if regiondragging:update(dt) then
-			regiondragging = nil
-		end
-		return
-	end
-	
+end
+
+function editor_update_modifiers()
 	if love.keyboard.isDown("rctrl") or love.keyboard.isDown("lctrl") then
 		ctrlpressed = true
 	else
 		ctrlpressed = false
 	end
-	
+
 	if love.keyboard.isDown(tileswitcherkey) then
 		tileswitcherpressed = true
 	else
@@ -443,7 +473,6 @@ function editor_update(dt)
 		tileselection = true
 	elseif tileselectionclick1 == true and tileselectionclick2 == true then
 		-- both points selected: keep highlighting the area
-		
 	else
 		tileselection = false
 		tileselectionclick1 = false
@@ -453,159 +482,468 @@ function editor_update(dt)
 		tileselectionclick2x = 0
 		tileselectionclick2y = 0
 	end
-	
-	if editormenuopen == false then
-		if editorstate == "lightdraw" then
-			if love.mouse.isDown("l") then
-				local mousex, mousey = mouse.getPosition()
-				local currentx, currenty = getMouseTile(mousex, mousey+8*scale)
+end
+
+function editor_update_closed(dt)
+	if editorstate == "lightdraw" then
+		if love.mouse.isDown("l") then
+			local mousex, mousey = mouse.getPosition()
+			local currentx, currenty = getMouseTile(mousex, mousey+8*scale)
+			
+			if lightdrawX and (currentx ~= lightdrawX or currenty ~= lightdrawY) then
 				
-				if lightdrawX and (currentx ~= lightdrawX or currenty ~= lightdrawY) then
-					
-					local xdir = 0
-					if currentx > lightdrawX then
-						xdir = 1
-					elseif currentx < lightdrawX then
-						xdir = -1
-					end
-					
-					local ydir = 0
-					if currenty > lightdrawY then
-						ydir = 1
-					elseif currenty < lightdrawY then
-						ydir = -1
-					end
-					
-					--fill in the gaps
-					local x, y = lightdrawX, lightdrawY
-					while x ~= currentx or y ~= currenty do
-						if x ~= currentx then
-							if x < currentx then
-								x = x + 1
-							else
-								x = x - 1
-							end
-						else
-							if y < currenty then
-								y = y + 1
-							else
-								y = y - 1
-							end
-						end
-						table.insert(lightdrawtable, {x=x,y=y})
-					
-						if #lightdrawtable >= 3 then
-							local prevx, prevy = lightdrawtable[#lightdrawtable-2].x, lightdrawtable[#lightdrawtable-2].y
-							local currx, curry = lightdrawtable[#lightdrawtable-1].x, lightdrawtable[#lightdrawtable-1].y
-							local nextx, nexty = lightdrawtable[#lightdrawtable].x, lightdrawtable[#lightdrawtable].y
-							
-							local prev = "up"
-							if prevx < currx then
-								prev = "left"
-								hprev = hprev - 2
-								vprev = 0
-							elseif prevx > currx then
-								prev = "right"
-								hprev = hprev + 2
-								vprev = 0
-							elseif prevy > curry then
-								prev = "down"
-								vprev = vprev + 2
-								hprev = 0
-							else
-								vprev = vprev - 2
-								hprev = 0
-							end
-							
-							local next = "up"
-							if nextx < currx then
-								next = "left"
-							elseif nextx > currx then
-								next = "right"
-							elseif nexty > curry then
-								next = "down"
-							end
-							
-							if advanceddrawtool == "mushroom" then
-								powerlinedrawtable = { --mushroom platform
-								{"down", "up", 65, false},
-								{"left", "right", 22, false, hprev, 0, 20, false, (hprev/math.abs(hprev)), 0, 21, false, hprev-(hprev/math.abs(hprev)), 0, 21},
-								{"right", "left", 20, false, hprev, 0, 22, false, (hprev/math.abs(hprev)), 0, 21, false, hprev-(hprev/math.abs(hprev)), 0, 21},
-								{"down", "right", 21, false, 0, 1, 43},
-								{"down", "left", 21, false, 0, 1, 43}}
-							elseif advanceddrawtool == "powerlines" then
-								powerlinedrawtable = { --powerlines
-								{"up", "down", 43, true},
-								{"down", "up", 43, true},
-								{"left", "right", 44, true},
-								{"right", "left", 44, true},
-								{"up", "right", 45, true},
-								{"right", "up", 45, true},
-								{"right", "down", 46, true},
-								{"down", "right", 46, true},
-								{"down", "left", 47, true},
-								{"left", "down", 47, true},
-								{"left", "up", 48, true},
-								{"up", "left", 48, true}}
-							end
-							
-							local ii
-							for i = 1, #powerlinedrawtable do
-								if prev == powerlinedrawtable[i][1] and next == powerlinedrawtable[i][2] then
-									ii = i
-								end
-							end
-							
-							if powerlinedrawtable[ii] then
-								placetile((currx-xscroll-.5)*16*scale, (curry-yscroll-1)*16*scale, powerlinedrawtable[ii][3], powerlinedrawtable[ii][4] or false)
-								for i = 5, #powerlinedrawtable[ii], 4 do
-									placetile((currx-xscroll-.5+powerlinedrawtable[ii][i])*16*scale, (curry-yscroll-1+powerlinedrawtable[ii][i+1])*16*scale, powerlinedrawtable[ii][i+2] or powerlinedrawtable[ii][3], powerlinedrawtable[ii][1+3] or powerlinedrawtable[ii][4] or false)
-								end
-							end
-						end
-					end
-					
-					lightdrawX = currentx
-					lightdrawY = currenty
+				local xdir = 0
+				if currentx > lightdrawX then
+					xdir = 1
+				elseif currentx < lightdrawX then
+					xdir = -1
 				end
 				
-				return
+				local ydir = 0
+				if currenty > lightdrawY then
+					ydir = 1
+				elseif currenty < lightdrawY then
+					ydir = -1
+				end
+				
+				--fill in the gaps
+				local x, y = lightdrawX, lightdrawY
+				while x ~= currentx or y ~= currenty do
+					if x ~= currentx then
+						if x < currentx then
+							x = x + 1
+						else
+							x = x - 1
+						end
+					else
+						if y < currenty then
+							y = y + 1
+						else
+							y = y - 1
+						end
+					end
+					table.insert(lightdrawtable, {x=x,y=y})
+				
+					if #lightdrawtable >= 3 then
+						local prevx, prevy = lightdrawtable[#lightdrawtable-2].x, lightdrawtable[#lightdrawtable-2].y
+						local currx, curry = lightdrawtable[#lightdrawtable-1].x, lightdrawtable[#lightdrawtable-1].y
+						local nextx, nexty = lightdrawtable[#lightdrawtable].x, lightdrawtable[#lightdrawtable].y
+						
+						local prev = "up"
+						if prevx < currx then
+							prev = "left"
+							hprev = hprev - 2
+							vprev = 0
+						elseif prevx > currx then
+							prev = "right"
+							hprev = hprev + 2
+							vprev = 0
+						elseif prevy > curry then
+							prev = "down"
+							vprev = vprev + 2
+							hprev = 0
+						else
+							vprev = vprev - 2
+							hprev = 0
+						end
+						
+						local next = "up"
+						if nextx < currx then
+							next = "left"
+						elseif nextx > currx then
+							next = "right"
+						elseif nexty > curry then
+							next = "down"
+						end
+						
+						if advanceddrawtool == "mushroom" then
+							powerlinedrawtable = { --mushroom platform
+							{"down", "up", 65, false},
+							{"left", "right", 22, false, hprev, 0, 20, false, (hprev/math.abs(hprev)), 0, 21, false, hprev-(hprev/math.abs(hprev)), 0, 21},
+							{"right", "left", 20, false, hprev, 0, 22, false, (hprev/math.abs(hprev)), 0, 21, false, hprev-(hprev/math.abs(hprev)), 0, 21},
+							{"down", "right", 21, false, 0, 1, 43},
+							{"down", "left", 21, false, 0, 1, 43}}
+						elseif advanceddrawtool == "powerlines" then
+							powerlinedrawtable = { --powerlines
+							{"up", "down", 43, true},
+							{"down", "up", 43, true},
+							{"left", "right", 44, true},
+							{"right", "left", 44, true},
+							{"up", "right", 45, true},
+							{"right", "up", 45, true},
+							{"right", "down", 46, true},
+							{"down", "right", 46, true},
+							{"down", "left", 47, true},
+							{"left", "down", 47, true},
+							{"left", "up", 48, true},
+							{"up", "left", 48, true}}
+						end
+						
+						local ii
+						for i = 1, #powerlinedrawtable do
+							if prev == powerlinedrawtable[i][1] and next == powerlinedrawtable[i][2] then
+								ii = i
+							end
+						end
+						
+						if powerlinedrawtable[ii] then
+							placetile((currx-xscroll-.5)*16*scale, (curry-yscroll-1)*16*scale, powerlinedrawtable[ii][3], powerlinedrawtable[ii][4] or false)
+							for i = 5, #powerlinedrawtable[ii], 4 do
+								placetile((currx-xscroll-.5+powerlinedrawtable[ii][i])*16*scale, (curry-yscroll-1+powerlinedrawtable[ii][i+1])*16*scale, powerlinedrawtable[ii][i+2] or powerlinedrawtable[ii][3], powerlinedrawtable[ii][1+3] or powerlinedrawtable[ii][4] or false)
+							end
+						end
+					end
+				end
+				
+				lightdrawX = currentx
+				lightdrawY = currenty
 			end
-		end
-		
-		if rightclickactive or editorstate == "lightdraw" or editorstate == "selection" then
+			
 			return
 		end
-		
-		if love.mouse.isDown("l") and allowdrag then
-			if not (pastingtiles or tileselection) then
-				local x, y = mouse.getPosition()
-				for t1 = 1, brush[1] do
-					for t2 = 1, brush[2] do
-						placetile(x+(t1-1)*16*scale, y+(t2-1)*16*scale)
-					end
+	end
+	
+	if rightclickactive or editorstate == "lightdraw" or editorstate == "selection" then
+		return
+	end
+	
+	if love.mouse.isDown("l") and allowdrag then
+		if not (pastingtiles or tileselection) then
+			local x, y = mouse.getPosition()
+			for t1 = 1, brush[1] do
+				for t2 = 1, brush[2] do
+					placetile(x+(t1-1)*16*scale, y+(t2-1)*16*scale)
 				end
 			end
-		elseif love.mouse.isDown("m") and not middlemode[1] then
-			if math.abs(love.mouse.getX() - middlemode[2]) >= 8*scale or math.abs(love.mouse.getY() - middlemode[3]) >= 8*scale then
-				middlemode[1] = true
-				love.mouse.setVisible(false)
+		end
+	elseif love.mouse.isDown("m") and not middlemode[1] then
+		if math.abs(love.mouse.getX() - middlemode[2]) >= 8*scale or math.abs(love.mouse.getY() - middlemode[3]) >= 8*scale then
+			middlemode[1] = true
+			love.mouse.setVisible(false)
+		end
+	end
+	
+	if middlemode[1] then
+		local xx, yy = love.mouse.getX() - middlemode[2], love.mouse.getY() - middlemode[3]
+		
+		if math.abs(xx) < 8*scale and math.abs(yy) < 8*scale then
+			--ignore
+		else
+			if math.abs(yy) > math.abs(xx) then
+				xx = 0
+				if yy < 0 then yy = -1 else yy = 1 end
+			else
+				if xx < 0 then xx = -1 else xx = 1 end
+				yy = 0
+			end
+			if editentities and editenemies then
+				for i = 1, #enemies do
+					if enemies[i] == currenttile then
+						currenttile = i
+						break
+					end
+				end
+				if xx > 0 then
+					currenttile = math.min(currenttile+1, math.ceil(currenttile/22)*22, #enemies)
+				elseif xx < 0 then
+					currenttile = math.max(currenttile-1, math.ceil(currenttile/22)*22-21, 1)
+				elseif yy > 0 and currenttile+22 <= #enemies then
+					currenttile = currenttile+22
+				elseif yy < 0 and currenttile-22 >= 1 then
+					currenttile = currenttile-22
+				end
+				currenttile = enemies[currenttile]
+			elseif editentities then
+				local list = 1
+				local id = 1
+				for i, v in ipairs(entitylistitems) do
+					for j, w in ipairs(v.entries) do
+						if w.i == currenttile then
+							list = i
+							id = j
+						end
+					end
+				end
+				if xx > 0 then
+					id = math.min(id+1, #entitylistitems[list].entries)
+				elseif xx < 0 then
+					id = math.max(1, id-1)
+				elseif yy > 0 then
+					list = math.min(list+1, #entitylistitems)
+					id = math.min(id, #entitylistitems[list].entries)
+				elseif yy < 0 then
+					list = math.max(list-1, 1)
+					id = math.min(id, #entitylistitems[list].entries)
+				end
+				currenttile = entitylistitems[list].entries[id].i
+			else
+				if xx > 0 then
+					currenttile = math.min(currenttile+1, math.ceil(currenttile/22)*22, tilelistcount+tileliststart)
+				elseif xx < 0 then
+					currenttile = math.max(currenttile-1, math.ceil(currenttile/22)*22-21, tileliststart)
+				elseif yy > 0 and currenttile+22 <= tilelistcount+tileliststart then
+					currenttile = currenttile+22
+				elseif yy < 0 and currenttile-22 >= tileliststart then
+					currenttile = currenttile-22
+				end
+				currenttile = math.max(1, currenttile)
+				currenttile = math.min(currenttile, smbtilecount + portaltilecount + customtilecount + (modcustomtilecount[modcustomtiles] or 0))
+			end
+			love.mouse.setPosition(middlemode[2], middlemode[3])
+		end
+	end
+end
+
+function editor_update_main(dt)
+	if love.mouse.isDown("l") then
+		local mousex, mousey = mouse.getPosition()
+		if mousey >= minimapy*scale and mousey < (minimapy+minimapheight*2+4)*scale then
+			if mousex >= minimapx*scale and mousex < (minimapx+394)*scale then
+				--HORIZONTAL
+				if mousex < (minimapx+width)*scale then
+					if minimapscroll > 0 then
+						minimapscroll = minimapscroll - minimapscrollspeed*dt
+						if minimapscroll < 0 then
+							minimapscroll = 0
+						end
+					end
+				elseif mousex >= (minimapx+394-width)*scale then
+					if minimapscroll < mapwidth-width-170 then
+						minimapscroll = minimapscroll + minimapscrollspeed*dt
+						if minimapscroll > mapwidth-width-170 then
+							minimapscroll = mapwidth-width-170
+						end
+					end
+				end
+				
+				splitxscroll[1] = editor_minimap_xscroll_from_mouse(mousex, scale, width, minimapscroll)
+				if splitxscroll[1] > mapwidth-width then
+					splitxscroll[1] = mapwidth-width
+				end
+
+				--SPRITEBATCH UPDATE
+				if math.floor(splitxscroll[1]) ~= spritebatchX[1] then
+					spritebatchX[1] = math.floor(splitxscroll[1])
+				end
+				generatespritebatch()
+				
+				--VERTICAL
+				if mousey < (minimapy+5)*scale then
+					if yscroll > 0 then
+						yscroll = yscroll - minimapscrollspeed*dt
+						if yscroll < 0 then
+							yscroll = 0
+						end
+					end
+				elseif mousey >= (minimapy+minimapheight*2+4-5)*scale then
+					if yscroll < mapheight-height then
+						yscroll = yscroll + minimapscrollspeed*dt
+						if yscroll > mapheight-height-1 then
+							yscroll = mapheight-height-1
+						end
+					end
+				end
+			
+				xscroll = editor_minimap_xscroll_from_mouse(mousex, scale, width, minimapscroll)
+				if xscroll > mapwidth-width then
+					xscroll = mapwidth-width
+				end
+
+				--SPRITEBATCH UPDATE
+				if math.floor(xscroll) ~= spritebatchX[1] then
+					spritebatchX[1] = math.floor(xscroll)
+				elseif math.floor(yscroll) ~= spritebatchY[1] then
+					spritebatchY[1] = math.floor(yscroll)
+				end
+				generatespritebatch()
 			end
 		end
 		
-		if middlemode[1] then
-			local xx, yy = love.mouse.getX() - middlemode[2], love.mouse.getY() - middlemode[3]
+		updatescrollfactor()
+		updatefscrollfactor()
+		updatebackground()
+	end
+end
+
+function editor_update_tiles(dt)
+	tilesoffset = guielements["tilesscrollbar"].value * tilescrollbarheight * scale
+	if editentities and not editenemies then
+		local x, y = mouse.getPosition()
+		local tile = getentityhighlight(x, y)
+		
+		if tile ~= prevtile then
+			if tile and tooltipimages[tile.i] then
+				entitytooltipobject = entitytooltip:new(tile)
+			end
+		end
+		
+		if tile and tooltipimages[tile.i] then
+			entitytooltipobject:update(dt)
+			tooltipa = math.min(255, tooltipa + dt*4000)
+		else
+			tooltipa = math.max(-1000, tooltipa - dt*4000)
+		end
+		
+		prevtile = tile
+	end
+end
+
+function editor_update_objects(dt)
+	multitilesoffset = guielements["objectscrollbar"].value * objectscrollbarheight * scale
+	if guielements["renamebar"].active then
+		guielements["renamebar"].y = objectsguiarea[2]+1-multitilesoffset/scale + (guielements["renamebar"].tile*17)
+		-- guielements["renamebar"]:update(dt)
+	end
+end
+
+function editor_draw()
+	love.graphics.setColor(1, 1, 1)
+
+	local mousex, mousey = mouse.getPosition()
+
+	if editormenuopen == false then
+		editor_draw_overlay(mousex, mousey)
+		editor_draw_linking(mousex, mousey)
+		editor_draw_status()
+	else
+		editor_draw_menu(mousex, mousey)
+	end
+
+	editor_draw_chrome()
+end
+
+function editor_draw_overlay(mousex, mousey)
+	if editorstate == "selection" then
+		if selectiondragging or selectionwidth then
+			local x, y, width, height
 			
-			if math.abs(xx) < 8*scale and math.abs(yy) < 8*scale then
-				--ignore
+			x, y = selectionx, selectiony
+			if selectiondragging then
+				width, height = mousex-selectionx, mousey-selectiony
 			else
-				if math.abs(yy) > math.abs(xx) then
-					xx = 0
-					if yy < 0 then yy = -1 else yy = 1 end
-				else
-					if xx < 0 then xx = -1 else xx = 1 end
-					yy = 0
+				width, height = selectionwidth, selectionheight
+			end
+			x, y, width, height = editor_normalize_rect(x, y, width, height)
+			
+			if selectiondragging then
+				drawrectangle(x/scale, y/scale, width/scale, height/scale)
+			end
+			
+			local selectionlist = selectiongettiles(x, y, width, height)
+			
+			love.graphics.setColor(1, 1, 1, 0.4)
+			for i = 1, #selectionlist do
+				local v = selectionlist[i]
+				if map[v.x][v.y][2] and entitylist[map[v.x][v.y][2]] and rightclickmenues[entitylist[map[v.x][v.y][2]].t] then
+					love.graphics.rectangle("fill", (v.x-xscroll-1)*16*scale, (v.y-yscroll-1.5)*16*scale, 16*scale, 16*scale)
 				end
+			end
+		end
+		
+	elseif not rightclickactive and not rightclickm and editorstate ~= "lightdraw" and not regiondragging then
+		local x, y = getMouseTile(mouse.getX(), mouse.getY()-8*scale)
+		
+		if inmap(x, y+1) then
+			
+			if pastingtiles then
+				-- draw mtclipboard
+					for i, v in ipairs(mtclipboard) do
+						for j, w in ipairs(v) do
+							--w = tonumber(w)
+							local quad = tilequads[w]:quad() --[[tilequads[w].quad]]
+							if w == 1 and pastemode == false then 
+								-- well, do nothing
+								-- or better: draw empty tiles almost transparent
+								love.graphics.setColor(1, 1, 1, 0.03)
+								love.graphics.draw(tilequads[w].image, quad, math.floor((x-xscroll-1 + pastecenter[1])*16*scale+(i-1)*16*scale), ((y-yscroll-1 + pastecenter[2])*16+8)*scale+((j-1)*16*scale), 0, scale, scale)
+							else
+								love.graphics.setColor(1, 1, 1, 0.3)
+								love.graphics.draw(tilequads[w].image, quad, math.floor((x-xscroll-1 + pastecenter[1])*16*scale+(i-1)*16*scale), ((y-yscroll-1 + pastecenter[2])*16+8)*scale+((j-1)*16*scale), 0, scale, scale)
+							end
+						end
+					end
+				--end
+			end
+			
+			love.graphics.setColor(1, 1, 1, 0.8)
+			if tileswitcherpressed then
+				-- draw temporal overlay for all the tiles that will be switched
+				
+				local cox, coy = getMouseTile(love.mouse.getX(), love.mouse.getY()+8*scale)
+
+				-- now replace everything thats == map[cox][coy][1] to: currenttile
+				local mousetile = map[cox][coy][1]
+				for i, v in ipairs(map) do
+					for j, w in ipairs(v) do
+						local quad = tilequads[currenttile]:quad() --[[tilequads[w].quad]]
+						if w[1] == mousetile then
+							--print(i,j,w[1],"SWITCHED")
+							love.graphics.draw(tilequads[currenttile].image, quad, (i-1)*16*scale-xscroll*16*scale, (((j-1)*16*scale)-8*scale)-yscroll*16*scale, 0, scale, scale)
+						end
+					end
+				end
+				
+				
+				
+			elseif tileselection then
+				if tileselectionclick1 == false then
+					if pastingtiles == false then
+						-- no clicks yet - draw layer on single block
+						love.graphics.setColor(0.5, 1, 0.5, 0.3)
+						love.graphics.rectangle("fill",math.floor((x-xscroll-1)*16*scale), (((y-1)*16+8)*scale)-yscroll*16*scale, 16*scale, 16*scale)
+					end
+				elseif tileselectionclick2 == false then
+					-- first click done - draw area: click1xy->mousexy
+					local lx1, ly1
+					lx1 = math.min(tileselectionclick1x, x)
+					ly1 = math.min(tileselectionclick1y, y)
+					
+					love.graphics.setColor(0.44,0.44,1,0.44)
+					love.graphics.rectangle("fill",math.floor((lx1-xscroll-1)*16*scale), (((ly1-1)*16+8)*scale)-yscroll*16*scale, (math.max(tileselectionclick1x, x)-lx1)*16*scale+16*scale, (math.max(tileselectionclick1y, y)-ly1)*16*scale+16*scale)
+				else
+					-- two clicks done
+					local lx1, ly1, lx2, ly2
+					lx1 = math.min(tileselectionclick1x, tileselectionclick2x)
+					ly1 = math.min(tileselectionclick1y, tileselectionclick2y)
+					lx2 = math.max(tileselectionclick1x, tileselectionclick2x)
+					ly2 = math.max(tileselectionclick1y, tileselectionclick2y)
+					
+					-- Laziness or cleverness?
+					local px, py = math.floor((lx1-xscroll-1)*16*scale), ((ly1-yscroll-1)*16+8)*scale
+					local pw, ph = (lx2-lx1)*16*scale+16*scale, (ly2-ly1)*16*scale+16*scale
+					
+					love.graphics.setColor(0.67,1,0.67,0.7)
+					local timeOscilator = love.timer.getTime() % 2
+					timeOscilator = 1 - math.abs( math.cos(timeOscilator * math.pi) )
+					
+					-- Highlight thing
+					love.graphics.rectangle("fill", px - (2 + timeOscilator*3)*scale, py - (2 + timeOscilator*3)*scale, 5*scale, scale)
+					love.graphics.rectangle("fill", px - (2 + timeOscilator*3)*scale, py - (1 + timeOscilator*3)*scale, scale, 4*scale)
+					love.graphics.rectangle("fill", px + pw + (2 + timeOscilator*3 - 5)*scale, py - (2 + timeOscilator*3)*scale, 5*scale, scale)
+					love.graphics.rectangle("fill", px + pw + (1 + timeOscilator*3)*scale, py - (1 + timeOscilator*3)*scale, scale, 4*scale)
+					love.graphics.rectangle("fill", px - (2 + timeOscilator*3)*scale, py + ph + (1 + timeOscilator*3)*scale, 5*scale, scale)
+					love.graphics.rectangle("fill", px - (2 + timeOscilator*3)*scale, py + ph + (1 + timeOscilator*3 - 4)*scale, scale, 4*scale)
+					love.graphics.rectangle("fill", px + pw + (2 + timeOscilator*3 - 5)*scale, py + ph + (1 + timeOscilator*3)*scale, 5*scale, scale)
+					love.graphics.rectangle("fill", px + pw + (1 + timeOscilator*3)*scale, py + ph + (1 + timeOscilator*3 - 4)*scale, scale, 4*scale)
+					
+					local saveColors = {1, 0.44, 0.44, 0.7}
+					local selectColors = {0.67, 1, 0.67, 0.3}
+					love.graphics.setColor(selectColors)
+					
+					if mtjustsaved > 0 then
+						local r, g, b, a = gradient(selectColors, saveColors, mtjustsaved)
+						love.graphics.setColor(r, g, b, a)
+						
+						mtjustsaved = math.max(mtjustsaved - love.timer.getDelta(), 0)
+						if mtjustsaved == 0 then -- Negative 0 thing
+							mtjustsaved = 0
+						end
+					end
+					love.graphics.rectangle("fill", px, py, pw, ph)
+				end
+			elseif middlemode[1] then
+				love.graphics.push()
+				love.graphics.translate(-xscroll*16*scale, -yscroll*16*scale)
 				if editentities and editenemies then
 					for i = 1, #enemies do
 						if enemies[i] == currenttile then
@@ -613,19 +951,46 @@ function editor_update(dt)
 							break
 						end
 					end
-					if xx > 0 then
-						currenttile = math.min(currenttile+1, math.ceil(currenttile/22)*22, #enemies)
-					elseif xx < 0 then
-						currenttile = math.max(currenttile-1, math.ceil(currenttile/22)*22-21, 1)
-					elseif yy > 0 and currenttile+22 <= #enemies then
-						currenttile = currenttile+22
-					elseif yy < 0 and currenttile-22 >= 1 then
-						currenttile = currenttile-22
+					local offy = math.ceil(currenttile/22)-1
+					local offx = currenttile-offy*22
+					local cox, coy = getMouseTile(middlemode[2], middlemode[3]-8*scale)
+					for i = 1, #enemies do
+						local v = enemiesdata[ enemies[i] ]
+						love.graphics.setColor(1, 1, 1, 0.2)
+						if i == currenttile then
+							love.graphics.setColor(1, 1, 1, 0.8)
+						end
+						
+						local t = "setStencil"
+						local action = nil
+						local int = nil
+						
+						if loveVersion > 9 then
+							t = "stencil"
+							action = "replace"
+							int = 1
+						end
+						love.graphics[t](function() love.graphics.rectangle("fill", (math.mod((i-1), 22)-offx)*17*scale+cox*16*scale+scale, (math.floor((i-1)/22)-offy)*17*scale+coy*16*scale-8*scale, 16*scale, 16*scale) end, action, int)
+						
+						if loveVersion > 9 then
+							love.graphics.setStencilTest("greater", 0)
+						end
+						love.graphics.draw(v.graphic, v.quad, (math.mod((i-1), 22)-offx)*17*scale+cox*16*scale+scale, (math.floor((i-1)/22)-offy)*17*scale+coy*16*scale-8*scale, 0, scale, scale)
+						
+						if loveVersion > 9 then
+							love.graphics.setStencilTest()
+						else
+							love.graphics.setStencil()
+						end
+						
+						if i == currenttile then
+							love.graphics.setColor(1, 0, 0, 0.6)
+							drawrectangle((math.mod((i-1), 22)-offx)*17+cox*16, (math.floor((i-1)/22)-offy)*17+coy*16-9, 18, 18)
+						end
 					end
 					currenttile = enemies[currenttile]
 				elseif editentities then
-					local list = 1
-					local id = 1
+					local list, id = 1, 1
 					for i, v in ipairs(entitylistitems) do
 						for j, w in ipairs(v.entries) do
 							if w.i == currenttile then
@@ -634,1178 +999,857 @@ function editor_update(dt)
 							end
 						end
 					end
-					if xx > 0 then
-						id = math.min(id+1, #entitylistitems[list].entries)
-					elseif xx < 0 then
-						id = math.max(1, id-1)
-					elseif yy > 0 then
-						list = math.min(list+1, #entitylistitems)
-						id = math.min(id, #entitylistitems[list].entries)
-					elseif yy < 0 then
-						list = math.max(list-1, 1)
-						id = math.min(id, #entitylistitems[list].entries)
+					
+					local offy = list-1
+					local offx = id
+					local cox, coy = getMouseTile(middlemode[2], middlemode[3]-8*scale)
+					for i2, v in ipairs(entitylistitems) do
+						for j, w in ipairs(v.entries) do
+							local i = (i2-1)*22+j
+							love.graphics.setColor(1, 1, 1, 0.2)
+							if w.i == currenttile then
+								love.graphics.setColor(1, 1, 1, 0.8)
+							end
+							love.graphics.draw(entityquads[w.i].image, entityquads[w.i].quad, (math.mod((i-1), 22)-offx)*17*scale+cox*16*scale+scale, (math.floor((i-1)/22)-offy)*17*scale+coy*16*scale-8*scale, 0, scale, scale)
+							if w.i == currenttile then
+								love.graphics.setColor(1, 0, 0, 0.6)
+								drawrectangle((math.mod((i-1), 22)-offx)*17+cox*16, (math.floor((i-1)/22)-offy)*17+coy*16-9, 18, 18)
+							end
+						end
 					end
-					currenttile = entitylistitems[list].entries[id].i
 				else
-					if xx > 0 then
-						currenttile = math.min(currenttile+1, math.ceil(currenttile/22)*22, tilelistcount+tileliststart)
-					elseif xx < 0 then
-						currenttile = math.max(currenttile-1, math.ceil(currenttile/22)*22-21, tileliststart)
-					elseif yy > 0 and currenttile+22 <= tilelistcount+tileliststart then
-						currenttile = currenttile+22
-					elseif yy < 0 and currenttile-22 >= tileliststart then
-						currenttile = currenttile-22
+					local offy = math.ceil(currenttile/22)-1
+					local offx = currenttile-offy*22
+					local cox, coy = getMouseTile(middlemode[2], middlemode[3]-8*scale)
+					for a = 1, tilelistcount+1 do
+						local i = a+tileliststart-1
+						love.graphics.setColor(1, 1, 1, 0.2)
+						if i == currenttile then
+							love.graphics.setColor(1, 1, 1, 0.8)
+						end
+						love.graphics.draw(tilequads[i].image, tilequads[i]:quad(), (math.mod((i-1), 22)-offx)*17*scale+cox*16*scale+scale, (math.floor((i-1)/22)-offy)*17*scale+coy*16*scale-8*scale, 0, scale, scale)
+						if i == currenttile then
+							love.graphics.setColor(1, 0, 0, 0.6)
+							drawrectangle((math.mod((i-1), 22)-offx)*17+cox*16, (math.floor((i-1)/22)-offy)*17+coy*16-9, 18, 18)
+						end
 					end
-					currenttile = math.max(1, currenttile)
-					currenttile = math.min(currenttile, smbtilecount + portaltilecount + customtilecount + (modcustomtilecount[modcustomtiles] or 0))
 				end
-				love.mouse.setPosition(middlemode[2], middlemode[3])
-			end
-		end
-	elseif editorstate == "main" then
-		if love.mouse.isDown("l") then
-			local mousex, mousey = mouse.getPosition()
-			if mousey >= minimapy*scale and mousey < (minimapy+minimapheight*2+4)*scale then
-				if mousex >= minimapx*scale and mousex < (minimapx+394)*scale then
-					--HORIZONTAL
-					if mousex < (minimapx+width)*scale then
-						if minimapscroll > 0 then
-							minimapscroll = minimapscroll - minimapscrollspeed*dt
-							if minimapscroll < 0 then
-								minimapscroll = 0
-							end
-						end
-					elseif mousex >= (minimapx+394-width)*scale then
-						if minimapscroll < mapwidth-width-170 then
-							minimapscroll = minimapscroll + minimapscrollspeed*dt
-							if minimapscroll > mapwidth-width-170 then
-								minimapscroll = mapwidth-width-170
-							end
+				love.graphics.pop()
+			elseif pastingtiles == false then
+				love.graphics.setColor(1, 1, 1, 0.8)
+				local cox, coy = middlemode[2], middlemode[3]
+				if love.mouse.isDown("m") then
+					cox, coy = getMouseTile(love.mouse.getX(), love.mouse.getY()-8*scale)
+				end
+				if editentities == false then
+					local quad = tilequads[currenttile]:quad()
+					if currenttile > 10000 then
+						quad = tilequads[currenttile]:quad()
+					end
+					for t1 = 1, brush[1] do
+						for t2 = 1, brush[2] do
+							love.graphics.draw(tilequads[currenttile].image, quad, math.floor((cox-xscroll-1+(t1-1))*16*scale), math.floor(((coy-yscroll-1+(t2-1))*16+8)*scale), 0, scale, scale)
 						end
 					end
-					
-					splitxscroll[1] = (mousex/scale-3-width) / 2 + minimapscroll
-					
-					if splitxscroll[1] < minimapscroll then
-						splitxscroll[1] = minimapscroll
-					end
-					if splitxscroll[1] > 170 + minimapscroll then
-						splitxscroll[1] = 170 + minimapscroll
-					end
-					if splitxscroll[1] > mapwidth-width then
-						splitxscroll[1] = mapwidth-width
-					end
-	
-					--SPRITEBATCH UPDATE
-					if math.floor(splitxscroll[1]) ~= spritebatchX[1] then
-						spritebatchX[1] = math.floor(splitxscroll[1])
-					end
-					generatespritebatch()
-					
-					--VERTICAL
-					if mousey < (minimapy+5)*scale then
-						if yscroll > 0 then
-							yscroll = yscroll - minimapscrollspeed*dt
-							if yscroll < 0 then
-								yscroll = 0
-							end
-						end
-					elseif mousey >= (minimapy+minimapheight*2+4-5)*scale then
-						if yscroll < mapheight-height then
-							yscroll = yscroll + minimapscrollspeed*dt
-							if yscroll > mapheight-height-1 then
-								yscroll = mapheight-height-1
-							end
+				elseif editenemies == false then
+					for t1 = 1, brush[1] do
+						for t2 = 1, brush[2] do
+							love.graphics.draw(entityquads[currenttile].image, entityquads[currenttile].quad, math.floor((cox-xscroll-1+(t1-1))*16*scale), math.floor(((coy-yscroll-1+(t2-1))*16+8)*scale), 0, scale, scale)
 						end
 					end
-				
-					xscroll = (mousex/scale-3-width) / 2 + minimapscroll
-					
-					if xscroll < minimapscroll then
-						xscroll = minimapscroll
+				else
+					local v = enemiesdata[currenttile]
+					local xoff, yoff = (((v.spawnoffsetx or 0)+v.width/2-.5)*16 - v.offsetX + v.quadcenterX)*scale, (((v.spawnoffsety or 0)-v.height+1)*16-v.offsetY - v.quadcenterY)*scale
+					for t1 = 1, brush[1] do
+						for t2 = 1, brush[2] do
+							love.graphics.draw(v.graphic, v.quad, math.floor((cox-xscroll-1+(t1-1))*16*scale+xoff), math.floor(((coy-yscroll+(t2-1))*16)*scale+yoff), 0, scale, scale)
+						end
 					end
-					if xscroll > 170 + minimapscroll then
-						xscroll = 170 + minimapscroll
-					end
-					if xscroll > mapwidth-width then
-						xscroll = mapwidth-width
-					end
-	
-					--SPRITEBATCH UPDATE
-					if math.floor(xscroll) ~= spritebatchX[1] then
-						spritebatchX[1] = math.floor(xscroll)
-					elseif math.floor(yscroll) ~= spritebatchY[1] then
-						spritebatchY[1] = math.floor(yscroll)
-					end
-					generatespritebatch()
 				end
 			end
-			
-			updatescrollfactor()
-			updatefscrollfactor()
-			updatebackground()
-		end
-	elseif editorstate == "tiles" then
-		tilesoffset = guielements["tilesscrollbar"].value * tilescrollbarheight * scale
-		if editentities and not editenemies then
-			local x, y = mouse.getPosition()
-			local tile = getentityhighlight(x, y)
-			
-			if tile ~= prevtile then
-				if tile and tooltipimages[tile.i] then
-					entitytooltipobject = entitytooltip:new(tile)
-				end
-			end
-			
-			if tile and tooltipimages[tile.i] then
-				entitytooltipobject:update(dt)
-				tooltipa = math.min(255, tooltipa + dt*4000)
-			else
-				tooltipa = math.max(-1000, tooltipa - dt*4000)
-			end
-			
-			prevtile = tile
-		end
-	elseif editorstate == "objects" then
-		multitilesoffset = guielements["objectscrollbar"].value * objectscrollbarheight * scale
-		if guielements["renamebar"].active then
-			guielements["renamebar"].y = objectsguiarea[2]+1-multitilesoffset/scale + (guielements["renamebar"].tile*17)
-			-- guielements["renamebar"]:update(dt)
 		end
 	end
 	
-	
-	if animationguilines then
-		for i, v in pairs(animationguilines) do
-			for k, w in pairs(v) do
-				w:update(dt)
-			end
-		end
-	end
 end
 
-function editor_draw()	
-	love.graphics.setColor(1, 1, 1)
+function editor_draw_linking(mousex, mousey)
+	if rightclickactive and not regiondragging then
+		local cox, coy = getMouseTile(mousex, mousey+8*scale)
+		
+		local table1 = {}
+		for i, v in pairs(outputsi) do
+			table.insert(table1, v)
+		end
+		
+		for x = math.floor(xscroll), math.floor(xscroll)+width+1 do
+			for y = math.floor(yscroll), math.floor(yscroll)+height+1 do
+				for i, v in pairs(table1) do
+					if inmap(x, y) and #map[x][y] > 1 and map[x][y][2] == v then							
+						local r = map[x][y]
+						local drawline = false
+						
+						if cox == x and coy == y and tablecontains(outputsi, map[x][y][2]) then
+							love.graphics.setColor(1, 1, 0.6, 1)
+						elseif tablecontains(outputsi, map[x][y][2]) then
+							love.graphics.setColor(1, 1, 0.6, 0.6)
+						end
+						love.graphics.rectangle("fill", math.floor((x-1-xscroll)*16*scale), ((y-1-yscroll)*16-8)*scale, 16*scale, 16*scale)
+					end
+				end
+			end
+		end
+	end
 	
-	local mousex, mousey = mouse.getPosition()
-	
-	--EDITOR
-	if editormenuopen == false then
-		if editorstate == "selection" then
-			if selectiondragging or selectionwidth then
-				local x, y, width, height
+	if drawalllinks then
+		local added = 0
+		for x = 1, mapwidth do
+			for y = 1, mapheight do
+				local tx, ty = x, y
+				local x1, y1
+				local x2, y2
 				
-				x, y = selectionx, selectiony
-				if selectiondragging then
-					width, height = mousex-selectionx, mousey-selectiony
-				else
-					width, height = selectionwidth, selectionheight
-				end
+				x1, y1 = editor_link_screen_pos(tx, ty)
 				
-				if width < 0 then
-					x = x + width
-					width = -width
-				end
-				if height < 0 then
-					y = y + height
-					height = -height
-				end
+				local drawtable = {}
 				
-				if selectiondragging then
-					drawrectangle(x/scale, y/scale, width/scale, height/scale)
-				end
-				
-				local selectionlist = selectiongettiles(x, y, width, height)
-				
-				love.graphics.setColor(1, 1, 1, 0.4)
-				for i = 1, #selectionlist do
-					local v = selectionlist[i]
-					if map[v.x][v.y][2] and entitylist[map[v.x][v.y][2]] and rightclickmenues[entitylist[map[v.x][v.y][2]].t] then
-						love.graphics.rectangle("fill", (v.x-xscroll-1)*16*scale, (v.y-yscroll-1.5)*16*scale, 16*scale, 16*scale)
-					end
-				end
-			end
-			
-		elseif not rightclickactive and not rightclickm and editorstate ~= "lightdraw" and not regiondragging then
-			local x, y = getMouseTile(mouse.getX(), mouse.getY()-8*scale)
-			
-			if inmap(x, y+1) then
-				
-				if pastingtiles then
-					-- draw mtclipboard
-						for i, v in ipairs(mtclipboard) do
-							for j, w in ipairs(v) do
-								--w = tonumber(w)
-								local quad = tilequads[w]:quad() --[[tilequads[w].quad]]
-								if w == 1 and pastemode == false then 
-									-- well, do nothing
-									-- or better: draw empty tiles almost transparent
-									love.graphics.setColor(1, 1, 1, 0.03)
-									love.graphics.draw(tilequads[w].image, quad, math.floor((x-xscroll-1 + pastecenter[1])*16*scale+(i-1)*16*scale), ((y-yscroll-1 + pastecenter[2])*16+8)*scale+((j-1)*16*scale), 0, scale, scale)
-								else
-									love.graphics.setColor(1, 1, 1, 0.3)
-									love.graphics.draw(tilequads[w].image, quad, math.floor((x-xscroll-1 + pastecenter[1])*16*scale+(i-1)*16*scale), ((y-yscroll-1 + pastecenter[2])*16+8)*scale+((j-1)*16*scale), 0, scale, scale)
-								end
-							end
-						end
-					--end
-				end
-				
-				love.graphics.setColor(1, 1, 1, 0.8)
-				if tileswitcherpressed then
-					-- draw temporal overlay for all the tiles that will be switched
-					
-					local cox, coy = getMouseTile(love.mouse.getX(), love.mouse.getY()+8*scale)
-
-					-- now replace everything thats == map[cox][coy][1] to: currenttile
-					local mousetile = map[cox][coy][1]
-					for i, v in ipairs(map) do
-						for j, w in ipairs(v) do
-							local quad = tilequads[currenttile]:quad() --[[tilequads[w].quad]]
-							if w[1] == mousetile then
-								--print(i,j,w[1],"SWITCHED")
-								love.graphics.draw(tilequads[currenttile].image, quad, (i-1)*16*scale-xscroll*16*scale, (((j-1)*16*scale)-8*scale)-yscroll*16*scale, 0, scale, scale)
-							end
-						end
-					end
-					
-					
-					
-				elseif tileselection then
-					if tileselectionclick1 == false then
-						if pastingtiles == false then
-							-- no clicks yet - draw layer on single block
-							love.graphics.setColor(0.5, 1, 0.5, 0.3)
-							love.graphics.rectangle("fill",math.floor((x-xscroll-1)*16*scale), (((y-1)*16+8)*scale)-yscroll*16*scale, 16*scale, 16*scale)
-						end
-					elseif tileselectionclick2 == false then
-						-- first click done - draw area: click1xy->mousexy
-						local lx1, ly1
-						lx1 = math.min(tileselectionclick1x, x)
-						ly1 = math.min(tileselectionclick1y, y)
-						
-						love.graphics.setColor(0.44,0.44,1,0.44)
-						love.graphics.rectangle("fill",math.floor((lx1-xscroll-1)*16*scale), (((ly1-1)*16+8)*scale)-yscroll*16*scale, (math.max(tileselectionclick1x, x)-lx1)*16*scale+16*scale, (math.max(tileselectionclick1y, y)-ly1)*16*scale+16*scale)
-					else
-						-- two clicks done
-						local lx1, ly1, lx2, ly2
-						lx1 = math.min(tileselectionclick1x, tileselectionclick2x)
-						ly1 = math.min(tileselectionclick1y, tileselectionclick2y)
-						lx2 = math.max(tileselectionclick1x, tileselectionclick2x)
-						ly2 = math.max(tileselectionclick1y, tileselectionclick2y)
-						
-						-- Laziness or cleverness?
-						local px, py = math.floor((lx1-xscroll-1)*16*scale), ((ly1-yscroll-1)*16+8)*scale
-						local pw, ph = (lx2-lx1)*16*scale+16*scale, (ly2-ly1)*16*scale+16*scale
-						
-						love.graphics.setColor(0.67,1,0.67,0.7)
-						local timeOscilator = love.timer.getTime() % 2
-						timeOscilator = 1 - math.abs( math.cos(timeOscilator * math.pi) )
-						
-						-- Highlight thing
-						love.graphics.rectangle("fill", px - (2 + timeOscilator*3)*scale, py - (2 + timeOscilator*3)*scale, 5*scale, scale)
-						love.graphics.rectangle("fill", px - (2 + timeOscilator*3)*scale, py - (1 + timeOscilator*3)*scale, scale, 4*scale)
-						love.graphics.rectangle("fill", px + pw + (2 + timeOscilator*3 - 5)*scale, py - (2 + timeOscilator*3)*scale, 5*scale, scale)
-						love.graphics.rectangle("fill", px + pw + (1 + timeOscilator*3)*scale, py - (1 + timeOscilator*3)*scale, scale, 4*scale)
-						love.graphics.rectangle("fill", px - (2 + timeOscilator*3)*scale, py + ph + (1 + timeOscilator*3)*scale, 5*scale, scale)
-						love.graphics.rectangle("fill", px - (2 + timeOscilator*3)*scale, py + ph + (1 + timeOscilator*3 - 4)*scale, scale, 4*scale)
-						love.graphics.rectangle("fill", px + pw + (2 + timeOscilator*3 - 5)*scale, py + ph + (1 + timeOscilator*3)*scale, 5*scale, scale)
-						love.graphics.rectangle("fill", px + pw + (1 + timeOscilator*3)*scale, py + ph + (1 + timeOscilator*3 - 4)*scale, scale, 4*scale)
-						
-						local saveColors = {1, 0.44, 0.44, 0.7}
-						local selectColors = {0.67, 1, 0.67, 0.3}
-						love.graphics.setColor(selectColors)
-						
-						if mtjustsaved > 0 then
-							local r, g, b, a = gradient(selectColors, saveColors, mtjustsaved)
-							love.graphics.setColor(r, g, b, a)
-							
-							mtjustsaved = math.max(mtjustsaved - love.timer.getDelta(), 0)
-							if mtjustsaved == 0 then -- Negative 0 thing
-								mtjustsaved = 0
-							end
-						end
-						love.graphics.rectangle("fill", px, py, pw, ph)
-					end
-				elseif middlemode[1] then
-					love.graphics.push()
-					love.graphics.translate(-xscroll*16*scale, -yscroll*16*scale)
-					if editentities and editenemies then
-						for i = 1, #enemies do
-							if enemies[i] == currenttile then
-								currenttile = i
-								break
-							end
-						end
-						local offy = math.ceil(currenttile/22)-1
-						local offx = currenttile-offy*22
-						local cox, coy = getMouseTile(middlemode[2], middlemode[3]-8*scale)
-						for i = 1, #enemies do
-							local v = enemiesdata[ enemies[i] ]
-							love.graphics.setColor(1, 1, 1, 0.2)
-							if i == currenttile then
-								love.graphics.setColor(1, 1, 1, 0.8)
-							end
-							
-							local t = "setStencil"
-							local action = nil
-							local int = nil
-							
-							if loveVersion > 9 then
-								t = "stencil"
-								action = "replace"
-								int = 1
-							end
-							love.graphics[t](function() love.graphics.rectangle("fill", (math.mod((i-1), 22)-offx)*17*scale+cox*16*scale+scale, (math.floor((i-1)/22)-offy)*17*scale+coy*16*scale-8*scale, 16*scale, 16*scale) end, action, int)
-							
-							if loveVersion > 9 then
-								love.graphics.setStencilTest("greater", 0)
-							end
-							love.graphics.draw(v.graphic, v.quad, (math.mod((i-1), 22)-offx)*17*scale+cox*16*scale+scale, (math.floor((i-1)/22)-offy)*17*scale+coy*16*scale-8*scale, 0, scale, scale)
-							
-							if loveVersion > 9 then
-								love.graphics.setStencilTest()
-							else
-								love.graphics.setStencil()
-							end
-							
-							if i == currenttile then
-								love.graphics.setColor(1, 0, 0, 0.6)
-								drawrectangle((math.mod((i-1), 22)-offx)*17+cox*16, (math.floor((i-1)/22)-offy)*17+coy*16-9, 18, 18)
-							end
-						end
-						currenttile = enemies[currenttile]
-					elseif editentities then
-						local list, id = 1, 1
-						for i, v in ipairs(entitylistitems) do
-							for j, w in ipairs(v.entries) do
-								if w.i == currenttile then
-									list = i
-									id = j
-								end
-							end
-						end
-						
-						local offy = list-1
-						local offx = id
-						local cox, coy = getMouseTile(middlemode[2], middlemode[3]-8*scale)
-						for i2, v in ipairs(entitylistitems) do
-							for j, w in ipairs(v.entries) do
-								local i = (i2-1)*22+j
-								love.graphics.setColor(1, 1, 1, 0.2)
-								if w.i == currenttile then
-									love.graphics.setColor(1, 1, 1, 0.8)
-								end
-								love.graphics.draw(entityquads[w.i].image, entityquads[w.i].quad, (math.mod((i-1), 22)-offx)*17*scale+cox*16*scale+scale, (math.floor((i-1)/22)-offy)*17*scale+coy*16*scale-8*scale, 0, scale, scale)
-								if w.i == currenttile then
-									love.graphics.setColor(1, 0, 0, 0.6)
-									drawrectangle((math.mod((i-1), 22)-offx)*17+cox*16, (math.floor((i-1)/22)-offy)*17+coy*16-9, 18, 18)
-								end
-							end
-						end
-					else
-						local offy = math.ceil(currenttile/22)-1
-						local offx = currenttile-offy*22
-						local cox, coy = getMouseTile(middlemode[2], middlemode[3]-8*scale)
-						for a = 1, tilelistcount+1 do
-							local i = a+tileliststart-1
-							love.graphics.setColor(1, 1, 1, 0.2)
-							if i == currenttile then
-								love.graphics.setColor(1, 1, 1, 0.8)
-							end
-							love.graphics.draw(tilequads[i].image, tilequads[i]:quad(), (math.mod((i-1), 22)-offx)*17*scale+cox*16*scale+scale, (math.floor((i-1)/22)-offy)*17*scale+coy*16*scale-8*scale, 0, scale, scale)
-							if i == currenttile then
-								love.graphics.setColor(1, 0, 0, 0.6)
-								drawrectangle((math.mod((i-1), 22)-offx)*17+cox*16, (math.floor((i-1)/22)-offy)*17+coy*16-9, 18, 18)
-							end
-						end
-					end
-					love.graphics.pop()
-				elseif pastingtiles == false then
-					love.graphics.setColor(1, 1, 1, 0.8)
-					local cox, coy = middlemode[2], middlemode[3]
-					if love.mouse.isDown("m") then
-						cox, coy = getMouseTile(love.mouse.getX(), love.mouse.getY()-8*scale)
-					end
-					if editentities == false then
-						local quad = tilequads[currenttile]:quad()
-						if currenttile > 10000 then
-							quad = tilequads[currenttile]:quad()
-						end
-						for t1 = 1, brush[1] do
-							for t2 = 1, brush[2] do
-								love.graphics.draw(tilequads[currenttile].image, quad, math.floor((cox-xscroll-1+(t1-1))*16*scale), math.floor(((coy-yscroll-1+(t2-1))*16+8)*scale), 0, scale, scale)
-							end
-						end
-					elseif editenemies == false then
-						for t1 = 1, brush[1] do
-							for t2 = 1, brush[2] do
-								love.graphics.draw(entityquads[currenttile].image, entityquads[currenttile].quad, math.floor((cox-xscroll-1+(t1-1))*16*scale), math.floor(((coy-yscroll-1+(t2-1))*16+8)*scale), 0, scale, scale)
-							end
-						end
-					else
-						local v = enemiesdata[currenttile]
-						local xoff, yoff = (((v.spawnoffsetx or 0)+v.width/2-.5)*16 - v.offsetX + v.quadcenterX)*scale, (((v.spawnoffsety or 0)-v.height+1)*16-v.offsetY - v.quadcenterY)*scale
-						for t1 = 1, brush[1] do
-							for t2 = 1, brush[2] do
-								love.graphics.draw(v.graphic, v.quad, math.floor((cox-xscroll-1+(t1-1))*16*scale+xoff), math.floor(((coy-yscroll+(t2-1))*16)*scale+yoff), 0, scale, scale)
-							end
-						end
-					end
-				end
-			end
-		end
-		
-		if rightclickactive and not regiondragging then
-			local cox, coy = getMouseTile(mousex, mousey+8*scale)
-			
-			local table1 = {}
-			for i, v in pairs(outputsi) do
-				table.insert(table1, v)
-			end
-			
-			for x = math.floor(xscroll), math.floor(xscroll)+width+1 do
-				for y = math.floor(yscroll), math.floor(yscroll)+height+1 do
-					for i, v in pairs(table1) do
-						if inmap(x, y) and #map[x][y] > 1 and map[x][y][2] == v then							
-							local r = map[x][y]
-							local drawline = false
-							
-							if cox == x and coy == y and tablecontains(outputsi, map[x][y][2]) then
-								love.graphics.setColor(1, 1, 0.6, 1)
-							elseif tablecontains(outputsi, map[x][y][2]) then
-								love.graphics.setColor(1, 1, 0.6, 0.6)
-							end
-							love.graphics.rectangle("fill", math.floor((x-1-xscroll)*16*scale), ((y-1-yscroll)*16-8)*scale, 16*scale, 16*scale)
-						end
-					end
-				end
-			end
-		end
-		
-		if drawalllinks then
-			local added = 0
-			for x = 1, mapwidth do
-				for y = 1, mapheight do
-					local tx, ty = x, y
-					local x1, y1
-					local x2, y2
-					
-					x1, y1 = math.floor((tx-xscroll-.5)*16*scale), math.floor((ty-yscroll-1)*16*scale)
-					
-					local drawtable = {}
-					
-					for i = 1, #map[tx][ty] do
-						if map[tx][ty][i] == "link" and tonumber(map[tx][ty][i+2]) and tonumber(map[tx][ty][i+3]) then
-							x2, y2 = math.floor((map[tx][ty][i+2]-xscroll-.5)*16*scale), math.floor((map[tx][ty][i+3]-yscroll-1)*16*scale)
-							
-							local t = map[tx][ty][i+1]
-							added = added + 0.2
-							local color = getrainbowcolor(0.7)
-							table.insert(drawtable, {x1, y1, x2, y2, t, color})
-						end
-					end
-					
-					table.sort(drawtable, function(a,b) return math.abs(a[3]-a[1])>math.abs(b[3]-b[1]) end)
-					
-					for i = 1, #drawtable do
-						local x1, y1, x2, y2, t, c = unpack(drawtable[i])
-						local r, g, b = unpack(c)
-						love.graphics.setColor(r, g, b, math.max(0, 1-rightclicka))
-						
-						if math.mod(i, 2) == 0 then
-							drawlinkline2(x1, y1, x2, y2)
-						else
-							drawlinkline(x1, y1, x2, y2)
-						end
-						properprintbackground(t, math.floor(x2-string.len(t)*4*scale), y2+10*scale, true, {r, g, b, math.max(0, (1-rightclicka))})
-					end
-				end
-			end
-		end
-		
-		if (rightclickactive or rightclickm) and editorstate ~= "lightdraw" or rightclicka > 0 then
-			local tx, ty
-			local x1, y1
-			local x2, y2
-			
-			if rightclickm then
-				tx = rightclickm.tx
-				ty = rightclickm.ty
-				x1, y1 = math.floor((tx-xscroll-.5)*16*scale), math.floor((ty-yscroll-1)*16*scale)
-			else
-				tx = linktoolX
-				ty = linktoolY
-				x1, y1 = math.floor((tx-xscroll-.5)*16*scale), math.floor((ty-yscroll-1)*16*scale)
-			end
-			
-			local drawtable = {}
-			
-			if tx and ty and map[tx] and map[tx][ty] then
 				for i = 1, #map[tx][ty] do
 					if map[tx][ty][i] == "link" and tonumber(map[tx][ty][i+2]) and tonumber(map[tx][ty][i+3]) then
 						x2, y2 = math.floor((map[tx][ty][i+2]-xscroll-.5)*16*scale), math.floor((map[tx][ty][i+3]-yscroll-1)*16*scale)
 						
 						local t = map[tx][ty][i+1]
-						table.insert(drawtable, {x1, y1, x2, y2, t})
+						added = added + 0.2
+						local color = getrainbowcolor(0.7)
+						table.insert(drawtable, {x1, y1, x2, y2, t, color})
 					end
 				end
-			end
-			
-			table.sort(drawtable, function(a,b) return math.abs(a[3]-a[1])>math.abs(b[3]-b[1]) end)
-			
-			for i = 1, #drawtable do
-				local x1, y1, x2, y2, t = unpack(drawtable[i])
-				love.graphics.setColor(0.5, 0.5, i/#drawtable, rightclicka)
 				
-				if math.mod(i, 2) == 0 then
-					drawlinkline2(x1, y1, x2, y2)
-				else
-					drawlinkline(x1, y1, x2, y2)
-				end
+				table.sort(drawtable, function(a,b) return math.abs(a[3]-a[1])>math.abs(b[3]-b[1]) end)
 				
-				properprintbackground(t, math.floor(x2-string.len(t)*4*scale), y2+10*scale, true, {0, 0, 0, rightclicka})
-			end
-			
-			if linktoolt then
-				local x1, y1 = math.floor((linktoolX-xscroll-.5)*16*scale), math.floor((linktoolY-yscroll-1)*16*scale)
-				local x2, y2 = mousex, mousey
-				
-				love.graphics.setColor(255 / 255, 172 / 255, 47 / 255, 1)
-				
-				drawlinkline(x1, y1, x2, y2)
-				
-				love.graphics.setColor(200 / 255, 140 / 255, 30 / 255, 1)
-				
-				love.graphics.draw(linktoolpointerimg, x2-math.ceil(scale/2), y2, 0, scale, scale, 3, 3)
-				
-				properprintbackground(linktoolt, math.floor(x2+4*scale), y2-4*scale, true)
-			end
-			
-			--faithplate paths
-			if entitylist[map[tx][ty][2]].t == "faithplate" then
-				local yoffset = -8/16
-				local x = tx
-				local y = ty-1
-				local pointstable = {{x=x, y=y+yoffset}}
-				
-				local speedx, speedy
-				
-				if rightclickm then
-					speedx = rightclickm.t[2].value
-					speedy = -rightclickm.t[4].value
-				else
-					speedx = tonumber(map[tx][ty][3])
-					speedy = -tonumber(map[tx][ty][4])
-				end
-				
-				local step = 1/60
-				
-				repeat
-					x, y = x+speedx*step, y+speedy*step
-					speedy = speedy + yacceleration*step
-					table.insert(pointstable, {x=x, y=y+yoffset})
-				until y > yscroll+height+.5
-				
-				love.graphics.setColor(62 / 255, 213 / 255, 244 / 255, 0.6*rightclicka)
-				for i = 1, #pointstable-1 do
-					local v = pointstable[i]
-					local w = pointstable[i+1]
-					love.graphics.line((v.x-xscroll)*16*scale, (v.y-yscroll-.5)*16*scale, (w.x-xscroll)*16*scale, (w.y-yscroll-.5)*16*scale)
-				end
-			end
-		end
-		if rightclickm then
-			rightclickm:draw()
-		end
-		
-		-- EDITOR UI
-		local mode = "tiles"
-		local submode = false
-		if editorstate == "selection" then
-			mode = "selection"
-		elseif editorstate == "lightdraw" then
-			mode = "advanced draw tool"
-			submode = "power line draw"
-			if advanceddrawtool == "mushroom" then
-				submode = "mushroom platforms"
-			end
-		else
-			submode = "tiles"
-			if editenemies then
-				submode = "enemies"
-			elseif editentities then
-				submode = "entities"
-			end
-		end
-		love.graphics.setColor(1, 1, .8, .75)
-		properprint(" editor mode", 10*scale, 10*scale)
-		if submode then
-			properprint("tool submode", 10*scale, 18*scale)
-		end
-		properprint("f1 for help", (400-10-8*11)*scale, 10*scale)
-		
-		love.graphics.setColor(1, 1, 1, .75)
-		properprint(":" .. mode, (10+12*8)*scale, 10*scale)
-		if submode then
-			properprint(":" .. submode, (10+12*8)*scale, 18*scale)
-		end
-		
-		if love.keyboard.isDown("f1") and not rightclickm then
-			love.graphics.setColor(0, 0, 0, .85)
-			love.graphics.rectangle("fill", helpui[1]*scale, helpui[2]*scale, (helpui[3]-helpui[1])*scale, (helpui[4]-helpui[2])*scale)
-			love.graphics.setColor(1, 1, 1, 1)
-			drawrectangle(helpui[1] + 1, helpui[2] + 1, helpui[3]-helpui[1]-2, helpui[4]-helpui[2]-2)
-			properprint("better editor shortcuts:", helpui[1]*scale+4*scale, helpui[2]*scale+5*scale)
-			
-			local keys = {
-				--Shortcut, description, line breaks             | <-Width limit
-				{"ctrl+click","selects region of tiles in-editor.", 0},
-				{"q","switch between tiles, entities and enemies.", 0},
-				{"0-9","on the tile/entity/enemy screen, 1-9 sets|" ..
-					   "the tile's hotkey bind, 0 resets it.|" ..
-					   "in-editor, switches to the bound tile.", 2},
-				{"ctrl+s","saves the selected tiles as an object,|" ..
-						  "found in the objects tab.", 1},--     |
-				{"ctrl+g","transforms the selected tiles into a|" ..
-						  "group bound to the top-left-most tile.", 1},
-				{"u","on the tile screen, removes the tile group|" ..
-					 "bound to the highlighted tile.", 1},--     |
-				{"ctrl+z/ctrl+y","undo/redo the last changes.", 0},
-				{"ctrl+c/ctrl+x/ctrl+v","copy/cut/paste region.", 0},
-				{"ctrl+a","select the entire level.", 0},--      |
-				{"middle click drag","navigates in-editor between|" ..
-									 "tiles/entities/enemies.", 1},
-			}
-			
-			local offset = 0
-			for i, v in ipairs(keys) do
-				love.graphics.setColor(0, 0, 0, 1)
-				properprint(v[1], helpui[1]*scale+8*scale-scale, helpui[2]*scale+23*scale + (i-1)*13*scale + offset*10*scale)
-				properprint(v[1], helpui[1]*scale+8*scale+scale, helpui[2]*scale+23*scale + (i-1)*13*scale + offset*10*scale)
-				properprint(v[1], helpui[1]*scale+8*scale, helpui[2]*scale+23*scale-scale + (i-1)*13*scale + offset*10*scale)
-				properprint(v[1], helpui[1]*scale+8*scale, helpui[2]*scale+23*scale+scale + (i-1)*13*scale + offset*10*scale)
-				love.graphics.setColor(1, 1, .8, 1)
-				properprint(v[1], helpui[1]*scale+8*scale, helpui[2]*scale+23*scale + (i-1)*13*scale + offset*10*scale)
-				
-				love.graphics.setColor(1, 1, 1, 1)
-				properprint(" : ", helpui[1]*scale+8*scale + string.len(v[1])*8*scale, helpui[2]*scale+23*scale + (i-1)*13*scale + offset*10*scale)
-				properprint(v[2], helpui[1]*scale+8*scale + (string.len(v[1])+3)*8*scale, helpui[2]*scale+23*scale + (i-1)*13*scale + offset*10*scale)
-				
-				offset = offset + v[3]
-			end
-			love.graphics.setColor(1, 1, 1, 1)
-		end
-	else
-		if changemapwidthmenu then
-			local w = width*16-52
-			local h = height*16-52
-			
-			local s = math.min(w/newmapwidth, h/newmapheight)
-			
-			w = newmapwidth*s
-			h = newmapheight*s
-			
-			local mapx, mapy = (width*16 - w)/2, (height*16 - h)/2
-			
-			love.graphics.setColor(0, 0, 0, 0.8)
-			love.graphics.rectangle("fill", (mapx-2)*scale, (mapy-2)*scale, (w+4)*scale, (h+4)*scale)
-			
-			
-			--minimap
-			for x = 1, mapwidth do
-				for y = 1, mapheight do
-					if x > -newmapoffsetx and x <= newmapwidth-newmapoffsetx and y > -newmapoffsety and y <= newmapheight-newmapoffsety then
-						local id = map[x][y][1]
-						if id ~= nil and rgblist[id] and id ~= 0 and tilequads[id]:getproperty("invisible", x, y) == false then
-							love.graphics.setColor(unpack(rgblist[id]))
-							love.graphics.rectangle("fill", (mapx+(x-1+newmapoffsetx)*s)*scale, (mapy+(y-1+newmapoffsety)*s)*scale, s*scale, s*scale)
-						end
-					end
-				end
-			end
-			
-			love.graphics.setColor(1, 0, 0, 1)
-			drawrectangle(mapx-1, mapy-1, w+2, h+2)
-			
-			love.graphics.setColor(1, 1, 1)
-			properprintbackground("old width: " .. mapwidth, 26*scale, (mapy-21)*scale, true)
-			properprintbackground("old height: " .. mapheight, 26*scale, (mapy-11)*scale, true)
-			
-			properprintbackground("new width: " .. newmapwidth, 26*scale, (mapy+h+4)*scale, true)
-			properprintbackground("new height: " .. newmapheight, 26*scale, (mapy+h+14)*scale, true)
-			
-			--button positioning
-			guielements["maptopup"].x, guielements["maptopup"].y = width*8-5, mapy-24
-			guielements["maptopdown"].x, guielements["maptopdown"].y = width*8-5, mapy-13
-			
-			guielements["mapbottomup"].x, guielements["mapbottomup"].y = width*8-5, mapy+h+2
-			guielements["mapbottomdown"].x, guielements["mapbottomdown"].y = width*8-5, mapy+h+13
-			
-			guielements["mapleftleft"].x, guielements["mapleftleft"].y = mapx-24, height*8-5
-			guielements["mapleftright"].x, guielements["mapleftright"].y = mapx-13, height*8-5
-			
-			guielements["maprightleft"].x, guielements["maprightleft"].y = mapx+w+2, height*8-5
-			guielements["maprightright"].x, guielements["maprightright"].y = mapx+w+13, height*8-5
-			
-			guielements["mapwidthapply"].x, guielements["mapwidthapply"].y = width*8+10, mapy+h+4
-			guielements["mapwidthcancel"].x, guielements["mapwidthcancel"].y = width*8+65, mapy+h+4
-		else
-			love.graphics.setColor(0, 0, 0, 0.9)
-			
-			if minimapdragging == false then
-				love.graphics.rectangle("fill", 1*scale, 18*scale, 398*scale, 205*scale)		
-			else
-				love.graphics.rectangle("fill", 1*scale, 18*scale, 398*scale, (18+minimapheight*2)*scale)
-			end
-			
-			if editorstate == "tiles" then			
-				--TILES
-				love.graphics.setColor(1, 1, 1)
-				
-				drawrectangle(4, 37, 375, 167)
-				
-				love.graphics.setScissor(5*scale, 38*scale, 373*scale, 165*scale)
-				
-				if editentities then
-					if editenemies then
-						for i = 1, #enemies do
-							local v = enemiesdata[enemies[i]]
-							
-							local t = "setStencil"
-							local action = nil
-							local int = nil
-							
-							if loveVersion > 9 then
-								t = "stencil"
-								action = "replace"
-								int = 1
-							end
-							
-							love.graphics[t](function() love.graphics.rectangle("fill", math.mod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 16*scale, 16*scale) end, action, int)
-							
-							if loveVersion > 9 then
-								love.graphics.setStencilTest("greater", 0)
-							end
-							
-							love.graphics.draw(v.graphic, v.quad, math.mod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
-							if loveVersion > 9 then
-								love.graphics.setStencilTest()
-							else
-								love.graphics.setStencil()
-							end
-							local hotkey = hasHotkey(3, i)
-							if hotkey then
-								love.graphics.setColor(1, 0, 0, .5)
-								drawrectangle(math.mod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
-								love.graphics.setColor(1, 1, 1)
-							end
-						end
+				for i = 1, #drawtable do
+					local x1, y1, x2, y2, t, c = unpack(drawtable[i])
+					local r, g, b = unpack(c)
+					love.graphics.setColor(r, g, b, math.max(0, 1-rightclicka))
+					
+					if math.mod(i, 2) == 0 then
+						drawlinkline2(x1, y1, x2, y2)
 					else
-						--ENTITIES
-						for i, v in ipairs(entitylistitems) do
-							properprint(v.t, (5)*scale, (v.entries[1].y+30)*scale-tilesoffset)
-							for j, k in ipairs(v.entries) do
-								local hotkey = hasHotkey(2, k.i)
-								love.graphics.draw(entityquads[k.i].image, entityquads[k.i].quad, (k.x+5)*scale, (k.y+38)*scale-tilesoffset, 0, scale, scale)
-								if hotkey then
-									love.graphics.setColor(1, 0, 0, .5)
-									drawrectangle(k.x+5, k.y+38-tilesoffset/scale, 16, 16)
-									love.graphics.setColor(1, 1, 1, 1)
-								end
-								if k:gethighlight(mouse.getX(), mouse.getY()) then
-									if hotkey then
-										love.graphics.setColor(1, 0, 0, .5)
-									else
-										love.graphics.setColor(1, 1, 1, 0.5)
-									end
-									love.graphics.rectangle("fill", (k.x+5)*scale, (k.y+38)*scale-tilesoffset, 16*scale, 16*scale)
-									love.graphics.setColor(1, 1, 1, 1)
-									if hotkey then
-										properprint(hotkey, (k.x+5)*scale+7*scale, (k.y+38)*scale-tilesoffset+8*scale)
-									end
-								end
-							end
-						end
+						drawlinkline(x1, y1, x2, y2)
 					end
-				else
-					if animatedtilelist then
-						for i = 1, tilelistcount+1 do
-							love.graphics.draw(tilequads[i+tileliststart-1+10000].image, tilequads[i+tileliststart-1+10000]:quad(), math.mod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
-							if multitilegroups[tostring(i+tileliststart-1+10000)] then
-								love.graphics.setColor(0, .5, 0)
-								drawrectangle(math.mod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
-								love.graphics.setColor(1, 1, 1)
-							end
-							local hotkey = hasHotkey(1, i+tileliststart-1+10000)
-							if hotkey then
-								love.graphics.setColor(1, 0, 0, .5)
-								drawrectangle(math.mod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
-								love.graphics.setColor(1, 1, 1)
-							end
-						end
-					else
-						for i = 1, tilelistcount+1 do
-							love.graphics.draw(tilequads[i+tileliststart-1].image, tilequads[i+tileliststart-1]:quad(), math.mod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
-							if multitilegroups[tostring(i+tileliststart-1)] then
-								love.graphics.setColor(0, .5, 0)
-								drawrectangle(math.mod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
-								love.graphics.setColor(1, 1, 1)
-							end
-							local hotkey = hasHotkey(1, i+tileliststart-1)
-							if hotkey then
-								love.graphics.setColor(1, 0, 0, .5)
-								drawrectangle(math.mod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
-								love.graphics.setColor(1, 1, 1)
-							end
-						end
-					end
+					properprintbackground(t, math.floor(x2-string.len(t)*4*scale), y2+10*scale, true, {r, g, b, math.max(0, (1-rightclicka))})
 				end
-				
-				local tile = gettilelistpos(mouse.getX(), mouse.getY())
-				if editentities == false then
-					if tile and tile <= tilelistcount+1 then
-						local hotkey = hasHotkey(1, tile+tileliststart-1+(animatedtilelist and 10000 or 0))
-						if hotkey then
-							love.graphics.setColor(1, 0, 0, .5)
-						else
-							love.graphics.setColor(1, 1, 1, 0.5)
-						end
-						love.graphics.rectangle("fill", (5+math.mod((tile-1), 22)*17)*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset, 16*scale, 16*scale)
-						if hotkey then
-							love.graphics.setColor(1, 1, 1, 1)
-							properprint(hotkey, (5+math.mod((tile-1), 22)*17)*scale+7*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset+8*scale)
-						end
-					end
-				elseif editenemies then
-					if tile and tile <= #enemies then
-						local hotkey = hasHotkey(3, tile)
-						if hotkey then
-							love.graphics.setColor(1, 0, 0, .5)
-						else
-							love.graphics.setColor(1, 1, 1, 0.5)
-						end
-						love.graphics.rectangle("fill", (5+math.mod((tile-1), 22)*17)*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset, 16*scale, 16*scale)
-						if hotkey then
-							love.graphics.setColor(1, 1, 1, 1)
-							properprint(hotkey, (5+math.mod((tile-1), 22)*17)*scale+7*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset+8*scale)
-						end
-					end
-				end
-				
-				love.graphics.setScissor()
-				
-				love.graphics.setColor(1, 1, 1)
-				if editentities then
-					if editenemies then
-						if enemies[tile] then
-							if enemiesdata[enemies[tile]].description then
-								local newstring = enemies[tile] .. " - " .. enemiesdata[enemies[tile]].description
-								if string.len(newstring) > 49 then
-									newstring = string.sub(newstring, 1, 49) .. "|" .. string.sub(newstring, 50, 98)
-								end
-								properprint(newstring, 3*scale, 205*scale)
-							else
-								properprint(enemies[tile], 3*scale, 205*scale)
-							end
-						end
-					else
-						local ent = getentityhighlight(mouse.getX(), mouse.getY())
-						if ent then
-							local newstring = entitylist[ent.i].description or ""
-							if string.len(newstring) > 49 then
-								newstring = string.sub(newstring, 1, 49) .. "|" .. string.sub(newstring, 50, 98)
-							end
-							properprint(newstring, 3*scale, 205*scale)
-						end
-					end
-				elseif animatedtilelist then
-					if tile and animatedtiles[tile] then
-						properprint("frames: " .. #animatedtiles[tile].delays, 3*scale, 205*scale)
-						local t = 0
-						for i = 1, #animatedtiles[tile].delays do
-							t = t + animatedtiles[tile].delays[i]
-						end
-						properprint("total time: " .. t, 3*scale, 215*scale)
-					end
-				else
-					if tile and tilequads[tile+tileliststart-1] and tile+tileliststart-1 <= tilelistcount+tileliststart then
-						--Local variables
-						local propertylist = {"collision", "invisible", "breakable", "coinblock", "coin", "slantupleft", "slantupright", "mirror", "grate", "platform", "water", "bridge", "spikesleft", "spikestop","spikesright", "spikesbottom", "foreground", "big"}
-						local propertytable = {}
-						local longestpropertylength = 0
-						local propertycount = -10
-						local s = ""
-						--2*2 Tile
-						
-						--Unportalable
-						if not tilequads[tile+tileliststart-1]:getproperty("portalable") then
-							table.insert(propertytable, "unportalable")
-							propertycount = propertycount + 10
-							if 12 >= longestpropertylength then
-								longestpropertylength = 12
-							end
-						end
-						--Properties
-						for i = 1, #propertylist do
-							if tilequads[tile+tileliststart-1]:getproperty(propertylist[i]) then
-								table.insert(propertytable, propertylist[i])
-								propertycount = propertycount + 10
-								if string.len(propertylist[i]) >= longestpropertylength then
-									longestpropertylength = string.len(propertylist[i])
-								end
-							end
-						end
-						--Eraser
-						if tile+tileliststart-1 == 1 then
-							table.insert(propertytable, "eraser")
-							propertycount = propertycount + 10
-							if 6 >= longestpropertylength then
-								longestpropertylength = 6
-							end
-						end
-						--I should probably remove this
-						if propertycount == -10 then
-							table.insert(propertytable, "none")
-							propertycount = 0
-							longestpropertylength = 4
-						end
-						--Generate property string
-						for i = 1, #propertytable do
-							local addspaces = ""
-							for i = 1, -(string.len(propertytable[i]) - longestpropertylength) do
-								addspaces = addspaces .. " "
-							end
-							s = s .. addspaces .. propertytable[i] .. "|"
-						end
-						--Cutoff prevention
-						local y = love.mouse.getY()-8*scale - (propertycount/2)*scale + 5*scale
-						local x = love.mouse.getX() - (longestpropertylength)*8*scale
-						if x <= 0 then
-							x = 0
-						end
-						--Finally actually draw it
-						properprint("tile id: " .. tile+tileliststart-1, 3*scale, 205*scale)
-						properprintbackground(s, x, y, false)
-						properprint(s, x, y)
-					end
-				end
-				love.graphics.setColor(1, 1, 1)
-			elseif editorstate == "main" then		
-				--MINIMAP
-				love.graphics.setColor(1, 1, 1)
-				properprint("minimap", 3*scale, 21*scale)
-				love.graphics.rectangle("fill", minimapx*scale, minimapy*scale, 394*scale, minimapheight*2*scale+4*scale)
-				love.graphics.setColor(unpack(background))
-				love.graphics.rectangle("fill", (minimapx+2)*scale, (minimapy+2)*scale, 390*scale, minimapheight*2*scale)
-				
-				local lmap = map
-				
-				love.graphics.setScissor((minimapx+2)*scale, (minimapy+2)*scale, 390*scale, minimapheight*2*scale)
-				
-				for x = 1, mapwidth do --blocks
-					for y = math.floor(yscroll)+1, math.min(mapheight, math.ceil(yscroll)+16) do
-						if x-minimapscroll > 0 and x-minimapscroll < 196 then
-							local id = lmap[x][y][1]
-							if id ~= nil and id ~= 0 and tilequads[id]:getproperty("invisible", x, y) == false then
-								if rgblist[id] then
-									love.graphics.setColor(unpack(rgblist[id]))
-									love.graphics.rectangle("fill", (minimapx+x*2-minimapscroll*2)*scale, (minimapy+(y+1)*2-(math.floor(yscroll)+1)*2-math.mod(yscroll, 1)*2)*scale, 2*scale, 2*scale)
-								end
-							end
-						end
-					end
-				end
-				
-				love.graphics.setScissor()
-				
-				love.graphics.setColor(1, 0, 0)
-				drawrectangle(xscroll*2+minimapx-minimapscroll*2, minimapy, (width+2)*2, minimapheight*2+4)
-				drawrectangle(xscroll*2+minimapx-minimapscroll*2+1, minimapy+1, (width+1)*2, minimapheight*2+2)
-				love.graphics.setColor(1, 1, 1)
-				
-				if minimapdragging == false then
-					properprint("portalgun:", 8*scale, 189*scale)
-					properprint(mariotimelimit, 29*scale, 177*scale)
-					properprint("timelimit", 8*scale, 166*scale)
-					properprint("spriteset", 8*scale, 141*scale)
-					properprint("music", 8*scale, 116*scale)
-					properprint("background color", 8*scale, 66*scale)
-					
-					if custombackground then
-						love.graphics.setColor(1, 1, 1, 1)
-					else
-						love.graphics.setColor(0.6, 0.6, 0.6, 1)
-					end
-					properprint("scrollfactor", 199*scale, 142*scale)
-					
-					if customforeground then
-						love.graphics.setColor(1, 1, 1, 1)
-					else
-						love.graphics.setColor(0.6, 0.6, 0.6, 1)
-					end
-					properprint("scrollfactor", 199*scale, 172*scale)
-					
-					love.graphics.setColor(1, 1, 1, 1)
-					properprint("levelscreen:", 198*scale, 187*scale)
-				end
-			elseif editorstate == "maps" then
-				--[[love.graphics.setColor(1, 1, 1)
-				for i = 1, 8 do
-					properprint("w" .. i, ((i-1)*49 + 19)*scale, 23*scale)
-				end
-				properprint("do not forget to save your current map before|changing!", 5*scale, 120*scale)--]]
-				
-				local scroll = guielements["mapscrollbar"].value * mapsymissing
-				love.graphics.setScissor(mapbuttonarea[1]*scale, mapbuttonarea[2]*scale, (mapbuttonarea[3]-mapbuttonarea[1])*scale, (mapbuttonarea[4]-mapbuttonarea[2])*scale)
-				
-				for i, v in pairs(mapbuttons) do
-					v.y = v.starty - scroll
-					v:draw()
-				end
-				
-				properprint("-", 351*scale, 22*scale)
-				love.graphics.setScissor()
-			elseif editorstate == "tools" then
-				love.graphics.setColor(1, 1, 1)
-				properprint("mappack title:", 5*scale, 106*scale)
-				properprint("author:", 5*scale, 131*scale)
-				properprint("description:", 5*scale, 156*scale)
-				
-				properprint("lives:", 150*scale, 106*scale)
-				if mariolivecount == false then
-					properprint("inf", 210*scale, 106*scale)
-				else
-					properprint(mariolivecount, 210*scale, 106*scale)
-				end
-				
-				properprint("editor settings:", 149*scale, 121*scale)
-				
-				love.graphics.setColor(0.5, 0.5, 0.5)
-				love.graphics.setLineStyle("rough")
-				love.graphics.line(148*scale, 118*scale, 397*scale, 118*scale)
-			
-			elseif editorstate == "animations" then
-				if #animations > 0 then
-					love.graphics.setScissor(animationguiarea[1]*scale, animationguiarea[2]*scale, (animationguiarea[3]-animationguiarea[1])*scale, (animationguiarea[4]-animationguiarea[2])*scale)
-					local completeheight = 14+#animationguilines.triggers*13+12+#animationguilines.conditions*13+12+#animationguilines.actions*13
-					local offy = math.max(0, guielements["animationsscrollbarver"].value/1*(completeheight-(animationguiarea[4]-animationguiarea[2])))
-					local completewidth = 0
-					for i, v in pairs(animationguilines) do
-						for k, w in pairs(v) do
-							local width = 32+animationlineinset
-							for j, z in pairs(w.elements) do
-								width = width + w.elements[j].width
-							end
-							if width > completewidth then
-								completewidth = width
-							end
-						end
-					end
-					
-					local offx = -math.max(0, guielements["animationsscrollbarhor"].value/1*(completewidth-(animationguiarea[3]-animationguiarea[1])))
-					
-					love.graphics.setColor(1, 1, 1)
-					
-					local y = animationguiarea[2]+1-offy
-					y = y + 2
-					
-					addanimationtriggerbutton.x = animationguiarea[1]+2+offx
-					addanimationtriggerbutton.y = y-2
-					addanimationtriggerbutton:draw()
-					
-					properprint("triggers:", (animationguiarea[1]+13+offx)*scale, y*scale)
-					y = y + 10
-					
-					for i, v in pairs(animationguilines.triggers) do
-						v:draw((animationguiarea[1]+animationlineinset+offx), y)
-						y = y + 13
-					end
-					y = y + 2
-					
-					addanimationconditionbutton.x = animationguiarea[1]+2+offx
-					addanimationconditionbutton.y = y-2
-					addanimationconditionbutton:draw()
-					
-					properprint("conditions:", (animationguiarea[1]+13+offx)*scale, y*scale)
-					y = y + 10
-					
-					for i, v in pairs(animationguilines.conditions) do
-						v:draw((animationguiarea[1]+animationlineinset+offx), y)
-						y = y + 13
-					end
-					y = y + 2
-					
-					addanimationactionbutton.x = animationguiarea[1]+2+offx
-					addanimationactionbutton.y = y-2
-					addanimationactionbutton:draw()
-					
-					properprint("actions:", (animationguiarea[1]+13+offx)*scale, y*scale)
-					y = y + 10
-					
-					for i, v in pairs(animationguilines.actions) do
-						v:draw((animationguiarea[1]+animationlineinset+offx), y)
-						y = y + 13
-					end
-					
-					for i, v in pairs(animationguilines) do
-						for k, w in pairs(v) do
-							for anotherletter, fuck in pairs(w.elements) do
-								if fuck.gui and not fuck.gui.priority then
-									fuck.gui:draw()
-								end
-							end
-						end
-					end
-					
-					love.graphics.setScissor()
-					
-					love.graphics.setColor(0.35, 0.35, 0.35)
-					drawrectangle(animationguiarea[1]-10, animationguiarea[4], 10, 10)
-				end
-			elseif editorstate == "objects" then
-				love.graphics.setScissor(objectsguiarea[1]*scale, objectsguiarea[2]*scale, (objectsguiarea[3]-objectsguiarea[1])*scale, (objectsguiarea[4]-objectsguiarea[2])*scale)
-				
-				local mtbutton = getmtbutton(love.mouse.getX())
-				for i = 1, #multitileobjects do
-					love.graphics.setColor(1, 1, 1, 1)
-					properprint(multitileobjectnames[i], (objectsguiarea[1]+3)*scale, math.floor(i-1)*17*scale+(objectsguiarea[2]+3)*scale-multitilesoffset)
-					properprint("r", (objectsguiarea[3]-15*4)*scale, math.floor(i-1)*17*scale+(objectsguiarea[2]+3)*scale-multitilesoffset)
-					properprint("_dir4", (objectsguiarea[3]-15*3)*scale, math.floor(i-1)*17*scale+(objectsguiarea[2]+3)*scale-multitilesoffset)
-					properprint("_dir6", (objectsguiarea[3]-15*2)*scale, math.floor(i-1)*17*scale+(objectsguiarea[2]+3)*scale-multitilesoffset)
-					properprint("x", (objectsguiarea[3]-15*1)*scale, math.floor(i-1)*17*scale+(objectsguiarea[2]+3)*scale-multitilesoffset)
-				end
-				if guielements["renamebar"].active then
-					guielements["renamebar"]:draw()
-				end
-				
-				love.graphics.setScissor()
-				
-				love.graphics.setColor(0.35, 0.35, 0.35)
-				drawrectangle(objectsguiarea[1], objectsguiarea[2], objectsguiarea[3]-objectsguiarea[1], objectsguiarea[4]-objectsguiarea[2])
-				
-				if mtbutton == 1 then
-					properprint("rename", 10*scale, 210*scale)
-				elseif mtbutton == 2 then
-					properprint("move up", 10*scale, 210*scale)
-				elseif mtbutton == 3 then
-					properprint("move down", 10*scale, 210*scale)
-				elseif mtbutton == 4 then
-					properprint("delete", 10*scale, 210*scale)
-				end	
-			elseif editorstate == "lightdrawcustomize" then
-				-- love.graphics.setColor(0.5, 0.5, 0.5)
-				-- properprint("more coming soon", 5*scale, 55*scale)
-				
-				-- I'm cancelling this stroke-inducing nightmare
-				
-				-- guielements["tabtools"].textcolor = {math.random(),math.random(),math.random()}
-				-- guielements["tabtools"].fillcolor = {math.random(),math.random(),math.random()}
-				-- guielements["tabtools"].bordercolor = {math.random(),math.random(),math.random()}				
 			end
 		end
 	end
 	
+	if (rightclickactive or rightclickm) and editorstate ~= "lightdraw" or rightclicka > 0 then
+		local tx, ty
+		local x1, y1
+		local x2, y2
+		
+		if rightclickm then
+			tx = rightclickm.tx
+			ty = rightclickm.ty
+			x1, y1 = editor_link_screen_pos(tx, ty)
+		else
+			tx = linktoolX
+			ty = linktoolY
+			x1, y1 = editor_link_screen_pos(tx, ty)
+		end
+		
+		local drawtable = {}
+		
+		if tx and ty and map[tx] and map[tx][ty] then
+			for i = 1, #map[tx][ty] do
+				if map[tx][ty][i] == "link" and tonumber(map[tx][ty][i+2]) and tonumber(map[tx][ty][i+3]) then
+					x2, y2 = math.floor((map[tx][ty][i+2]-xscroll-.5)*16*scale), math.floor((map[tx][ty][i+3]-yscroll-1)*16*scale)
+					
+					local t = map[tx][ty][i+1]
+					table.insert(drawtable, {x1, y1, x2, y2, t})
+				end
+			end
+		end
+		
+		table.sort(drawtable, function(a,b) return math.abs(a[3]-a[1])>math.abs(b[3]-b[1]) end)
+		
+		for i = 1, #drawtable do
+			local x1, y1, x2, y2, t = unpack(drawtable[i])
+			love.graphics.setColor(0.5, 0.5, i/#drawtable, rightclicka)
+			
+			if math.mod(i, 2) == 0 then
+				drawlinkline2(x1, y1, x2, y2)
+			else
+				drawlinkline(x1, y1, x2, y2)
+			end
+			
+			properprintbackground(t, math.floor(x2-string.len(t)*4*scale), y2+10*scale, true, {0, 0, 0, rightclicka})
+		end
+		
+		if linktoolt then
+			local x1, y1 = editor_link_screen_pos(linktoolX, linktoolY)
+			local x2, y2 = mousex, mousey
+			
+			love.graphics.setColor(255 / 255, 172 / 255, 47 / 255, 1)
+			
+			drawlinkline(x1, y1, x2, y2)
+			
+			love.graphics.setColor(200 / 255, 140 / 255, 30 / 255, 1)
+			
+			love.graphics.draw(linktoolpointerimg, x2-math.ceil(scale/2), y2, 0, scale, scale, 3, 3)
+			
+			properprintbackground(linktoolt, math.floor(x2+4*scale), y2-4*scale, true)
+		end
+		
+		--faithplate paths
+		if entitylist[map[tx][ty][2]].t == "faithplate" then
+			local yoffset = -8/16
+			local x = tx
+			local y = ty-1
+			local pointstable = {{x=x, y=y+yoffset}}
+			
+			local speedx, speedy
+			
+			if rightclickm then
+				speedx = rightclickm.t[2].value
+				speedy = -rightclickm.t[4].value
+			else
+				speedx = tonumber(map[tx][ty][3])
+				speedy = -tonumber(map[tx][ty][4])
+			end
+			
+			local step = 1/60
+			
+			repeat
+				x, y = x+speedx*step, y+speedy*step
+				speedy = speedy + yacceleration*step
+				table.insert(pointstable, {x=x, y=y+yoffset})
+			until y > yscroll+height+.5
+			
+			love.graphics.setColor(62 / 255, 213 / 255, 244 / 255, 0.6*rightclicka)
+			for i = 1, #pointstable-1 do
+				local v = pointstable[i]
+				local w = pointstable[i+1]
+				love.graphics.line((v.x-xscroll)*16*scale, (v.y-yscroll-.5)*16*scale, (w.x-xscroll)*16*scale, (w.y-yscroll-.5)*16*scale)
+			end
+		end
+	end
+	if rightclickm then
+		rightclickm:draw()
+	end
+	
+end
+
+function editor_draw_status()
+	-- EDITOR UI
+	local mode, submode = editor_mode_labels(editorstate, editenemies, editentities, advanceddrawtool)
+	love.graphics.setColor(1, 1, .8, .75)
+	properprint(" editor mode", 10*scale, 10*scale)
+	if submode then
+		properprint("tool submode", 10*scale, 18*scale)
+	end
+	properprint("f1 for help", (400-10-8*11)*scale, 10*scale)
+	
+	love.graphics.setColor(1, 1, 1, .75)
+	properprint(":" .. mode, (10+12*8)*scale, 10*scale)
+	if submode then
+		properprint(":" .. submode, (10+12*8)*scale, 18*scale)
+	end
+	
+	if love.keyboard.isDown("f1") and not rightclickm then
+		love.graphics.setColor(0, 0, 0, .85)
+		love.graphics.rectangle("fill", helpui[1]*scale, helpui[2]*scale, (helpui[3]-helpui[1])*scale, (helpui[4]-helpui[2])*scale)
+		love.graphics.setColor(1, 1, 1, 1)
+		drawrectangle(helpui[1] + 1, helpui[2] + 1, helpui[3]-helpui[1]-2, helpui[4]-helpui[2]-2)
+		properprint("better editor shortcuts:", helpui[1]*scale+4*scale, helpui[2]*scale+5*scale)
+		
+		local keys = {
+			--Shortcut, description, line breaks             | <-Width limit
+			{"ctrl+click","selects region of tiles in-editor.", 0},
+			{"q","switch between tiles, entities and enemies.", 0},
+			{"0-9","on the tile/entity/enemy screen, 1-9 sets|" ..
+				   "the tile's hotkey bind, 0 resets it.|" ..
+				   "in-editor, switches to the bound tile.", 2},
+			{"ctrl+s","saves the selected tiles as an object,|" ..
+					  "found in the objects tab.", 1},--     |
+			{"ctrl+g","transforms the selected tiles into a|" ..
+					  "group bound to the top-left-most tile.", 1},
+			{"u","on the tile screen, removes the tile group|" ..
+				 "bound to the highlighted tile.", 1},--     |
+			{"ctrl+z/ctrl+y","undo/redo the last changes.", 0},
+			{"ctrl+c/ctrl+x/ctrl+v","copy/cut/paste region.", 0},
+			{"ctrl+a","select the entire level.", 0},--      |
+			{"middle click drag","navigates in-editor between|" ..
+								 "tiles/entities/enemies.", 1},
+		}
+		
+		local offset = 0
+		for i, v in ipairs(keys) do
+			love.graphics.setColor(0, 0, 0, 1)
+			properprint(v[1], helpui[1]*scale+8*scale-scale, helpui[2]*scale+23*scale + (i-1)*13*scale + offset*10*scale)
+			properprint(v[1], helpui[1]*scale+8*scale+scale, helpui[2]*scale+23*scale + (i-1)*13*scale + offset*10*scale)
+			properprint(v[1], helpui[1]*scale+8*scale, helpui[2]*scale+23*scale-scale + (i-1)*13*scale + offset*10*scale)
+			properprint(v[1], helpui[1]*scale+8*scale, helpui[2]*scale+23*scale+scale + (i-1)*13*scale + offset*10*scale)
+			love.graphics.setColor(1, 1, .8, 1)
+			properprint(v[1], helpui[1]*scale+8*scale, helpui[2]*scale+23*scale + (i-1)*13*scale + offset*10*scale)
+			
+			love.graphics.setColor(1, 1, 1, 1)
+			properprint(" : ", helpui[1]*scale+8*scale + string.len(v[1])*8*scale, helpui[2]*scale+23*scale + (i-1)*13*scale + offset*10*scale)
+			properprint(v[2], helpui[1]*scale+8*scale + (string.len(v[1])+3)*8*scale, helpui[2]*scale+23*scale + (i-1)*13*scale + offset*10*scale)
+			
+			offset = offset + v[3]
+		end
+		love.graphics.setColor(1, 1, 1, 1)
+	end
+end
+
+function editor_draw_menu(mousex, mousey)
+	if changemapwidthmenu then
+		editor_draw_menu_changewidth()
+		return
+	end
+
+	love.graphics.setColor(0, 0, 0, 0.9)
+	
+	if minimapdragging == false then
+		love.graphics.rectangle("fill", 1*scale, 18*scale, 398*scale, 205*scale)		
+	else
+		love.graphics.rectangle("fill", 1*scale, 18*scale, 398*scale, (18+minimapheight*2)*scale)
+	end
+	
+
+	if editorstate == "tiles" then
+		editor_draw_menu_tiles(mousex, mousey)
+	elseif editorstate == "main" then
+		editor_draw_menu_main(mousex, mousey)
+	elseif editorstate == "maps" then
+		editor_draw_menu_maps()
+	elseif editorstate == "tools" then
+		editor_draw_menu_tools()
+	elseif editorstate == "animations" then
+		editor_draw_menu_animations(mousex, mousey)
+	elseif editorstate == "objects" then
+		editor_draw_menu_objects(mousex, mousey)
+	elseif editorstate == "lightdrawcustomize" then
+		editor_draw_menu_lightdrawcustomize()
+	end
+end
+
+function editor_draw_menu_changewidth()
+	local w = width*16-52
+	local h = height*16-52
+	
+	local s = math.min(w/newmapwidth, h/newmapheight)
+	
+	w = newmapwidth*s
+	h = newmapheight*s
+	
+	local mapx, mapy = (width*16 - w)/2, (height*16 - h)/2
+	
+	love.graphics.setColor(0, 0, 0, 0.8)
+	love.graphics.rectangle("fill", (mapx-2)*scale, (mapy-2)*scale, (w+4)*scale, (h+4)*scale)
+	
+	
+	--minimap
+	for x = 1, mapwidth do
+		for y = 1, mapheight do
+			if x > -newmapoffsetx and x <= newmapwidth-newmapoffsetx and y > -newmapoffsety and y <= newmapheight-newmapoffsety then
+				local id = map[x][y][1]
+				if id ~= nil and rgblist[id] and id ~= 0 and tilequads[id]:getproperty("invisible", x, y) == false then
+					love.graphics.setColor(unpack(rgblist[id]))
+					love.graphics.rectangle("fill", (mapx+(x-1+newmapoffsetx)*s)*scale, (mapy+(y-1+newmapoffsety)*s)*scale, s*scale, s*scale)
+				end
+			end
+		end
+	end
+	
+	love.graphics.setColor(1, 0, 0, 1)
+	drawrectangle(mapx-1, mapy-1, w+2, h+2)
+	
+	love.graphics.setColor(1, 1, 1)
+	properprintbackground("old width: " .. mapwidth, 26*scale, (mapy-21)*scale, true)
+	properprintbackground("old height: " .. mapheight, 26*scale, (mapy-11)*scale, true)
+	
+	properprintbackground("new width: " .. newmapwidth, 26*scale, (mapy+h+4)*scale, true)
+	properprintbackground("new height: " .. newmapheight, 26*scale, (mapy+h+14)*scale, true)
+	
+	--button positioning
+	guielements["maptopup"].x, guielements["maptopup"].y = width*8-5, mapy-24
+	guielements["maptopdown"].x, guielements["maptopdown"].y = width*8-5, mapy-13
+	
+	guielements["mapbottomup"].x, guielements["mapbottomup"].y = width*8-5, mapy+h+2
+	guielements["mapbottomdown"].x, guielements["mapbottomdown"].y = width*8-5, mapy+h+13
+	
+	guielements["mapleftleft"].x, guielements["mapleftleft"].y = mapx-24, height*8-5
+	guielements["mapleftright"].x, guielements["mapleftright"].y = mapx-13, height*8-5
+	
+	guielements["maprightleft"].x, guielements["maprightleft"].y = mapx+w+2, height*8-5
+	guielements["maprightright"].x, guielements["maprightright"].y = mapx+w+13, height*8-5
+	
+	guielements["mapwidthapply"].x, guielements["mapwidthapply"].y = width*8+10, mapy+h+4
+	guielements["mapwidthcancel"].x, guielements["mapwidthcancel"].y = width*8+65, mapy+h+4
+end
+
+function editor_draw_menu_tiles(mousex, mousey)
+	
+	--TILES
+	love.graphics.setColor(1, 1, 1)
+	
+	drawrectangle(4, 37, 375, 167)
+	
+	love.graphics.setScissor(5*scale, 38*scale, 373*scale, 165*scale)
+	
+	if editentities then
+		if editenemies then
+			for i = 1, #enemies do
+				local v = enemiesdata[enemies[i]]
+				
+				local t = "setStencil"
+				local action = nil
+				local int = nil
+				
+				if loveVersion > 9 then
+					t = "stencil"
+					action = "replace"
+					int = 1
+				end
+				
+				love.graphics[t](function() love.graphics.rectangle("fill", math.mod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 16*scale, 16*scale) end, action, int)
+				
+				if loveVersion > 9 then
+					love.graphics.setStencilTest("greater", 0)
+				end
+				
+				love.graphics.draw(v.graphic, v.quad, math.mod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
+				if loveVersion > 9 then
+					love.graphics.setStencilTest()
+				else
+					love.graphics.setStencil()
+				end
+				local hotkey = hasHotkey(3, i)
+				if hotkey then
+					love.graphics.setColor(1, 0, 0, .5)
+					drawrectangle(math.mod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
+					love.graphics.setColor(1, 1, 1)
+				end
+			end
+		else
+			--ENTITIES
+			for i, v in ipairs(entitylistitems) do
+				properprint(v.t, (5)*scale, (v.entries[1].y+30)*scale-tilesoffset)
+				for j, k in ipairs(v.entries) do
+					local hotkey = hasHotkey(2, k.i)
+					love.graphics.draw(entityquads[k.i].image, entityquads[k.i].quad, (k.x+5)*scale, (k.y+38)*scale-tilesoffset, 0, scale, scale)
+					if hotkey then
+						love.graphics.setColor(1, 0, 0, .5)
+						drawrectangle(k.x+5, k.y+38-tilesoffset/scale, 16, 16)
+						love.graphics.setColor(1, 1, 1, 1)
+					end
+					if k:gethighlight(mouse.getX(), mouse.getY()) then
+						if hotkey then
+							love.graphics.setColor(1, 0, 0, .5)
+						else
+							love.graphics.setColor(1, 1, 1, 0.5)
+						end
+						love.graphics.rectangle("fill", (k.x+5)*scale, (k.y+38)*scale-tilesoffset, 16*scale, 16*scale)
+						love.graphics.setColor(1, 1, 1, 1)
+						if hotkey then
+							properprint(hotkey, (k.x+5)*scale+7*scale, (k.y+38)*scale-tilesoffset+8*scale)
+						end
+					end
+				end
+			end
+		end
+	else
+		if animatedtilelist then
+			for i = 1, tilelistcount+1 do
+				love.graphics.draw(tilequads[i+tileliststart-1+10000].image, tilequads[i+tileliststart-1+10000]:quad(), math.mod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
+				if multitilegroups[tostring(i+tileliststart-1+10000)] then
+					love.graphics.setColor(0, .5, 0)
+					drawrectangle(math.mod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
+					love.graphics.setColor(1, 1, 1)
+				end
+				local hotkey = hasHotkey(1, i+tileliststart-1+10000)
+				if hotkey then
+					love.graphics.setColor(1, 0, 0, .5)
+					drawrectangle(math.mod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
+					love.graphics.setColor(1, 1, 1)
+				end
+			end
+		else
+			for i = 1, tilelistcount+1 do
+				love.graphics.draw(tilequads[i+tileliststart-1].image, tilequads[i+tileliststart-1]:quad(), math.mod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
+				if multitilegroups[tostring(i+tileliststart-1)] then
+					love.graphics.setColor(0, .5, 0)
+					drawrectangle(math.mod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
+					love.graphics.setColor(1, 1, 1)
+				end
+				local hotkey = hasHotkey(1, i+tileliststart-1)
+				if hotkey then
+					love.graphics.setColor(1, 0, 0, .5)
+					drawrectangle(math.mod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
+					love.graphics.setColor(1, 1, 1)
+				end
+			end
+		end
+	end
+	
+	local tile = gettilelistpos(mouse.getX(), mouse.getY())
+	if editentities == false then
+		if tile and tile <= tilelistcount+1 then
+			local hotkey = hasHotkey(1, tile+tileliststart-1+(animatedtilelist and 10000 or 0))
+			if hotkey then
+				love.graphics.setColor(1, 0, 0, .5)
+			else
+				love.graphics.setColor(1, 1, 1, 0.5)
+			end
+			love.graphics.rectangle("fill", (5+math.mod((tile-1), 22)*17)*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset, 16*scale, 16*scale)
+			if hotkey then
+				love.graphics.setColor(1, 1, 1, 1)
+				properprint(hotkey, (5+math.mod((tile-1), 22)*17)*scale+7*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset+8*scale)
+			end
+		end
+	elseif editenemies then
+		if tile and tile <= #enemies then
+			local hotkey = hasHotkey(3, tile)
+			if hotkey then
+				love.graphics.setColor(1, 0, 0, .5)
+			else
+				love.graphics.setColor(1, 1, 1, 0.5)
+			end
+			love.graphics.rectangle("fill", (5+math.mod((tile-1), 22)*17)*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset, 16*scale, 16*scale)
+			if hotkey then
+				love.graphics.setColor(1, 1, 1, 1)
+				properprint(hotkey, (5+math.mod((tile-1), 22)*17)*scale+7*scale, (38+math.floor((tile-1)/22)*17)*scale-tilesoffset+8*scale)
+			end
+		end
+	end
+	
+	love.graphics.setScissor()
+	
+	love.graphics.setColor(1, 1, 1)
+	if editentities then
+		if editenemies then
+			if enemies[tile] then
+				if enemiesdata[enemies[tile]].description then
+					local newstring = enemies[tile] .. " - " .. enemiesdata[enemies[tile]].description
+					if string.len(newstring) > 49 then
+						newstring = string.sub(newstring, 1, 49) .. "|" .. string.sub(newstring, 50, 98)
+					end
+					properprint(newstring, 3*scale, 205*scale)
+				else
+					properprint(enemies[tile], 3*scale, 205*scale)
+				end
+			end
+		else
+			local ent = getentityhighlight(mouse.getX(), mouse.getY())
+			if ent then
+				local newstring = entitylist[ent.i].description or ""
+				if string.len(newstring) > 49 then
+					newstring = string.sub(newstring, 1, 49) .. "|" .. string.sub(newstring, 50, 98)
+				end
+				properprint(newstring, 3*scale, 205*scale)
+			end
+		end
+	elseif animatedtilelist then
+		if tile and animatedtiles[tile] then
+			properprint("frames: " .. #animatedtiles[tile].delays, 3*scale, 205*scale)
+			local t = 0
+			for i = 1, #animatedtiles[tile].delays do
+				t = t + animatedtiles[tile].delays[i]
+			end
+			properprint("total time: " .. t, 3*scale, 215*scale)
+		end
+	else
+		if tile and tilequads[tile+tileliststart-1] and tile+tileliststart-1 <= tilelistcount+tileliststart then
+			--Local variables
+			local propertylist = {"collision", "invisible", "breakable", "coinblock", "coin", "slantupleft", "slantupright", "mirror", "grate", "platform", "water", "bridge", "spikesleft", "spikestop","spikesright", "spikesbottom", "foreground", "big"}
+			local propertytable = {}
+			local longestpropertylength = 0
+			local propertycount = -10
+			local s = ""
+			--2*2 Tile
+			
+			--Unportalable
+			if not tilequads[tile+tileliststart-1]:getproperty("portalable") then
+				table.insert(propertytable, "unportalable")
+				propertycount = propertycount + 10
+				if 12 >= longestpropertylength then
+					longestpropertylength = 12
+				end
+			end
+			--Properties
+			for i = 1, #propertylist do
+				if tilequads[tile+tileliststart-1]:getproperty(propertylist[i]) then
+					table.insert(propertytable, propertylist[i])
+					propertycount = propertycount + 10
+					if string.len(propertylist[i]) >= longestpropertylength then
+						longestpropertylength = string.len(propertylist[i])
+					end
+				end
+			end
+			--Eraser
+			if tile+tileliststart-1 == 1 then
+				table.insert(propertytable, "eraser")
+				propertycount = propertycount + 10
+				if 6 >= longestpropertylength then
+					longestpropertylength = 6
+				end
+			end
+			--I should probably remove this
+			if propertycount == -10 then
+				table.insert(propertytable, "none")
+				propertycount = 0
+				longestpropertylength = 4
+			end
+			--Generate property string
+			for i = 1, #propertytable do
+				local addspaces = ""
+				for i = 1, -(string.len(propertytable[i]) - longestpropertylength) do
+					addspaces = addspaces .. " "
+				end
+				s = s .. addspaces .. propertytable[i] .. "|"
+			end
+			--Cutoff prevention
+			local y = love.mouse.getY()-8*scale - (propertycount/2)*scale + 5*scale
+			local x = love.mouse.getX() - (longestpropertylength)*8*scale
+			if x <= 0 then
+				x = 0
+			end
+			--Finally actually draw it
+			properprint("tile id: " .. tile+tileliststart-1, 3*scale, 205*scale)
+			properprintbackground(s, x, y, false)
+			properprint(s, x, y)
+		end
+	end
+	love.graphics.setColor(1, 1, 1)
+end
+
+function editor_draw_menu_main(mousex, mousey)
+
+	--MINIMAP
+	love.graphics.setColor(1, 1, 1)
+	properprint("minimap", 3*scale, 21*scale)
+	love.graphics.rectangle("fill", minimapx*scale, minimapy*scale, 394*scale, minimapheight*2*scale+4*scale)
+	love.graphics.setColor(unpack(background))
+	love.graphics.rectangle("fill", (minimapx+2)*scale, (minimapy+2)*scale, 390*scale, minimapheight*2*scale)
+	
+	local lmap = map
+	
+	love.graphics.setScissor((minimapx+2)*scale, (minimapy+2)*scale, 390*scale, minimapheight*2*scale)
+	
+	for x = 1, mapwidth do --blocks
+		for y = math.floor(yscroll)+1, math.min(mapheight, math.ceil(yscroll)+16) do
+			if x-minimapscroll > 0 and x-minimapscroll < 196 then
+				local id = lmap[x][y][1]
+				if id ~= nil and id ~= 0 and tilequads[id]:getproperty("invisible", x, y) == false then
+					if rgblist[id] then
+						love.graphics.setColor(unpack(rgblist[id]))
+						love.graphics.rectangle("fill", (minimapx+x*2-minimapscroll*2)*scale, (minimapy+(y+1)*2-(math.floor(yscroll)+1)*2-math.mod(yscroll, 1)*2)*scale, 2*scale, 2*scale)
+					end
+				end
+			end
+		end
+	end
+	
+	love.graphics.setScissor()
+	
+	love.graphics.setColor(1, 0, 0)
+	drawrectangle(xscroll*2+minimapx-minimapscroll*2, minimapy, (width+2)*2, minimapheight*2+4)
+	drawrectangle(xscroll*2+minimapx-minimapscroll*2+1, minimapy+1, (width+1)*2, minimapheight*2+2)
+	love.graphics.setColor(1, 1, 1)
+	
+	if minimapdragging == false then
+		properprint("portalgun:", 8*scale, 189*scale)
+		properprint(mariotimelimit, 29*scale, 177*scale)
+		properprint("timelimit", 8*scale, 166*scale)
+		properprint("spriteset", 8*scale, 141*scale)
+		properprint("music", 8*scale, 116*scale)
+		properprint("background color", 8*scale, 66*scale)
+		
+		if custombackground then
+			love.graphics.setColor(1, 1, 1, 1)
+		else
+			love.graphics.setColor(0.6, 0.6, 0.6, 1)
+		end
+		properprint("scrollfactor", 199*scale, 142*scale)
+		
+		if customforeground then
+			love.graphics.setColor(1, 1, 1, 1)
+		else
+			love.graphics.setColor(0.6, 0.6, 0.6, 1)
+		end
+		properprint("scrollfactor", 199*scale, 172*scale)
+		
+		love.graphics.setColor(1, 1, 1, 1)
+		properprint("levelscreen:", 198*scale, 187*scale)
+	end
+end
+
+function editor_draw_menu_maps()
+	--[[love.graphics.setColor(1, 1, 1)
+	for i = 1, 8 do
+		properprint("w" .. i, ((i-1)*49 + 19)*scale, 23*scale)
+	end
+	properprint("do not forget to save your current map before|changing!", 5*scale, 120*scale)--]]
+	
+	local scroll = guielements["mapscrollbar"].value * mapsymissing
+	love.graphics.setScissor(mapbuttonarea[1]*scale, mapbuttonarea[2]*scale, (mapbuttonarea[3]-mapbuttonarea[1])*scale, (mapbuttonarea[4]-mapbuttonarea[2])*scale)
+	
+	for i, v in pairs(mapbuttons) do
+		v.y = v.starty - scroll
+		v:draw()
+	end
+	
+	properprint("-", 351*scale, 22*scale)
+	love.graphics.setScissor()
+end
+
+function editor_draw_menu_tools()
+	love.graphics.setColor(1, 1, 1)
+	properprint("mappack title:", 5*scale, 106*scale)
+	properprint("author:", 5*scale, 131*scale)
+	properprint("description:", 5*scale, 156*scale)
+	
+	properprint("lives:", 150*scale, 106*scale)
+	if mariolivecount == false then
+		properprint("inf", 210*scale, 106*scale)
+	else
+		properprint(mariolivecount, 210*scale, 106*scale)
+	end
+	
+	properprint("editor settings:", 149*scale, 121*scale)
+	
+	love.graphics.setColor(0.5, 0.5, 0.5)
+	love.graphics.setLineStyle("rough")
+	love.graphics.line(148*scale, 118*scale, 397*scale, 118*scale)
+
+end
+
+function editor_draw_menu_animations(mousex, mousey)
+	if #animations > 0 then
+		love.graphics.setScissor(animationguiarea[1]*scale, animationguiarea[2]*scale, (animationguiarea[3]-animationguiarea[1])*scale, (animationguiarea[4]-animationguiarea[2])*scale)
+		local completeheight = 14+#animationguilines.triggers*13+12+#animationguilines.conditions*13+12+#animationguilines.actions*13
+		local offy = math.max(0, guielements["animationsscrollbarver"].value/1*(completeheight-(animationguiarea[4]-animationguiarea[2])))
+		local completewidth = 0
+		for i, v in pairs(animationguilines) do
+			for k, w in pairs(v) do
+				local width = 32+animationlineinset
+				for j, z in pairs(w.elements) do
+					width = width + w.elements[j].width
+				end
+				if width > completewidth then
+					completewidth = width
+				end
+			end
+		end
+		
+		local offx = -math.max(0, guielements["animationsscrollbarhor"].value/1*(completewidth-(animationguiarea[3]-animationguiarea[1])))
+		
+		love.graphics.setColor(1, 1, 1)
+		
+		local y = animationguiarea[2]+1-offy
+		y = y + 2
+		
+		addanimationtriggerbutton.x = animationguiarea[1]+2+offx
+		addanimationtriggerbutton.y = y-2
+		addanimationtriggerbutton:draw()
+		
+		properprint("triggers:", (animationguiarea[1]+13+offx)*scale, y*scale)
+		y = y + 10
+		
+		for i, v in pairs(animationguilines.triggers) do
+			v:draw((animationguiarea[1]+animationlineinset+offx), y)
+			y = y + 13
+		end
+		y = y + 2
+		
+		addanimationconditionbutton.x = animationguiarea[1]+2+offx
+		addanimationconditionbutton.y = y-2
+		addanimationconditionbutton:draw()
+		
+		properprint("conditions:", (animationguiarea[1]+13+offx)*scale, y*scale)
+		y = y + 10
+		
+		for i, v in pairs(animationguilines.conditions) do
+			v:draw((animationguiarea[1]+animationlineinset+offx), y)
+			y = y + 13
+		end
+		y = y + 2
+		
+		addanimationactionbutton.x = animationguiarea[1]+2+offx
+		addanimationactionbutton.y = y-2
+		addanimationactionbutton:draw()
+		
+		properprint("actions:", (animationguiarea[1]+13+offx)*scale, y*scale)
+		y = y + 10
+		
+		for i, v in pairs(animationguilines.actions) do
+			v:draw((animationguiarea[1]+animationlineinset+offx), y)
+			y = y + 13
+		end
+		
+		for i, v in pairs(animationguilines) do
+			for k, w in pairs(v) do
+				for anotherletter, fuck in pairs(w.elements) do
+					if fuck.gui and not fuck.gui.priority then
+						fuck.gui:draw()
+					end
+				end
+			end
+		end
+		
+		love.graphics.setScissor()
+		
+		love.graphics.setColor(0.35, 0.35, 0.35)
+		drawrectangle(animationguiarea[1]-10, animationguiarea[4], 10, 10)
+	end
+end
+
+function editor_draw_menu_objects(mousex, mousey)
+	love.graphics.setScissor(objectsguiarea[1]*scale, objectsguiarea[2]*scale, (objectsguiarea[3]-objectsguiarea[1])*scale, (objectsguiarea[4]-objectsguiarea[2])*scale)
+	
+	local mtbutton = getmtbutton(love.mouse.getX())
+	for i = 1, #multitileobjects do
+		love.graphics.setColor(1, 1, 1, 1)
+		properprint(multitileobjectnames[i], (objectsguiarea[1]+3)*scale, math.floor(i-1)*17*scale+(objectsguiarea[2]+3)*scale-multitilesoffset)
+		properprint("r", (objectsguiarea[3]-15*4)*scale, math.floor(i-1)*17*scale+(objectsguiarea[2]+3)*scale-multitilesoffset)
+		properprint("_dir4", (objectsguiarea[3]-15*3)*scale, math.floor(i-1)*17*scale+(objectsguiarea[2]+3)*scale-multitilesoffset)
+		properprint("_dir6", (objectsguiarea[3]-15*2)*scale, math.floor(i-1)*17*scale+(objectsguiarea[2]+3)*scale-multitilesoffset)
+		properprint("x", (objectsguiarea[3]-15*1)*scale, math.floor(i-1)*17*scale+(objectsguiarea[2]+3)*scale-multitilesoffset)
+	end
+	if guielements["renamebar"].active then
+		guielements["renamebar"]:draw()
+	end
+	
+	love.graphics.setScissor()
+	
+	love.graphics.setColor(0.35, 0.35, 0.35)
+	drawrectangle(objectsguiarea[1], objectsguiarea[2], objectsguiarea[3]-objectsguiarea[1], objectsguiarea[4]-objectsguiarea[2])
+	
+	if mtbutton == 1 then
+		properprint("rename", 10*scale, 210*scale)
+	elseif mtbutton == 2 then
+		properprint("move up", 10*scale, 210*scale)
+	elseif mtbutton == 3 then
+		properprint("move down", 10*scale, 210*scale)
+	elseif mtbutton == 4 then
+		properprint("delete", 10*scale, 210*scale)
+	end	
+end
+
+function editor_draw_menu_lightdrawcustomize()
+	-- love.graphics.setColor(0.5, 0.5, 0.5)
+	-- properprint("more coming soon", 5*scale, 55*scale)
+	
+	-- I'm cancelling this stroke-inducing nightmare
+	
+	-- guielements["tabtools"].textcolor = {math.random(),math.random(),math.random()}
+	-- guielements["tabtools"].fillcolor = {math.random(),math.random(),math.random()}
+	-- guielements["tabtools"].bordercolor = {math.random(),math.random(),math.random()}
+end
+
+
+-- GUI tabs, region drag, entity tooltips (after map/tool content).
+function editor_draw_chrome()
 	if minimapdragging == false then
 		--GUI not priority
 		for i, v in pairs(guielements) do
@@ -1825,7 +1869,7 @@ function editor_draw()
 			guielements[v]:draw()
 		end
 	end
-	
+
 	if editorstate == "animations" and editormenuopen and not changemapwidthmenu then
 		for i, v in pairs(animationguilines) do
 			for k, w in pairs(v) do
@@ -1837,23 +1881,14 @@ function editor_draw()
 			end
 		end
 	end
-	
+
 	if regiondragging then
 		regiondragging:draw()
 	end
-	
+
 	if editentities and not editenemies and editorstate == "tiles" and editormenuopen and entitytooltipobject then
 		entitytooltipobject:draw(math.max(0, tooltipa))
 	end
-end
-
-function hasHotkey(tiletype, id)
-	for i = 1, 9 do
-		if hotkeys[tostring(i)] and hotkeys[tostring(i)][1] == tiletype and hotkeys[tostring(i)][2] == id then
-			return i
-		end
-	end
-	return false
 end
 
 function maintab()
@@ -2453,7 +2488,7 @@ function mapwidthapply()
 			end
 			
 			if tilequads[newmap[x][y][1]]:getproperty("collision", x, y) then
-				objects["tile"][x .. "-" .. y] = tile:new(x-1, y-1, 1, 1, true)
+				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1, 1, 1, true)
 			end
 		end
 	end
@@ -2719,9 +2754,9 @@ function placetile(x, y, t, ent, preventMultiTile)
 		end
 	
 		if tilequads[currenttile]:getproperty("collision") == true and tilequads[map[cox][coy][1]]:getproperty("collision") == false then
-			objects["tile"][cox .. "-" .. coy] = tile:new(cox-1, coy-1, 1, 1, true)
+			objects["tile"][tilekey(cox, coy)] = tile:new(cox-1, coy-1, 1, 1, true)
 		elseif tilequads[currenttile]:getproperty("collision") == false and tilequads[map[cox][coy][1]]:getproperty("collision") == true then
-			objects["tile"][cox .. "-" .. coy] = nil
+			objects["tile"][tilekey(cox, coy)] = nil
 		end
 		if map[cox][coy][1] ~= currenttile then
 			map[cox][coy][1] = currenttile
@@ -2857,11 +2892,7 @@ function getmaps()
 	local levels
 	local sublevels
 	local files = love.filesystem.getDirectoryItems("mappacks/" .. mappack)
-	for i = #files, 1, -1 do
-		if files[i] ~= nil and not (string.match(files[i], "(%d+)-(%d+).txt") or string.match(files[i], "(%d+)-(%d+)_(%d+).txt")) then
-			table.remove(files, i)
-		end
-	end
+	editor_filter_map_files(files)
 	table.sort(files, mapsort)
 	for i = 1, #files do
 		if string.match(files[i], "(%d+)-(%d+).txt") then
@@ -2918,22 +2949,6 @@ function getmaps()
 	end
 
 	mapsymissing = math.max(0, yadd-200)
-end
-
-function mapsort(a, b)
-	aw = string.match(a, "(%d+)-")
-	bw = string.match(b, "(%d+)-")
-	if tonumber(aw) > 9 and tonumber(bw) > 9 then
-		if a < b then
-			return true
-		end
-	elseif tonumber(bw) > 9 then
-		return true
-	elseif tonumber(aw) > 9 then
-		return false
-	elseif a < b then
-		return true
-	end
 end
 
 function newlevel()	
@@ -3016,14 +3031,14 @@ end
 					s = s .. "_" .. k
 				end
 				
-				if love.filesystem.exists("mappacks/" .. mappack .. "/" .. s .. ".txt") then
+				if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. s .. ".txt", "file") then
 					if k ~= 0 then
 						mapbuttons["text" .. i .. "-" .. j .. "_" .. k] = guielement:new("text", 4, yadd+26, "sub " .. k, {0.5, 0.5, 0.5})
 						mapbuttons["text" .. i .. "-" .. j .. "_" .. k].starty = yadd+26
 						xadd = 50
 					end
 					
-					if love.filesystem.exists("mappacks/" .. mappack .. "/" .. s .. ".png") then
+					if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. s .. ".png", "file") then
 						mapbuttons[i .. "-" .. j .. "_" .. k] = guielement:new("button", 4+xadd, yadd+21, love.graphics.newImage("mappacks/" .. mappack .. "/" .. s .. ".png"), mapnumberclick, 0, {i, j, k})
 					else
 						mapbuttons[i .. "-" .. j .. "_" .. k] = guielement:new("button", 4+xadd, yadd+21, "no preview", mapnumberclick, 0, {i, j, k})
@@ -3073,371 +3088,387 @@ function editor_mousepressed(x, y, button)
 	end
 	
 	if button == "l" then
-		if editormenuopen == false then
-			if editorstate == "lightdraw" then
-				lightdrawX, lightdrawY = getMouseTile(x, y+8*scale)
-				lightdrawtable = {{x=lightdrawX, y=lightdrawY}}
-			elseif rightclickactive then
-				finishlinking(x, y)
-			elseif editorstate == "selection" then
-				selectionstart()
-			else
-				local cox, coy = getMouseTile(x, y+8*scale)
-				if inmap(cox, coy) then					
-					local lx1, ly1, lx2, ly2, slx1, sly1, slx2, sly2
-					lx1 = math.min(tileselectionclick1x, tileselectionclick2x)
-					ly1 = math.min(tileselectionclick1y, tileselectionclick2y)
-					lx2 = math.max(tileselectionclick1x, tileselectionclick2x)
-					ly2 = math.max(tileselectionclick1y, tileselectionclick2y)
-					
-					slx1 = math.floor((lx1-xscroll-1)*16*scale)
-					sly1 = ((ly1-yscroll-1)*16+8)*scale
-					slx2 = slx1 + ((lx2-lx1)*16*scale+16*scale)
-					sly2 = sly1 + (ly2-ly1)*16*scale+16*scale
-					
-					-- left click on the selected area
-					if tileselectionclick1 == true and tileselectionclick2 == true and x > slx1 and x < slx2 and y > sly1 and y < sly2 then
-						-- if tiles are selected and click is inside area: move
-						mtclipboard = getTiles({slx1+8*scale, sly1+8*scale},{slx2+8*scale, sly2+8*scale})
-						emptySelection()
-						-- get x, y of the click inside the selection
-						pastecenter =  {-(math.floor((x-slx1)/(16*scale))),-(math.floor((y-sly1)/(16*scale)))}
-						--print(pastecenter[1], pastecenter[2])
-						--print(x, y, slx1, sly1)
-						pastingtiles = true
-						editentities = false
-						
-						-- clear selection
-						tileselectionclick1 = false
-						tileselectionclick1x = 0
-						tileselectionclick1y = 0	
-						tileselectionclick2 = false
-						tileselectionclick2x = 0
-						tileselectionclick2y = 0
-						
-						allowdrag = false
-						
-					elseif pastingtiles then
-						for i, v in pairs(mtclipboard) do
-							for j, w in pairs(v) do
-								if w == 1 and pastemode == false then
-									-- nothing
-								else
-									currenttile = mtclipboard[i][j]
-									placetile(x+(i-1 + pastecenter[1])*16*scale, y+(j-1 + pastecenter[2])*16*scale)
-								end
-							end
-						end
-						allowdrag = false
-					elseif tileselection and pastingtiles == false then
-						local xx, yy = getMouseTile(love.mouse.getX(), love.mouse.getY()-8*scale)
-						if tileselectionclick1 == false then
-							tileselectionclick1x = xx
-							tileselectionclick1y = yy
-							tileselectionclick1 = true
-						elseif tileselectionclick2 == false then
-							tileselectionclick2x = xx
-							tileselectionclick2y = yy
-							tileselectionclick2 = true
-						else
-							if not pastingtiles then
-								-- reset tile selection
-								tileselectionclick1 = false
-								tileselectionclick1x = 0
-								tileselectionclick1y = 0	
-								tileselectionclick2 = false
-								tileselectionclick2x = 0
-								tileselectionclick2y = 0
-							end
-							allowdrag = false
-						end
-					elseif not (pastingtiles or tileselection) then
-						if tileswitcherpressed then
-							local cox, coy = getMouseTile(love.mouse.getX(), love.mouse.getY()+8*scale)
-							if inmap(cox, coy) == false then
-								-- not much
-							else
-								editentities = false
-								tilesall()
-								-- now replace everything thats == map[cox][coy][1] to: currenttile
-								local mousetile = map[cox][coy][1]
-								for i, v in ipairs(map) do
-									for j, w in ipairs(v) do
-										if w[1] == mousetile then
-											map[i][j][1] = currenttile
-										end
-									end
-								end
-								generatespritebatch()
-								--local x, y = love.mouse.getPosition()
-								--placetile(x, y)
-							end
-						else
-							if coinmap[cox][coy] then
-								editorcoinstart = true
-							else
-								editorcoinstart = false
-							end
-							for t1 = 1, brush[1] do
-								for t2 = 1, brush[2] do
-									placetile(x+(t1-1)*16*scale, y+(t2-1)*16*scale)
-								end
-							end
-						end
-					end
-				end
-			end
-		else
-			if editorstate == "tiles" then
-				local tile = gettilelistpos(x, y)
-				if editentities == false then
-					if tile and tile <= tilelistcount+1 then
-						if animatedtilelist then
-							currenttile = tile + tileliststart-1+10000
-						else
-							currenttile = tile + tileliststart-1
-						end
-						
-						editorclose()
-						allowdrag = false
-					end
-				else
-					if editenemies then
-						if tile and tile <= #enemies then
-							currenttile = enemies[tile]
-							editorclose()
-							allowdrag = false
-						end
-					else
-						tile = getentityhighlight(x, y)
-						if tile then
-							currenttile = tile.i
-							editorclose()
-							allowdrag = false
-						end
-					end
-				end
-			elseif editorstate == "main" then
-				if y >= minimapy*scale and y < (minimapy+34)*scale then
-					if x >= minimapx*scale and x < (minimapx+394)*scale then
-						minimapdragging = true
-						toggleautoscroll(false)
-					end
-				end
-			elseif editorstate == "objects" then
-				local tile = getlistpos(x, y)
-				local mtbutton = getmtbutton(x)
-				--editmtobjects = false
-				--editentities = false
-				if tile then
-					if mtbutton == 0 then
-						if not guielements["renamebar"].active then
-							allowdrag = false
-							editorclose()
-							mtclipboard = multitileobjects[tile+1]
-							--for i, v in pairs(mtclipboard) do
-								--for j, w in pairs(v) do
-									--print(w)
-								--end
-							--end
-							pastecenter = {0, 0}
-							pastingtiles = true
-							editentities = false
-							editenemies = false
-						elseif guielements["renamebar"].tile ~= tile then
-							guielements["renamebar"].active = false
-						else
-							guielements["renamebar"]:click(x, y, button)
-						end
-					else
-						if mtbutton == 1 then
-							guielements["renamebar"].active = true
-							guielements["renamebar"].value = multitileobjectnames[tile+1]
-							guielements["renamebar"].tile = tile
-							guielements["renamebar"].y = objectsguiarea[2]+1-multitilesoffset/scale + (tile*17)
-							guielements["renamebar"].func = function()
-								if guielements["renamebar"].value ~= "" then
-									guielements["renamebar"].value = string.gsub(guielements["renamebar"].value, "=", " ")
-									renameline("mappacks/" .. mappack .. "/objects.txt",tile+1,guielements["renamebar"].value)
-								end
-								guielements["renamebar"].active = false
-								loadmtobjects()
-							end
-						elseif mtbutton == 2 then
-							moveline("mappacks/" .. mappack .. "/objects.txt",tile+1,"up")
-							loadmtobjects()
-						elseif mtbutton == 3 then
-							moveline("mappacks/" .. mappack .. "/objects.txt",tile+1,"down")
-							loadmtobjects()
-						elseif mtbutton == 4 then
-							deleteline("mappacks/" .. mappack .. "/objects.txt", tile+1)
-							if guielements["renamebar"] and guielements["renamebar"].active then
-								guielements["renamebar"].active = false
-							end
-							loadmtobjects()
-						end
-					end
-				end
-			end
-		end
+		editor_mousepressed_left(x, y)
 	elseif button == "m" then
 		middlemode = {false, x, y}
 		love.mouse.setVisible(true)
 	elseif button == "wu" then
-		if not editormenuopen then
-			if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
-				brush[1] = math.min(brushmax, brush[1]+1)
-				brush[2] = math.min(brushmax, brush[2]+1)
-			elseif editentities then
-				if editenemies then
-					--get which current tile
-					local curr = 1
-					while enemies[curr] ~= currenttile and curr > 0 do
-						curr = curr + 1
-					end
-					
-					if curr-1 == 0 then
-						curr = #enemies+1
-					end
-					
-					currenttile = enemies[curr-1]
-				else
-					local list = 1
-					local id = 1
-					for i, v in ipairs(entitylistitems) do
-						for j, w in ipairs(v.entries) do
-							if w.i == currenttile then
-								list = i
-								id = j
-							end
-						end
-					end
-					id = math.min(id+1, #entitylistitems[list].entries)
-					currenttile = entitylistitems[list].entries[id].i
-				end
-			-- elseif animatedtilelist then
-				-- if currenttile > 10000 then
-					-- currenttile = currenttile - 1
-					-- if currenttile == 10000 then
-						-- currenttile = 10000+animatedtilecount
-					-- end
-				-- end
-			else
-				if currenttile > 0 and currenttile <= 10000 then
-					currenttile = currenttile - 1
-					if currenttile == 0 then
-						currenttile = smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0)
-					end
-				else
-					currenttile = currenttile - 1
-					if currenttile == 10000 then
-						currenttile = 10000+animatedtilecount
-					end
-				end
-			end
-		end
-		
+		editor_mousepressed_wheel_up(x, y)
 	elseif button == "wd" then
-		if not editormenuopen then
-			if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
-				brush[1] = math.max(1, brush[1]-1)
-				brush[2] = math.max(1, brush[2]-1)
-			elseif editentities then
-				if editenemies then
-					--get which current tile
-					local curr = 1
-					while enemies[curr] ~= currenttile and curr < #enemies do
-						curr = curr + 1
-					end
+		editor_mousepressed_wheel_down(x, y)
+	elseif button == "r" then
+		editor_mousepressed_right(x, y)
+	end
+end
+
+function editor_mousepressed_left(x, y)
+	if editormenuopen == false then
+		if editorstate == "lightdraw" then
+			lightdrawX, lightdrawY = getMouseTile(x, y+8*scale)
+			lightdrawtable = {{x=lightdrawX, y=lightdrawY}}
+		elseif rightclickactive then
+			finishlinking(x, y)
+		elseif editorstate == "selection" then
+			selectionstart()
+		else
+			local cox, coy = getMouseTile(x, y+8*scale)
+			if inmap(cox, coy) then					
+				local lx1, ly1, lx2, ly2, slx1, sly1, slx2, sly2
+				lx1 = math.min(tileselectionclick1x, tileselectionclick2x)
+				ly1 = math.min(tileselectionclick1y, tileselectionclick2y)
+				lx2 = math.max(tileselectionclick1x, tileselectionclick2x)
+				ly2 = math.max(tileselectionclick1y, tileselectionclick2y)
+				
+				slx1 = math.floor((lx1-xscroll-1)*16*scale)
+				sly1 = ((ly1-yscroll-1)*16+8)*scale
+				slx2 = slx1 + ((lx2-lx1)*16*scale+16*scale)
+				sly2 = sly1 + (ly2-ly1)*16*scale+16*scale
+				
+				-- left click on the selected area
+				if tileselectionclick1 == true and tileselectionclick2 == true and x > slx1 and x < slx2 and y > sly1 and y < sly2 then
+					-- if tiles are selected and click is inside area: move
+					mtclipboard = getTiles({slx1+8*scale, sly1+8*scale},{slx2+8*scale, sly2+8*scale})
+					emptySelection()
+					-- get x, y of the click inside the selection
+					pastecenter =  {-(math.floor((x-slx1)/(16*scale))),-(math.floor((y-sly1)/(16*scale)))}
+					--print(pastecenter[1], pastecenter[2])
+					--print(x, y, slx1, sly1)
+					pastingtiles = true
+					editentities = false
 					
-					if curr+1 > #enemies then
-						curr = 0
-					end
+					-- clear selection
+					tileselectionclick1 = false
+					tileselectionclick1x = 0
+					tileselectionclick1y = 0	
+					tileselectionclick2 = false
+					tileselectionclick2x = 0
+					tileselectionclick2y = 0
 					
-					currenttile = enemies[curr+1]
-				else
-					local list = 1
-					local id = 1
-					for i, v in ipairs(entitylistitems) do
-						for j, w in ipairs(v.entries) do
-							if w.i == currenttile then
-								list = i
-								id = j
+					allowdrag = false
+					
+				elseif pastingtiles then
+					for i, v in pairs(mtclipboard) do
+						for j, w in pairs(v) do
+							if w == 1 and pastemode == false then
+								-- nothing
+							else
+								currenttile = mtclipboard[i][j]
+								placetile(x+(i-1 + pastecenter[1])*16*scale, y+(j-1 + pastecenter[2])*16*scale)
 							end
 						end
 					end
-					id = math.max(1, id-1)
-					currenttile = entitylistitems[list].entries[id].i
-				end
-			-- elseif animatedtilelist then
-				-- if currenttile <= 10000+animatedtilecount then
-					-- currenttile = currenttile + 1
-					-- if currenttile == 10001+animatedtilecount then
-						-- currenttile = 10001
-					-- end
-				-- end
-			else
-				if currenttile <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) then
-					currenttile = currenttile + 1
-					if currenttile > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) then
-						currenttile = 1
+					allowdrag = false
+				elseif tileselection and pastingtiles == false then
+					local xx, yy = getMouseTile(love.mouse.getX(), love.mouse.getY()-8*scale)
+					if tileselectionclick1 == false then
+						tileselectionclick1x = xx
+						tileselectionclick1y = yy
+						tileselectionclick1 = true
+					elseif tileselectionclick2 == false then
+						tileselectionclick2x = xx
+						tileselectionclick2y = yy
+						tileselectionclick2 = true
+					else
+						if not pastingtiles then
+							-- reset tile selection
+							tileselectionclick1 = false
+							tileselectionclick1x = 0
+							tileselectionclick1y = 0	
+							tileselectionclick2 = false
+							tileselectionclick2x = 0
+							tileselectionclick2y = 0
+						end
+						allowdrag = false
 					end
-				else
-					if currenttile <= 10000+animatedtilecount then
-						currenttile = currenttile + 1
-						if currenttile == 10001+animatedtilecount then
-							currenttile = 10001
+				elseif not (pastingtiles or tileselection) then
+					if tileswitcherpressed then
+						local cox, coy = getMouseTile(love.mouse.getX(), love.mouse.getY()+8*scale)
+						if inmap(cox, coy) == false then
+							-- not much
+						else
+							editentities = false
+							tilesall()
+							-- now replace everything thats == map[cox][coy][1] to: currenttile
+							local mousetile = map[cox][coy][1]
+							for i, v in ipairs(map) do
+								for j, w in ipairs(v) do
+									if w[1] == mousetile then
+										map[i][j][1] = currenttile
+									end
+								end
+							end
+							generatespritebatch()
+							--local x, y = love.mouse.getPosition()
+							--placetile(x, y)
+						end
+					else
+						if coinmap[cox][coy] then
+							editorcoinstart = true
+						else
+							editorcoinstart = false
+						end
+						for t1 = 1, brush[1] do
+							for t2 = 1, brush[2] do
+								placetile(x+(t1-1)*16*scale, y+(t2-1)*16*scale)
+							end
 						end
 					end
 				end
 			end
 		end
-		
-	elseif button == "r" then
-		if editormenuopen == false then
-			local tileX, tileY = getMouseTile(x, y+8*scale)
-			if inmap(tileX, tileY) == false then
-				return
-			end
-			
-			if editorstate ~= "lightdraw" then
-				local r = map[tileX][tileY]
-				if #r > 1 then
-					local tile = r[2]
-					if entitylist[tile] and rightclickmenues[entitylist[tile].t] then
-						local tileX, tileY = getMouseTile(x, y+8*scale)
-						rightclickm = rightclickmenu:new(x/scale, y/scale, rightclickmenues[entitylist[r[2]].t], tileX, tileY)
-						rightclickactive = false
-						linktoolfadeouttime = linktoolfadeouttimefast
-						linktoolX, linktoolY = tileX, tileY
+	else
+		if editorstate == "tiles" then
+			local tile = gettilelistpos(x, y)
+			if editentities == false then
+				if tile and tile <= tilelistcount+1 then
+					if animatedtilelist then
+						currenttile = tile + tileliststart-1+10000
+					else
+						currenttile = tile + tileliststart-1
+					end
+					
+					editorclose()
+					allowdrag = false
+				end
+			else
+				if editenemies then
+					if tile and tile <= #enemies then
+						currenttile = enemies[tile]
+						editorclose()
+						allowdrag = false
 					end
 				else
-					local cox, coy = getMouseTile(x, y+8*scale)
-					
-					if objects["player"][1] and not objects["player"][1].vine then
-						objects["player"][1].x = cox-1+2/16
-						objects["player"][1].y = coy-objects["player"][1].height
-						objects["player"][1].vine = false
+					tile = getentityhighlight(x, y)
+					if tile then
+						currenttile = tile.i
+						editorclose()
+						allowdrag = false
 					end
 				end
 			end
-		else
-			if editorstate == "main" then
-				if y >= (minimapy+2)*scale and y < (minimapy+32)*scale then
-					if x >= (minimapx+2)*scale and x < (minimapx+392)*scale then
-						local x = math.floor((x-minimapx*scale+math.floor(minimapscroll*scale*2))/scale/2)
-						local y = math.floor((y-minimapy*scale)/scale/2+math.floor(yscroll))
-						
-						if objects["player"][1] then
-							objects["player"][1].x = x-1+2/16
-							objects["player"][1].y = y-1+2/16
+		elseif editorstate == "main" then
+			if y >= minimapy*scale and y < (minimapy+34)*scale then
+				if x >= minimapx*scale and x < (minimapx+394)*scale then
+					minimapdragging = true
+					toggleautoscroll(false)
+				end
+			end
+		elseif editorstate == "objects" then
+			local tile = getlistpos(x, y)
+			local mtbutton = getmtbutton(x)
+			--editmtobjects = false
+			--editentities = false
+			if tile then
+				if mtbutton == 0 then
+					if not guielements["renamebar"].active then
+						allowdrag = false
+						editorclose()
+						mtclipboard = multitileobjects[tile+1]
+						--for i, v in pairs(mtclipboard) do
+							--for j, w in pairs(v) do
+								--print(w)
+							--end
+						--end
+						pastecenter = {0, 0}
+						pastingtiles = true
+						editentities = false
+						editenemies = false
+					elseif guielements["renamebar"].tile ~= tile then
+						guielements["renamebar"].active = false
+					else
+						guielements["renamebar"]:click(x, y, button)
+					end
+				else
+					if mtbutton == 1 then
+						guielements["renamebar"].active = true
+						guielements["renamebar"].value = multitileobjectnames[tile+1]
+						guielements["renamebar"].tile = tile
+						guielements["renamebar"].y = objectsguiarea[2]+1-multitilesoffset/scale + (tile*17)
+						guielements["renamebar"].func = function()
+							if guielements["renamebar"].value ~= "" then
+								guielements["renamebar"].value = string.gsub(guielements["renamebar"].value, "=", " ")
+								renameline("mappacks/" .. mappack .. "/objects.txt",tile+1,guielements["renamebar"].value)
+							end
+							guielements["renamebar"].active = false
+							loadmtobjects()
 						end
+					elseif mtbutton == 2 then
+						moveline("mappacks/" .. mappack .. "/objects.txt",tile+1,"up")
+						loadmtobjects()
+					elseif mtbutton == 3 then
+						moveline("mappacks/" .. mappack .. "/objects.txt",tile+1,"down")
+						loadmtobjects()
+					elseif mtbutton == 4 then
+						deleteline("mappacks/" .. mappack .. "/objects.txt", tile+1)
+						if guielements["renamebar"] and guielements["renamebar"].active then
+							guielements["renamebar"].active = false
+						end
+						loadmtobjects()
 					end
 				end
 			end
 		end
 	end
 end
+
+function editor_mousepressed_wheel_up(x, y)
+	if not editormenuopen then
+		if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
+			brush[1] = math.min(brushmax, brush[1]+1)
+			brush[2] = math.min(brushmax, brush[2]+1)
+		elseif editentities then
+			if editenemies then
+				--get which current tile
+				local curr = 1
+				while enemies[curr] ~= currenttile and curr > 0 do
+					curr = curr + 1
+				end
+				
+				if curr-1 == 0 then
+					curr = #enemies+1
+				end
+				
+				currenttile = enemies[curr-1]
+			else
+				local list = 1
+				local id = 1
+				for i, v in ipairs(entitylistitems) do
+					for j, w in ipairs(v.entries) do
+						if w.i == currenttile then
+							list = i
+							id = j
+						end
+					end
+				end
+				id = math.min(id+1, #entitylistitems[list].entries)
+				currenttile = entitylistitems[list].entries[id].i
+			end
+		-- elseif animatedtilelist then
+			-- if currenttile > 10000 then
+				-- currenttile = currenttile - 1
+				-- if currenttile == 10000 then
+					-- currenttile = 10000+animatedtilecount
+				-- end
+			-- end
+		else
+			if currenttile > 0 and currenttile <= 10000 then
+				currenttile = currenttile - 1
+				if currenttile == 0 then
+					currenttile = smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0)
+				end
+			else
+				currenttile = currenttile - 1
+				if currenttile == 10000 then
+					currenttile = 10000+animatedtilecount
+				end
+			end
+		end
+	end
+	
+end
+
+function editor_mousepressed_wheel_down(x, y)
+	if not editormenuopen then
+		if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
+			brush[1] = math.max(1, brush[1]-1)
+			brush[2] = math.max(1, brush[2]-1)
+		elseif editentities then
+			if editenemies then
+				--get which current tile
+				local curr = 1
+				while enemies[curr] ~= currenttile and curr < #enemies do
+					curr = curr + 1
+				end
+				
+				if curr+1 > #enemies then
+					curr = 0
+				end
+				
+				currenttile = enemies[curr+1]
+			else
+				local list = 1
+				local id = 1
+				for i, v in ipairs(entitylistitems) do
+					for j, w in ipairs(v.entries) do
+						if w.i == currenttile then
+							list = i
+							id = j
+						end
+					end
+				end
+				id = math.max(1, id-1)
+				currenttile = entitylistitems[list].entries[id].i
+			end
+		-- elseif animatedtilelist then
+			-- if currenttile <= 10000+animatedtilecount then
+				-- currenttile = currenttile + 1
+				-- if currenttile == 10001+animatedtilecount then
+					-- currenttile = 10001
+				-- end
+			-- end
+		else
+			if currenttile <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) then
+				currenttile = currenttile + 1
+				if currenttile > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) then
+					currenttile = 1
+				end
+			else
+				if currenttile <= 10000+animatedtilecount then
+					currenttile = currenttile + 1
+					if currenttile == 10001+animatedtilecount then
+						currenttile = 10001
+					end
+				end
+			end
+		end
+	end
+	
+end
+
+function editor_mousepressed_right(x, y)
+	if editormenuopen == false then
+		local tileX, tileY = getMouseTile(x, y+8*scale)
+		if inmap(tileX, tileY) == false then
+			return
+		end
+		
+		if editorstate ~= "lightdraw" then
+			local r = map[tileX][tileY]
+			if #r > 1 then
+				local tile = r[2]
+				if entitylist[tile] and rightclickmenues[entitylist[tile].t] then
+					local tileX, tileY = getMouseTile(x, y+8*scale)
+					rightclickm = rightclickmenu:new(x/scale, y/scale, rightclickmenues[entitylist[r[2]].t], tileX, tileY)
+					rightclickactive = false
+					linktoolfadeouttime = linktoolfadeouttimefast
+					linktoolX, linktoolY = tileX, tileY
+				end
+			else
+				local cox, coy = getMouseTile(x, y+8*scale)
+				
+				if objects["player"][1] and not objects["player"][1].vine then
+					objects["player"][1].x = cox-1+2/16
+					objects["player"][1].y = coy-objects["player"][1].height
+					objects["player"][1].vine = false
+				end
+			end
+		end
+	else
+		if editorstate == "main" then
+			if y >= (minimapy+2)*scale and y < (minimapy+32)*scale then
+				if x >= (minimapx+2)*scale and x < (minimapx+392)*scale then
+					local x, y = editor_minimap_tile_from_click(x, y, scale, minimapx, minimapy, minimapscroll, yscroll)
+					
+					if objects["player"][1] then
+						objects["player"][1].x = x-1+2/16
+						objects["player"][1].y = y-1+2/16
+					end
+				end
+			end
+		end
+	end
+end
+
 
 function editor_mousereleased(x, y, button)
 	if regiondragging then
@@ -4007,56 +4038,6 @@ function drawmushrooms()
 	editorclose()
 end
 
-function gettilelistpos(x, y)
-	if x >= 5*scale and y >= 38*scale and x < 378*scale and y < 203*scale then
-		x = (x - 5*scale)/scale
-		y = y + tilesoffset
-		y = (y - 38*scale)/scale
-		
-		
-		out = math.floor(x/17)+1
-		out = out + math.floor(y/17)*22
-		
-		return out
-	end
-	
-	return false
-end
-
-function getlistpos(x, y)
-	if x >= objectsguiarea[1]*scale and y >= objectsguiarea[2]*scale and x < objectsguiarea[3]*scale and y < objectsguiarea[4]*scale then
-		x = (x - objectsguiarea[1]*scale)/scale
-		y = y + multitilesoffset
-		y = (y - objectsguiarea[2]*scale)/scale
-		
-		
-		--out = math.floor(x/17)+1
-		--out = out + math.floor(y/17)*22
-		out = math.floor(y/17)
-		--print(out)
-		if out <= #multitileobjects-1 then
-			return out
-		end
-	end
-	
-	return false
-end
-
-function getmtbutton(x)
-	local button = 0
-		if x >= (objectsguiarea[3]-15*4)*scale and x < (objectsguiarea[3]-1-15*3)*scale then
-		button = 1
-	elseif x >= (objectsguiarea[3]-15*3)*scale and x < (objectsguiarea[3]-1-15*2)*scale then
-		button = 2
-	elseif x >= (objectsguiarea[3]-15*2)*scale and x < (objectsguiarea[3]-1-15*1)*scale then
-		button = 3
-	elseif x >= (objectsguiarea[3]-15*1)*scale and x < (objectsguiarea[3]-1-15*0)*scale then
-		button = 4
-	end
-	
-	return button
-end
-
 function emptySelection()
 	--print("del")
 	local lx1, ly1, lx2, ly2, slx1, sly1, slx2, sly2
@@ -4119,44 +4100,14 @@ end
 
 function loadHotKeys()
 	hotkeys = {}
-
-	-- override with file data
 	if love.filesystem.getInfo("mappacks/" .. mappack .. "/hotkeys.txt") then
 		local data = love.filesystem.read("mappacks/" .. mappack .. "/hotkeys.txt")
-		if #data > 0 then
-			local split1 = data:split("\n")
-			local split2, split3
-			for i = 1, #split1 do
-				split2 = split1[i]:split("=")
-				split3 = split2[2]:split(",")
-				hotkeys[tostring(split2[1])] = {tonumber(split3[1]), tonumber(split3[2])}
-			end
-		end
+		hotkeys = editor_hotkeys_parse(data)
 	end
 end
 
 function saveHotKeys()
-	local data = ""
-	for i = 1, 9 do
-		if hotkeys[tostring(i)] then
-			data = data .. i .. "=" .. tostring(hotkeys[tostring(i)][1]) .. "," .. tostring(hotkeys[tostring(i)][2]) .. "\n"
-		end
-	end
-	data = string.sub(data, 0, -2)
-	love.filesystem.write("mappacks/" .. mappack .. "/hotkeys.txt", data)
-end
-
-function changeHotKey(key, tiletype, id)
-	if key == 0 then
-		for i = 1, 9 do
-			if hotkeys[tostring(i)] and hotkeys[tostring(i)][1] == tiletype and hotkeys[tostring(i)][2] == id then
-				hotkeys[tostring(i)] = nil
-				break
-			end
-		end
-	else
-		hotkeys[tostring(key)] = {tiletype, id}
-	end
+	love.filesystem.write("mappacks/" .. mappack .. "/hotkeys.txt", editor_hotkeys_serialize(hotkeys))
 end
 
 function savesettings()
@@ -4397,26 +4348,6 @@ end
 
 function reversefscrollfactor()
 	return math.sqrt(fscrollfactor)/3
-end
-
-function formatscrollnumber(i)
-	if i < 0 then
-		i = round(i, 1)
-	else
-		i = round(i, 2)
-	end
-	
-	if string.len(i) == 1 then
-		i = i .. ".00"
-	elseif string.len(i) == 3 and math.abs(i) < 10 then
-		i = i .. "0"
-	end
-	
-	if string.sub(i, 4, 4) == "." then
-		return string.sub(i, 1, 3)
-	else
-		return string.sub(i, 1, 4)
-	end
 end
 
 function closerightclickmenu()

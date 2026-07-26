@@ -39,13 +39,7 @@ function loadenemy(filename)
 	local s = string.sub(ss[#ss], 1, -6):lower()
 	
 	--CHECK FOR - , ; * AND WHATEVER ELSE WOULD BREAK MAPS
-	local skip = false
-	local badlist = {",", ";", "-", "*"} --badlist sounds like a movie
-	for i = 1, #badlist do
-		if s:find(badlist[i]) then
-			skip = true
-		end
-	end
+	local skip = not enemy_name_ok(s)
 	
 	if not skip then --bad letter
 		local data = love.filesystem.read(filename)
@@ -86,30 +80,9 @@ function loadenemy(filename)
 		end
 		
 		--CASE INSENSITVE THING
-		for i, v in pairs(enemiesdata[s]) do
-			local a = i:lower()
-			if a == "offsetx" then
-				enemiesdata[s]["offsetX"] = v
-			elseif a == "offsety" then
-				enemiesdata[s]["offsetY"] = v
-			elseif a == "quadcenterx" then
-				enemiesdata[s]["quadcenterX"] = v
-			elseif a == "quadcentery" then
-				enemiesdata[s]["quadcenterY"] = v
-			else
-				if type(v) == "string" then
-					enemiesdata[s][a] = v:lower()
-				else
-					enemiesdata[s][a] = v
-				end
-			end
-		end
+		normalize_enemy_props(enemiesdata[s])
 		
-		for i, v in pairs(defaultvalues) do
-			if enemiesdata[s][i] == nil then
-				enemiesdata[s][i] = v
-			end
-		end
+		apply_enemy_defaults(enemiesdata[s], defaultvalues)
 		
 		--Load graphics if it exists
 		if love.filesystem.getInfo(folder .. s .. ".png") then
@@ -167,23 +140,3 @@ function loadenemy(filename)
 	end
 end
 
-function usebase(t)
-	local r = {}
-	
-	for i, v in pairs(t) do
-		check = true
-		for j in pairs(nobasevalues) do
-			if i == v then
-				check = false
-				break
-			end
-		end
-		if check then
-			if i ~= "description" then
-				r[i] = v
-			end
-		end
-	end
-	
-	return r
-end

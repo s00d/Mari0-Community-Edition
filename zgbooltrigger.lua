@@ -67,14 +67,14 @@ function zgbooltrigger:update(dt)
 end
 
 function zgbooltrigger:draw()
-	love.graphics.setColor(255, 255, 255)
+	love.graphics.setColor(1, 1, 1)
 	local quad = 1
 	if self.out=="on" then
 		quad = 2
 	end
 	
 	if not self.invisible then
-		love.graphics.drawq(zgbooltriggerimg, zgbooltriggerquad[quad], math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
+		love.graphics.draw(zgbooltriggerimg, zgbooltriggerquad[quad], math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
 	end
 end
 

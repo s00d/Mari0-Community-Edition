@@ -64,9 +64,9 @@ function animatedquad:updateproperties()
 				local x = v.x
 				local y = v.y
 				if self.props.collision then
-					objects["tile"][x .. "-" .. y] = tile:new(x-1, y-1)
+					objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
 				else
-					objects["tile"][x .. "-" .. y] = nil
+					objects["tile"][tilekey(x, y)] = nil
 					checkportalremove(x, y)
 				end
 			end

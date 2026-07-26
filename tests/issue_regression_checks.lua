@@ -51,25 +51,16 @@ end
 
 -- #98: multiple flying-fish zones
 do
-	-- inline buildstartendzones
-	local function buildstartendzones(starts, ends)
-		local zones = {}
-		if not starts or #starts == 0 then return zones end
-		local unpack = table.unpack or unpack
-		local s = {unpack(starts)}
-		local e = {unpack(ends or {})}
-		table.sort(s)
-		table.sort(e)
-		local ei = 1
-		for i = 1, #s do
-			local sx = s[i]
-			local ex = false
-			while e[ei] and e[ei] <= sx do ei = ei + 1 end
-			if e[ei] then ex = e[ei]; ei = ei + 1 end
-			table.insert(zones, {sx, ex})
+	local root = ...
+	if not root or root == "" then
+		local info = debug.getinfo(1, "S").source
+		if info:sub(1, 1) == "@" then
+			root = info:sub(2):match("^(.*)/tests/") or "."
+		else
+			root = "."
 		end
-		return zones
 	end
+	dofile(root .. "/zones.lua")
 	local zones = buildstartendzones({10, 50}, {20, 60})
 	check("#98 two zones created", #zones == 2)
 	local function inzone(x, zones)
@@ -159,9 +150,13 @@ end
 
 print("")
 if failed == 0 then
-	print("All checks passed.")
-	os.exit(0)
+	print("All issue regression checks passed.")
 else
-	print(failed .. " check(s) failed.")
-	os.exit(1)
+	print(failed .. " issue check(s) failed.")
 end
+
+-- When loaded by tests/run.lua, first vararg is repo root → return failure count.
+if select("#", ...) > 0 then
+	return failed
+end
+os.exit(failed > 0 and 1 or 0)

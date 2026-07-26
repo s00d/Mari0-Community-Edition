@@ -68,11 +68,7 @@ function onlinemenu_update(dt)
 		end
 	end
 	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(magics, v) --remove
-	end
+	remove_indices_desc(magics, delete)
 	
 	localnick = guielements.nickentry.value
 end

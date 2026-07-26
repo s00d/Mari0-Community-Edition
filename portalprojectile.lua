@@ -79,11 +79,7 @@ function portalprojectile:update(dt)
 		end
 	end
 	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(self.particles, v)
-	end
+	remove_indices_desc(self.particles, delete)
 	
 	if (self.timer >= self.time and self.timer-dt < self.time) or (self.time <= 0.005 and self.payloaddelivered == false) then
 		self:createportal()

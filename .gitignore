@@ -9,3 +9,12 @@
 
 # Makefile build output
 /dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Teal / Cyan build output
+/build/

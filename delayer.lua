@@ -61,11 +61,7 @@ function delayer:update(dt)
 		end
 	end
 	
-	table.sort(delete, function(a,b) return a>b end)
-	
-	for i, v in pairs(delete) do
-		table.remove(self.timers, v) --remove
-	end
+	remove_indices_desc(self.timers, delete)
 end
 
 function delayer:draw()
