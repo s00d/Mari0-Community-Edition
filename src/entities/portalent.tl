@@ -68,7 +68,7 @@ function portalent:link()
 	end
 end
 
-function portalent:update(dt: number)
+function portalent:update(dt: number): any...
 	
 end
 

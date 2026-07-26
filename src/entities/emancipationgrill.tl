@@ -119,7 +119,7 @@ function emancipationgrill:link()
 	end
 end
 
-function emancipationgrill:update(dt: number): any
+function emancipationgrill:update(dt: number): any...
 	if self.destroy then
 		return true
 	end

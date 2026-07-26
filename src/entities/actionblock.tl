@@ -31,7 +31,7 @@ function actionblock:addoutput(a, t)
 	table.insert(self.outtable, {a, t})
 end
 
-function actionblock:update(dt: number)
+function actionblock:update(dt: number): any...
 	if self.timer < blockbouncetime then
 		self.timer = math.min(blockbouncetime, self.timer + dt)
 	end

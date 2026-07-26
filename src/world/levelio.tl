@@ -297,7 +297,7 @@ global function loadmap(...: any): any
 			
 				--create object for block
 				if createobjects and tilequads[tonumber(r[1])]:getproperty("collision", x, y) == true then
-					objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
+					objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
 				end
 				
 				x = x + 1
@@ -329,7 +329,7 @@ global function loadmap(...: any): any
 			
 			--create object for block
 			if createobjects and tilequads[tonumber(r[1])]:getproperty("collision", x, y) == true then
-				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
+				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
 			end
 			
 			x = x + 1
@@ -420,7 +420,7 @@ global function loadmap(...: any): any
 		for y = mapheight-1, mapheight do
 			map[x as number][y as number] = {2} as MapCell
 			if createobjects then
-				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
+				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
 			end
 		end
 	end

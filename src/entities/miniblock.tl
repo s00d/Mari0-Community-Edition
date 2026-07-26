@@ -17,7 +17,7 @@ function miniblock:init(x: number, y: number, i)
 	self.timer = math.pi*1.5
 end
 
-function miniblock:update(dt: number)
+function miniblock:update(dt: number): any...
 	self.speedy = self.speedy + yacceleration*dt
 	--check for collision
 	local x = math.floor(self.x)+1

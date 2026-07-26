@@ -74,7 +74,7 @@ function laser:input(t, input)
 	end
 end
 
-function laser:update(dt: number): any
+function laser:update(dt: number): any...
 	if self.framestart < 2 then
 		self.framestart = self.framestart + 1
 		return

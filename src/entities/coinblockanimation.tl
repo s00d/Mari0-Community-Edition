@@ -16,7 +16,7 @@ function coinblockanimation:init(x: number, y: number)
 	self.frame = 1
 end
 
-function coinblockanimation:update(dt: number)
+function coinblockanimation:update(dt: number): any...
 	self.timer = self.timer + dt
 	while self.timer > coinblockdelay do
 		self.frame = self.frame + 1

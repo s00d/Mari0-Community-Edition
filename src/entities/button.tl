@@ -43,7 +43,7 @@ function button:init(x: number, y: number, r)
 	self.pressings = {}
 end
 
-function button:update(dt: number)
+function button:update(dt: number): any...
 	local x, y, width, height
 	if self.dir == "down" then
 		x = self.x+5/16

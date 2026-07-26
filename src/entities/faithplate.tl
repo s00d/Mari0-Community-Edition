@@ -99,7 +99,7 @@ function faithplate:link()
 	end
 end
 
-function faithplate:update(dt: number)
+function faithplate:update(dt: number): any...
 	if self.animationtimer < 1 then
 		self.animationtimer = self.animationtimer + dt / faithplatetime
 	end

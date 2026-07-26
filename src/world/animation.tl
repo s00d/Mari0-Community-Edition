@@ -137,7 +137,7 @@ function animation:addaction(v)
 	table.insert(self.actions, {unpack(v)})
 end
 
-function animation:update(dt: number)
+function animation:update(dt: number): any...
 	--check my triggers for triggering, yo
 	for i, v in ipairs(self.triggers as {{any}}) do
 		if v[1] == "mapload" then

@@ -91,7 +91,7 @@ function music:stop(name, fast)
 	end
 end
 
-function music:update()
+function music:update(): any...
 	for filepath, source in pairs(self.loaded) do
 		source:setPitch(self.pitch)
 	end

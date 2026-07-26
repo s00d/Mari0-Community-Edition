@@ -117,7 +117,7 @@ function scaffold:input(t, input)
 	end
 end
 
-function scaffold:update(dt: number)
+function scaffold:update(dt: number): any...
 	if not self.power then
 		return false
 	end

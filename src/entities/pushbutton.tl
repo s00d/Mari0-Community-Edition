@@ -37,7 +37,7 @@ function pushbutton:init(x: number, y: number, r)
 	self.timer = pushbuttontime
 end
 
-function pushbutton:update(dt: number)
+function pushbutton:update(dt: number): any...
 	if self.timer < pushbuttontime then
 		self.timer = self.timer + dt
 		if self.timer >= pushbuttontime then

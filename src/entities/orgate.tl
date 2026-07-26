@@ -50,7 +50,7 @@ function orgate:addoutput(a, t)
 	table.insert(self.outtable, {a, t})
 end
 
-function orgate:update(dt: number)
+function orgate:update(dt: number): any...
 	if self.initial then
 		self.initial = false
 	end

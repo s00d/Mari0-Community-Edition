@@ -31,7 +31,7 @@ function spring:init(x: number, y: number)
 	self.frame = 1
 end
 
-function spring:update(dt: number)
+function spring:update(dt: number): any...
 	if self.timer < springtime then
 		self.timer = self.timer + dt
 		if self.timer > springtime then

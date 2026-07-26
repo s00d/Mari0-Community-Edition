@@ -67,7 +67,7 @@ function seesaw:init(x: number, y: number, r: any)
 	table.insert(objects["seesawplatform"] as {any}, self.rightplatform)
 end
 
-function seesaw:update(dt: number): any
+function seesaw:update(dt: number): any...
 	local leftp = self.leftplatform as seesawplatform
 	local rightp = self.rightplatform as seesawplatform
 	if self.falloff then

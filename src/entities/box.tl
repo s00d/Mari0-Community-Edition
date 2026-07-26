@@ -54,7 +54,7 @@ function box:init(x: number, y: number)
 	self.portaledframe = false
 end
 
-function box:update(dt: number)
+function box:update(dt: number): any...
 	local friction = boxfrictionair
 	if self.falling == false then
 		friction = boxfriction

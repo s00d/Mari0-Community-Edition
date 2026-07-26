@@ -1165,7 +1165,7 @@ function animationguiline:init(tabl, t2): any
 	end
 end
 
-function animationguiline:update(dt: number): any
+function animationguiline:update(dt: number): any...
 	for i = 1, #self.elements do
 		if self.elements[i].gui then
 			self.elements[i].gui:update(dt)
@@ -1175,7 +1175,7 @@ function animationguiline:update(dt: number): any
 	self.upbutton:update(dt)
 end
 
-function animationguiline:draw(x: number, y: number): any
+function animationguiline:draw(x: number, y: number)
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.rectangle("fill", x*scale, y*scale, (width*16-x)*scale, 11*scale)
 	love.graphics.setColor(1, 1, 1)

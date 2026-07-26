@@ -54,7 +54,7 @@ function squarewave:addoutput(a, t)
 	table.insert(self.outtable, {a, t})
 end
 
-function squarewave:update(dt: number)
+function squarewave:update(dt: number): any...
 	if self.initial then
 		self.initial = false
 		if self.timer > self.time1 then

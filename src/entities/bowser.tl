@@ -67,7 +67,7 @@ function bowser:init(x: number, y: number, i)
 	self:newtargetx("right")
 end
 
-function bowser:update(dt: number)
+function bowser:update(dt: number): any...
 	if self.shot then
 		self.speedy = self.speedy + shotgravity*dt
 		

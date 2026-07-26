@@ -17,7 +17,7 @@ function itemanimation:init(x: number, y: number, i)
 	self.v = enemiesdata[self.i]
 end
 
-function itemanimation:update(dt: number)
+function itemanimation:update(dt: number): any...
 	self.timer = self.timer + dt
 	if enemiesdata[self.i]["directfromblock"] then
 		table.insert(objects["enemy"], enemy:new(self.x, self.y, self.i, map[self.x][self.y]))

@@ -79,7 +79,7 @@ function funnel:link()
 	end
 end
 
-function funnel:update(dt: number): any	
+function funnel:update(dt: number): any...	
 	if self.power then
 		self.timer = self.timer + dt
 		if self.timer > self.animationtime then

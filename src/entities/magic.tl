@@ -16,7 +16,7 @@ function magic:init()
 	self.color = {202/255+(math.random()-.7)*0.2, 170/255+(math.random()-.7)*0.2, 209/255+(math.random()-.7)*0.2}
 end
 
-function magic:update(dt: number)
+function magic:update(dt: number): any...
 	self.t = self.t + dt
 	if self.t >= self.lifetime then
 		return true

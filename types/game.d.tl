@@ -116,7 +116,6 @@ global inmap: function(x: number|nil, y: number|nil): boolean
 global inrange: function(i: number, a: number, b: number, include: boolean|nil): boolean
 global round: function(num: number, idp: number|nil): number
 global tablecontains: function(t: {any}, entry: any): boolean
-global properprint: function(...: any)
 global getTile: function(number, number, any, any, any, any, any, any): any, any
 global getMouseTile: function(x: number, y: number): number, number
 
@@ -194,7 +193,7 @@ global onlinemappacklist: {string}
 global onlinemappackselection: integer
 global helpui: {number}
 global hotkeys: any
-global selection: number
+global selection: any
 global selectionlist: {SelectionTile}
 global brush: {number}
 global record RegionDragging
@@ -232,6 +231,7 @@ global server_start: function(...: any): any
 global spriteset: any
 global custombackground: any
 global customforeground: any
+global backgroundlevel: any
 global background: any
 global coinmap: {any:{any}}
 global smbtilecount: integer
@@ -352,7 +352,7 @@ end
 global entityquads: {number:EntityQuad}
 global levelfinishedmisc: any
 global playertype: string
-global animatedtimers: {any:{any:any}}
+global animatedtimers: {any:{any:animatedtimer}}
 global tileselectionclick1: any
 global tileselectionclick2: any
 global playertypei: number
@@ -391,7 +391,7 @@ global blockbouncetimer: {any:any}
 global pausemenuopen: boolean
 global musiclist: {string}
 global animatedtilecount: number
-global animatedbooltimers: {any:{any:any}}
+global animatedbooltimers: {any:{any:animatedbooltimer}}
 global allowdrag: boolean
 global rightclickactive: boolean
 global selectionx: number
@@ -443,7 +443,7 @@ global coinblockanimations: {any:Entity}
 global portaldotstimer: number
 global tilenumber: number
 global customtiles: boolean
-global scrollingcomplete: boolean
+global scrollingcomplete: number
 global checkpointy: {number:number}
 global checkpointsub: number|boolean
 global mariosizes: {any}
@@ -547,7 +547,7 @@ global axiserror: any
 global cheepcheepquad: {{Quad}}
 global portalparticles: {any:Entity}
 global portaldotstime: number
-global scenecanvas: {any}
+global scenecanvas: any
 global desktopprompt: boolean
 global suspendprompt: boolean
 global smbspritebatch: SpriteBatch
@@ -626,7 +626,7 @@ global flagimgy: number
 global sunrot: number
 global replaysystem: boolean
 global replaytimer: {number:number}
-global scrollingleftcomplete: boolean
+global scrollingleftcomplete: number
 global userscrollspeed: number
 global downscrollborder: number
 global firestarted: boolean
@@ -669,7 +669,7 @@ global realaction: boolean
 global faithplateplateimg: Image
 global img: {string:any}
 global bowserfall: boolean
-global portalquad: {Quad}
+global portalquad: {any}
 global vinequad: {{Quad}}
 global brushmax: number
 global minimapscrollspeed: number
@@ -730,7 +730,7 @@ global lakitoendx: any
 global mazeinprogress: boolean
 global skipupdate: boolean
 global livereplaystored: {number:{string:any}}
-global fontquads: {any:Quad}
+global fontquads: {any}
 global delaylist: {string:any}
 global imagelist: {string}
 global marioversion: number
@@ -765,7 +765,7 @@ global castleflagmove: boolean
 global castleflagtime: number
 global bridgedisappear: boolean
 global platformimg: Image
-global springquads: {{Quad}}
+global springquads: {any}
 global linktoolfadeouttime: number
 global tileswitcherpressed: boolean
 global entitytooltipobject: {any}
@@ -930,7 +930,7 @@ global panelquad: {{Quad}}
 global platformbonusimg: Image
 global portalglowimg: Image
 global portalimg: Image
-global rainboomquad: {{Quad}}
+global rainboomquad: {any}
 global walltimerquad: {{Quad}}
 global secretcheckboxtext: {string}
 global editorloadopen: boolean
@@ -1309,7 +1309,6 @@ global createdialogbox: function(...: any): any
 global creategame: function(...: any): any
 global createmappack: function(...: any): any
 global createnewanimation: function(...: any): any
-global dbprint: function(...: any): any
 global decreasetimelimit: function(...: any): any
 global defaultbackground: function(...: any): any
 global defaultconfig: function(...: any): any
@@ -1375,6 +1374,17 @@ global finishregion: function(...: any): any
 global fromanimationstab: function(...: any): any
 global fromlightdrawcustomizetab: function(...: any): any
 global frommapstab: function(...: any): any
+
+global game_update: function(...: any): any
+global getquadprops: function(...: any): any
+global properprint: function(...: any): any
+global print_r: function(...: any): any
+global openSaveFolder: function(...: any): any
+global dbprint: function(...: any): any
+global keypromptenter: function(...: any): any
+global loadcustombackgrounds: function(...: any): any
+global loadcustommusics: function(...: any): any
+global loadcustomtiles: function(...: any): any
 global game_draw: function(...: any): any
 global game_draw_debug: function(...: any): any
 global game_draw_fx: function(...: any): any
@@ -1394,7 +1404,6 @@ global game_load: function(...: any): any
 global game_mousepressed: function(...: any): any
 global game_mousereleased: function(...: any): any
 global game_textinput: function(...: any): any
-global game_update: function(...: any): any
 global generateanimationgui: function(...: any): any
 global generateentitylist: function(...: any): any
 global generatespritebatch: function(...: any): any
@@ -1402,12 +1411,11 @@ global getAngleFrame: function(...: any): any
 global getPortal: function(number, number, any): any
 global getSelectedTiles: function(...: any): {{any}}
 global getTiles: function(...: any): any
-global getaveragecolor: function(...: any): any
+global getaveragecolor: function(...: any): any, any, any
 global getentityhighlight: function(...: any): any
 global getfilepath: function(...: any): any
 global getmaps: function(...: any): any
 global getportalposition: function(...: any): any...
-global getquadprops: function(ImageData, number, number): {string:any}
 global getupdate: function(...: any): any
 global givelive: function(...: any): any
 global globintCH: function(...: any): any
@@ -1428,7 +1436,6 @@ global intro_update: function(...: any): any
 global item: function(...: any): any
 global joingame: function(...: any): any
 global keyprompt_update: function(...: any): any
-global keypromptenter: function(...: any): any
 global keypromptstart: function(...: any): any
 global leftkey: function(...: any): any
 global level_count_tile_entries: function({any}, any): any
@@ -1450,11 +1457,8 @@ global loadbackground: function(...: any): any
 global loadbackgroundsafe: function(...: any): any
 global loadcharacter: function(...: any): any
 global loadconfig: function(...: any): any
-global loadcustombackgrounds: function(string): any
 global loadcustomimages: function(string): any
-global loadcustommusics: function(string): any
 global loadcustomsounds: function(string): any
-global loadcustomtiles: function(string): any
 global loadenemy: function(...: any): any
 global loadhat: function(...: any): any
 global loadlevel: function(...: any): boolean
@@ -1509,7 +1513,6 @@ global onlinemenu_draw: function(...: any): any
 global onlinemenu_load: function(...: any): any
 global onlinemenu_update: function(...: any): any
 global onlineupdatescroll: function(...: any): any
-global openSaveFolder: function(...: any): any
 global openchangewidth: function(...: any): any
 global passivecollision: function(Entity, Entity, any, any, any, any, number): boolean
 global physicsupdate: function(...: any): any
@@ -1519,7 +1522,6 @@ global playsound: function(...: any): any
 global portalcoords: function(number, number, number, number, number, number, number, any, number|boolean, number|boolean, any, number|boolean, number|boolean, any, Entity, boolean|nil): number, number, number, number, number, any
 global prerotatecall: function(...: any): any
 global previouscharacter: function(...: any): any
-global print_r: function(...: any): any
 global properprint2: function(...: any): any
 global properprintbackground: function(...: any): any
 global removelink: function(...: any): any
@@ -1577,7 +1579,7 @@ global togglemagic: function(...: any): any
 global toggleskiplevelscreen: function(...: any): any
 global toggleunderwater: function(...: any): any
 global togglewarpzone: function(...: any): any
-global traceline: function(number, number, number, any): any
+global traceline: function(...: any): any...
 global trianglepassivecollision: function(Entity, Entity, any, any, any, any, number): any
 global trianglevercollision: function(Entity, Entity, any, any, any, any, number): any
 global twistdirection: function(...: any): any

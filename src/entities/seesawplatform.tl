@@ -36,7 +36,7 @@ function seesawplatform:init(x: number, y: number, size, callback, side)
 	self.speedy = 0
 end
 
-function seesawplatform:update(dt: number)
+function seesawplatform:update(dt: number): any...
 	local previousX = self.x
 	local previousY = self.y
 	

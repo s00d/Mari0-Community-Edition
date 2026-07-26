@@ -77,7 +77,7 @@ function dialogbox:init(text, speaker)
 	end
 end
 
-function dialogbox:update(dt: number)
+function dialogbox:update(dt: number): any...
 	if self.curchar < #self.text then
 		self.chartimer = self.chartimer + dt
 		while self.chartimer > self.chardelay do

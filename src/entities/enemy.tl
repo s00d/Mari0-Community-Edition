@@ -89,7 +89,7 @@ function enemy:init(x: number, y: number, t: string, a: any)
 		local closestplayer = 1
 		self.animationdirection = "right"
 		local closestdist = math.huge
-		for i = 1, #playerobjs do
+		for i = 1, #(playerobjs as {any}) do
 			local v = playerobjs[i]
 			local dist = math.sqrt((v.x-self.x)^2+(v.y-self.y)^2)
 			if dist < closestdist then
@@ -190,7 +190,7 @@ function enemy:init(x: number, y: number, t: string, a: any)
 	self.outtable = {}
 end
 
-function enemy:update(dt: number): any
+function enemy:update(dt: number): any...
 	--Funnels and fuck
 	if self.funnel and not self.infunnel then
 		self:enteredfunnel(true)
@@ -643,7 +643,7 @@ function enemy:update(dt: number): any
 			self.flyingtimer = self.flyingtimer - (self.flyingtime or 7)
 		end
 		
-		local newy = self:func(self.flyingtimer/(self.flyingtime or 7))*(self.flyingdistance or 7.5) + self.starty
+		local newy = (self:func(self.flyingtimer/(self.flyingtime or 7)) as number)*(self.flyingdistance or 7.5) + (self.starty as number)
 		self.y = newy
 	elseif self.movement == "flyhorizontal" then
 		self.flyingtimer = self.flyingtimer + dt
@@ -652,7 +652,7 @@ function enemy:update(dt: number): any
 			self.flyingtimer = self.flyingtimer - (self.flyingtime or 7)
 		end
 		
-		local newx = self:func(self.flyingtimer/(self.flyingtime or 7))*(self.flyingdistance or 7.5) + self.startx
+		local newx = (self:func(self.flyingtimer/(self.flyingtime or 7)) as number)*(self.flyingdistance or 7.5) + (self.startx as number)
 		self.x = newx
 	end
 	
@@ -829,7 +829,7 @@ function enemy:update(dt: number): any
 	
 	if self.customtimer then
 		self.customtimertimer = self.customtimertimer + dt
-		while self.customtimertimer > (self.customtimer as {{any}})[self.currentcustomtimerstage][1] as number do
+		while self.customtimertimer > (((self.customtimer as {any})[self.currentcustomtimerstage as integer] as {any})[1] as number) do
 			local ct = self.customtimer as {{any}}
 			local stage = ct[self.currentcustomtimerstage]
 			self.customtimertimer = self.customtimertimer - stage[1] as number
@@ -886,7 +886,7 @@ function enemy:shotted(dir: any, below: any, high: any, fireball: any, star: any
 	if high then
 		self.speedy = self.speedy*2
 	end
-	self.direction = dir or "right"
+	self.direction = (dir or "right") as string
 	self.gravity = shotgravity
 	
 	if self.direction == "left" then
@@ -902,7 +902,7 @@ function enemy:shotted(dir: any, below: any, high: any, fireball: any, star: any
 			self.upsidedown = true
 			self.kickedupsidedown = true
 			self.offsetY = 4
-			self.movement = self.smallmovement
+			self.movement = self.smallmovement as string
 			self.animationtype = "none"
 		else
 			self.shot = true
@@ -1348,7 +1348,7 @@ function enemy:stomp(x: any, b: Entity): any
 				self.offsetY = 0
 				self.quad = self.quadgroup[self.smallquad]
 				self.small = true
-				self.movement = self.smallmovement
+				self.movement = self.smallmovement as string
 				self.speedx = 0
 				self.animationtype = "none"
 			elseif self.speedx == 0 then

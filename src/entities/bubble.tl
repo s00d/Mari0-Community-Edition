@@ -18,7 +18,7 @@ function bubble:init(x: number, y: number)
 	self.speedy = -bubblesspeed
 end
 
-function bubble:update(dt: number)
+function bubble:update(dt: number): any...
 	self.speedy = self.speedy + (math.random()-0.5)*dt*100
 	
 	if self.speedy < -bubblesspeed-bubblesmargin then

@@ -1,6 +1,7 @@
 --[[ scale / print / custom media / helpers ]]
 
-global function loadcustomimages(path: string): any
+global function loadcustomimages(...: any): any
+	local path = select(1, ...) as string
 	-- Restore image defaults via AssetStore, then apply mappack overrides.
 	assets:restore_image_defaults()
 	for _, s in ipairs(imagelist) do
@@ -66,7 +67,8 @@ global function loadcustomimages(path: string): any
 	portaltilecount = width*height
 end
 
-global function loadcustomsounds(path: string): any
+global function loadcustomsounds(...: any): any
+	local path = select(1, ...) as string
 	assets:restore_sound_defaults()
 	for _, id in ipairs(soundstoload) do
 		if assets.sounds[id] then
@@ -181,7 +183,7 @@ global function newRecoloredImage(...: any): any
 	return love.graphics.newImage(imagedata)
 end
 
-global function getaveragecolor(...: any): any
+global function getaveragecolor(...: any): any, any, any
 	local imgdata, cox, coy = ...
 	local idata = imgdata as ImageData
 	local cx = cox as number
@@ -210,7 +212,7 @@ end
 
 global function keyprompt_update(...: any): any
 	if keyprompt then
-		local js = love.joystick.getJoysticks()
+		local js = (love.joystick.getJoysticks() as {any})
 		for i = 1, prompt.joysticks do
 			for j = 1, #prompt.joystick[i].validhats do
 				local dir = js[i]:getHat(prompt.joystick[i].validhats[j])
@@ -234,7 +236,7 @@ global function keyprompt_update(...: any): any
 	end
 end
 
-global function print_r (t, indent) --Not by me
+global function print_r(t: any, indent: any): any --Not by me
 	local indent=indent or ''
 	for key,value in pairs(t) do
 		io.write(indent,'[',tostring(key),']') 
@@ -243,7 +245,7 @@ global function print_r (t, indent) --Not by me
 	end
 end
 
-global function openSaveFolder(subfolder) --By Slime
+global function openSaveFolder(subfolder: any): any --By Slime
 	local path = love.filesystem.getSaveDirectory()
 	path = subfolder and path.."/"..subfolder or path
 	
@@ -295,7 +297,7 @@ global function getupdate(...: any): any
 	return false
 end
 
-global function properprint(s, x, y, sc)
+global function properprint(s: any, x: any, y: any, sc: any): any
 	local scale = sc or scale
 	local startx = x
 	local skip = 0
@@ -451,7 +453,7 @@ global function loadcustomtiles(...: any): any
 		
 		for y = 1, height do
 			for x = 1, width do
-				table.insert(tilequads, quad:new(customtilesimg, imgdata, x, y, imgwidth, imgheight))
+				table.insert(tilequads as {any}, quad:new(customtilesimg, imgdata, x, y, imgwidth, imgheight) as TileQuad)
 				local r, g, b = getaveragecolor(imgdata, x, y)
 				table.insert(rgblist, {r / LOVE_COLOR_MAX, g / LOVE_COLOR_MAX, b / LOVE_COLOR_MAX})
 			end
@@ -485,7 +487,7 @@ global function loadmodcustomtiles(...: any): any
 			
 			for y = 1, height do
 				for x = 1, width do
-					table.insert(tilequads, quad:new(modcustomtilesimg[i], imgdata, x, y, imgwidth, imgheight))
+					table.insert(tilequads as {any}, quad:new(modcustomtilesimg[i], imgdata, x, y, imgwidth, imgheight) as TileQuad)
 					local r, g, b = getaveragecolor(imgdata, x, y)
 					table.insert(rgblist, {r, g, b})
 				end
@@ -498,7 +500,7 @@ global function loadmodcustomtiles(...: any): any
 	end
 end
 
-global function dbprint(x) --debugprint; set debugprints=true to enable
+global function dbprint(x: any): any --debugprint; set debugprints=true to enable
 	if Logger then
 		Logger.debug(x)
 	elseif debugprints then

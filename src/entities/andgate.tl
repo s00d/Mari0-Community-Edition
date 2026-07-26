@@ -50,7 +50,7 @@ function andgate:addoutput(a, t)
 	table.insert(self.outtable, {a, t})
 end
 
-function andgate:update(dt: number)
+function andgate:update(dt: number): any...
 	if self.initial then
 		self.initial = false
 	end

@@ -29,7 +29,7 @@ function animatedbooltimer:init(x: number, y: number, tileno)
 	table.insert(animatedbooltimerlist, self)
 end
 
-function animatedbooltimer:update(dt: number)
+function animatedbooltimer:update(dt: number): any...
 	local oldi = self:geti()
 	self.timer = self.timer + dt*self.dir
 	
@@ -89,7 +89,7 @@ function animatedbooltimer:input(t)
 	end
 end
 
-function animatedbooltimer:geti()
+function animatedbooltimer:geti(): any
 	for i = 2, #self.frametimes do
 		if self.timer > self.frametimes[i-1] and self.timer <= self.frametimes[i] then
 			return i

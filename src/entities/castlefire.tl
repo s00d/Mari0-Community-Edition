@@ -53,7 +53,7 @@ function castlefire:init(x: number, y: number, r)
 	self:updatequad()
 end
 
-function castlefire:update(dt: number)
+function castlefire:update(dt: number): any...
 	self.timer = self.timer + dt
 	
 	while self.timer > self.delay do

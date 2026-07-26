@@ -49,7 +49,7 @@ function gel:init(x: number, y: number, id)
 	self.destroy = false
 end
 
-function gel:update(dt: number)
+function gel:update(dt: number): any...
 	--Funnels and fuck
 	if self.funnel and not self.infunnel then
 		self:enteredfunnel(true)

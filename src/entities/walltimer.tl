@@ -54,7 +54,7 @@ function walltimer:addoutput(a, t)
 	table.insert(self.outtable, {a, t})
 end
 
-function walltimer:update(dt: number)
+function walltimer:update(dt: number): any...
 	if self.lighted then
 		self.quad = 2 as any
 	elseif self.timer == self.time then

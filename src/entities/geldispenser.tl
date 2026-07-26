@@ -72,7 +72,7 @@ function geldispenser:link()
 	end
 end
 
-function geldispenser:update(dt: number)
+function geldispenser:update(dt: number): any...
 	if self.dropping then
 		self.timer = self.timer + dt
 		

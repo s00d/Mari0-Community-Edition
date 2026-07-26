@@ -10,7 +10,7 @@ global function menu_load(...: any): any
 		v.active = false
 	end
 	
-	selection = 1 as any
+	selection = 1
 	coinanimation = 1
 	love.graphics.setBackgroundColor(92 / 255, 148 / 255, 252 / 255)
 	scrollsmoothrate = 4
@@ -763,7 +763,7 @@ global function menu_draw_options(...: any): any
 				
 				if controls[skinningplayer][controlstable[i]] then
 					for j = 1, #controls[skinningplayer][controlstable[i]] do
-						s = s .. tostring((((controls[skinningplayer] as {any})[controlstable[i as integer]] as {any})[j as integer]))
+						s = s .. tostring((((controls[skinningplayer] as {any:any})[controlstable[i as integer]] as {any})[j as integer]))
 					end
 				end
 				if s == " " then
@@ -903,7 +903,7 @@ global function menu_draw_options(...: any): any
 			
 			love.graphics.setColor(0.4, 0.4, 0.4)
 			local s = math.floor(mariocolors[skinningplayer][colorsetedit][1] * 255)
-			properprint(s, 200*scale-string.len(s)*4*scale, 116*scale)
+			properprint(s, 200*scale-string.len(tostring(s))*4*scale, 116*scale)
 			
 			love.graphics.setColor(0, 0.4, 0)
 			love.graphics.rectangle("fill", 51*scale, (126)*scale, math.floor(129*scale * mariocolors[skinningplayer][colorsetedit][2]), 7*scale)
@@ -912,7 +912,7 @@ global function menu_draw_options(...: any): any
 			
 			love.graphics.setColor(0.4, 0.4, 0.4)
 			local s = math.floor(mariocolors[skinningplayer][colorsetedit][2] * 255)
-			properprint(s, 200*scale-string.len(s)*4*scale, 126*scale)
+			properprint(s, 200*scale-string.len(tostring(s))*4*scale, 126*scale)
 			
 			love.graphics.setColor(0, 0, 0.4)
 			love.graphics.rectangle("fill", 51*scale, (136)*scale, math.floor(129*scale * mariocolors[skinningplayer][colorsetedit][3]), 7*scale)
@@ -921,7 +921,7 @@ global function menu_draw_options(...: any): any
 			
 			love.graphics.setColor(0.4, 0.4, 0.4)
 			local s = math.floor(mariocolors[skinningplayer][colorsetedit][3] * 255)
-			properprint(s, 200*scale-string.len(s)*4*scale, 136*scale)
+			properprint(s, 200*scale-string.len(tostring(s))*4*scale, 136*scale)
 		end
 		
 		--Portalhuehues
@@ -1267,7 +1267,7 @@ global function loadbackground(...: any): any
 	itemanimations = {}
 	textentities = {}
 	
-	if not love.filesystem.getInfo("mappacks/" .. tostring(mappack) .. "/" .. backgroundlevel) then
+	if not love.filesystem.getInfo("mappacks/" .. tostring(mappack) .. "/" .. tostring(backgroundlevel)) then
 		return false
 	else
 		loadmap((backgroundlevel as string):sub(1, -5))
@@ -1400,7 +1400,7 @@ global function loadmappacks(...: any): any
 		end
 	end
 	
-	mappack = mappacklist[mappackselection]
+	mappack = mappacklist[mappackselection as integer]
 	
 	--load background
 	--loadbackground("1-1.txt")
@@ -1514,7 +1514,7 @@ global function loadtoconvertmappacks(...: any): any
 		end
 	end
 	
-	--mappack = mappacklist[mappackselection]
+	--mappack = mappacklist[mappackselection as integer]
 	
 	--load background
 	--loadbackground("1-1.txt")
@@ -1727,7 +1727,7 @@ global function menu_keypressed(...: any): any
 			if mappacktype == "local" then
 				if mappackselection > 1 then
 					mappackselection = mappackselection - 1
-					mappack = mappacklist[mappackselection]
+					mappack = mappacklist[mappackselection as integer]
 					
 					updatescroll()
 				end
@@ -1750,7 +1750,7 @@ global function menu_keypressed(...: any): any
 			if mappacktype == "local" then
 				if mappackselection < #mappacklist then
 					mappackselection = mappackselection + 1
-					mappack = mappacklist[mappackselection]
+					mappack = mappacklist[mappackselection as integer]
 					
 					updatescroll()
 				end
@@ -2146,8 +2146,8 @@ global function menu_joystickhat(...: any): any
 
 end
 
-global function keypromptenter(t, ...)
-	arg = {...}
+global function keypromptenter(t: any, ...: any): any
+	local arg: {any} = {...}
 	if t == "key" and (arg[1] == ";" or arg[1] == "," or arg[1] == "," or arg[1] == "-") then
 		return
 	end

@@ -42,7 +42,7 @@ function wallindicator:link()
 	end
 end
 
-function wallindicator:update()
+function wallindicator:update(): any...
 
 end
 

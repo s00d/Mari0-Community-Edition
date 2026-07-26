@@ -56,7 +56,7 @@ function animatedtiletrigger:link()
 	end
 end
 
-function animatedtiletrigger:update()
+function animatedtiletrigger:update(): any...
 
 end
 

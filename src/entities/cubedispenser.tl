@@ -88,7 +88,7 @@ function cubedispenser:link()
 	end
 end
 
-function cubedispenser:update(dt: number)
+function cubedispenser:update(dt: number): any...
 	if self.timer < cubedispensertime then
 		self.timer = self.timer + dt
 		

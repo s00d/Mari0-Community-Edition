@@ -90,7 +90,7 @@ function platform:func(i) --0-1 in please
 	return (-math.cos(i*math.pi*2)+1)/2
 end
 
-function platform:update(dt: number): any
+function platform:update(dt: number): any...
 	if dt > 0 then --Debug fix when dividing by dt
 		if self.dir == "normal" then
 			self.timer = self.timer + dt
@@ -154,7 +154,7 @@ function platform:update(dt: number): any
 	return false
 end
 
-function platform:draw(): any
+function platform:draw()
 	for i = 1, self.size do
 		if self.dir ~= "justright" then
 			love.graphics.draw(platformimg, math.floor((self.x+i-1-xscroll)*16*scale), math.floor((self.y-yscroll-8/16)*16*scale), 0, scale, scale)

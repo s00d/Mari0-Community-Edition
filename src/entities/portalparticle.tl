@@ -27,7 +27,7 @@ function portalparticle:init(x: number, y: number, color, direction)
 	end
 end
 
-function portalparticle:update(dt: number)
+function portalparticle:update(dt: number): any...
 	self.timer = self.timer + dt
 	self.x = self.x + self.speedx*dt
 	self.y = self.y + self.speedy*dt

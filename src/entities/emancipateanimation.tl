@@ -35,7 +35,7 @@ function emancipateanimation:init(x: number, y: number, width, height, img, quad
 	self.timer2 = 0
 end
 
-function emancipateanimation:update(dt: number)
+function emancipateanimation:update(dt: number): any...
 	self.speedx = self.speedx + (math.random()-.5)*dt*emanceaccel
 	self.speedy = self.speedy + (math.random()-.5)*dt*emanceaccel
 

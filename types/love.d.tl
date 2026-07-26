@@ -20,7 +20,7 @@ global interface Entity is {any}
 	category: number
 	mask: {boolean}
 	draw: function(Entity)
-	update: function(Entity, number): any
+	update: function(Entity, number): any...
 	t: any
 	i: number
 	cox: number
@@ -38,7 +38,7 @@ global interface Entity is {any}
 	falling: boolean
 	flying: boolean
 	small: boolean
-	jumping: boolean
+	jumping: any
 	upsidedown: boolean
 	delete: boolean
 	kill: boolean

@@ -41,7 +41,7 @@ function portalprojectile:init(x: number, y: number, tx, ty, color, hit, payload
 	self.lastparticle = math.floor(self.timer/portalprojectileparticledelay)
 end
 
-function portalprojectile:update(dt: number)
+function portalprojectile:update(dt: number): any...
 	self.timer = self.timer + dt
 
 	if self.timer < self.time then
@@ -134,7 +134,7 @@ function portalprojectileparticle:init(x: number, y: number, color, r, g, b)
 	self.timer = 0
 end
 
-function portalprojectileparticle:update(dt: number)
+function portalprojectileparticle:update(dt: number): any...
 	self.timer = self.timer + dt
 	
 	self.speedx = self.speedx + math.random(-10, 10)/70

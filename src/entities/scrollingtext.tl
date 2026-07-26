@@ -15,7 +15,7 @@ function scrollingtext:init(s, x, y)
 	self.timer = 0
 end
 
-function scrollingtext:update(dt: number)
+function scrollingtext:update(dt: number): any...
 	self.timer = self.timer + dt
 	if self.timer > scrollingscoretime then
 		return true

@@ -117,16 +117,16 @@ global function game_draw_fx(...: any): any
 	end
 
 	--SCROLLING TEXT
-	for i, v in pairs(scrollingtexts) do
+	for i, v in pairs(scrollingtexts as {any:Entity}) do
 		v:draw()
 	end
 
 	--BLOCK DEBRIS
-	for i, v in pairs(blockdebristable) do
+	for i, v in pairs(blockdebristable as {any:Entity}) do
 		v:draw()
 	end
 
-	local minex, miney, minecox, minecoy
+	local minex, miney, minecox, minecoy = nil as any, nil as any, nil as any, nil as any
 
 	--PORTAL UI STUFF
 	if levelfinished == false then
@@ -134,7 +134,13 @@ global function game_draw_fx(...: any): any
 			if playerobjs[pl].controlsenabled and playerobjs[pl].t == "portal" and playerobjs[pl].vine == false and (playerobjs[pl].portalsavailable[1] or playerobjs[pl].portalsavailable[2]) then
 				local sourcex, sourcey = playerobjs[pl].x+6/16, playerobjs[pl].y+6/16
 				local an = playerobjs[pl].pointingangle
-				local cox, coy, side, tend, x, y = traceline(sourcex, sourcey, an)
+				local cox: any = false
+				local coy: any = nil
+				local side: any = nil
+				local tend: any = nil
+				local x: any = nil
+				local y: any = nil
+				cox, coy, side, tend, x, y = traceline(sourcex, sourcey, an)
 				local mirror = 1
 
 				local portalpossible = true
@@ -147,7 +153,13 @@ global function game_draw_fx(...: any): any
 
 						local sourcex, sourcey = playerobjs[pl].x+6/16, playerobjs[pl].y+6/16
 						local an = playerobjs[pl].pointingangle
-						local cox, coy, side, tend, x, y = traceline(sourcex, sourcey, an)
+						local cox: any = false
+						local coy: any = nil
+						local side: any = nil
+						local tend: any = nil
+						local x: any = nil
+						local y: any = nil
+						cox, coy, side, tend, x, y = traceline(sourcex, sourcey, an)
 
 						for a = 1, portalbouncethreshold do
 							if cox then

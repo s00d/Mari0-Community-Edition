@@ -168,7 +168,7 @@ function rightclickmenu:init(x: number, y: number, elements, tx, ty)
 	end
 end
 
-function rightclickmenu:update(dt: number)
+function rightclickmenu:update(dt: number): any...
 	for i = 1, #self.t do
 		if type(self.t[i][1]) == "table" then
 			for j = 1, #self.t[i] do

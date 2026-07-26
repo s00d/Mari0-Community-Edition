@@ -18,7 +18,7 @@ function rocketlauncher:init(x: number, y: number)
 	self.autodelete = true
 end
 
-function rocketlauncher:update(dt: number)
+function rocketlauncher:update(dt: number): any...
 	self.timer = self.timer + dt
 	if self.timer > self.time and self.x > xscroll and self.x < xscroll+width+2 then
 		if self:fire() then
@@ -35,7 +35,7 @@ function rocketlauncher:update(dt: number)
 	end
 end
 
-function rocketlauncher:fire()
+function rocketlauncher:fire(): any
 	--count all bullet bills
 	
 	local count = 0
@@ -126,7 +126,7 @@ function bulletbill:init(x: number, y: number, dir)
 	playsound("bulletbill")
 end
 
-function bulletbill:update(dt: number)
+function bulletbill:update(dt: number): any...
 	if self.x < self.startx - 1 or self.x > self.startx + 1 then
 		self.customscissor = nil
 	end

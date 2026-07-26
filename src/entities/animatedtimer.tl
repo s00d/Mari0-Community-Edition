@@ -29,7 +29,7 @@ function animatedtimer:init(x: number, y: number, tileno)
 	table.insert(animatedtimerlist, self)
 end
 
-function animatedtimer:update(dt: number)
+function animatedtimer:update(dt: number): any...
 	
 	
 	local oldi = self:geti()
@@ -85,7 +85,7 @@ function animatedtimer:input(t)
 	end
 end
 
-function animatedtimer:geti()
+function animatedtimer:geti(): any
 	for i = 2, #self.frametimes do
 		if self.timer > self.frametimes[i-1] and self.timer <= self.frametimes[i] then
 			return i

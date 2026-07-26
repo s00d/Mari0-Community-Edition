@@ -80,7 +80,7 @@ function door:link()
 	end
 end
 
-function door:update(dt: number)	
+function door:update(dt: number): any...	
 	if self.targetopen ~= self.open then
 		if self.forceclose then
 			self:closeopen(self.targetopen)
