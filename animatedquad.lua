@@ -39,6 +39,10 @@ function animatedquad:init(imgpath, s, number)
 	
 	for i = 1, #self.delays do
 		self.delays[i] = tonumber(self.delays[i])
+		-- Delay 0 causes an infinite loop in update(); treat as a static frame.
+		if not self.delays[i] or self.delays[i] <= 0 then
+			self.delays[i] = math.huge
+		end
 	end
 	
 	local delaycount = #self.delays

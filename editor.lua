@@ -1096,7 +1096,7 @@ function editor_draw()
 					local drawtable = {}
 					
 					for i = 1, #map[tx][ty] do
-						if map[tx][ty][i] == "link" then
+						if map[tx][ty][i] == "link" and tonumber(map[tx][ty][i+2]) and tonumber(map[tx][ty][i+3]) then
 							x2, y2 = math.floor((map[tx][ty][i+2]-xscroll-.5)*16*scale), math.floor((map[tx][ty][i+3]-yscroll-1)*16*scale)
 							
 							local t = map[tx][ty][i+1]
@@ -1141,12 +1141,14 @@ function editor_draw()
 			
 			local drawtable = {}
 			
-			for i = 1, #map[tx][ty] do
-				if map[tx][ty][i] == "link" then
-					x2, y2 = math.floor((map[tx][ty][i+2]-xscroll-.5)*16*scale), math.floor((map[tx][ty][i+3]-yscroll-1)*16*scale)
-					
-					local t = map[tx][ty][i+1]
-					table.insert(drawtable, {x1, y1, x2, y2, t})
+			if tx and ty and map[tx] and map[tx][ty] then
+				for i = 1, #map[tx][ty] do
+					if map[tx][ty][i] == "link" and tonumber(map[tx][ty][i+2]) and tonumber(map[tx][ty][i+3]) then
+						x2, y2 = math.floor((map[tx][ty][i+2]-xscroll-.5)*16*scale), math.floor((map[tx][ty][i+3]-yscroll-1)*16*scale)
+						
+						local t = map[tx][ty][i+1]
+						table.insert(drawtable, {x1, y1, x2, y2, t})
+					end
 				end
 			end
 			
@@ -2893,6 +2895,8 @@ function getmaps()
 			if not mapbuttons["text" .. worlds .. "-" .. levels] then
 				mapbuttons["text" .. worlds .. "-" .. levels] = guielement:new("text", 4, yadd+21, "world " .. worlds .. "-" .. levels, {0.5, 0.5, 0.5})
 				mapbuttons["text" .. worlds .. "-" .. levels].starty = yadd+21
+				mapbuttons["plus" .. worlds .. "-" .. levels] = guielement:new("button", 62+(string.len(worlds)+string.len(levels))*8, yadd+19, "+", mapnumberclick, 0, {worlds, levels, sublevels + 1})
+				mapbuttons["plus" .. worlds .. "-" .. levels].starty = yadd+19
 				yadd = yadd + 10
 			end
 			mapbuttons["text" .. worlds .. "-" .. levels .. "_" .. sublevels] = guielement:new("text", 4, yadd+26, "sub " .. sublevels, {0.5, 0.5, 0.5})
@@ -2907,7 +2911,7 @@ function getmaps()
 			end
 			yadd = yadd + 20
 			
-			if mapbuttons["plus" .. worlds .. "-" .. levels].arguments[3] < sublevels + 1 then
+			if mapbuttons["plus" .. worlds .. "-" .. levels] and mapbuttons["plus" .. worlds .. "-" .. levels].arguments[3] < sublevels + 1 then
 				mapbuttons["plus" .. worlds .. "-" .. levels].arguments[3] = sublevels + 1
 			end
 		end

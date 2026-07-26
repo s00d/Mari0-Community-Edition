@@ -150,9 +150,11 @@ function rightclickmenu:init(x, y, elements, tx, ty)
 				self.variables[#self.variables][j] = k
 			end
 		end
-			
 		
-		self.t[#self.t].active = true
+		-- Skip empty spacer entries that do not create a GUI element
+		if #self.t > 0 and self.t[#self.t] then
+			self.t[#self.t].active = true
+		end
 	end
 end
 

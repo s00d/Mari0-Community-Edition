@@ -286,9 +286,14 @@ function love.load(arg)
 	
 	if loveVersion > 9 then
 		lkisDown = love.keyboard.isDown
+		lkisScancodeDown = love.keyboard.isScancodeDown
 		lmisDown = love.mouse.isDown
+		-- Prefer scancodes so WASD/binds match physical keys on any layout (RU/EN/…)
 		function love.keyboard.isDown(key)
 			if key == " " then key = "space" end
+			if lkisScancodeDown then
+				return lkisScancodeDown(key)
+			end
 			return lkisDown(key)
 		end
 		function love.mouse.isDown(button)
@@ -1689,7 +1694,11 @@ function changescale(s, init)
 	end
 end
 
-function love.keypressed(key, isrepeat)
+function love.keypressed(key, scancode, isrepeat)
+	-- Layout-independent: scancode is physical key position (Love 0.10+)
+	if loveVersion > 9 and type(scancode) == "string" then
+		key = scancode
+	end
 	if key == "space" and loveVersion > 9 then key = " " end
 	if key == "k" then
 		savelevel()
@@ -1756,7 +1765,10 @@ function love.keypressed(key, isrepeat)
 	end
 end
 
-function love.keyreleased(key)
+function love.keyreleased(key, scancode)
+	if loveVersion > 9 and type(scancode) == "string" then
+		key = scancode
+	end
 	if key == "space" and loveVersion > 9 then key = " " end
 	if gamestate == "menu" or gamestate == "options" then
 		menu_keyreleased(key)

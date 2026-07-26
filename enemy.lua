@@ -1033,6 +1033,16 @@ function enemy:globalcollide(a, b, c, d, dir)
 	end
 	
 	if self.killsenemies and a == "enemy" then
+		-- Kicked shells must actively kill other enemies (previously returned without doing so,
+		-- which let shells phase through when the other side's collide was skipped).
+		if b and b.active and not b.shot and not b.dead and b.shotted then
+			local dir = "right"
+			if self.speedx < 0 then
+				dir = "left"
+			end
+			b:shotted(dir)
+			addpoints((firepoints[b.t] or 200), b.x, b.y)
+		end
 		return true
 	end
 	
@@ -1041,6 +1051,9 @@ function enemy:globalcollide(a, b, c, d, dir)
 	end
 	
 	if b.killsenemies then
+		if self.shot or self.dead then
+			return true
+		end
 		local dir = "right"
 		if b.speedx < 0 then
 			dir = "left"
@@ -1333,6 +1346,7 @@ function enemy:stomp(x, b)
 			else
 				self.speedx = 0
 				self.combo = 1
+				self.killsenemies = false
 			end
 		else
 			self.active = false

@@ -2838,10 +2838,16 @@ function loadlevel(level)
 	flyingfishstarted = false
 	flyingfishstartx = false
 	flyingfishendx = false
+	flyingfishstarts = {}
+	flyingfishends = {}
+	flyingfishzones = {}
 	bulletbilldelay = 1
 	bulletbillstarted = false
 	bulletbillstartx = false
 	bulletbillendx = false
+	bulletbillstarts = {}
+	bulletbillends = {}
+	bulletbillzones = {}
 	firetimer = firedelay
 	flyingfishtimer = flyingfishdelay
 	bulletbilltimer = bulletbilldelay
@@ -3442,14 +3448,18 @@ function loadmap(filename, createobjects)
 							firestartx = x
 							
 						elseif t == "flyingfishstart" then
-							flyingfishstartx = x
+							flyingfishstartx = x -- keep legacy single-zone vars for compatibility
+							table.insert(flyingfishstarts, x)
 						elseif t == "flyingfishend" then
 							flyingfishendx = x
+							table.insert(flyingfishends, x)
 							
 						elseif t == "bulletbillstart" then
 							bulletbillstartx = x
+							table.insert(bulletbillstarts, x)
 						elseif t == "bulletbillend" then
 							bulletbillendx = x
+							table.insert(bulletbillends, x)
 							
 						elseif t == "axe" then
 							axex = x
@@ -3615,6 +3625,10 @@ function loadmap(filename, createobjects)
 		end
 	end
 	
+	-- Pair start/end markers into zones (supports multiple fish/bullet zones per level)
+	flyingfishzones = buildstartendzones(flyingfishstarts, flyingfishends)
+	bulletbillzones = buildstartendzones(bulletbillstarts, bulletbillends)
+	
 	if createobjects then
 		--Add links
 		for i, v in pairs(objects) do
@@ -3729,6 +3743,33 @@ function loadmap(filename, createobjects)
 	print("* DONE!" .. string.rep(" ", #(mappack .. filename)+17) .. " *")
 	print("**************************" .. string.rep("*", #(mappack .. filename)))
 	return true
+end
+
+-- Pair start/end X markers into inclusive zones. Multiple pairs are supported.
+-- Unpaired starts extend to +inf; ends before a start are ignored.
+function buildstartendzones(starts, ends)
+	local zones = {}
+	if not starts or #starts == 0 then
+		return zones
+	end
+	local s = {unpack(starts)}
+	local e = {unpack(ends or {})}
+	table.sort(s)
+	table.sort(e)
+	local ei = 1
+	for i = 1, #s do
+		local sx = s[i]
+		local ex = false
+		while e[ei] and e[ei] <= sx do
+			ei = ei + 1
+		end
+		if e[ei] then
+			ex = e[ei]
+			ei = ei + 1
+		end
+		table.insert(zones, {sx, ex})
+	end
+	return zones
 end
 
 function changemapwidth(width)

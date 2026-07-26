@@ -29,7 +29,7 @@ vec3 lookup(Image texture, float offset_x, float offset_y, vec2 coord)
 {
 	vec2 offset = vec2(offset_x, offset_y);
 	vec3 color = Texel(texture, coord).rgb;
-	float delta = dist(fract(gl_TexCoord[0].xy * textureSize), offset + vec2(0.5));
+	float delta = dist(fract(VaryingTexCoord.xy * textureSize), offset + vec2(0.5));
 	return color * exp(-gamma * delta * color_bloom(color));
 }
 

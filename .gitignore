@@ -6,3 +6,6 @@
 
 /*.snap
 /*_source.tar.bz2
+
+# Makefile build output
+/dist/

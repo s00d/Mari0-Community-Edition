@@ -1157,20 +1157,42 @@ function mario:update(dt)
 			end
 		end
 		
-		if flyingfishstartx and self.x >= flyingfishstartx - 1 then
-			flyingfishstarted = true
-		end
-			
-		if flyingfishendx and self.x >= flyingfishendx - 1 then
+		if flyingfishzones and #flyingfishzones > 0 then
 			flyingfishstarted = false
+			for i = 1, #flyingfishzones do
+				local z = flyingfishzones[i]
+				if self.x >= z[1] - 1 and (not z[2] or self.x < z[2] - 1) then
+					flyingfishstarted = true
+					break
+				end
+			end
+		else
+			if flyingfishstartx and self.x >= flyingfishstartx - 1 then
+				flyingfishstarted = true
+			end
+				
+			if flyingfishendx and self.x >= flyingfishendx - 1 then
+				flyingfishstarted = false
+			end
 		end
 		
-		if bulletbillstartx and self.x >= bulletbillstartx - 1 then
-			bulletbillstarted = true
-		end
-		
-		if bulletbillendx and self.x >= bulletbillendx - 1 then
+		if bulletbillzones and #bulletbillzones > 0 then
 			bulletbillstarted = false
+			for i = 1, #bulletbillzones do
+				local z = bulletbillzones[i]
+				if self.x >= z[1] - 1 and (not z[2] or self.x < z[2] - 1) then
+					bulletbillstarted = true
+					break
+				end
+			end
+		else
+			if bulletbillstartx and self.x >= bulletbillstartx - 1 then
+				bulletbillstarted = true
+			end
+			
+			if bulletbillendx and self.x >= bulletbillendx - 1 then
+				bulletbillstarted = false
+			end
 		end
 		
 		if lakitoendx and self.x >= lakitoendx then
@@ -1857,10 +1879,13 @@ function gethatoffset(char, graphic, animationstate, runframe, jumpframe, climbf
 		if not char.bighatoffsets then
 			return
 		end
-		if infunnel or animationstate == "jumping" and not ducking then
+		-- Underwater swim offsets must win over jumping (operator precedence used to pick jumping).
+		if infunnel then
 			hatoffset = char.bighatoffsets["jumping"][jumpframe]
 		elseif underwater and (animationstate == "jumping" or animationstate == "falling") then
 			hatoffset = char.bighatoffsets["swimming"][swimframe]
+		elseif animationstate == "jumping" and not ducking then
+			hatoffset = char.bighatoffsets["jumping"][jumpframe]
 		elseif ducking then
 			hatoffset = char.bighatoffsets["ducking"]
 		elseif fireanimationtimer < fireanimationtime then
@@ -2977,6 +3002,12 @@ function hitblock(x, y, t, koopa)
 	end
 	
 	if tilequads[r[1]]:getproperty("breakable", x, y) == true or tilequads[r[1]]:getproperty("coinblock", x, y) == true then --Block should bounce!
+		-- Already bouncing: ignore further hits (prevents multi-coin from one mash).
+		for i, bx in pairs(blockbouncex) do
+			if bx == x and blockbouncey[i] == y then
+				return
+			end
+		end
 		table.insert(blockbouncetimer, 0.000000001) --yeah it's a cheap solution to a problem but screw it.
 		table.insert(blockbouncex, x)
 		table.insert(blockbouncey, y)

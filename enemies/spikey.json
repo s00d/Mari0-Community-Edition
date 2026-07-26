@@ -9,6 +9,7 @@
 	"nospritesets": true,
 	
 	"kills": true,
+	"notkilledfromblocksbelow": true,
 	
 	"movement": "truffleshuffle",
 	"truffleshufflespeed": 2,

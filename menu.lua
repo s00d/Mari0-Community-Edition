@@ -1351,8 +1351,16 @@ function loadmappacks()
 	mappackbackground = {}
 	
 	for i = 1, #mappacklist do
-		if love.filesystem.getInfo( "mappacks/" .. mappacklist[i] .. "/icon.png" ) then
-			mappackicon[i] = love.graphics.newImage("mappacks/" .. mappacklist[i] .. "/icon.png")
+		local iconpath = "mappacks/" .. mappacklist[i] .. "/icon.png"
+		-- SE-era packs sometimes used Thumb.png instead of icon.png
+		if not love.filesystem.getInfo(iconpath) then
+			iconpath = "mappacks/" .. mappacklist[i] .. "/Thumb.png"
+		end
+		if not love.filesystem.getInfo(iconpath) then
+			iconpath = "mappacks/" .. mappacklist[i] .. "/thumb.png"
+		end
+		if love.filesystem.getInfo(iconpath) then
+			mappackicon[i] = love.graphics.newImage(iconpath)
 		else
 			mappackicon[i] = nil
 		end
