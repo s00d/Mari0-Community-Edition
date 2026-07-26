@@ -7,16 +7,16 @@ notice.notices = {}
 notice.duration = 5 as any --seconds
 notice.fadetime = 0.5 as any
 
-function notice.new(text, color, duration)
+function notice.new(text: any, color: any, duration: any)
 	local duration = duration or notice.duration
 	local text = text or ""
 	local color = color or notice.white
-	table.insert(notice.notices, {text=text:lower(), color=color, life=duration, duration=duration})
+	table.insert(notice.notices, {text=(text as string):lower(), color=color, life=duration, duration=duration})
 end
 
-function notice.update(dt)
+function notice.update(dt: number)
 	for i = #notice.notices, 1, -1 do
-		local v = notice.notices[i]
+		local v = notice.notices[i] as {string:any}
 		
 		v.life = v.life - dt
 		
@@ -29,7 +29,7 @@ end
 function notice.draw()
 	local y = 0
 	for i = #notice.notices, 1, -1 do
-		local v = notice.notices[i]
+		local v = notice.notices[i] as {string:any}
 		
 		--get width by finding longest line
 		local split = strsplit(v.text, "|")
@@ -64,7 +64,7 @@ function notice.draw()
 	love.graphics.setColor(1, 1, 1)
 end
 
-function notice.gety(y, life, height, duration)
+function notice.gety(y: number, life: number, height: number, duration: number): number
 	if life > duration-notice.fadetime then
 		return y - height*((life-(duration-notice.fadetime))/notice.fadetime)^2
 	elseif life < notice.fadetime then

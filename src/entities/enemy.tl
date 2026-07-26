@@ -2,15 +2,15 @@
 
 rawset(_G, "enemy", rawget(_G, "enemy") or {})
 
-function enemy.new(_: enemy, x: number, y: number, t: any, a: any): enemy
+function enemy.new(_: enemy, x: number, y: number, t: string, a: any): enemy
 	local self = setmetatable({}, { __index = enemy }) as enemy
 	self:init(x, y, t, a)
 	return self
 end
 
-function enemy:init(x: number, y: number, t: any, a: any): any
+function enemy:init(x: number, y: number, t: string, a: any)
 	if not enemiesdata[t] then
-		return nil
+		return
 	end
 	
 	self.t = t as string
@@ -110,7 +110,7 @@ function enemy:init(x: number, y: number, t: any, a: any): any
 	end
 	
 	self.spawnallow = true
-	self.spawnedenemies = {} as any
+	self.spawnedenemies = {}
 	if self.movement == "piston" then
 		self.pistontimer = self.pistonretracttime
 		self.pistonstate = "retracting"

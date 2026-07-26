@@ -2,7 +2,7 @@
 -- Depends at runtime on: aabb/aabt, inmap, convertto/fromstandard, prerotatecall,
 -- and globals map/tilequads/yacceleration (and allowskip for purple gel).
 
-global function checkcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: any, dt: number, passed: any) --v: b1table | t: b2table | h: b2type | g: b2id | j: b1type | i: b1id
+global function checkcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: any, dt: number, passed: any): boolean, boolean --v: b1table | t: b2table | h: b2type | g: b2id | j: b1type | i: b1id
 	local hadhorcollision = false
 	local hadvercollision = false
 	
@@ -29,8 +29,8 @@ global function checkcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: 
 					--We're fucked, it's a diagonal collision! run!
 					--Okay actually let's take this slow okay. Let's just see if we're moving faster horizontally than vertically, aight?
 					local grav = yacceleration
-					if self and self.gravity then
-						grav = self.gravity
+					if v.gravity then
+						grav = v.gravity
 					end
 					if math.abs(v.speedy-grav*dt) < math.abs(v.speedx) then
 						--vertical collision it is.
@@ -68,8 +68,7 @@ global function checkcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: 
 	return hadhorcollision, hadvercollision
 end
 
-global function trianglevercollision(...: any): any
-	local v, t, h, g, j, i, dt = ...
+global function trianglevercollision(v: Entity, t: Entity, h: any, g: any, j: any, i: any, dt: number): any
 	if v.floorcollide then
 		if v:floorcollide(j, v, g, i) ~= false then
 			if v.speedy then
@@ -95,8 +94,7 @@ global function trianglevercollision(...: any): any
 	end
 end
 
-global function trianglepassivecollision(...: any): any
-	local v, t, h, g, j, i, dt = ...
+global function trianglepassivecollision(v: Entity, t: Entity, h: any, g: any, j: any, i: any, dt: number): any
 	trianglevercollision(v, t, h, g, j, i, dt)
 end
 
@@ -253,9 +251,8 @@ global function vercollision(v: Entity, t: Entity, h: any, g: any, j: any, i: an
 	return false
 end
 
-global function collisionscalls(...: any): any
-	local dir, obj, a, b, c, d = ...
-	local r
+global function collisionscalls(dir: any, obj: Entity, a: any, b: Entity, c: any, d: any): any
+	local r: any = nil
 	
 	if obj.gravitydirection > math.pi/4*1 and obj.gravitydirection <= math.pi/4*3 then
 		if dir == "floor" then
@@ -334,8 +331,7 @@ global function collisionscalls(...: any): any
 	return r
 end
 
-global function callcollision(...: any): any
-	local dir, obj, a, b, c, d = ...
+global function callcollision(dir: any, obj: Entity, a: any, b: Entity, c: any, d: any): any
 	if not obj.gravitydirection then
 		if dir == "floor" then
 			return obj:floorcollide(a, b, c, d)
@@ -350,7 +346,7 @@ global function callcollision(...: any): any
 	
 	obj.speedx, obj.speedy = converttostandard(obj, obj.speedx, obj.speedy)
 	
-	local r
+	local r: any = nil
 	
 	--PRE ROTATION CALLS!!! WOAAAH
 	if prerotatecall(a, b) then

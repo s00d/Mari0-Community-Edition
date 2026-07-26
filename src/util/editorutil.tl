@@ -34,7 +34,7 @@ end
 _G.editor_filter_map_files = editor_filter_map_files
 
 
-local function gettilelistpos(x: any, y: any): number|boolean
+local function gettilelistpos(x: number, y: number): number|boolean
 	if x >= 5*scale and y >= 38*scale and x < 378*scale and y < 203*scale then
 		x = (x - 5*scale)/scale
 		y = y + tilesoffset
@@ -85,7 +85,7 @@ end
 _G.getmtbutton = getmtbutton
 
 
-local function hasHotkey(tiletype: any, id: any): boolean
+local function hasHotkey(tiletype: any, id: any): any
 	for i = 1, 9 do
 		if hotkeys[tostring(i)] and hotkeys[tostring(i)][1] == tiletype and hotkeys[tostring(i)][2] == id then
 			return i
@@ -146,7 +146,7 @@ _G.editor_hotkeys_serialize = editor_hotkeys_serialize
 
 
 -- Minimap: mouse X → camera xscroll (or splitxscroll), clamped to window.
-local function editor_minimap_xscroll_from_mouse(mousex: any, sc: any, viewwidth: any, mscroll: any): number
+local function editor_minimap_xscroll_from_mouse(mousex: number, sc: number, viewwidth: number, mscroll: number): number
 	sc = sc or scale
 	local xs = (mousex/sc-3-viewwidth) / 2 + mscroll
 	if xs < mscroll then
@@ -161,7 +161,7 @@ _G.editor_minimap_xscroll_from_mouse = editor_minimap_xscroll_from_mouse
 
 
 -- Minimap click → map tile coords (player warp on main tab).
-local function editor_minimap_tile_from_click(mx: any, my: any, sc: any, mx0: any, my0: any, mscroll: any, ysc: any): any
+local function editor_minimap_tile_from_click(mx: number, my: number, sc: number, mx0: number, my0: number, mscroll: number, ysc: number): number, number
 	sc = sc or scale
 	local tx = math.floor((mx-mx0*sc+math.floor(mscroll*sc*2))/sc/2)
 	local ty = math.floor((my-my0*sc)/sc/2+math.floor(ysc))

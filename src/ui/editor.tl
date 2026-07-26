@@ -35,7 +35,7 @@ function editor_load()
 	maxstates = 15
 	currentstate = 1
 	
-	tileswitcherkey = controls[1]["use"][1] == "joy" and "e" or controls[1]["use"][1]
+	tileswitcherkey = (controls[1]["use"][1] == "joy" and "e" or controls[1]["use"][1]) as string
 	
 	if musiclist[#musiclist] ~= "princessmusic.ogg" then
 		musiclist[#musiclist+1] = "princessmusic.ogg"
@@ -370,7 +370,7 @@ function editor_start()
 	game_load()
 end
 
-function editor_update(dt)
+function editor_update(dt: number)
 	----------
 	--EDITOR--
 	----------
@@ -416,7 +416,7 @@ function editor_update(dt)
 	end
 end
 
-function editor_update_rightclick(dt)
+function editor_update_rightclick(dt: number)
 	if rightclickm then
 		(rightclickm as rightclickmenu):update(dt)
 		if rightclicka < 1 then
@@ -429,7 +429,7 @@ function editor_update_rightclick(dt)
 	end
 end
 
-function editor_update_keyscroll(dt)
+function editor_update_keyscroll(dt: number)
 --key scroll
 	if editormenuopen == false then
 		if not (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
@@ -487,7 +487,7 @@ function editor_update_modifiers()
 	end
 end
 
-function editor_update_closed(dt)
+function editor_update_closed(dt: number)
 	if editorstate == "lightdraw" then
 		if love.mouse.isDown("l") then
 			local emx, emy = mouse.getPosition()
@@ -703,7 +703,7 @@ function editor_update_closed(dt)
 	end
 end
 
-function editor_update_main(dt)
+function editor_update_main(dt: number)
 	if love.mouse.isDown("l") then
 		local emx, emy = mouse.getPosition()
 		if mousey >= minimapy*scale and mousey < (minimapy+minimapheight*2+4)*scale then
@@ -774,19 +774,19 @@ function editor_update_main(dt)
 	end
 end
 
-function editor_update_tiles(dt)
+function editor_update_tiles(dt: number)
 	tilesoffset = (guielements["tilesscrollbar"].value as number) * tilescrollbarheight * scale
 	if editentities and not editenemies then
 		local x, y = mouse.getPosition()
 		local tile = getentityhighlight(x, y) as entitylistitem|nil
 		
 		if tile ~= prevtile then
-			if tile and tooltipimages[tile.i] then
+			if tile ~= nil and tooltipimages[(tile as entitylistitem).i] then
 				entitytooltipobject = entitytooltip:new(tile)
 			end
 		end
 		
-		if tile and tooltipimages[tile.i] then
+		if tile ~= nil and tooltipimages[(tile as entitylistitem).i] then
 			(entitytooltipobject as entitytooltip):update(dt)
 			tooltipa = math.min(255, tooltipa + dt*4000)
 		else
@@ -797,7 +797,7 @@ function editor_update_tiles(dt)
 	end
 end
 
-function editor_update_objects(dt)
+function editor_update_objects(dt: number)
 	multitilesoffset = (guielements["objectscrollbar"].value as number) * objectscrollbarheight * scale
 	if guielements["renamebar"].active then
 		guielements["renamebar"].y = objectsguiarea[2]+1-multitilesoffset/scale + (guielements["renamebar"].tile*17)
@@ -1391,7 +1391,7 @@ function editor_draw_menu_changewidth()
 	guielements["mapwidthcancel"].x, guielements["mapwidthcancel"].y = width*8+65, mapy+h+4
 end
 
-function editor_draw_menu_tiles(emx, emy)
+function editor_draw_menu_tiles(emx: number, emy: number)
 	
 	--TILES
 	love.graphics.setColor(1, 1, 1)
@@ -1608,7 +1608,7 @@ function editor_draw_menu_tiles(emx, emy)
 	love.graphics.setColor(1, 1, 1)
 end
 
-function editor_draw_menu_main(emx, emy)
+function editor_draw_menu_main(emx: number, emy: number)
 
 	--MINIMAP
 	love.graphics.setColor(1, 1, 1)
@@ -1709,7 +1709,7 @@ function editor_draw_menu_tools()
 
 end
 
-function editor_draw_menu_animations(emx, emy)
+function editor_draw_menu_animations(emx: number, emy: number)
 	if #animations > 0 then
 		love.graphics.setScissor(animationguiarea[1]*scale, animationguiarea[2]*scale, (animationguiarea[3]-animationguiarea[1])*scale, (animationguiarea[4]-animationguiarea[2])*scale)
 		local completeheight = 14+#animationguilines.triggers*13+12+#animationguilines.conditions*13+12+#animationguilines.actions*13
@@ -1789,7 +1789,7 @@ function editor_draw_menu_animations(emx, emy)
 	end
 end
 
-function editor_draw_menu_objects(emx, emy)
+function editor_draw_menu_objects(emx: number, emy: number)
 	love.graphics.setScissor(objectsguiarea[1]*scale, objectsguiarea[2]*scale, (objectsguiarea[3]-objectsguiarea[1])*scale, (objectsguiarea[4]-objectsguiarea[2])*scale)
 	
 	local mtbutton = getmtbutton(love.mouse.getX())
@@ -2313,7 +2313,7 @@ function moveupanimationguiline(t: string, tabl: animationguiline)
 	end
 end
 
-function selectanimation(i)
+function selectanimation(i: number)
 	guielements["animationselectdrop"].var = i
 	saveanimation()
 	currentanimation = i
@@ -2561,7 +2561,7 @@ function mapwidthcancel()
 	maintab()
 end
 
-function changenewmapsize(side, dir)
+function changenewmapsize(side: any, dir: any)
 	if side == "top" then
 		if dir == "up" then
 			newmapheight = newmapheight + 1
@@ -2871,7 +2871,7 @@ function editoropen()
 	end
 end
 
-function mapnumberclick(i, j, k)
+function mapnumberclick(i: number, j: number, k: any)
 	if editormode then
 		marioworld = tonumber(i)
 		mariolevel = tonumber(j)
@@ -3549,7 +3549,7 @@ function editor_mousereleased(x: number, y: number, button: any)
 	end
 end
 
-function editor_keypressed(key)
+function editor_keypressed(key: string)
 	if selectionwidth then
 		if key == "delete" then
 			local x, y = round(selectionx/scale), round(selectiony/scale)
@@ -3790,7 +3790,7 @@ function editor_keypressed(key)
 						elseif hotkeys[key][1] == 3 then --ENEMIES
 							editorstate = "tiles"
 							tilesenemies()
-							currenttile = enemies[hotkeys[key][2]]
+							currenttile = enemies[hotkeys[key][2] as number]
 						end
 					end
 				end
@@ -3799,7 +3799,7 @@ function editor_keypressed(key)
 	end
 end
 
-function editor_textinput(text)
+function editor_textinput(text: string)
 	if rightclickm then
 		(rightclickm as rightclickmenu):textinput(text)
 	end
@@ -3817,7 +3817,7 @@ function editor_textinput(text)
 	end
 end
 
-function toggleautoscroll(var)
+function toggleautoscroll(var: any)
 	if var ~= nil then
 		autoscroll = var
 	else
@@ -3826,7 +3826,7 @@ function toggleautoscroll(var)
 	guielements["autoscrollcheckbox"].var = autoscroll
 end
 
-function toggleintermission(var)
+function toggleintermission(var: any)
 	if var ~= nil then
 		intermission = var
 	else
@@ -3835,7 +3835,7 @@ function toggleintermission(var)
 	guielements["intermissioncheckbox"].var = intermission
 end
 
-function togglewarpzone(var)
+function togglewarpzone(var: any)
 	if var ~= nil then
 		haswarpzone = var
 	else
@@ -3844,7 +3844,7 @@ function togglewarpzone(var)
 	guielements["warpzonecheckbox"].var = haswarpzone
 end
 
-function toggleunderwater(var)
+function toggleunderwater(var: any)
 	if var ~= nil then
 		underwater = var
 	else
@@ -3853,7 +3853,7 @@ function toggleunderwater(var)
 	guielements["underwatercheckbox"].var = underwater
 end
 
-function togglebonusstage(var)
+function togglebonusstage(var: any)
 	if var ~= nil then
 		bonusstage = var
 	else
@@ -3862,7 +3862,7 @@ function togglebonusstage(var)
 	guielements["bonusstagecheckbox"].var = bonusstage
 end
 
-function toggleclipboardenabled(var)
+function toggleclipboardenabled(var: any)
 	if var ~= nil then
 		clipboardenabled = var
 	else
@@ -3871,7 +3871,7 @@ function toggleclipboardenabled(var)
 	guielements["clipboardcheckbox"].var = clipboardenabled
 end
 
-function toggledrawalllinks(var)
+function toggledrawalllinks(var: any)
 	if var ~= nil then
 		drawalllinks = var
 	else
@@ -3880,7 +3880,7 @@ function toggledrawalllinks(var)
 	guielements["linktoolkindabutnotreally"].var = drawalllinks
 end
 
-function togglecustombackground(var)
+function togglecustombackground(var: any)
 	if custombackground then
 		custombackground = false
 	else
@@ -3893,7 +3893,7 @@ function togglecustombackground(var)
 	guielements["custombackgroundcheckbox"].var = custombackground ~= false
 end
 
-function toggleeditordebug(var)
+function toggleeditordebug(var: any)
 	if var ~= nil then
 		editordebug = var
 	else
@@ -3906,7 +3906,7 @@ function toggleeditordebug(var)
 	guielements["editordebugcheckbox"].var = editordebug
 end
 
-function toggleskiplevelscreen(var)
+function toggleskiplevelscreen(var: any)
 	if var ~= nil then
 		skiplevelscreen = var
 	else
@@ -3916,7 +3916,7 @@ function toggleskiplevelscreen(var)
 	guielements["levelscreencheckbox"].var = skiplevelscreen
 end
 
-function changepastemode(var)
+function changepastemode(var: any)
 	--	pastemode = var
 	--	guielements["pastemodedropdown"].var = var
 	if var ~= nil then
@@ -3927,7 +3927,7 @@ function changepastemode(var)
 	guielements["pastemodedropdown"].var = pastemode
 end
 
-function togglecustomforeground(var)
+function togglecustomforeground(var: any)
 	if customforeground then
 		customforeground = false
 	else
@@ -3940,7 +3940,7 @@ function togglecustomforeground(var)
 	guielements["customforegroundcheckbox"].var = customforeground ~= false
 end
 
-function changebackground(var)
+function changebackground(var: any)
 	guielements["backgrounddropdown"].var = var
 	if custombackground then
 		custombackground = custombackgrounds[guielements["backgrounddropdown"].var-1]
@@ -3950,7 +3950,7 @@ function changebackground(var)
 	end	
 end
 
-function changeforeground(var)
+function changeforeground(var: any)
 	guielements["foregrounddropdown"].var = var
 	if customforeground then
 		customforeground = custombackgrounds[var-1]
@@ -3960,12 +3960,12 @@ function changeforeground(var)
 	end	
 end
 
-function changelevelscreen(var)
+function changelevelscreen(var: any)
 	guielements["levelscreendropdown"].var = var
 	levelscreenbackname = levelscreens[var-1]
 end
 
-function changeportalgun(var)
+function changeportalgun(var: any)
 	if var == 1 then
 		portalsavailable = {true, true}
 	elseif var == 2 then
@@ -3978,9 +3978,9 @@ function changeportalgun(var)
 	guielements["portalgundropdown"].var = var
 end
 
-function changemusic(var)
+function changemusic(var: any)
 	stopmusic()
-	musicname = musiclist[var]
+	musicname = musiclist[var as number]
 	
 	if var == 1 then
 		musicname = nil
@@ -3990,7 +3990,7 @@ function changemusic(var)
 	guielements["musicdropdown"].var = var
 end
 
-function changespriteset(var)
+function changespriteset(var: any)
 	spriteset = var
 	guielements["spritesetdropdown"].var = var
 end
@@ -4347,7 +4347,7 @@ function livesincrease()
 	guielements["livesincrease"].x = 212 + string.len(tostring(mariolivecount))*8
 end
 
-function defaultbackground(i)
+function defaultbackground(i: number)
 	background = {unpack(backgroundcolor[i])}
 	love.graphics.setBackgroundColor(unpack(background))
 	
@@ -4432,7 +4432,7 @@ function closerightclickmenu()
 	end
 end
 
-function startlinking(x, y, t)
+function startlinking(x: number, y: number, t: any)
 	rightclickactive = true
 	linktoolX = x
 	linktoolY = y
@@ -4442,7 +4442,7 @@ function startlinking(x, y, t)
 	closerightclickmenu()
 end
 
-function startregion(x, y, t)
+function startregion(x: number, y: number, t: any)
 	rightclickactive = true
 	regiontoolX = x
 	regiontoolY = y
@@ -4510,7 +4510,7 @@ function finishregion()
 	end
 end
 
-function removelink(x, y, t)
+function removelink(x: number, y: number, t: any)
 	local edittable = {{x=x, y=y}}
 	
 	if selectionwidth then
@@ -4592,12 +4592,12 @@ function finishlinking(x: number, y: number)
 	end
 end
 
-function drawlinkline(x1, y1, x2, y2)
+function drawlinkline(x1: number, y1: number, x2: number, y2: number)
 	love.graphics.rectangle("fill", x1, y1-math.ceil(scale/2), x2-x1, scale)
 	love.graphics.rectangle("fill", x2-math.ceil(scale/2), y1, scale, y2-y1)
 end
 
-function drawlinkline2(x1, y1, x2, y2)
+function drawlinkline2(x1: number, y1: number, x2: number, y2: number)
 	love.graphics.rectangle("fill", x1-math.ceil(scale/2), y1, scale, y2-y1)
 	love.graphics.rectangle("fill", x2, y2-math.ceil(scale/2), x1-x2, scale)
 end

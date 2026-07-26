@@ -18,14 +18,14 @@ global function drawlevel_tiles(...: any): any
 	end
 	local lmap = map
 	
-	local flooredxscroll
+	local flooredxscroll: number = 0
 	if xscroll >= 0 then
 		flooredxscroll = math.floor(xscroll)
 	else
 		flooredxscroll = math.ceil(xscroll)
 	end
 	
-	local flooredyscroll
+	local flooredyscroll: number = 0
 	if yscroll >= 0 then
 		flooredyscroll = math.floor(yscroll)
 	else
@@ -66,7 +66,7 @@ global function drawlevel_tiles(...: any): any
 				if t["gels"] then
 					for i = 1, 4 do
 						local dir = "top"
-						local r = 0
+						local r: number = 0
 						if i == 2 then
 							dir = "right"
 							r = math.pi/2
@@ -80,7 +80,7 @@ global function drawlevel_tiles(...: any): any
 						
 						for i = 1, 4 do
 							if t["gels"][dir] == i then
-								local img
+								local img: Image|nil = nil
 								if i == 1 then
 									img = gel1groundimg
 								elseif i == 2 then
@@ -273,14 +273,14 @@ global function drawforeground(...: any): any
 		end
 	end
 	
-	local flooredxscroll
+	local flooredxscroll: number = 0
 	if xscroll >= 0 then
 		flooredxscroll = math.floor(xscroll)
 	else
 		flooredxscroll = math.ceil(xscroll)
 	end
 	
-	local flooredyscroll
+	local flooredyscroll: number = 0
 	if yscroll >= 0 then
 		flooredyscroll = math.floor(yscroll)
 	else
@@ -310,7 +310,7 @@ global function drawforeground(...: any): any
 					if t["gels"] then
 						for i = 1, 4 do
 							local dir = "top"
-							local r = 0
+							local r: number = 0
 							if i == 2 then
 								dir = "right"
 								r = math.pi/2
@@ -324,7 +324,7 @@ global function drawforeground(...: any): any
 							
 							for i = 1, 4 do
 								if t["gels"][dir] == i then
-									local img
+									local img: Image|nil = nil
 									if i == 1 then
 										img = gel1groundimg
 									elseif i == 2 then

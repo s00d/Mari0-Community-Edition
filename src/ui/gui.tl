@@ -8,7 +8,7 @@ function guielement.new(_: guielement, ...: any): guielement
 	return self
 end
 
-function guielement:init(...)
+function guielement:init(...: any)
 	local arg = {...}
 	self.active = true
 	self.priority = false
@@ -65,15 +65,16 @@ function guielement:init(...)
 		if type(arg[7]) ~= "table" then
 			self.arguments = {}
 		else
-			self.arguments = arg[7]
+			self.arguments = arg[7] as {any}
 		end
 		
 		if type(self.text) == "string" then
 			self.height = ((arg[8] or 1) as number)*10
-			self.width = (arg[9] or string.len(self.text)*8) as number
+			self.width = (arg[9] or string.len(self.text as string)*8) as number
 		elseif type(self.text) == "userdata" then
-			self.width = self.text:getWidth()-1
-			self.height = self.text:getHeight()+1
+			local font = self.text as Font
+			self.width = font:getWidth()-1
+			self.height = font:getHeight()+1
 		end
 		self.autorepeat = (arg[10] or false) as number
 		
@@ -126,7 +127,7 @@ function guielement:init(...)
 		self.y = arg[3] as number
 		self.width = arg[4] as number
 		self.func = arg[5] or (function() self.inputting = false end)
-		self.value = arg[6] or ""
+		self.value = (arg[6] or "") as string
 		self.maxlength = (arg[7] or 0) as number
 		self.height = (arg[8] or 1) as number
 		self.numerical = (arg[9] or false) as number
@@ -156,7 +157,7 @@ function guielement:init(...)
 		self.type = arg[1] as string
 		self.x = arg[2] as number
 		self.y = arg[3] as number
-		self.value = arg[4] or ""
+		self.value = (arg[4] or "") as string
 		self.color = (arg[5] or {1, 1, 1}) as {number}
 	elseif arg[1] == "submenu" then
 		self.type = arg[1] as string
@@ -164,8 +165,8 @@ function guielement:init(...)
 		self.y = arg[3] as number
 		self.width = arg[4] as number
 		self.width2 = arg[5] as number
-		self.entries = arg[6] as {any}
-		self.value = arg[7] or 1
+		self.entries = arg[6] as {number:any}
+		self.value = (arg[7] or 1) as number
 		
 		self.suby = self.y
 		self.subx = self.x
@@ -225,7 +226,7 @@ function guielement:update(dt: number)
 						self.repeatdelaytimer = self.repeatdelaytimer - dt
 						while self.repeatdelaytimer <= 0 do
 							if self.func then
-								self.func(unpack(self.arguments))
+								(self.func as function(...: any): any)(unpack(self.arguments))
 							end
 							self.repeatdelaytimer = self.repeatdelaytimer + self.repeatdelay
 						end
@@ -241,19 +242,19 @@ function guielement:update(dt: number)
 			if self.scrollbar then
 				self.scrollbar:update(dt)
 				
-				self.y = -self.missingy*self.scrollbar.value
+				self.y = -self.missingy*(self.scrollbar.value as number)
 			end
 		elseif self.type == "submenu" then
 			if self.scrollbar then
 				self.scrollbar:update(dt)
 				
-				self.suby = -self.missingy*self.scrollbar.value
+				self.suby = -self.missingy*(self.scrollbar.value as number)
 			end
 		end
 	end
 end
 
-function guielement:draw(a, offx, offy)
+function guielement:draw(a: number, offx: number, offy: number)
 	local drawx = self.x + (offx or 0)
 	local drawy = self.y + (offy or 0)
 	
@@ -271,7 +272,7 @@ function guielement:draw(a, offx, offy)
 		love.graphics.draw(checkboximg, checkboxquad[high][quad], drawx*scale, drawy*scale, 0, scale, scale)
 		
 		if self.text then
-			properprint(self.text, (drawx+10)*scale, (drawy+1)*scale)
+			properprint(self.text as string, (drawx+10)*scale, (drawy+1)*scale)
 		end
 	elseif self.type == "dropdown" then
 		local high = self:inhighlight(mouse.getPosition()) or (self.scrollbar and self.scrollbar.dragging)
@@ -296,7 +297,7 @@ function guielement:draw(a, offx, offy)
 		if self.extended then
 			love.graphics.setColor(0.5, 0.5, 0.5, a)
 		end
-		local s = self.entries[self.var]
+		local s = self.entries[self.var as number]
 		if self.cutoff then
 			s = string.sub(s, 1, self.width)
 		end
@@ -314,7 +315,7 @@ function guielement:draw(a, offx, offy)
 			for i = 1, #self.entries do
 				local s = self.entries[i]
 				if self.cutoff then
-					s = string.sub(s, 1, self.width+1)
+					s = string.sub(s as string, 1, self.width+1)
 				end
 				
 				if high ~= i then
@@ -352,7 +353,7 @@ function guielement:draw(a, offx, offy)
 		local r, g, b = unpack(self.textcolor)
 		love.graphics.setColor(r, g, b, a)
 		if type(self.text) == "string" then
-			properprint(self.text, (drawx+1+self.space)*scale, (drawy+2+self.space)*scale)
+			properprint(self.text as string, (drawx+1+self.space)*scale, (drawy+2+self.space)*scale)
 		elseif type(self.text) == "userdata" then
 			love.graphics.draw(self.text, (drawx+1+self.space)*scale, (drawy+1+self.space)*scale, 0, scale, scale)
 		end
@@ -516,15 +517,16 @@ function guielement:draw(a, offx, offy)
 	love.graphics.setColor(1, 1, 1, a)
 end
 
-function guielement:getheight()
+function guielement:getheight(): number
 	if self.type == "dropdown" then
 		return 11+10*#self.entries
 	elseif self.type == "submenu" then
-		
+		return 0
 	end
+	return 0
 end
 
-function guielement:click(x, y, button)
+function guielement:click(x: number, y: number, button: any): any
 	if self.active then
 		if self.type == "checkbox" then
 			if button == "l" then
@@ -626,7 +628,7 @@ function guielement:click(x, y, button)
 					self.holding = true
 					
 					if self.func then
-						self.func(unpack(self.arguments))
+						(self.func as function(...: any): any)(unpack(self.arguments))
 					end
 					return true
 				end
@@ -669,7 +671,7 @@ function guielement:click(x, y, button)
 	end
 end
 
-function guielement:textinput(text)
+function guielement:textinput(text: string): any
 	if self.type == "input" and self.inputting then
 		local ok = true
 		for i = 1, string.len(text) do
@@ -683,7 +685,7 @@ function guielement:textinput(text)
 	end
 end
 
-function guielement:keypress(key)
+function guielement:keypress(key: string): any
 	if self.active then
 		if self.type == "input" then
 			if self.inputting then
@@ -738,7 +740,7 @@ function guielement:keypress(key)
 	end
 end
 
-function guielement:unclick(x, y, button)
+function guielement:unclick(x: number, y: number, button: any): any
 	if self.active then
 		if self.type == "scrollbar" then
 			self.dragging = false
@@ -756,11 +758,11 @@ function guielement:unclick(x, y, button)
 	end
 end
 
-function guielement:inhighlight(x, y)
+function guielement:inhighlight(x: number, y: number): any
 	if self.type == "checkbox" then
 		local xadd = 0
 		if self.text then
-			xadd = string.len(self.text)*8+1
+			xadd = string.len(self.text as string)*8+1
 		end
 		if x >= self.x*scale and x < (self.x+9+xadd)*scale and y >= self.y*scale and y < (self.y+9)*scale then
 			return true

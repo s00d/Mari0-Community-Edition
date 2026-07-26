@@ -3,7 +3,7 @@
 -- Camera / scroll coordinate helpers (from game.lua).
 
 -- Pixel offset for tile spritebatches given fractional scroll.
-local function scroll_batch_offset(scroll: any, sc: any)
+local function scroll_batch_offset(scroll: number, sc: number|nil): number
 	sc = sc or scale
 	return math.floor(-math.fmod(scroll, 1) * 16 * sc)
 end

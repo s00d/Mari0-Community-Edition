@@ -16,7 +16,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	self.alwaysactive = true
 	self.char = characters[mariocharacter[i as integer] as string]
 	
-	self.playernumber = (i or 1) as number
+	self.playernumber = (i or 1) as integer
 	if bigmario then
 		self.size = 1
 	else
@@ -174,7 +174,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	self.spring = false
 	self.startimer = mariostarduration
 	self.starblinktimer = mariostarblinkrate
-	self.starcolori = 1 as any
+	self.starcolori = 1
 	self.fireballcount = 0
 	self.fireanimationtimer = fireanimationtime
 	
@@ -973,7 +973,7 @@ function mario:update_vine(dt: number): any
 			self.vinemovetimer = 0
 		end
 			
-		if self.vine.limit == -1 and self.y+self.height <= vineanimationstart then
+		if (self.vine as Entity).limit == -1 and self.y+self.height <= vineanimationstart then
 			self:vineanimation()
 		end
 		
@@ -2919,8 +2919,7 @@ function mario:grabvine(b: Entity): any
 	end
 end
 
-global function hitblock(...: any): any
-	local x, y, t, koopa = ...
+global function hitblock(x: number, y: number, t: any, koopa: any): any
 	for i, v in pairs(portals) do
 		if v.x1 and v.x2 and v.y1 and v.y2 then
 			local x1 = v.x1
@@ -3174,8 +3173,7 @@ function mario:goinvincible(): any
 	self.drawable = true
 end
 
-global function destroyblock(...: any): any
-	local x, y = ...
+global function destroyblock(x: number, y: number): any
 	for i = 1, players do
 		local v = playerobjs[i].portal
 		local x1 = v.x1
@@ -3351,8 +3349,7 @@ function mario:laser(dir: any): any
 	self:die("Laser")
 end
 
-global function getAngleFrame(...: any): any
-	local angle, rotation = ...
+global function getAngleFrame(angle: number, rotation: number): any
 	angle = angle + rotation
 
 	if angle > math.pi then
@@ -3785,8 +3782,7 @@ function mario:fireballcallback()
 	self.fireballcount = self.fireballcount - 1
 end
 
-global function collectcoin(...: any): any
-	local x, y, i = ...
+global function collectcoin(x: number, y: number, i: any): any
 	if x and y then
 		coinmap[x][y] = false
 	end

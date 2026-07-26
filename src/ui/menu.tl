@@ -2525,7 +2525,7 @@ global function loadmapold(...: any): any
 				if musici == 7 then
 					musicname = "custom.ext"
 				else
-					musicname = musiclist[tonumber(spl[2])]
+					musicname = musiclist[tonumber(spl[2]) as number]
 				end
 			elseif spl[1] == "spriteset" then
 				spriteset = tonumber(spl[2])

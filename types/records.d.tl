@@ -809,7 +809,7 @@ global record enemy is Entity
 	combo: number
 	currentcustomtimerstage: number
 	customscissor: any
-	customtimer: any
+	customtimer: {any}
 	customtimertimer: number
 	dead: boolean
 	deathtimer: number
@@ -826,8 +826,8 @@ global record enemy is Entity
 	facesplayer: number
 	falling: boolean
 	fallswhenstomped: number
-	firstanimationtype: number
-	firstmovement: number
+	firstanimationtype: string
+	firstmovement: string
 	flyingdistance: number
 	flyingtime: number
 	flyingtimer: number
@@ -845,7 +845,7 @@ global record enemy is Entity
 	infunnel: boolean
 	jumpforce: number
 	jumpforcedown: number
-	jumping: boolean
+	jumping: any
 	jumpingy: number
 	jumps: number
 	jumptime: number
@@ -873,15 +873,15 @@ global record enemy is Entity
 	pistonretracttime: number
 	pistonspeedx: number
 	pistonspeedy: number
-	pistonstate: number
+	pistonstate: string
 	pistontimer: number
-	playerneardist: number
+	playerneardist: any
 	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	quadcenterx: number
 	quadcentery: number
-	quadgroup: {any}
+	quadgroup: {number:any}
 	quadi: number
 	reflects: number
 	removeonmariocontact: boolean
@@ -900,13 +900,13 @@ global record enemy is Entity
 	shotspeedx: number
 	size: number
 	small: boolean
-	smallmovement: number
+	smallmovement: any
 	smallquad: Quad
 	smallspeed: number
 	spawnallow: boolean
-	spawnedenemies: number
+	spawnedenemies: {any}
 	spawnenemydelay: number
-	spawnenemydelays: any
+	spawnenemydelays: {number}
 	spawnenemyoffsetx: number
 	spawnenemyoffsety: number
 	spawnenemyspeed: number
@@ -919,13 +919,13 @@ global record enemy is Entity
 	spawnenemyspeedyrandomstart: number
 	spawnenemytimer: number
 	spawnenemytowardsplayer: number
-	spawner: number
+	spawner: any
 	spawnmax: number
 	spawnoffsetx: number
 	spawnoffsety: number
 	spawnonlyonextended: boolean
 	spawnsenemy: string
-	spawnsenemyrandoms: number
+	spawnsenemyrandoms: {string}
 	spawnsound: string
 	speedx: number
 	speedxtowardsplayer: number
@@ -934,7 +934,7 @@ global record enemy is Entity
 	squiddowndistance: number
 	squidfallspeed: number
 	squidhordistance: number
-	squidstate: number
+	squidstate: string
 	squidupspeed: number
 	squidxspeed: number
 	startgravity: number
@@ -985,7 +985,7 @@ global record enemy is Entity
 	wiggletimer: number
 	x: number
 	y: number
-	init: function(enemy, number, number, any, any)
+	init: function(enemy, number, number, string, any)
 	update: function(enemy, number): any
 	addoutput: function(enemy, any, any)
 	shotted: function(Entity, ...: any): any
@@ -1011,7 +1011,7 @@ global record enemy is Entity
 	enteredfunnel: function(enemy, any)
 	getspawnedenemies: function(enemy)
 	onscreen: function(enemy)
-	new: function(enemy, number, number, any, any): enemy
+	new: function(enemy, number, number, string, any): enemy
 end
 
 global record enemyspawner is Entity
@@ -1319,7 +1319,7 @@ end
 
 global record guielement is {any}
 	active: boolean
-	arguments: any
+	arguments: {any}
 	autorepeat: number
 	backgroundcolor: {number}
 	bordercolor: {number}
@@ -1331,17 +1331,17 @@ global record guielement is {any}
 	dir: string
 	direction: string
 	displaynumber: number
-	dragging: number
+	dragging: any
 	draggingx: number
 	draggingy: number
-	entries: {any}
+	entries: {number:any}
 	extended: boolean
 	fillcolor: {number}
 	func: any
 	gui: guielement
 	height: number
 	hidden: boolean
-	holding: number
+	holding: any
 	image: Image
 	inputting: boolean
 	internvalue: number
@@ -1367,12 +1367,12 @@ global record guielement is {any}
 	step: number
 	subx: number
 	suby: number
-	text: string
+	text: any
 	textcolor: {number}
 	timer: number
 	type: string|number
-	usemousewheel: boolean|number
-	value: number|string
+	usemousewheel: any
+	value: any
 	var: any
 	width: number
 	width2: number
@@ -1391,13 +1391,13 @@ global record guielement is {any}
 	keypressed: any
 	elements: {any}
 	init: function(guielement, ...: any)
-	update: function(guielement, number): any
-	draw: function(guielement, any, any, any)
+	update: function(guielement, number)
+	draw: function(guielement, number, number, number)
 	getheight: function(guielement): number
-	click: function(guielement, any, any, any): any
-	textinput: function(guielement, any): any
-	keypress: function(guielement, any): any
-	unclick: function(guielement, any, any, any): any
+	click: function(guielement, number, number, any): any
+	textinput: function(guielement, string): any
+	keypress: function(guielement, string): any
+	unclick: function(guielement, number, number, any)
 	inhighlight: function(guielement, any, any): any
 	new: function(guielement, ...: any): guielement
 end
@@ -1578,7 +1578,7 @@ global record mario is Entity
 	animation: any
 	animationbridgex: number
 	animationdirection: string
-	animationmisc: any
+	animationmisc: string|any
 	animationmisc2: any
 	animationmisc3: any
 	animationstate: string
@@ -1597,7 +1597,7 @@ global record mario is Entity
 	controlsenabled: boolean
 	customscale: number
 	customscissor: any
-	dbljmping: number
+	dbljmping: boolean
 	dead: boolean
 	drawable: boolean
 	drawhat: boolean
@@ -1633,14 +1633,14 @@ global record mario is Entity
 	portal: any
 	portal1color: {number}
 	portal2color: {number}
-	portalsavailable: {boolean}
+	portalsavailable: {number:boolean}
 	previouslyonground: boolean
 	quad: any
 	quadcenterX: number
 	quadcenterY: number
 	raccoonascendtimer: number
 	raccoonjump: boolean
-	raccoonspinframe: any
+	raccoonspinframe: number
 	raccoonspintimer: number
 	raccoonstarttimer: number
 	raccoontimer: number
@@ -1655,7 +1655,7 @@ global record mario is Entity
 	speedx: number
 	speedy: number
 	spring: boolean
-	springb: number
+	springb: Entity
 	springhigh: boolean
 	springtimer: number
 	springx: number
@@ -1673,11 +1673,11 @@ global record mario is Entity
 	tailwagtimer: number
 	underwater: boolean
 	upsidedown: boolean
-	vine: any
+	vine: Entity|boolean
 	vineanimationclimb: boolean
 	vineanimationdropoff: boolean
 	vinemovetimer: number
-	vineside: number
+	vineside: string
 	vinex: number
 	viney: number
 	width: number
@@ -1729,7 +1729,7 @@ global record mario is Entity
 	die: function(mario, any): any
 	laser: function(mario, any): any
 	emancipate: function(mario, any)
-	removeportals: function(mario, any)
+	removeportals: function(Entity)
 	use: function(mario, number, number): any
 	pickupbox: function(mario, Entity)
 	dropbox: function(mario)

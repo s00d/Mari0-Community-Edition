@@ -6,27 +6,26 @@ local unpack = rawget(_G, "unpack") or table.unpack
 local math_mod = math.fmod
 
 -- Filename convention: N-M.txt / N-M_S.txt (no extension).
-global function level_filename(...: any): any
-	local world, level, sublevel = ...
+global function level_filename(world: any, level: any, sublevel: any): string
+	local w = tostring(world)
+	local l = tostring(level)
 	if not sublevel or sublevel == 0 then
-		return world .. "-" .. level
+		return w .. "-" .. l
 	end
-	return world .. "-" .. level .. "_" .. sublevel
+	return w .. "-" .. l .. "_" .. tostring(sublevel)
 end
 
-global function level_detect_format_version(...: any): any
-	local s = ...
+global function level_detect_format_version(s: string): integer
 	return string.match(s, BLOCKDELIMITER[1]) and 1 or 2
 end
 
-global function level_delimiters(...: any): any
-	local v = ...
-	return BLOCKDELIMITER[v], LAYERDELIMITER[v], CATEGORYDELIMITER[v], MULTIPLYDELIMITER[v], EQUALSIGN[v]
+global function level_delimiters(v: any): string, string, string, string, string
+	local i = v as number
+	return BLOCKDELIMITER[i], LAYERDELIMITER[i], CATEGORYDELIMITER[i], MULTIPLYDELIMITER[i], EQUALSIGN[i]
 end
 
 -- Split raw level text into version, height, tile tokens, and category sections.
-global function level_split_file_contents(...: any): any
-	local s = ...
+global function level_split_file_contents(s: string): any
 	local v = level_detect_format_version(s)
 	local blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign = level_delimiters(v)
 	local s2 = strsplit(s, categorydelimiter)

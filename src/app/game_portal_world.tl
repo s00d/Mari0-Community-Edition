@@ -241,7 +241,7 @@ global function getportalposition(...: any): any...
 	return false
 end
 
-global function getTile(x: number, y: number, portalable: any, portalcheck: any, facing: any, ignoregrates: any, dir: any, mirexc: any): any... --returns masktable value of block (As well as the ID itself as second return parameter) also includes a portalcheck and returns false if a portal is on that spot.
+global function getTile(x: number, y: number, portalable: any, portalcheck: any, facing: any, ignoregrates: any, dir: any, mirexc: any): any, any --returns masktable value of block (As well as the ID itself as second return parameter) also includes a portalcheck and returns false if a portal is on that spot.
 	if portalcheck then
 		for i, v in pairs(portals) do
 			--Get the extra block of each portal
@@ -415,7 +415,7 @@ global function getPortal(x: number, y: number, dir: any): any... --returns the 
 	return false
 end
 
-global function insideportal(x: number, y: number, width: number, height: number): any... --returns whether an object is in, and which, portal.
+global function insideportal(x: number, y: number, width: number, height: number): any, any --returns whether an object is in, and which, portal.
 	if width == nil then
 		width = 12/16
 	end
@@ -515,13 +515,12 @@ global function moveoutportal(): any... --pushes objects out of the portal i in.
 	end
 end
 
-global function traceline(...: any): any...
+global function traceline(sourcex: number, sourcey: number, radians: number, reportal: any): any...
 	local portalx: number = 0
 	local portaly: number = 0
 	local portalfacing: string|boolean = false
-	local sourcex, sourcey, radians, reportal = ...
 	local currentblock: {number} = {}
-	local x, y = sourcex as number, sourcey as number
+	local x, y = sourcex, sourcey
 	currentblock[1] = math.floor(x)
 	currentblock[2] = math.floor(y+1)
 		
@@ -641,7 +640,7 @@ global function traceline(...: any): any...
 	end
 	
 	if currentblock[1]+1 > 0 and currentblock[1]+1 <= mapwidth and (currentblock[2] > 0 or currentblock[2] >= math.floor(sourcey+0.5))  and currentblock[2] < mapheight+1 and currentblock[1] ~= nil then
-		local tendency
+		local tendency: number = 0
 	
 		--get tendency
 		if side == "down" or side == "up" then

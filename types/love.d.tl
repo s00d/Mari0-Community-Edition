@@ -1,5 +1,10 @@
 global type Dyn = {any:Dyn}
 
+global record Font
+	getWidth: function(Font, string|nil): number
+	getHeight: function(Font): number
+end
+
 -- Heterogeneous world objects. Number/boolean fields used in arithmetic or
 -- control flow are concrete; polymorphic bags/methods stay `any` so concrete
 -- `record … is Entity` may refine them. Prefer `as mario` at call sites.
@@ -69,10 +74,10 @@ global interface Entity is {any}
 	drawhat: boolean
 	pointingangle: number
 	controlsenabled: boolean
-	portalsavailable: any
+	portalsavailable: {number:boolean}
 	portalgundisabled: boolean
 	disableaiming: boolean
-	vine: any
+	vine: Entity|boolean
 	lastportal: number
 	portal: any
 	portal1color: any
@@ -87,11 +92,13 @@ global interface Entity is {any}
 	thickness: number
 	mazevar: number
 	size: number
+	runanimationprogress: number
 	starred: boolean
 	invincible: boolean
 	pickup: any
 	payload: any
-	gels: any
+	gels: {string:number}
+	slant: string
 	callback: any
 	link: any
 	backwards: boolean
@@ -101,7 +108,7 @@ global interface Entity is {any}
 	shotted: function(Entity, ...: any): any
 	rangex: number
 	rangey: number
-	removeportals: any
+	removeportals: function(Entity)
 	jump: any
 	leftkey: any
 	rightkey: any
@@ -150,6 +157,7 @@ global interface Entity is {any}
 	getTileInvolved: function(Entity, ...: any): any
 	updateangle: any
 	input: any
+	passivecollide: function(Entity, any, Entity, any, any): any
 	floorcollide: function(Entity, any, Entity, any, any): any
 	leftcollide: function(Entity, any, Entity, any, any): any
 	rightcollide: function(Entity, any, Entity, any, any): any
@@ -190,7 +198,7 @@ global record love
 		newCanvas: function(...: any): Canvas
 		newShader: function(code: string): Shader
 		newSpriteBatch: function(image: Image, size: integer|nil, usage: string|nil): SpriteBatch
-		setColor: function(...: number)
+		setColor: function(...: any)
 		setBackgroundColor: function(...: any)
 		clear: function(...: number)
 		draw: function(...: any)
