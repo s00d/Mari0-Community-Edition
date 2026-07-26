@@ -81,8 +81,8 @@ ACTION	dotoallint			do to ALL integers with prefix ___
 ]]--
 
 function animation:init(path, name)
-	self.filepath = path
-	self.name = name
+	self.filepath = path as string
+	self.name = name as string
 	self.raw = love.filesystem.read(self.filepath)
 	
 	self:decode(self.raw)
@@ -98,23 +98,23 @@ function animation:decode(s)
 	self.conditions = {}
 	self.actions = {}
 	
-	local animationjson = JSON.decode(s)
+	local animationjson = JSON.decode(s as string)
 
-	for i, v in ipairs(animationjson.triggers as {{any}}) do
+	for i, v in ipairs((animationjson as {string:any}).triggers as {{any}}) do
 		self:addtrigger(v)
 	end
 	
-	for i, v in ipairs(animationjson.conditions as {{any}}) do
+	for i, v in ipairs((animationjson as {string:any}).conditions as {{any}}) do
 		self:addcondition(v)
 	end
 	
-	for i, v in ipairs(animationjson.actions as {{any}}) do
+	for i, v in ipairs((animationjson as {string:any}).actions as {{any}}) do
 		self:addaction(v)
 	end
 end
 
-function animation:addtrigger(v)
-	table.insert(self.triggers, {unpack(v)})
+function animation:addtrigger(v: {any})
+	table.insert(self.triggers as {any}, {unpack(v as {any})})
 	if v[1] == "mapload" then
 		
 	elseif v[1] == "timepassed" then
@@ -122,19 +122,19 @@ function animation:addtrigger(v)
 	elseif v[1] == "playerx" then
 	
 	elseif v[1] == "animationtrigger" then
-		if not animationtriggerfuncs[v[2] ] then
-			animationtriggerfuncs[v[2] ] = {}
+		if not animationtriggerfuncs[v[2] as string] then
+			animationtriggerfuncs[v[2] as string] = {}
 		end
-		table.insert(animationtriggerfuncs[v[2] ], self)
+		table.insert(animationtriggerfuncs[v[2] as string] as {any}, self)
 	end
 end
 
-function animation:addcondition(v)
-	table.insert(self.conditions, {unpack(v)})
+function animation:addcondition(v: {any})
+	table.insert(self.conditions as {any}, {unpack(v as {any})})
 end
 
-function animation:addaction(v)
-	table.insert(self.actions, {unpack(v)})
+function animation:addaction(v: {any})
+	table.insert(self.actions as {any}, {unpack(v as {any})})
 end
 
 function animation:update(dt: number): any...
@@ -213,14 +213,14 @@ function animation:update(dt: number): any...
 		end
 		
 		while self.sleep == 0 and self.currentaction <= #self.actions do
-			local v = self.actions[self.currentaction]
+			local v = (self.actions as {number:any})[self.currentaction] as {any}
 			if v[1] == "disablecontrols" then
 				if v[2] == "everyone" then
 					for i = 1, players do
 						playerobjs[i].controlsenabled = false
 					end
 				else
-					local p = playerobjs[self:decodenuminput(string.sub(v[2], -1))]
+					local p = playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]
 					if p then
 						p.controlsenabled = false
 					end
@@ -231,7 +231,7 @@ function animation:update(dt: number): any...
 						playerobjs[i].controlsenabled = true
 					end
 				else
-					local p = playerobjs[self:decodenuminput(string.sub(v[2], -1))]
+					local p = playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]
 					if p then
 						p.controlsenabled = true
 					end
@@ -266,8 +266,8 @@ function animation:update(dt: number): any...
 						playerobjs[i].x = self:decodenuminput(v[3])
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[3], -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[3], -1))].x = self:decodenuminput(v[4])
+					if playerobjs[self:decodenuminput(string.sub(v[3] as string, -1))] then
+						playerobjs[self:decodenuminput(string.sub(v[3] as string, -1))].x = self:decodenuminput(v[4])
 					end
 				end
 			elseif v[1] == "sety" then
@@ -276,8 +276,8 @@ function animation:update(dt: number): any...
 						playerobjs[i].y = self:decodenuminput(v[3])
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[3], -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[3], -1))].y = self:decodenuminput(v[4])
+					if playerobjs[self:decodenuminput(string.sub(v[3] as string, -1))] then
+						playerobjs[self:decodenuminput(string.sub(v[3] as string, -1))].y = self:decodenuminput(v[4])
 					end
 				end
 			elseif v[1] == "playerwalk" then
@@ -286,8 +286,8 @@ function animation:update(dt: number): any...
 						playerobjs[i]:animationwalk(v[3])
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2], -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2], -1))]:animationwalk(v[3])
+					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:animationwalk(v[3])
 					end
 				end
 			elseif v[1] == "playeranimationstop" then
@@ -296,8 +296,8 @@ function animation:update(dt: number): any...
 						playerobjs[i]:stopanimation()
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2], -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2], -1))]:stopanimation()
+					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:stopanimation()
 					end
 				end
 			elseif v[1] == "disableanimation" then
@@ -310,8 +310,8 @@ function animation:update(dt: number): any...
 						playerobjs[i]:jump(true)
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2], -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2], -1))]:jump(true)
+					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:jump(true)
 					end
 				end
 			elseif v[1] == "playerstopjump" then
@@ -320,8 +320,8 @@ function animation:update(dt: number): any...
 						playerobjs[i]:stopjump(true)
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2], -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2], -1))]:stopjump()
+					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:stopjump()
 					end
 				end
 			elseif v[1] == "dialogbox" then
@@ -335,7 +335,7 @@ function animation:update(dt: number): any...
 					if musicname then
 						music:stop(musicname)
 					end
-					musicname = v[2]
+					musicname = v[2] as string
 					playmusic()
 				end
 			elseif v[1] == "playsound" then
@@ -354,8 +354,8 @@ function animation:update(dt: number): any...
 						playerobjs[i]:die("script")
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2], -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2], -1))]:die("script")
+					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:die("script")
 					end
 				end
 			elseif v[1] == "changetime" then
@@ -374,8 +374,8 @@ function animation:update(dt: number): any...
 						playerobjs[i].disableaiming = true
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2], -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2], -1))].disableaiming = true as any
+					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))].disableaiming = true
 					end
 				end
 			elseif v[1] == "enableplayeraim" then
@@ -384,8 +384,8 @@ function animation:update(dt: number): any...
 						playerobjs[i].disableaiming = false
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2], -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2], -1))].disableaiming = false as any
+					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))].disableaiming = false
 					end
 				end
 			
@@ -395,8 +395,8 @@ function animation:update(dt: number): any...
 						playerobjs[i]:removeportals()
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2], -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2], -1))]:removeportals()
+					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:removeportals()
 					end
 				end
 				
@@ -408,8 +408,8 @@ function animation:update(dt: number): any...
 						playerobjs[i].pointingangle = math.rad(ang)-math.pi/2
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2], -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2], -1))].pointingangle = math.rad(ang)-math.pi/2 as any
+					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))].pointingangle = math.rad(ang)-math.pi/2
 					end
 				end
 			
@@ -424,7 +424,7 @@ function animation:update(dt: number): any...
 							shootportal(i, 1, sourcex, sourcey, direction)
 						end
 					else
-						local i = self:decodenuminput(string.sub(v[2], -1))
+						local i: number = self:decodenuminput(string.sub(v[2] as string, -1))
 						
 						if playerobjs[i] then
 							local sourcex = playerobjs[i].x+6/16
@@ -442,7 +442,7 @@ function animation:update(dt: number): any...
 						playerobjs[i].portalgundisabled = true
 					end
 				else
-					local i = self:decodenuminput(string.sub(v[2], -1))
+					local i: number = self:decodenuminput(string.sub(v[2] as string, -1))
 					if playerobjs[i] then
 						playerobjs[i].portalgundisabled = true
 					end
@@ -455,7 +455,7 @@ function animation:update(dt: number): any...
 						playerobjs[i].portalgundisabled = false
 					end
 				else
-					local i = self:decodenuminput(string.sub(v[2], -1))
+					local i: number = self:decodenuminput(string.sub(v[2] as string, -1))
 					if playerobjs[i] then
 						playerobjs[i].portalgundisabled = false
 					end
@@ -466,13 +466,13 @@ function animation:update(dt: number): any...
 				globintSH(v[2],v[3],self:decodenuminput(v[4]))
 			elseif v[1] == "dotoallbool" then
 				for i, n in pairs(globools) do
-					if string.sub(i, 1, string.len(v[2])) == v[2] then 
+					if string.sub(tostring(i), 1, string.len(v[2] as string)) == v[2] then 
 						globoolSH(i,v[3])
 					end
 				end
 			elseif v[1] == "dotoallint" then
 				for i, n in pairs(globints) do
-					if string.sub(i, 1, string.len(v[2])) == v[2] then 
+					if string.sub(tostring(i), 1, string.len(v[2] as string)) == v[2] then 
 						globintSH(i,v[3],self:decodenuminput(v[4]))
 					end
 				end
@@ -544,12 +544,12 @@ function animation:draw()
 	
 end
 
-function animation:decodenuminput(x)
+function animation:decodenuminput(x: any): number
 	if tonumber(x) then
-		return tonumber(x)	
-	elseif string.sub(x,1,2) == "g:" then
-		return _G[string.sub(x,3)]
+		return (tonumber(x as string) or 0) as number
+	elseif string.sub(x as string,1,2) == "g:" then
+		return (((_G as {string:any})[string.sub(x as string,3)]) as number) or 0
 	else
-		return globints[x] or 0
+		return ((globints[x] as number) or 0) as number
 	end
 end

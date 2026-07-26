@@ -245,7 +245,7 @@ global function menu_draw(...: any): any
 			portalcolor1, portalcolor2 = {60 / 255, 188 / 255, 252 / 255}, {232 / 255, 130 / 255, 30 / 255}
 		end
 		
-		drawplayer(nil, ((startx[pid]-xscroll)*16)+8*(j-1), ((starty[pid]-yscroll)*16-12), scale,     v.smalloffsetX, v.smalloffsetY, 0, v.smallquadcenterX, v.smallquadcenterY, "idle", false, false, mariohats[j], v.animations, v.idle[angle], 0, false, false, mariocolors[j], 1, portalcolor1, portalcolor2, nil, nil, nil, nil, nil, nil, characters[mariocharacter[j]])
+		drawplayer(nil, (((startx[pid] as number)-xscroll)*16)+8*(j-1), (((starty[pid] as number)-yscroll)*16-12), scale,     v.smalloffsetX, v.smalloffsetY, 0, v.smallquadcenterX, v.smallquadcenterY, "idle", false, false, mariohats[j], v.animations, v.idle[angle], 0, false, false, mariocolors[j], 1, portalcolor1, portalcolor2, nil, nil, nil, nil, nil, nil, characters[mariocharacter[j]])
 	end
 	
 	love.graphics.setColor(1, 1, 1, 1)
@@ -1256,7 +1256,7 @@ global function loadbackground(...: any): any
 	mariocoincount = 0
 	marioworld = 1
 	mariolevel = 1
-	mariotime = ""
+	mariotime = 0 -- was "" display sentinel
 	levelfinished = false
 	
 	startx = {3, 3, 3, 3, 3}
@@ -1284,7 +1284,7 @@ global function loadbackground(...: any): any
 	end
 	
 	--and Y too
-	yscroll = starty[1]-height+downscrollborder
+	yscroll = (starty[1] as number)-height+downscrollborder
 	if yscroll > mapheight - height - 1 then
 		yscroll = mapheight - height - 1
 	end
@@ -2229,7 +2229,7 @@ global function downloadfile(...: any): any
 		return false
 	end
 	
-	if (checksum as string) ~= sha1(data as string) then
+	if (checksum as string) ~= (sha1 as function(string): string)(data as string) then
 		print("Checksum doesn't match!")
 		return false
 	end

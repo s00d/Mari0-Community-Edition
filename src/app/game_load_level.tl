@@ -36,7 +36,7 @@ global function game_load(...: any): any
 	
 	mariolives = {}
 	for i = 1, players do
-		mariolives[i] = mariolivecount
+		mariolives[i] = mariolivecount as any
 	end
 	
 	mariosizes = {}
@@ -59,7 +59,7 @@ global function game_load(...: any): any
 	if suspended == true then
 		continuegame()
 	elseif suspended then
-		marioworld = suspended
+		marioworld = suspended as any
 	end
 	
 	musicname = nil
@@ -93,17 +93,17 @@ global function loadlevel(...: any): any
 	end
 	
 	if sublevel then
-		prevsublevel = mariosublevel
-		mariosublevel = level
+		prevsublevel = mariosublevel as number|boolean
+		mariosublevel = level as any
 		if level ~= 0 then
-			level = marioworld .. "-" .. mariolevel .. "_" .. level
+			level = tostring(marioworld) .. "-" .. tostring(mariolevel) .. "_" .. tostring(level)
 		else
-			level = marioworld .. "-" .. mariolevel
+			level = tostring(marioworld) .. "-" .. tostring(mariolevel)
 		end
 	else
 		local s = strsplit(level, "_")
 		if s[2] then
-			mariosublevel = tonumber(s[2])
+			mariosublevel = tonumber(s[2] as string) as any
 		else
 			mariosublevel = 0
 		end
@@ -112,12 +112,12 @@ global function loadlevel(...: any): any
 		
 		--check for checkpoint!
 		if checkpointsub then
-			mariosublevel = checkpointsub
+			mariosublevel = checkpointsub as any
 			
 			if checkpointsub ~= 0 then
-				level = marioworld .. "-" .. mariolevel .. "_" .. checkpointsub
+				level = tostring(marioworld) .. "-" .. tostring(mariolevel) .. "_" .. tostring(checkpointsub)
 			else
-				level = marioworld .. "-" .. mariolevel
+				level = tostring(marioworld) .. "-" .. tostring(mariolevel)
 			end
 		end
 	end
@@ -197,7 +197,7 @@ global function loadlevel(...: any): any
 	miniblocks = {}
 	inventory = {}
 	for i = 1, 9 do
-		inventory[i] = {}
+		inventory[i as any] = {}
 	end
 	mccurrentblock = 1
 	itemanimations = {}
@@ -273,7 +273,7 @@ global function loadlevel(...: any): any
 	starty = {13, 13, 13, 13, 13}
 	pipestartx = nil
 	pipestarty = nil
-	local animation = nil
+	local animation: any = nil
 	
 	enemiesspawned = {}
 	
@@ -291,7 +291,7 @@ global function loadlevel(...: any): any
 	if loadmap(level, true) == false then --make one up
 		needs_to_be_saved = true
 		mapwidth = width
-		background = {unpack(backgroundcolor[1])}
+		background = {unpack(backgroundcolor[1] as {number})} as any
 		mapheight = 15
 		portalsavailable = {true, true}
 		musicname = "overworld.ogg"
@@ -326,9 +326,9 @@ global function loadlevel(...: any): any
 		if modcustomtiles then
 			modcustomspritebatch = {}
 			modcustomspritebatchfront = {}
-			for i = 1, modcustomtiles do
-				modcustomspritebatch[i] = love.graphics.newSpriteBatch( modcustomtilesimg[i], 10000 )
-				modcustomspritebatchfront[i] = love.graphics.newSpriteBatch( modcustomtilesimg[i], 10000 )
+			for i = 1, modcustomtiles as number do
+				modcustomspritebatch[i as number] = love.graphics.newSpriteBatch( modcustomtilesimg[i as number], 10000 )
+				modcustomspritebatchfront[i as number] = love.graphics.newSpriteBatch( modcustomtilesimg[i as number], 10000 )
 			end
 		end
 		spritebatchX = {}
@@ -344,11 +344,11 @@ global function loadlevel(...: any): any
 	objects["screenboundary"]["right"] = screenboundary:new(mapwidth)
 	
 	if flagx then
-		objects["screenboundary"]["flag"] = screenboundary:new(flagx+6/16)
+		objects["screenboundary"]["flag"] = screenboundary:new((flagx as number)+6/16)
 	end
 	
 	if axex then
-		objects["screenboundary"]["axe"] = screenboundary:new(axex)
+		objects["screenboundary"]["axe"] = screenboundary:new(axex as number)
 	end
 	
 	if intermission then
@@ -387,10 +387,12 @@ global function loadlevel(...: any): any
 		
 	--set startx to pipestart
 	if pipestartx then
-		startx = {pipestartx-1, pipestartx-1, pipestartx-1, pipestartx-1, pipestartx-1}
-		starty = {pipestarty, pipestarty, pipestarty, pipestarty, pipestarty}
+		local psx = (pipestartx as number) - 1
+		local psy = pipestarty as number
+		startx = {psx, psx, psx, psx, psx}
+		starty = {psy, psy, psy, psy, psy}
 		--check if startpos is a colliding block
-		if tilequads[map[startx[1]][starty[1]][1]]:getproperty("collision", startx[1], starty[1]) then
+		if tilequads[map[startx[1] as number][starty[1] as number][1]]:getproperty("collision", startx[1] as number, starty[1] as number) then
 			animation = "pipeup"
 		end
 	end
@@ -408,7 +410,7 @@ global function loadlevel(...: any): any
 	end
 	
 	--Adjust start X scroll
-	xscroll = startx[1]-scrollingleftcomplete-2
+	xscroll = (startx[1] as number)-scrollingleftcomplete-2
 	if xscroll > mapwidth - width then
 		xscroll = mapwidth - width
 	end
@@ -418,7 +420,7 @@ global function loadlevel(...: any): any
 	end
 	
 	--and Y too
-	yscroll = starty[1]-height+downscrollborder
+	yscroll = (starty[1] as number)-height+downscrollborder
 	if yscroll > mapheight - height - 1 then
 		yscroll = mapheight - height - 1
 	end
@@ -448,7 +450,8 @@ global function loadlevel(...: any): any
 	for i = 1, players do
 		local animation = animation
 		
-		local astartx, astarty
+		local astartx: any = nil
+		local astarty: any = nil
 		if i > 4 then
 			astartx = startx[5]
 			astarty = starty[5]
@@ -459,15 +462,16 @@ global function loadlevel(...: any): any
 		
 		if astartx then
 			local add = -6/16
-			for j, v in pairs(spawns) do
-				if v.x == astartx and v.y == astarty then
+			for j, v in ipairs(spawns as {any}) do
+				local sv = v as {string:any}
+				if sv.x == astartx and sv.y == astarty then
 					add = add + mul
 				end
 			end
 			
 			table.insert(spawns, {x=astartx, y=astarty})
 			
-			playerobjs[i] = mario:new(astartx+add, astarty-1, i, animation, mariosizes[i], playertype)
+			playerobjs[i] = mario:new((astartx as number)+add, (astarty as number)-1, i, animation, mariosizes[i], playertype)
 		else
 			playerobjs[i] = mario:new(1.5 + (i-1)*mul-6/16+1.5, 13, i, animation, mariosizes[i], playertype)
 		end
@@ -513,7 +517,7 @@ global function startlevel(...: any): any
 	skipupdate = true
 	
 	--background
-	love.graphics.setBackgroundColor(unpack(background))
+	love.graphics.setBackgroundColor(unpack(background as {any}))
 	
 	--PLAY BGM
 	if intermission == false then
@@ -530,18 +534,18 @@ global function startlevel(...: any): any
 end
 
 global function changemapwidth(...: any): any
-	local width = ...
-	if width > mapwidth then
-		for x = mapwidth+1, width do
+	local width = ... as number
+	if width > (mapwidth as number) then
+		for x = (mapwidth as number)+1, width do
 			map[x] = {}
-			for y = 1, mapheight-2 do
+			for y = 1, (mapheight as number)-2 do
 				map[x][y] = {1}
 				map[x][y].gels = {}
 				map[x][y].portaloverride = {}
 				objects["tile"][tilekey(x, y)] = nil
 			end
 		
-			for y = mapheight-1, mapheight do
+			for y = (mapheight as number)-1, mapheight as number do
 				map[x][y] = {2}
 				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
 				map[x][y].gels = {}
@@ -551,20 +555,20 @@ global function changemapwidth(...: any): any
 	end
 
 	mapwidth = width
-	objects["screenboundary"]["right"].x = mapwidth
+	objects["screenboundary"]["right"].x = mapwidth as number
 	
-	if playerobjs[1].x > mapwidth then
-		playerobjs[1].x = mapwidth-1
+	if playerobjs[1].x > (mapwidth as number) then
+		playerobjs[1].x = (mapwidth as number)-1
 	end
 	
 	generatespritebatch()
 end
 
 global function changemapheight(...: any): any
-	local height = ...
-	if height > mapheight then
-		for x = 1, mapwidth do
-			for y = mapheight+1, height do
+	local height = ... as number
+	if height > (mapheight as number) then
+		for x = 1, mapwidth as number do
+			for y = (mapheight as number)+1, height do
 				map[x][y] = {currenttile}
 				map[x][y].gels = {}
 				map[x][y].portaloverride = {}
@@ -580,12 +584,12 @@ global function changemapheight(...: any): any
 	
 	mapheight = height
 	
-	for i, v in pairs(objects["screenboundary"] as {Entity}) do
-		v.height = 1000+mapheight
+	for i, v in pairs(objects["screenboundary"] as {any:any}) do
+		(v as Entity).height = 1000+(mapheight as number)
 	end
 	
-	if playerobjs[1].y > mapheight then
-		playerobjs[1].y = mapheight-1
+	if playerobjs[1].y > (mapheight as number) then
+		playerobjs[1].y = (mapheight as number)-1
 	end
 	
 	generatespritebatch()
@@ -604,28 +608,28 @@ global function generatespritebatch(...: any): any
 	end
 	
 	if modcustomtiles then
-		for i = 1, modcustomtiles do
-			modcustomspritebatch[i]:clear()
-			modcustomspritebatchfront[i]:clear()
+		for i = 1, modcustomtiles as number do
+			(modcustomspritebatch[i as number] as SpriteBatch):clear()
+			(modcustomspritebatchfront[i as number] as SpriteBatch):clear()
 		end
 	end
 	
-	local xtodraw
-	if mapwidth < width+1 then
-		xtodraw = math.ceil(mapwidth)
+	local xtodraw: number = 0
+	if (mapwidth as number) < width+1 then
+		xtodraw = math.ceil(mapwidth as number)
 	else
-		if mapwidth > width and xscroll < mapwidth-width then
+		if (mapwidth as number) > width and xscroll < (mapwidth as number)-width then
 			xtodraw = math.ceil(width+1)
 		else
 			xtodraw = math.ceil(width)
 		end
 	end
 	
-	local ytodraw
-	if mapheight < height+1 then
-		ytodraw = math.ceil(mapheight)
+	local ytodraw: number = 0
+	if (mapheight as number) < height+1 then
+		ytodraw = math.ceil(mapheight as number)
 	else
-		if mapheight > height and yscroll < mapheight-height then
+		if (mapheight as number) > height and yscroll < (mapheight as number)-height then
 			ytodraw = height+1
 		else
 			ytodraw = height
@@ -634,29 +638,29 @@ global function generatespritebatch(...: any): any
 	
 	local lmap = map
 	
-	local flooredxscroll
+	local flooredxscroll: number = 0
 	if xscroll >= 0 then
 		flooredxscroll = math.floor(xscroll)
 	else
 		flooredxscroll = math.ceil(xscroll)
 	end
 	
-	local flooredyscroll
+	local flooredyscroll: number = 0
 	if yscroll >= 0 then
 		flooredyscroll = math.floor(yscroll)
 	else
 		flooredyscroll = math.ceil(yscroll)
 	end
 
-	local bounce_batch_skip = build_blockbounce_lookup(blockbouncex, blockbouncey)
+	local bounce_batch_skip = build_blockbounce_lookup(blockbouncex, blockbouncey) as {any:any}
 	
 	for y = 0, ytodraw+1 do
 		for x = 1, xtodraw do
-			if inmap(flooredxscroll+x, math.min(flooredyscroll+y+1, mapheight)) then
+			if inmap(flooredxscroll+x, math.min(flooredyscroll+y+1, mapheight as number)) then
 				local bounceyoffset = 0
 				
 				local draw = true
-				local coy = math.min(flooredyscroll+y+1, mapheight)
+				local coy = math.min(flooredyscroll+y+1, mapheight as number)
 				if bounce_batch_skip[tilekey(flooredxscroll+x, coy)] then
 					draw = false
 				end	
@@ -664,7 +668,7 @@ global function generatespritebatch(...: any): any
 					local cox = flooredxscroll+x
 					local t = lmap[cox][coy]
 					
-					local tilenumber = t[1]
+					local tilenumber = t[1] as number
 					
 					if not tilequads[tilenumber]:getproperty("foreground", cox, coy) then
 						if tilenumber ~= 0 and tilequads[tilenumber]:getproperty("invisible", cox, coy) == false and tilequads[tilenumber]:getproperty("coinblock", cox, coy) == false then
@@ -674,10 +678,10 @@ global function generatespritebatch(...: any): any
 								portalspritebatch:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
 							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount then
 								customspritebatch:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
-							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) then
-								for i = 1, modcustomtiles do
-									if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i] then
-										modcustomspritebatch[i]:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
+							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as any] or 0) then
+								for i = 1, modcustomtiles as number do
+									if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i as any] then
+										(modcustomspritebatch[i as number] as SpriteBatch):add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
 										break
 									end
 								end
@@ -691,10 +695,10 @@ global function generatespritebatch(...: any): any
 								portalspritebatchfront:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
 							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount then
 								customspritebatchfront:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
-							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) then
-								for i = 1, modcustomtiles do
-									if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i] then
-										modcustomspritebatch[i]:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
+							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as any] or 0) then
+								for i = 1, modcustomtiles as number do
+									if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i as any] then
+										(modcustomspritebatch[i as number] as SpriteBatch):add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
 										break
 									end
 								end
@@ -717,17 +721,17 @@ global function nextlevel(...: any): any
 	if testlevel then
 		editormode = true
 		testlevel = false
-		loadlevel(marioworld .. "-" .. mariolevel .. (mariosublevel > 0 and ("_" .. mariosublevel) or ""))
+		loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel) .. ((mariosublevel as number) > 0 and ("_" .. tostring(mariosublevel)) or ""))
 		startlevel()
 		return
 	end
 	
 	love.audio.stop()
 	
-	mariolevel = mariolevel + 1
-	if not love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. marioworld .. "-" .. mariolevel .. ".txt") then
+	mariolevel = (mariolevel as number) + 1
+	if not love.filesystem.getInfo("mappacks/" .. (mappack as string) .. "/" .. tostring(marioworld) .. "-" .. tostring(mariolevel) .. ".txt") then
 		mariolevel = 1
-		marioworld = marioworld + 1
+		marioworld = (marioworld as number) + 1
 	end
 	mariosublevel = 0
 	levelscreen_load("next")
@@ -736,14 +740,14 @@ end
 global function warpzone(...: any): any
 	local w, l = ...
 	love.audio.stop()
-	mariolevel = l
-	marioworld = w
+	mariolevel = l as any
+	marioworld = w as any
 	mariosublevel = 0
 	prevsublevel = false
 	
 	-- minus 1 world glitch just because I can.
 	if not displaywarpzonetext and w == 4 and l == 1 then
-		marioworld = "M"
+		marioworld = "M" as any
 	end
 	
 	levelscreen_load("next")
@@ -751,9 +755,9 @@ end
 
 global function hitrightside(...: any): any
 	if haswarpzone then
-		for i, v in pairs(objects["enemy"] as {Entity}) do
-			if v.t == "plant" then	
-				v.kill = true
+		for i, v in pairs(objects["enemy"] as {any:any}) do
+			if (v as Entity).t == "plant" then	
+				(v as Entity).kill = true
 			end
 		end
 		displaywarpzonetext = true
@@ -766,7 +770,7 @@ global function endgame(...: any): any
 		mariolevel = testlevellevel
 		testlevel = false
 		editormode = true
-		loadlevel(marioworld .. "-" .. mariolevel)
+		loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel))
 		startlevel()
 	else
 		love.audio.stop()

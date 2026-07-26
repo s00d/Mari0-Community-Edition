@@ -16,7 +16,7 @@ function Boot.setup_services(debugprints: any, music_type: any): any, any, any, 
 	local AssetStoreMod = require("assets.store") as any
 	local GamestateMod = require("app.gamestate") as any
 	local WorldMod = require("world.session") as any
-	local assets = (AssetStoreMod as AssetStore).new(music_type or "stream")
+	local assets = (AssetStoreMod as AssetStore).new((music_type or "stream") as string)
 	local session = (WorldMod as World).new()
 	return LoggerMod, AssetStoreMod, GamestateMod, WorldMod, assets, session
 end
@@ -44,7 +44,7 @@ function Boot.require_game()
 	--require "ui.lobby"
 	--require "ui.onlinemenu"
 	
-	require "assets.shaders"
+	-- require "assets.shaders" -- teal: no type info
 	require "app.variables"
 	require "core.tilekey"
 	require "world.zones"
@@ -193,8 +193,8 @@ function Boot.load_media()
 		local path = "assets/graphics/DEFAULT/" .. v .. ".png"
 		assets:register_image(v, path)
 		local img = assets:get_image(v)
-		_G["default" .. v .. "img"] = img
-		_G[v .. "img"] = img
+		(_G as {string:any})["default" .. (v as string) .. "img"] = img
+		(_G as {string:any})[(v as string) .. "img"] = img
 	end
 	
 	mappackback = love.graphics.newImage("assets/graphics/mappackback.png")
@@ -532,11 +532,11 @@ function Boot.load_media()
 	overwrittensounds = {}	
 	soundlist = {}
 	
-	for i, v in pairs(soundstoload) do
+	for i, v in ipairs(soundstoload) do
 		assets:register_sound(v, "assets/sounds/" .. v .. ".ogg")
 		local src = assets:get_sound(v)
 		soundlist[v] = {}
-		soundlist[v].source = src
+		soundlist[v as any].source = src as any
 		soundlist[v].lastplayed = 0
 		defaultsoundslist[v] = src
 	end
@@ -561,7 +561,7 @@ end
 function Boot.run_load()
 	Boot.require_game()
 	
-	http = require("socket.http")
+	http = (require("socket.http") as any) as HttpLib
 	http.PORT = 55555
 	http.TIMEOUT = 1
 	
@@ -592,7 +592,7 @@ function Boot.run_load()
 	--limit hats
 	for playerno = 1, players do
 		for i = 1, #mariohats[playerno] do
-			if mariohats[playerno][i] > hatcount then
+			if (mariohats[playerno][i] as number) > hatcount then
 				mariohats[playerno][i] = hatcount
 			end
 		end
@@ -616,7 +616,7 @@ function Boot.run_load()
 	Boot.load_media()
 	shaders:init()
 	add("Shaders init")
-	for i, v in pairs(dlclist) do
+	for i, v in ipairs(dlclist) do
 		delete_mappack(v)
 	end
 
@@ -629,16 +629,16 @@ function Boot.register_gamestates()
 	end
 	-- Menu family shares menu_update/draw
 	for _, name in ipairs({"menu", "mappackmenu", "onlinemenu", "options", "lobby"}) do
-		Gamestate.register(name, {update = menu_update, draw = menu_draw})
+		(Gamestate.register as function(...: any): any)(name, {update = menu_update, draw = menu_draw})
 	end
 	for _, name in ipairs({"levelscreen", "gameover", "sublevelscreen", "mappackfinished"}) do
-		Gamestate.register(name, {update = levelscreen_update, draw = levelscreen_draw})
+		(Gamestate.register as function(...: any): any)(name, {update = levelscreen_update, draw = levelscreen_draw})
 	end
-	Gamestate.register("game", {update = game_update, draw = game_draw})
-	Gamestate.register("intro", {update = intro_update, draw = intro_draw})
+	(Gamestate.register as function(...: any): any)("game", {update = game_update, draw = game_draw})
+	(Gamestate.register as function(...: any): any)("intro", {update = intro_update, draw = intro_draw})
 	-- Editor draws/updates inside game when editormode; register for future routing
 	if editor_update and editor_draw then
-		Gamestate.register("editor", {update = editor_update, draw = editor_draw})
+		(Gamestate.register as function(...: any): any)("editor", {update = editor_update, draw = editor_draw})
 	end
 end
 

@@ -78,7 +78,7 @@ global function game_keypressed(...: any): any
 			if pausemenuoptions[pausemenuselected] == "resume" then
 				pausemenuopen = false
 				saveconfig()
-					love.audio.play(paused)
+					love.audio.play(paused as any)
 			elseif pausemenuoptions[pausemenuselected] == "suspend" then
 				suspendprompt = true
 				pausemenuselected2 = 1
@@ -92,7 +92,7 @@ global function game_keypressed(...: any): any
 		elseif key == "escape" then
 			pausemenuopen = false
 			saveconfig()
-				love.audio.play(paused)
+				love.audio.play(paused as any)
 		elseif (key == "right" or key == "d") then
 			if pausemenuoptions[pausemenuselected] == "music volume" then
 				volumemusic = math.min(1, volumemusic + 0.1)
@@ -167,16 +167,16 @@ global function game_keypressed(...: any): any
 			xpan = false
 			ypan = false
 			
-			if mariosublevel > 0 then
-				loadlevel(marioworld .. "-" .. mariolevel .. "_" .. mariosublevel)
+			if (mariosublevel as number) > 0 then
+				loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel) .. "_" .. tostring(mariosublevel))
 			else
-				loadlevel(marioworld .. "-" .. mariolevel)
+				loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel))
 			end
 			startlevel()
 			return
 		elseif not editormode and not everyonedead then
 			pausemenuopen = true
-			paused = love.audio.pause()
+			paused = love.audio.pause() as any
 			playsound("pause")
 		end
 	end
@@ -213,7 +213,7 @@ global function shootportal(...: any): any
 	end
 	
 	--check if available
-	if not playerobjs[plnumber].portalsavailable[i] then
+	if not (playerobjs[plnumber].portalsavailable as {boolean})[i as integer] then
 		return
 	end
 	
@@ -222,10 +222,10 @@ global function shootportal(...: any): any
 		return
 	end
 	--portalgun delay
-	if portaldelay[plnumber] > 0 then
+	if portaldelay[plnumber as number] > 0 then
 		return
 	else
-		portaldelay[plnumber] = portalgundelay
+		portaldelay[plnumber as number] = portalgundelay
 	end
 	
 	local otheri = 1
@@ -236,18 +236,18 @@ global function shootportal(...: any): any
 	end
 	
 	if not mirrored then
-		playerobjs[plnumber].lastportal = i
+		playerobjs[plnumber].lastportal = i as number
 	end
 	local cox, coy, side, tendency, x, y = traceline(sourcex, sourcey, direction)
 	
 	local mirror = false
-	if cox and tilequads[map[cox][coy][1]] and tilequads[map[cox][coy][1]]:getproperty("mirror", cox, coy) then
+	if cox and tilequads[map[cox as number][coy as number][1]] and tilequads[map[cox as number][coy as number][1]]:getproperty("mirror", cox as number, coy as number) then
 		mirror = true
 	end
 	
-	playerobjs[plnumber].lastportal = i
+	playerobjs[plnumber].lastportal = i as number
 	
-	table.insert(portalprojectiles, portalprojectile:new(sourcex, sourcey, x, y, color, true, {playerobjs[plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored, bounces))
+	table.insert(portalprojectiles, portalprojectile:new(sourcex as number, sourcey as number, x as number, y as number, color, true, {playerobjs[plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored, bounces))
 end
 
 global function game_mousepressed(...: any): any
@@ -258,10 +258,10 @@ global function game_mousepressed(...: any): any
 	
 	if frameskip then
 		if button == "wu" then
-			frameskip = math.max(0, frameskip - 1)
+			frameskip = math.max(0, (frameskip as number) - 1)
 			return
 		elseif button == "wd" then
-			frameskip = frameskip + 1
+			frameskip = (frameskip as number) + 1
 			return
 		end
 	end
@@ -351,7 +351,7 @@ end
 
 global function rightkey(...: any): any
 	local i = ...
-	local s
+	local s: any = nil
 	if playerobjs[i].gravitydirection > math.pi/4*1 and playerobjs[i].gravitydirection <= math.pi/4*3 then
 		s = controls[i]["right"]
 	elseif playerobjs[i].gravitydirection > math.pi/4*3 and playerobjs[i].gravitydirection <= math.pi/4*5 then
@@ -366,7 +366,7 @@ end
 
 global function leftkey(...: any): any
 	local i = ...
-	local s
+	local s: any = nil
 	if playerobjs[i].gravitydirection > math.pi/4*1 and playerobjs[i].gravitydirection <= math.pi/4*3 then
 		s = controls[i]["left"]
 	elseif playerobjs[i].gravitydirection > math.pi/4*3 and playerobjs[i].gravitydirection <= math.pi/4*5 then
@@ -381,7 +381,7 @@ end
 
 global function downkey(...: any): any
 	local i = ...
-	local s
+	local s: any = nil
 	if playerobjs[i].gravitydirection > math.pi/4*1 and playerobjs[i].gravitydirection <= math.pi/4*3 then
 		s = controls[i]["down"]
 	elseif playerobjs[i].gravitydirection > math.pi/4*3 and playerobjs[i].gravitydirection <= math.pi/4*5 then
@@ -396,7 +396,7 @@ end
 
 global function upkey(...: any): any
 	local i = ...
-	local s
+	local s: any = nil
 	if playerobjs[i].gravitydirection > math.pi/4*1 and playerobjs[i].gravitydirection <= math.pi/4*3 then
 		s = controls[i]["up"]
 	elseif playerobjs[i].gravitydirection > math.pi/4*3 and playerobjs[i].gravitydirection <= math.pi/4*5 then
@@ -410,34 +410,34 @@ global function upkey(...: any): any
 end
 
 global function checkkey(...: any): any
-	local s = ...
+	local s = (... as {any})
 	if s[1] == "joy" then
-		local j = love.joystick.getJoysticks()[s[2]]
+		local j = love.joystick.getJoysticks()[s[2] as integer]
 		if not j then
 			return false
 		end
 		
 		if s[3] == "hat" then
-			if string.match(j:getHat(s[4]), s[5]) then
+			if string.match(j:getHat(s[4] as number), s[5] as string) then
 				return true
 			else
 				return false
 			end
 		elseif s[3] == "but" then
-			if (type(s[4]) == "number" and j.isDown or j.isGamepadDown)(j,s[4]) then
+			if ((j as {string:any}).isDown as function(any, any): boolean)(j, s[4]) then
 				return true
 			else
 				return false
 			end
 		elseif s[3] == "axe" then
 			if s[5] == "pos" then
-				if j:getAxis(s[4]) > joystickdeadzone then
+				if j:getAxis(s[4] as number) > joystickdeadzone then
 					return true
 				else
 					return false
 				end
 			else
-				if j:getAxis(s[4]) < -joystickdeadzone then
+				if j:getAxis(s[4] as number) < -joystickdeadzone then
 					return true
 				else
 					return false
@@ -445,7 +445,7 @@ global function checkkey(...: any): any
 			end
 		end
 	elseif s[1] then
-		if love.keyboard.isDown(s[1]) then
+		if love.keyboard.isDown(s[1] as string) then
 			return true
 		else 
 			return false
@@ -545,10 +545,10 @@ global function game_joystickaxis(...: any): any
 		if not noupdate and playerobjs[i].controlsenabled then
 			local s1 = controls[i]["left"]
 			local s2 = controls[i]["right"]
-			if s1[1] == "joy" and joystick == s1[2] and s1[3] == "axe" and s1[4] == axis and stickmoved and value < 0 then
+			if s1[1] == "joy" and joystick == s1[2] and s1[3] == "axe" and s1[4] == axis and stickmoved and (value as number) < 0 then
 				playerobjs[i]:leftkey()
 				return
-			elseif s2[1] == "joy" and joystick == s2[2] and s2[3] == "axe" and s2[4] == axis and stickmoved and value > 0 then
+			elseif s2[1] == "joy" and joystick == s2[2] and s2[3] == "axe" and s2[4] == axis and stickmoved and (value as number) > 0 then
 				playerobjs[i]:rightkey()
 				return
 			end
@@ -592,10 +592,10 @@ global function game_joystickhat(...: any): any
 		if not noupdate and playerobjs[i].controlsenabled then
 			local s1 = controls[i]["left"]
 			local s2 = controls[i]["right"]
-			if s1[1] == "joy" and joystick == s1[2] and s1[3] == "hat" and s1[4] == hat and s1[5]:find(direction) then
+			if s1[1] == "joy" and joystick == s1[2] and s1[3] == "hat" and s1[4] == hat and (s1[5] as string):find(direction as string) then
 				playerobjs[i]:leftkey()
 				return
-			elseif s2[1] == "joy" and joystick == s2[2] and s2[3] == "hat" and s2[4] == hat and s2[5]:find(direction) then
+			elseif s2[1] == "joy" and joystick == s2[2] and s2[3] == "hat" and s2[4] == hat and (s2[5] as string):find(direction as string) then
 				playerobjs[i]:rightkey()
 				return
 			end
@@ -605,7 +605,7 @@ global function game_joystickhat(...: any): any
 			local s = controls[i]["portal1"]
 			if s and s[1] == "joy" then
 				if s[3] == "hat" and s[4] == hat then
-					if joystick == s[2] and s[5]:find(direction) then
+					if joystick == s[2] and (s[5] as string):find(direction as string) then
 						shootportal(i, 1, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
 						return
 					end
@@ -615,7 +615,7 @@ global function game_joystickhat(...: any): any
 			local s = controls[i]["portal2"]
 			if s and s[1] == "joy" then
 				if s[3] == "hat" and s[4] == hat then
-					if joystick == s[2] and s[5]:find(direction) then
+					if joystick == s[2] and (s[5] as string):find(direction as string) then
 						shootportal(i, 2, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
 						return
 					end

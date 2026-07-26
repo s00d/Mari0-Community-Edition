@@ -1419,7 +1419,8 @@ function enemy:portaled(): any
 end
 
 function enemy:spawnenemy(t: any): any
-	local speedx: number, speedy: number = 0, 0
+	local speedx: number = 0
+	local speedy: number = 0
 	if self.spawnenemyspeedx then
 		speedx = self.spawnenemyspeedx
 	end

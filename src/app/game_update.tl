@@ -2,7 +2,8 @@
      Loaded via require("app.game_update"); defines global game_update.
 ]]
 
-global function game_update(dt: number)
+global function game_update(...: any): any
+	local dt = (... as number)
 	if not objects then return end
 	dt = dt * speed
 	gdt = dt
@@ -62,7 +63,7 @@ global function game_update(dt: number)
 	--SCROLLING TEXTS
 	local delete = {}
 	
-	for i, v in pairs(scrollingtexts) do
+	for i, v in pairs(scrollingtexts as {any:Entity}) do
 		if scrollingtexts[i]:update(dt) == true then
 			table.insert(delete, i)
 		end
@@ -75,7 +76,7 @@ global function game_update(dt: number)
 			if replaydata[j].data then
 				replaytimer[j] = replaytimer[j] + dt
 				local rdata = replaydata[j].data as {any}
-				while (rdata[replayi[j]] as {string:any}).time < replaytimer[j] and replayi[j] < #rdata do
+				while ((((rdata as {number:any})[(replayi[j] as number)] as {string:any}).time) as number) < (replaytimer[j] as number) and (replayi[j] as number) < #(rdata as {any}) do
 					replayi[j] = replayi[j] + 1
 				end
 			end
@@ -190,9 +191,9 @@ global function game_update(dt: number)
 	end
 	
 	--coinblocktimer things
-	for i, v in pairs(coinblocktimers) do
-		if v[3] > 0 then
-			v[3] = v[3] - dt
+	for i, v in pairs(coinblocktimers as {any:{any}}) do
+		if (v[3] as number) > 0 then
+			v[3] = (v[3] as number) - dt
 		end
 	end
 	
@@ -220,7 +221,7 @@ global function game_update(dt: number)
 	local static_updatelists = {	pedestals, emancipationfizzles, emancipateanimations, dialogboxes, rocketlaunchers, emancipationgrills, fireworks, miniblocks, bubbles, platformspawners, seesaws, blockdebristable,
 							userects, rainbooms, coinblockanimations, itemanimations}
 
-	for _, v in ipairs(static_updatelists) do
+	for _, v in ipairs(static_updatelists as {any}) do
 		update_and_compact(v, dt)
 	end
 	for i, v in pairs(objects) do
@@ -311,7 +312,7 @@ global function game_update(dt: number)
 			--just force that shit
 			if not levelfinished then
 				if fastestplayer.x > xscroll + width - scrollingcomplete then
-					xscroll = xscroll + superscroll*dt
+					xscroll = xscroll + (superscroll as number)*dt
 					if fastestplayer.x < xscroll + width - scrollingcomplete then
 						xscroll = fastestplayer.x - width + scrollingcomplete
 					end
@@ -464,7 +465,7 @@ global function game_update(dt: number)
 		
 		local i = xpantimer/xpantime
 		
-		xscroll = xpanstart + xpandiff*i
+		xscroll = (xpanstart as number) + (xpandiff as number)*i
 	end
 	
 	--camera pan y
@@ -477,13 +478,14 @@ global function game_update(dt: number)
 		
 		local i = ypantimer/ypantime
 		
-		yscroll = ypanstart + ypandiff*i
+		yscroll = (ypanstart as number) + (ypandiff as number)*i
 	end
 	
 	--enemy spawning
 	if not editormode then
 		if round(xscroll) ~= round(oldxscroll) then
-			local xstart, xend
+			local xstart: number = 0
+			local xend: number = 0
 			if xscroll > oldxscroll then
 				xstart, xend = round(oldxscroll)+1+math.ceil(width), round(xscroll)+math.ceil(width)
 			else
@@ -498,7 +500,8 @@ global function game_update(dt: number)
 		end
 		
 		if round(yscroll) ~= round(oldyscroll) then
-			local ystart, yend
+			local ystart: number = 0
+			local yend: number = 0
 			if yscroll > oldyscroll then
 				ystart, yend = round(oldyscroll)+1+math.ceil(height), round(yscroll)+math.ceil(height)
 			else
@@ -539,41 +542,43 @@ global function game_update(dt: number)
 		portalparticletimer = portalparticletimer - portalparticletime
 		
 		for i, v in pairs(portals) do
-			if v.facing1 and v.x1 and v.y1 then
-				local x1, y1
+			if (v as {string:any}).facing1 and (v as {string:number}).x1 and (v as {string:number}).y1 then
+				local x1: number = 0
+				local y1: number = 0
 				
-				if v.facing1 == "up" then
-					x1 = v.x1 + math.random(1, 30)/16-1
-					y1 = v.y1-1
-				elseif v.facing1 == "down" then
-					x1 = v.x1 + math.random(1, 30)/16-2
-					y1 = v.y1
-				elseif v.facing1 == "left" then
-					x1 = v.x1-1
-					y1 = v.y1 + math.random(1, 30)/16-2
-				elseif v.facing1 == "right" then
-					x1 = v.x1
-					y1 = v.y1 + math.random(1, 30)/16-1
+				if (v as {string:any}).facing1 == "up" then
+					x1 = (v as {string:number}).x1 + math.random(1, 30)/16-1
+					y1 = (v as {string:number}).y1-1
+				elseif (v as {string:any}).facing1 == "down" then
+					x1 = (v as {string:number}).x1 + math.random(1, 30)/16-2
+					y1 = (v as {string:number}).y1
+				elseif (v as {string:any}).facing1 == "left" then
+					x1 = (v as {string:number}).x1-1
+					y1 = (v as {string:number}).y1 + math.random(1, 30)/16-2
+				elseif (v as {string:any}).facing1 == "right" then
+					x1 = (v as {string:number}).x1
+					y1 = (v as {string:number}).y1 + math.random(1, 30)/16-1
 				end
 				
 				table.insert(portalparticles, portalparticle:new(x1, y1, v.portal1color, v.facing1))
 			end
 			
-			if v.facing2 ~= nil and v.x2 and v.y2 then
-				local x2, y2
+			if (v as {string:any}).facing2 ~= nil and (v as {string:number}).x2 and (v as {string:number}).y2 then
+				local x2: number = 0
+				local y2: number = 0
 				
-				if v.facing2 == "up" then
-					x2 = v.x2 + math.random(1, 30)/16-1
-					y2 = v.y2-1
-				elseif v.facing2 == "down" then
-					x2 = v.x2 + math.random(1, 30)/16-2
-					y2 = v.y2
-				elseif v.facing2 == "left" then
-					x2 = v.x2-1
-					y2 = v.y2 + math.random(1, 30)/16-2
-				elseif v.facing2 == "right" then
-					x2 = v.x2
-					y2 = v.y2 + math.random(1, 30)/16-1
+				if (v as {string:any}).facing2 == "up" then
+					x2 = (v as {string:number}).x2 + math.random(1, 30)/16-1
+					y2 = (v as {string:number}).y2-1
+				elseif (v as {string:any}).facing2 == "down" then
+					x2 = (v as {string:number}).x2 + math.random(1, 30)/16-2
+					y2 = (v as {string:number}).y2
+				elseif (v as {string:any}).facing2 == "left" then
+					x2 = (v as {string:number}).x2-1
+					y2 = (v as {string:number}).y2 + math.random(1, 30)/16-2
+				elseif (v as {string:any}).facing2 == "right" then
+					x2 = (v as {string:number}).x2
+					y2 = (v as {string:number}).y2 + math.random(1, 30)/16-1
 				end
 				
 				table.insert(portalparticles, portalparticle:new(x2, y2, v.portal2color, v.facing2))
@@ -584,7 +589,7 @@ global function game_update(dt: number)
 	delete = {}
 	
 	for i, v in pairs(portalparticles) do
-		if v:update(dt) == true then
+		if (v as Entity):update(dt) == true then
 			table.insert(delete, i)
 		end
 	end
@@ -595,7 +600,7 @@ global function game_update(dt: number)
 	delete = {}
 	
 	for i, v in pairs(portalprojectiles) do
-		if v:update(dt) == true then
+		if (v as Entity):update(dt) == true then
 			table.insert(delete, i)
 		end
 	end
@@ -631,7 +636,7 @@ global function game_update(dt: number)
 			flyingfishtimer = flyingfishtimer - flyingfishdelay
 			flyingfishdelay = math.random(6, 20)/10
 			
-			local x, y = math.random(math.floor(xscroll), math.floor(xscroll)+width), mapheight
+			local x, y = math.random(math.floor(xscroll) as integer, (math.floor(xscroll)+width) as integer), mapheight as integer
 			local temp = enemy:new(x, y, "flyingfish")
 			table.insert(objects["enemy"], temp)
 			
@@ -667,7 +672,7 @@ global function game_update(dt: number)
 	--Update pointing angle of players
 	for i, v in pairs(objects.player) do
 		if not v.disableaiming then
-			v:updateangle()
+			(v as mario):updateangle()
 		end
 	end
 end

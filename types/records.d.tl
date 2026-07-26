@@ -8,7 +8,7 @@ global record actionblock is Entity
 	coy: number
 	height: number
 	mask: {boolean}
-	outtable: {any}
+	outtable: {{any}}
 	speedx: number
 	speedy: number
 	state: string
@@ -40,7 +40,7 @@ global record andgate is Entity
 	initial: boolean
 	inputstate: {any}
 	outputstate: any
-	outtable: {any}
+	outtable: {{any}}
 	r: {any}
 	visible: boolean
 	x: number
@@ -141,8 +141,8 @@ global record animatedtimer is {any}
 end
 
 global record animation is {any}
-	actions: {any}
-	conditions: {any}
+	actions: {{any}}
+	conditions: {{any}}
 	currentaction: number
 	enabled: boolean
 	filepath: string
@@ -152,16 +152,16 @@ global record animation is {any}
 	running: boolean
 	sleep: number
 	timer: number
-	triggers: {any}
+	triggers: {{any}}
 	init: function(animation, any, any)
 	decode: function(animation, any)
-	addtrigger: function(animation, any)
-	addcondition: function(animation, any)
-	addaction: function(animation, any)
+	addtrigger: function(animation, {any})
+	addcondition: function(animation, {any})
+	addaction: function(animation, {any})
 	update: function(animation, number): any...
 	trigger: function(animation)
 	draw: function(animation)
-	decodenuminput: function(animation, any)
+	decodenuminput: function(animation, any): number
 	new: function(animation, any, any): animation
 end
 
@@ -316,7 +316,7 @@ global record box is Entity
 	mask: {boolean}
 	offsetX: number
 	offsetY: number
-	outtable: {any}
+	outtable: {{any}}
 	parent: any
 	portaledframe: boolean
 	portaloverride: boolean
@@ -428,7 +428,7 @@ global record button is Entity
 	mask: {boolean}
 	objtable: {any}
 	out: boolean
-	outtable: {any}
+	outtable: {{any}}
 	pressings: number
 	r: {any}
 	static: boolean
@@ -644,7 +644,7 @@ global record delayer is Entity
 	cox: number
 	coy: number
 	delay: number
-	outtable: {any}
+	outtable: {{any}}
 	r: {any}
 	timers: number
 	visible: boolean
@@ -868,7 +868,7 @@ global record enemy is Entity
 	offsetY: number
 	offsetx: number
 	offsety: number
-	outtable: {any}
+	outtable: {{any}}
 	pistondistx: number
 	pistondisty: number
 	pistonextendtime: number
@@ -1193,7 +1193,8 @@ global record fireworkboom is Entity
 end
 
 global record funnel is {any}
-	funneltable: any
+	lastblock: {any}
+	funneltable: {any}
 	animationtime: any
 	cox: number
 	coy: number
@@ -1204,14 +1205,14 @@ global record funnel is {any}
 	input2state: any
 	objtable: {any}
 	power: any
-	quad: any
+	quad: number
 	r: {any}
 	reverse: any
-	speed: any
+	speed: number
 	speedx: number
 	speedy: number
 	timer: number
-	timer2: any
+	timer2: number
 	width: number
 	x: number
 	y: number
@@ -1392,6 +1393,7 @@ global record guielement is {any}
 	draw: function(guielement, number, number, number)
 	getheight: function(guielement): number
 	click: function(guielement, number, number, any): any...
+	haspriority: function(guielement): boolean
 	textinput: function(guielement, string): any...
 	keypress: function(guielement, string): any...
 	unclick: function(guielement, number, number, any): any...
@@ -1437,7 +1439,7 @@ global record laser is {any}
 	framestart: number
 	input1state: any
 	lasertable: {any}
-	outtable: {any}
+	outtable: {{any}}
 	power: any
 	r: {any}
 	init: function(laser, number, number, any)
@@ -1468,7 +1470,7 @@ global record laserdetector is Entity
 	dir: string
 	drawable: boolean
 	out: boolean
-	outtable: {any}
+	outtable: {{any}}
 	prevout: number
 	r: {any}
 	init: function(laserdetector, number, number, any)
@@ -1810,7 +1812,7 @@ global record notgate is Entity
 	coy: number
 	initial: boolean
 	input1state: any
-	outtable: {any}
+	outtable: {{any}}
 	power: boolean
 	r: {any}
 	visible: boolean
@@ -1840,7 +1842,7 @@ global record orgate is Entity
 	initial: boolean
 	inputstate: {any}
 	outputstate: any
-	outtable: {any}
+	outtable: {{any}}
 	r: {any}
 	visible: boolean
 	x: number
@@ -2149,7 +2151,7 @@ global record pushbutton is Entity
 	coy: number
 	dir: string
 	out: boolean
-	outtable: {any}
+	outtable: {{any}}
 	pusheddown: number
 	r: {any}
 	timer: number
@@ -2238,7 +2240,7 @@ global record regiontrigger is Entity
 	cox: number
 	coy: number
 	out: boolean
-	outtable: {any}
+	outtable: {{any}}
 	r: {any}
 	regionX: number
 	regionY: number
@@ -2340,7 +2342,7 @@ global record rsflipflop is Entity
 	cox: number
 	coy: number
 	output: number
-	outtable: {any}
+	outtable: {{any}}
 	r: {any}
 	visible: boolean
 	x: number
@@ -2545,7 +2547,7 @@ global record squarewave is Entity
 	coy: number
 	initial: boolean
 	input1state: any
-	outtable: {any}
+	outtable: {{any}}
 	r: {any}
 	time1: number
 	time2: number
@@ -2594,7 +2596,7 @@ global record textentity is Entity
 	new: function(textentity, number, number, {any}): textentity
 end
 
-global record tile is {any}
+global record tile is Entity
 	active: boolean
 	category: number
 	cox: number
@@ -2670,7 +2672,7 @@ global record walltimer is Entity
 	coy: number
 	input1state: any
 	lighted: boolean
-	outtable: {any}
+	outtable: {{any}}
 	quad: any
 	r: {any}
 	time: number
@@ -2703,7 +2705,7 @@ global record zgbooltrigger is Entity
 	inverted: number
 	invisible: boolean
 	out: boolean
-	outtable: {any}
+	outtable: {{any}}
 	r: {any}
 	x: number
 	y: number
@@ -2730,7 +2732,7 @@ global record zginttrigger is Entity
 	coy: number
 	id: number
 	out: boolean
-	outtable: {any}
+	outtable: {{any}}
 	r: {any}
 	value: number
 	x: number

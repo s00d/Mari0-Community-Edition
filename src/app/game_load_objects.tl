@@ -369,7 +369,7 @@ global function playsound(...: any): any
 	end
 end
 
-global function drawrectangle(x: any, y: any, width: any, height: any): any: any
+global function drawrectangle(x: any, y: any, width: any, height: any): any
 	local x, y, width, height = ...
 	love.graphics.rectangle("fill", x*scale, y*scale, width*scale, scale)
 	love.graphics.rectangle("fill", x*scale, y*scale, scale, height*scale)

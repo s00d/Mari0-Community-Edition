@@ -16,11 +16,11 @@ end
 global record GamestateModule is {any}
 	current: string
 	handlers: {any:any}
-	register: function(GamestateModule, ...: any): any
-	set: function(GamestateModule, ...: any): any
-	get: function(GamestateModule, ...: any): any
-	update: function(GamestateModule, ...: any): any
-	draw: function(GamestateModule, ...: any): any
+	register: function(...: any): any
+	set: function(...: any): any
+	get: function(...: any): any
+	update: function(...: any): any
+	draw: function(...: any): any
 end
 
 global record LoggerModule
@@ -71,7 +71,7 @@ global mapheight: number
 global mariotimer: number
 global gamestate: string
 global editormode: boolean
-global paused: boolean
+global paused: any
 global players: integer
 global scale: number
 global width: number
@@ -132,12 +132,12 @@ global hat: {any:HatDef}
 global bighat: {any:HatDef}
 
 -- HUD / progress
-global marioworld: number
-global mariolevel: number
-global mariosublevel: number
-global mariotime: any
+global marioworld: any
+global mariolevel: any
+global mariosublevel: any
+global mariotime: number
 global mariotimelimit: number
-global mariolives: {integer}
+global mariolives: {any}
 global mariolivecount: any
 global mariocoincount: number
 global mariocolors: {{{number}}}
@@ -192,7 +192,7 @@ global mappackhorscrollsmooth: number
 global onlinemappacklist: {string}
 global onlinemappackselection: integer
 global helpui: {number}
-global hotkeys: {string:any}
+global hotkeys: {string:{any}}
 global selection: number
 global selectionlist: {SelectionTile}
 global brush: {number}
@@ -232,7 +232,7 @@ global spriteset: integer
 global custombackground: any
 global customforeground: any
 global backgroundlevel: any
-global background: {number}
+global background: any
 global coinmap: {number:{number:any}}
 global smbtilecount: integer
 global portaltilecount: integer
@@ -264,6 +264,7 @@ global record ShadersController is {any}
 	refresh: function(ShadersController, ...: any): any
 	predraw: function(ShadersController, ...: any): any
 	postdraw: function(ShadersController, ...: any): any
+	init: function(ShadersController)
 end
 
 global shaders: ShadersController
@@ -271,13 +272,13 @@ global shaderlist: {string}
 global guielements: {any:guielement}
 global volumesfx: number
 global volumemusic: number
-global speed: any
-global speedtarget: any
+global speed: number
+global speedtarget: number
 global scrollingscores: {any:Entity}
-global flagx: number
-global axex: number
-global startx: {number}
-global starty: {number}
+global flagx: any
+global axex: any
+global startx: {any}
+global starty: {any}
 global levelfinished: boolean
 global ylookmodifier: number
 global gdt: number
@@ -345,6 +346,7 @@ global toconvertmappackscrollsmooth: number
 global pausemenuselected2: number
 global blockbouncetime: number
 global record EntityQuad
+	sett: function(EntityQuad, number)
 	image: Image
 	quad: Quad
 	i: number
@@ -369,7 +371,7 @@ global seesawtype: {any:{any}}
 global pausemenuoptions: {number:string}
 global earthquake: number
 global animatedtiles: {animatedquad}
-global backgroundcolor: {number:{number}}
+global backgroundcolor: {any}
 global mazestarts: {number}
 global bonusstage: any
 global record HttpLib
@@ -418,7 +420,7 @@ global introfadetime: number
 global rightclickwidth: number
 global runanimationtimer: number
 global coinframe: integer
-global modcustomtilesimg: {Image}
+global modcustomtilesimg: {number:Image}
 global scrollfactor: number
 global custombackgroundheight: {any:{number}}
 global custombackgroundwidth: {any:{number}}
@@ -456,7 +458,7 @@ global success: boolean
 global allowskip: boolean
 global fastestplayer: {string:any}
 global regiondragboxwidth: number
-global seesawquad: {{Quad}}
+global seesawquad: {any}
 global animationlist: {any:any}
 global minimapheight: number
 global mtclipboard: {{any}}
@@ -464,15 +466,15 @@ global lightdrawY: number
 global groundlighttable: {number:string}
 global runanimationframe: number
 global usemagic: boolean
-global modcustomspritebatch: {any}
+global modcustomspritebatch: {number:any}
 global blockbouncex: {any:any}
 global blockbouncey: {any:any}
 global fscrollfactor: number
 global infinitetime: boolean
-global portaldelay: {number}
+global portaldelay: {number:number}
 global gelcannontimer: number
 global spritebatchX: {any}
-global firestartx: number
+global firestartx: any
 global pipestarty: any
 global fireanimationtime: number
 global soundenabled: boolean
@@ -497,7 +499,7 @@ global mappackdescription: {any}
 global axisDeadZones: {any:any}
 global playerconfig: {any}
 global blockdebristable: {any:Entity}
-global portalprojectiles: {any}
+global portalprojectiles: {any:Entity}
 global completecanvas: any
 global userects: {any:Entity}
 global menuprompt: boolean
@@ -506,7 +508,7 @@ global scalefactor: number
 global replayi: {number:number}
 global everyonedead: boolean
 global blockbouncecontent: {any:any}
-global coinblocktimers: {{any}}
+global coinblocktimers: {any:{any}}
 global minimapdragging: boolean
 global scrollrate: number
 global userscrollrange: number
@@ -529,7 +531,7 @@ global portalanimationtimer: number
 global flagdescendtime: number
 global springtime: number
 global goombaattack: boolean
-global animationtriggerfuncs: {string:any}
+global animationtriggerfuncs: {string:{any}}
 global seesawimg: Image
 global mapbuttonarea: {number}
 global levelscreenbackname: any
@@ -544,7 +546,7 @@ global onlinemappackdescription: {any}
 global toconvertmappackicon: {Image}
 global toconvertmappackdescription: {any}
 global axiserror: any
-global cheepcheepquad: {{Quad}}
+global cheepcheepquad: {any}
 global portalparticles: {any:Entity}
 global portaldotstime: number
 global scenecanvas: any
@@ -559,7 +561,7 @@ global textentities: {any:Entity}
 global smbspritebatchfront: SpriteBatch
 global portalspritebatchfront: SpriteBatch
 global customspritebatchfront: SpriteBatch
-global modcustomspritebatchfront: {any}
+global modcustomspritebatchfront: {number:any}
 global emancipateanimations: {any:Entity}
 global dialogboxes: {any:Entity}
 global blockbouncecontent2: {any:any}
@@ -576,12 +578,12 @@ global flyingfishzones: {{number}}
 global bulletbillzones: {{number}}
 global mazesolved: {any}
 global enemiesspawned: {any}
-global livereplaydelay: {number:number}
+global livereplaydelay: {any}
 global endpressbutton: boolean
 global id: {any}
 global keyprompt: boolean
 global levelscreens: {any}
-global playertypelist: {any}
+global playertypelist: {number:string}
 global maxrunspeed: number
 global jumpforce: number
 global bubblesspeed: number
@@ -593,9 +595,9 @@ global flagydistance: number
 global konamitable: {any}
 global emancipationfizzletime: number
 global tooltipimages: {number:{number:any}}
-global faithplatequad: {{Quad}}
+global faithplatequad: {any}
 global endimg: Image
-global excursionquad: {{Quad}}
+global excursionquad: {any}
 global subtracttimer: number
 global vx: number
 global vy: number
@@ -612,11 +614,11 @@ global hasHotkey: function(any, any): string|boolean|nil
 global levelscreentimer: number
 global mappackauthor: {any}
 global buttonerror: any
-global steptimer: any
+global steptimer: number
 global magicdns_timer: number
 global magictimer: number
 global scrollingscoretime: number
-global scrollingtexts: {Entity}
+global scrollingtexts: {any:Entity}
 global rainbooms: {any:Entity}
 global blockbounceheight: number
 global coinblockquads: {any:{any:Quad}}
@@ -633,7 +635,7 @@ global firestarted: boolean
 global flyingfishdelay: number
 global bulletbilldelay: number
 global respawnsublevel: number
-global livereplaydata: {number:{{string:any}}}
+global livereplaydata: {any}
 global joystickdeadzone: number
 global flowercolor: {any}
 global MULTIPLYDELIMITER: {any:string}
@@ -661,8 +663,8 @@ global fireworkdelay: number
 global castleanimationmariomove: number
 global funnelforce: number
 global emancipateanimationtime: number
-global bowserquad: {{Quad}}
-global buttonquad: {{Quad}}
+global bowserquad: {any}
+global buttonquad: {any}
 global emancemaxspeed: number
 global parstartup: boolean
 global realaction: any
@@ -670,7 +672,7 @@ global faithplateplateimg: Image
 global img: {string:any}
 global bowserfall: boolean
 global portalquad: {any}
-global vinequad: {{Quad}}
+global vinequad: {any}
 global brushmax: number
 global minimapscrollspeed: number
 global animationlineinset: number
@@ -699,8 +701,8 @@ global port: number
 global portalbouncethreshold: number
 global firstpersonview: boolean
 global currentscissor: {number}
-global coinanimationquads: {{Quad}}
-global pausemenuoptions2: {any}
+global coinanimationquads: {any}
+global pausemenuoptions2: {number:any}
 global volumesliderimg: Image
 global scroll_batch_offset: function(number, number|nil): number
 global displaywarpzonetext: number|boolean
@@ -717,9 +719,9 @@ global animatedbooltimerlist: {animatedbooltimer}
 global firstunder100: boolean
 global autoscrollx: number|boolean
 global autoscrolly: number|boolean
-global xpan: {any}
+global xpan: any
 global xpantime: number
-global ypan: {any}
+global ypan: any
 global ypantime: number
 global lastrepeat: number
 global flyingfishstartx: any
@@ -729,7 +731,7 @@ global bulletbillendx: any
 global lakitoendx: any
 global mazeinprogress: boolean
 global skipupdate: boolean
-global livereplaystored: {number:{string:any}}
+global livereplaystored: {any}
 global fontquads: {string:any}
 global delaylist: {string:any}
 global imagelist: {string}
@@ -749,8 +751,8 @@ global rainboomspeed: number
 global emancipatefadeouttime: number
 global pedestaltime: number
 global raccoonstarttime: number
-global blockdebrisquads: {{Quad}}
-global boxquad: {{Quad}}
+global blockdebrisquads: {any}
+global boxquad: {any}
 global buttonimg: Image
 global hatcount: number
 global doorpieceimg: Image
@@ -787,7 +789,7 @@ global touchfrominsidescaling: number
 global chatmessages: {any}
 global localnick: string
 global magicdns_identity: string
-global coinblockanimationquads: {{Quad}}
+global coinblockanimationquads: {any}
 global scrollingscoreheight: number
 global portaldotsouter: number
 global portaldotsinner: number
@@ -798,7 +800,7 @@ global gel2groundimg: Image
 global gel3groundimg: Image
 global gel4groundimg: Image
 global warpzonenumbers: {any}
-global axequads: {{Quad}}
+global axequads: {any}
 global miniblocks: {any:Entity}
 global rainboomearthquake: number
 global tremorx: number
@@ -812,8 +814,8 @@ global scrollingstart: number
 global userscrolltime: number
 global upscrollborder: number
 global yscrollingrate: number
-global xpanstart: {any}
-global ypanstart: {any}
+global xpanstart: number
+global ypanstart: number
 global portalparticletime: number
 global flyingfishstarts: {any}
 global flyingfishends: {any}
@@ -917,21 +919,21 @@ global emancipationfizzledelay: number
 global raccoonbuttondelay: number
 global raccoontailwagdelay: number
 global raccoonspindelay: number
-global wallindicatorquad: {{Quad}}
-global decoysquad: {{Quad}}
+global wallindicatorquad: {any}
+global decoysquad: {any}
 global fireballimg: Image
 global emanceaccel: number
 global parstartright: {any}
 global parstartdown: {any}
 global firequad: {any}
-global magicquad: {{Quad}}
+global magicquad: {any}
 global firework: number|boolean
-global panelquad: {{Quad}}
+global panelquad: {any}
 global platformbonusimg: Image
 global portalglowimg: Image
 global portalimg: Image
 global rainboomquad: {any}
-global walltimerquad: {{Quad}}
+global walltimerquad: {any}
 global secretcheckboxtext: {string}
 global editorloadopen: boolean
 global largestworld: number
@@ -951,15 +953,15 @@ global huebarimg: Image
 global huebarmarkerimg: Image
 global DEBUG: boolean
 global yadd: number
-global goombaquad: {{Quad}}
-global spikeyquad: {{Quad}}
-global lakitoquad: {{Quad}}
-global koopaquad: {{Quad}}
-global hammerbrosquad: {{Quad}}
-global hammerquad: {{Quad}}
-global plantquads: {{Quad}}
+global goombaquad: {any}
+global spikeyquad: {any}
+global lakitoquad: {any}
+global koopaquad: {any}
+global hammerbrosquad: {any}
+global hammerquad: {any}
+global plantquads: {any}
 global versionerror: boolean
-global targetdt: any
+global targetdt: number
 global screenshotimagedata: any
 global magicdns_delay: number
 global localnicks: {any}
@@ -977,10 +979,10 @@ global coinimg: Image
 global portalbackgroundimg: Image
 global seethroughportals: boolean
 global superscrollrate: number
-global superscroll: boolean
-global xpandiff: {any}
-global ypandiff: {any}
-global inventory: {string:any}
+global superscroll: number
+global xpandiff: number
+global ypandiff: number
+global inventory: {any:any}
 global fontimage2: Image
 global portalgundelay: number
 global speeddebug: boolean
@@ -1052,7 +1054,7 @@ global endmusicstopdelay: number
 global drainspeed: number
 global rainboomframes: number
 global konamilength: number
-global konamihash: number
+global konamihash: any
 global maximumbulletbills: number
 global funnelspeed: number
 global funnelminspeed: number
@@ -1064,7 +1066,7 @@ global raccoonascendspeed: number
 global raccoondescendspeed: number
 global defaultvalues: {string:any}
 global nobasevalues: {number:string}
-global gelquad: {Quad}
+global gelquad: {any}
 global lightbridgeimg: Image
 global lightbridgeglowimg: Image
 global magicimg: Image
@@ -1108,11 +1110,11 @@ global shaderssupported: boolean
 global backgroundi: number
 global volume: number
 global previewimg: ImageData
-global numberglyphs: {any}
-global starquad: {{Quad}}
-global flowerquad: {{Quad}}
-global squidquad: {{Quad}}
-global bulletbillquad: {{Quad}}
+global numberglyphs: any
+global starquad: {any}
+global flowerquad: {any}
+global squidquad: {any}
+global bulletbillquad: {any}
 global magicdns_validresponses: {any}
 
 -- Missing globals declared for cyan -u (auto)
@@ -1144,7 +1146,7 @@ global custommusics: {any}
 global debugprints: boolean
 global decoysimg: Image
 global delayerimg: Image
-global dlclist: {any}
+global dlclist: {string}
 global earthquakespeed: number
 global editor_mode_labels: function(any, any, any, any): string, string|boolean
 global excursionfunnel2img: Image
@@ -1221,7 +1223,7 @@ global powerlinestab: function(...: any): any
 global pushbuttonimg: Image
 global reachedx: function(...: any): any
 global realdt: any
-global recordtarget: string
+global recordtarget: any
 global rsflipflopimg: Image
 global scoredelay: number
 global scrollsmoothrate: number
@@ -1257,7 +1259,7 @@ global versionstring: string
 global wallindicatorimg: Image
 global walltimerimg: Image
 global zgbooltriggerimg: Image
-global zgbooltriggerquad: {{Quad}}
+global zgbooltriggerquad: {any}
 
 -- Cross-module function stubs (implementations in src/)
 global aabb: function(...: any): any
@@ -1408,7 +1410,7 @@ global generateanimationgui: function(...: any): any
 global generateentitylist: function(...: any): any
 global generatespritebatch: function(...: any): any
 global getAngleFrame: function(...: any): any
-global getPortal: function(number, number, any): any
+global getPortal: function(...: any): any...
 global getSelectedTiles: function(...: any): {{any}}
 global getTiles: function(...: any): {{any}}
 global getaveragecolor: function(...: any): number, number, number

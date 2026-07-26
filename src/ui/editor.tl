@@ -3126,7 +3126,14 @@ function editor_mousepressed_left(x: number, y: number)
 		else
 			local cox, coy = getMouseTile(x, y+8*scale)
 			if inmap(cox, coy) then					
-				local lx1: number, ly1: number, lx2: number, ly2: number, slx1: number, sly1: number, slx2: number, sly2: number = 0, 0, 0, 0, 0, 0, 0, 0
+				local lx1: number = 0
+				local ly1: number = 0
+				local lx2: number = 0
+				local ly2: number = 0
+				local slx1: number = 0
+				local sly1: number = 0
+				local slx2: number = 0
+				local sly2: number = 0
 				lx1 = math.min(tileselectionclick1x as integer, tileselectionclick2x as integer)
 				ly1 = math.min(tileselectionclick1y as integer, tileselectionclick2y as integer)
 				lx2 = math.max(tileselectionclick1x as integer, tileselectionclick2x as integer)

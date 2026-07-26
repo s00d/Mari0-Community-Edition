@@ -1,6 +1,7 @@
 --[[ Love callbacks extracted from main.lua ]]
 
-function love.update(dt: number)
+function love.update(dt: any)
+	local dt = dt as number
 	if music then
 		music:update()
 	end
@@ -8,11 +9,11 @@ function love.update(dt: number)
 	dt = math.min(0.5, dt) --ignore any dt higher than half a second
 	
 	if recording then
-		dt = recordtarget
+		dt = recordtarget as number
 	end
 	
 	steptimer = steptimer + dt
-	dt = targetdt
+	dt = targetdt as number
 	
 	if skipupdate then
 		steptimer = 0
@@ -36,7 +37,7 @@ function love.update(dt: number)
 			for i, v in pairs(soundlist) do
 				v.source:setPitch( speed )
 			end
-			music.pitch = speed as any
+			music.pitch = speed
 			love.audio.setVolume(volumesfx)
 			music:setVolume(volumemusic)
 		else	
@@ -62,15 +63,16 @@ function love.update(dt: number)
 		-- Prefer Gamestate handlers when registered; legacy branches as fallback
 		local gs_handled = false
 		if Gamestate then
-			local h = (Gamestate.handlers as {any:any})[Gamestate.get()]
+			local gname = (Gamestate.get as function(): any)()
+			local h = (Gamestate.handlers as {any:any})[gname]
 			if h and (h as {string:any}).update then
-				(Gamestate.update as function(number): any)(dt)
+				(Gamestate.update as function(...: any): any)(dt)
 				gs_handled = true
 			end
 		end
 		if not gs_handled then
 			if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" or gamestate == "lobby" then
-				menu_update(dt)
+				menu_update(dt as number)
 			elseif gamestate == "levelscreen" or gamestate == "gameover" or gamestate == "sublevelscreen" or gamestate == "mappackfinished" then
 				levelscreen_update(dt)
 			elseif gamestate == "game" then
@@ -81,12 +83,12 @@ function love.update(dt: number)
 		end
 		
 		for i, v in pairs(guielements) do
-			v:update(dt)
+			v:update(dt as number)
 		end
 		
 		--netplay_update(dt)
 		
-		notice.update(dt)
+		notice.update(dt as number)
 		
 		--No longer needed
 		--love.window.setTitle("FPS:" .. love.timer.getFPS() .. " - Send feedback/issues to crash@stabyourself.net")
@@ -98,7 +100,7 @@ function love.draw()
 	
 	local gs_handled = false
 	if Gamestate then
-		local h = (Gamestate.handlers as {any:any})[Gamestate.get()]
+		local h = (Gamestate.handlers as {any:any})[(Gamestate.get as function(): any)()]
 		if h and (h as {string:any}).draw then
 			(Gamestate.draw as function(): any)()
 			gs_handled = true
@@ -167,7 +169,7 @@ function love.keypressed(key: any, scancode: any, isrepeat: any)
 	end
 
 	for i, v in pairs(guielements) do
-		if v:keypress(string.lower(key)) then
+		if v:keypress(string.lower(key as string)) then
 			return
 		end
 	end
@@ -188,10 +190,10 @@ function love.keypressed(key: any, scancode: any, isrepeat: any)
 		table.remove(konamitable, 1)
 		local s = ""
 		for i = 1, #konamitable do
-			s = s .. konamitable[i]
+			s = s .. tostring(konamitable[i])
 		end
 		
-		if sha1(s) == konamihash then --Before you wonder how dumb this is; This used to be a different code than konami because I thought it'd be fun to make people figure it out before they can tell others how to easily unlock cheats (without editing files). It wasn't, really.
+		if (sha1 as function(string): any)(s) == (konamihash as any) then --Before you wonder how dumb this is; This used to be a different code than konami because I thought it'd be fun to make people figure it out before they can tell others how to easily unlock cheats (without editing files). It wasn't, really.
 			playsound("konami")
 			gamefinished = true
 			saveconfig()
@@ -217,28 +219,33 @@ function love.keyreleased(key: any, scancode: any)
 	end
 end
 
-function love.textinput(text)
-	if _G[gamestate .. "_textinput"] and type(_G[gamestate .. "_textinput"]) == "function" then
-		local success, err = pcall(function() _G[gamestate .. "_textinput"](text) end) -- I don't wanna cause a crash
-		if not success then print(err) end
+function love.textinput(text: any)
+	local g = _G as {string:any}
+	local name = (gamestate as string) .. "_textinput"
+	if g[name] and type(g[name]) == "function" then
+		local ok = pcall(function() (g[name] as function(any): any)(text) end) -- I don't wanna cause a crash
+		if not ok then end
 	end
 	
 	if guielements then
 		for _, v in pairs(guielements) do
-			v:textinput(text)
+			v:textinput(text as string)
 		end
 	end
 end
 
-function love.wheelmoved(x, y)
-	if y > 0 then
+function love.wheelmoved(x: any, y: any)
+	if (y as number) > 0 then
 		love.mousepressed(love.mouse.getX(), love.mouse.getY(), "wu")
-	elseif y < 0 then
+	elseif (y as number) < 0 then
 		love.mousepressed(love.mouse.getX(), love.mouse.getY(), "wd")
 	end
 end
 
-function love.mousepressed(x: number, y: number, button: any)
+function love.mousepressed(...: any)
+	local x, y, button = ...
+	local x = x as number
+	local y = y as number
 	-- Love 11 passes numeric buttons; legacy handlers still use "l"/"r"/"m".
 	if button == 1 then button = "l"
 	elseif button == 2 then button = "r"
@@ -262,9 +269,9 @@ function love.mousepressed(x: number, y: number, button: any)
 	if animationguilines and editormenuopen and not changemapwidthmenu and not guielements["animationselectdrop"].extended then
 		local b = false
 		for i, v in pairs(animationguilines) do
-			for k, w in pairs(v) do
-				if w:haspriority() then
-					w:click(x, y, button)
+			for k, w in pairs(v as {any:any}) do
+				if (w as guielement):haspriority() then
+					(w as guielement):click(x, y, button)
 					return
 				end
 			end
@@ -276,8 +283,8 @@ function love.mousepressed(x: number, y: number, button: any)
 			addanimationactionbutton:click(x, y, button)
 			
 			for i, v in pairs(animationguilines) do
-				for k, w in pairs(v) do						
-					if w:click(x, y, button) then
+				for k, w in pairs(v as {any:any}) do						
+					if (w as guielement):click(x, y, button) then
 						return
 					end
 				end
@@ -302,7 +309,10 @@ function love.mousepressed(x: number, y: number, button: any)
 	end
 end
 
-function love.mousereleased(x: number, y: number, button: any)
+function love.mousereleased(...: any)
+	local x, y, button = ...
+	local x = x as number
+	local y = y as number
 	if button == 1 then button = "l"
 	elseif button == 2 then button = "r"
 	elseif button == 3 then button = "m"
@@ -357,7 +367,7 @@ function love.joystickreleased(joystick: any, button: any)
 	end
 end
 
-function love.joystickaxis(joystick: any, axis: any, value: number)
+function love.joystickaxis(joystick: any, axis: any, value: any)
 	local joysticks,found = love.joystick.getJoysticks(),false
 	for i,v in ipairs(joysticks) do
 		if (v as Joystick):getID() == (joystick as Joystick):getID() then
@@ -372,18 +382,18 @@ function love.joystickaxis(joystick: any, axis: any, value: number)
 		
 		local adz = ((axisDeadZones as {any:any})[joystick] as {any:any})[axis] as {string:any}
 		--If this axis is a stick, get whether it just moved out of its deadzone
-		if math.abs(value) > joystickaimdeadzone and adz["stick"] then
+		if math.abs(value as number) > joystickaimdeadzone and adz["stick"] then
 			stickmoved = true
 			adz["stick"] = false
-		elseif math.abs(value) < joystickaimdeadzone and not adz["stick"] then
+		elseif math.abs(value as number) < joystickaimdeadzone and not adz["stick"] then
 			adz["stick"] = true
 		end
 
 		--If this axis is a shoulder, get whether it just moved out of its deadzone
-		if value > 0 and adz["shoulder"] then
+		if (value as number) > 0 and adz["shoulder"] then
 			shouldermoved = true
 			adz["shoulder"] = false
-		elseif value < 0 and not adz["shoulder"] then
+		elseif (value as number) < 0 and not adz["shoulder"] then
 			adz["shoulder"] = true
 		end
 

@@ -1,4 +1,3 @@
-global type Joystick = love.Joystick
 global type Dyn = {any:Dyn}
 
 global record Font
@@ -41,6 +40,8 @@ global interface Entity is {any}
 	small: boolean
 	killsenemies: any
 	nocollidestops: any
+	funnel: any
+	lastblock: any
 	jumping: any
 	upsidedown: boolean
 	delete: boolean
@@ -209,6 +210,7 @@ global record love
 		getWidth: function(): number
 		getHeight: function(): number
 		setDefaultFilter: function(min: string, mag: string)
+		setPointSize: function(s: number)
 		setScissor: function(...: any)
 		setCanvas: function(...: any)
 		setShader: function(shader: Shader|nil)
@@ -234,9 +236,9 @@ global record love
 
 	record audio
 		newSource: function(path: string, source_type: string): Source
-		play: function(source: Source)
-		stop: function(source: Source|nil)
-		pause: function(source: Source|nil)
+		play: function(...: any)
+		stop: function(...: any)
+		pause: function(...: any): any...
 		setVolume: function(v: number)
 	end
 
@@ -276,6 +278,7 @@ global record love
 		getHat: function(self: Joystick, index: number): string
 		getAxis: function(self: Joystick, index: number): number
 		isDown: function(self: Joystick, ...: any): boolean
+		isGamepadDown: function(self: Joystick, ...: any): boolean
 		getName: function(self: Joystick): string
 		getID: function(self: Joystick): number
 	end
@@ -330,8 +333,15 @@ global record love
 	draw: function()
 	keypressed: function(key: any, scancode: any, isrepeat: any)
 	keyreleased: function(key: any, scancode: any)
+	textinput: function(text: any)
 	mousepressed: function(...: any)
 	mousereleased: function(...: any)
+	wheelmoved: function(x: any, y: any)
+	joystickpressed: function(joystick: any, button: any)
+	joystickreleased: function(joystick: any, button: any)
+	joystickaxis: function(joystick: any, axis: any, value: any)
+	joystickhat: function(joystick: any, hat: any, direction: any)
+	focus: function(f: any)
 	resize: function(w: number, h: number)
 	run: function(): function()|nil
 	errhand: function(msg: any)
@@ -343,6 +353,7 @@ global record Joystick
 	getHat: function(self: Joystick, index: number): string
 	getAxis: function(self: Joystick, index: number): number
 	isDown: function(self: Joystick, ...: any): boolean
+	isGamepadDown: function(self: Joystick, ...: any): boolean
 	getName: function(self: Joystick): string
 	getID: function(self: Joystick): number
 end
@@ -358,6 +369,7 @@ end
 global record Image
 	getWidth: function(self: Image): number
 	getHeight: function(self: Image): number
+	setFilter: function(self: Image, min: string, mag: string)
 end
 
 global record Quad

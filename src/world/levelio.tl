@@ -26,7 +26,7 @@ global function level_delimiters(v: any): string, string, string, string, string
 end
 
 -- Split raw level text into version, height, tile tokens, and category sections.
-global function level_split_file_contents((s: string) as string): any, any, any, any, any, any, any, any, any
+global function level_split_file_contents(s: string): any, any, any, any, any, any, any, any, any
 	local v = level_detect_format_version(s)
 	local blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign = level_delimiters(v)
 	local s2 = strsplit(s, categorydelimiter)
@@ -215,7 +215,7 @@ global function level_parse_tiles_only(...: any): any
 end
 
 
-global function loadmap(...: any): any......
+global function loadmap(...: any): any...
 	local filename, createobjects = ...
 	print("**************************" .. string.rep("*", #((mappack as string) .. (filename as string))))
 	print("* Loading mappacks/" .. tostring(mappack) .. "/" .. tostring(filename) .. ".txt *")

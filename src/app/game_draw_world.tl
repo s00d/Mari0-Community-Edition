@@ -729,7 +729,9 @@ global function game_draw_objects(...: any): any
 						if not v.customscissor and (portal as any) ~= false then -- portal any|bool
 							love.graphics.setScissor((currentscissor as {number})[1], (currentscissor as {number})[2], (currentscissor as {number})[3], (currentscissor as {number})[4])
 							local px, py, pw, ph, pr, pad = v.x, v.y, v.width, v.height, v.rotation, v.animationdirection
-							local _d1: any, _d2: any; px, py, _d1, _d2, pr, pad = portalcoords(px, py, 0, 0, pw, ph, pr, pad, entryX, entryY, entryfacing, exitX, exitY, exitfacing)
+							local _d1: any
+							local _d2: any
+							px, py, _d1, _d2, pr, pad = portalcoords(px, py, 0, 0, pw, ph, pr, pad, entryX, entryY, entryfacing, exitX, exitY, exitfacing)
 
 							if pad ~= v.animationdirection then
 								dirscale = -dirscale

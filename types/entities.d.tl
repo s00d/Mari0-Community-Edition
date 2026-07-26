@@ -178,7 +178,7 @@ global record Enemy
 	combo: integer
 	falling: boolean
 	shot: boolean
-	outtable: {any}
+	outtable: {{any}}
 	animationtype: string
 	animationtimer: number
 	animationdirection: string
@@ -259,7 +259,7 @@ end
 
 global record MusicPlayer is {any}
 	loaded: {string:Source}
-	pitch: number
+	pitch: any
 	list: {string}
 	list_fast: {string}
 	load: function(MusicPlayer, any)

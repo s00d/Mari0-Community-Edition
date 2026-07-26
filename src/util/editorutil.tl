@@ -5,31 +5,36 @@
 
 -- Sort mappack level filenames (world-level / sublevel). Mutates comparison only.
 local function mapsort(a: any, b: any): boolean
-	local aw = string.match(a, "(%d+)-")
-	local bw = string.match(b, "(%d+)-")
+	local as = a as string
+	local bs = b as string
+	local aw = string.match(as, "(%d+)-")
+	local bw = string.match(bs, "(%d+)-")
 	if tonumber(aw) > 9 and tonumber(bw) > 9 then
-		if a < b then
+		if as < bs then
 			return true
 		end
 	elseif tonumber(bw) > 9 then
 		return true
 	elseif tonumber(aw) > 9 then
 		return false
-	elseif a < b then
+	elseif as < bs then
 		return true
 	end
+	return false
 end
 _G.mapsort = mapsort
 
 
 -- Keep only N-M.txt / N-M_S.txt entries (mutates files in place, like getmaps).
 local function editor_filter_map_files(files: any): any
-	for i = #files, 1, -1 do
-		if files[i] ~= nil and not (string.match(files[i], "(%d+)-(%d+).txt") or string.match(files[i], "(%d+)-(%d+)_(%d+).txt")) then
-			table.remove(files, i)
+	local f = files as {any}
+	for i = #f, 1, -1 do
+		local fi = f[i] as string|nil
+		if fi ~= nil and not (string.match(fi, "(%d+)-(%d+).txt") or string.match(fi, "(%d+)-(%d+)_(%d+).txt")) then
+			table.remove(f, i)
 		end
 	end
-	return files
+	return f
 end
 _G.editor_filter_map_files = editor_filter_map_files
 
@@ -52,13 +57,15 @@ _G.gettilelistpos = gettilelistpos
 
 
 local function getlistpos(x: any, y: any): number|boolean
-	if x >= objectsguiarea[1]*scale and y >= objectsguiarea[2]*scale and x < objectsguiarea[3]*scale and y < objectsguiarea[4]*scale then
-		x = (x - objectsguiarea[1]*scale)/scale
-		y = y + multitilesoffset
-		y = (y - objectsguiarea[2]*scale)/scale
+	local xx = x as number
+	local yy = y as number
+	if xx >= objectsguiarea[1]*scale and yy >= objectsguiarea[2]*scale and xx < objectsguiarea[3]*scale and yy < objectsguiarea[4]*scale then
+		xx = (xx - objectsguiarea[1]*scale)/scale
+		yy = yy + (multitilesoffset as number)
+		yy = (yy - objectsguiarea[2]*scale)/scale
 
-		local out = math.floor(y/17)
-		if out <= #multitileobjects-1 then
+		local out = math.floor(yy/17)
+		if out <= #(multitileobjects as {any})-1 then
 			return out
 		end
 	end
@@ -69,14 +76,15 @@ _G.getlistpos = getlistpos
 
 
 local function getmtbutton(x: any): number
+	local xx = x as number
 	local button = 0
-	if x >= (objectsguiarea[3]-15*4)*scale and x < (objectsguiarea[3]-1-15*3)*scale then
+	if xx >= (objectsguiarea[3]-15*4)*scale and xx < (objectsguiarea[3]-1-15*3)*scale then
 		button = 1
-	elseif x >= (objectsguiarea[3]-15*3)*scale and x < (objectsguiarea[3]-1-15*2)*scale then
+	elseif xx >= (objectsguiarea[3]-15*3)*scale and xx < (objectsguiarea[3]-1-15*2)*scale then
 		button = 2
-	elseif x >= (objectsguiarea[3]-15*2)*scale and x < (objectsguiarea[3]-1-15*1)*scale then
+	elseif xx >= (objectsguiarea[3]-15*2)*scale and xx < (objectsguiarea[3]-1-15*1)*scale then
 		button = 3
-	elseif x >= (objectsguiarea[3]-15*1)*scale and x < (objectsguiarea[3]-1-15*0)*scale then
+	elseif xx >= (objectsguiarea[3]-15*1)*scale and xx < (objectsguiarea[3]-1-15*0)*scale then
 		button = 4
 	end
 
@@ -87,7 +95,8 @@ _G.getmtbutton = getmtbutton
 
 local function hasHotkey(tiletype: any, id: any): any
 	for i = 1, 9 do
-		if hotkeys[tostring(i)] and hotkeys[tostring(i)][1] == tiletype and hotkeys[tostring(i)][2] == id then
+		local hk = hotkeys[tostring(i)]
+		if hk and hk[1] == tiletype and hk[2] == id then
 			return i
 		end
 	end
@@ -99,7 +108,8 @@ _G.hasHotkey = hasHotkey
 local function changeHotKey(key: any, tiletype: any, id: any): any
 	if key == 0 then
 		for i = 1, 9 do
-			if hotkeys[tostring(i)] and hotkeys[tostring(i)][1] == tiletype and hotkeys[tostring(i)][2] == id then
+			local hk = hotkeys[tostring(i)]
+			if hk and hk[1] == tiletype and hk[2] == id then
 				hotkeys[tostring(i)] = nil
 				break
 			end
@@ -114,15 +124,16 @@ _G.changeHotKey = changeHotKey
 -- Pure hotkeys.txt ↔ table (loadHotKeys / saveHotKeys stay thin FS wrappers).
 local function editor_hotkeys_parse(data: any): any
 	local out = {}
-	if not data or #data == 0 then
+	local ds = data as string|nil
+	if not ds or #ds == 0 then
 		return out
 	end
-	local split1 = strsplit(data, "\n")
+	local split1 = strsplit(ds, "\n")
 	for i = 1, #split1 do
-		local split2 = strsplit(split1[i], "=")
+		local split2 = strsplit(split1[i] as string, "=")
 		if split2[1] and split2[2] then
-			local split3 = strsplit(split2[2], ",")
-			out[tostring(split2[1])] = {tonumber(split3[1]), tonumber(split3[2])}
+			local split3 = strsplit(split2[2] as string, ",")
+			out[tostring(split2[1])] = {tonumber(split3[1] as string), tonumber(split3[2] as string)}
 		end
 	end
 	return out
@@ -131,10 +142,12 @@ _G.editor_hotkeys_parse = editor_hotkeys_parse
 
 
 local function editor_hotkeys_serialize(hk: any): any
+	local h = hk as {string:{any}}
 	local data = ""
 	for i = 1, 9 do
-		if hk[tostring(i)] then
-			data = data .. i .. "=" .. tostring(hk[tostring(i)][1]) .. "," .. tostring(hk[tostring(i)][2]) .. "\n"
+		local entry = h[tostring(i)]
+		if entry then
+			data = data .. i .. "=" .. tostring(entry[1]) .. "," .. tostring(entry[2]) .. "\n"
 		end
 	end
 	if #data > 0 then
@@ -171,22 +184,24 @@ _G.editor_minimap_tile_from_click = editor_minimap_tile_from_click
 
 
 local function formatscrollnumber(i: any): string
-	if i < 0 then
-		i = round(i, 1)
+	local n = i as number
+	if n < 0 then
+		n = round(n, 1)
 	else
-		i = round(i, 2)
+		n = round(n, 2)
 	end
 
-	if string.len(i) == 1 then
-		i = i .. ".00"
-	elseif string.len(i) == 3 and math.abs(i) < 10 then
-		i = i .. "0"
+	local s = tostring(n)
+	if string.len(s) == 1 then
+		s = s .. ".00"
+	elseif string.len(s) == 3 and math.abs(n) < 10 then
+		s = s .. "0"
 	end
 
-	if string.sub(i, 4, 4) == "." then
-		return string.sub(i, 1, 3)
+	if string.sub(s, 4, 4) == "." then
+		return string.sub(s, 1, 3)
 	else
-		return string.sub(i, 1, 4)
+		return string.sub(s, 1, 4)
 	end
 end
 _G.formatscrollnumber = formatscrollnumber
@@ -232,7 +247,7 @@ _G.editor_mode_labels = editor_mode_labels
 
 -- Map tile → screen pixel for link-line endpoints (uses xscroll/yscroll/scale).
 local function editor_link_screen_pos(tx: any, ty: any): number, number
-	return math.floor((tx-xscroll-.5)*16*scale), math.floor((ty-yscroll-1)*16*scale)
+	return math.floor(((tx as number)-xscroll-.5)*16*scale), math.floor(((ty as number)-yscroll-1)*16*scale)
 end
 _G.editor_link_screen_pos = editor_link_screen_pos
 
