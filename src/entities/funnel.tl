@@ -8,11 +8,11 @@ function funnel.new(_: funnel, x: number, y: number, r: {any}): funnel
 	return self
 end
 
-function funnel:init(x: number, y: number, r)
+function funnel:init(x: number, y: number, r: any)
 	self.cox = x
 	self.coy = y
 	self.dir = "right"
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	self.reverse = 1
 	self.power = true
 	self.firstupdate = true
@@ -66,7 +66,7 @@ end
 function funnel:link()
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w] as {Entity}) do
+			for i, v in pairs(objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -79,7 +79,7 @@ function funnel:link()
 	end
 end
 
-function funnel:update(dt: number)	
+function funnel:update(dt: number): any	
 	if self.power then
 		self.timer = self.timer + dt
 		if self.timer > self.animationtime then
@@ -90,13 +90,13 @@ function funnel:update(dt: number)
 		while self.timer2 > excursionbaseanimationtime do
 			self.timer2 = self.timer2 - excursionbaseanimationtime
 			if self.reverse == 1 then
-				self.quad = self.quad + 1
-				if self.quad > 8 then
+				self.quad = (self.quad as number) + 1
+				if (self.quad as number) > 8 then
 					self.quad = 1 as any
 				end
 			else
-				self.quad = self.quad - 1
-				if self.quad < 1 then
+				self.quad = (self.quad as number) - 1
+				if (self.quad as number) < 1 then
 					self.quad = 8 as any
 				end
 			end		
@@ -104,7 +104,7 @@ function funnel:update(dt: number)
 
 		local x, y, width, height
 		
-		for i, v in pairs(self.funneltable as {Entity}) do
+		for i, v in pairs(self.funneltable as {any:Entity}) do
 			if v.dir == "right" then
 				x = v.x-1
 				y = v.y-1
@@ -228,7 +228,7 @@ function funnel:draw()
 			endimg = excursionfunnelend2img
 		end
 		
-		for i, v in pairs(self.funneltable as {Entity}) do
+		for i, v in pairs(self.funneltable as {any:Entity}) do
 			if v.dir == "right" then
 				local progress = v.timer/v.rangex
 				if self.reverse == 1 then
@@ -407,7 +407,7 @@ function funnel:updaterange()
 		end
 		
 		--doors
-		for i, v in pairs(objects["door"] as {Entity}) do
+		for i, v in pairs(objects["door"] as {any:Entity}) do
 			if v.active then
 				local secondx, secondy = x, y
 				if dir == "right" then
@@ -451,7 +451,7 @@ function funnel:updaterange()
 		table.insert(self.funneltable, dummy)
 		
 		if not self.lastblock or (self.lastblock[1] == x+rangex and self.lastblock[2] == y+rangey) then
-			for i, v in pairs(self.funneltable as {Entity}) do
+			for i, v in pairs(self.funneltable as {any:Entity}) do
 				v.timer = math.abs(v.rangex)+math.abs(v.rangey) as any
 			end
 		end	
@@ -472,7 +472,7 @@ function funnel:input(t: any, input: any)
 		
 		self.input1state = t
 		
-		for i, v in pairs(self.funneltable as {Entity}) do
+		for i, v in pairs(self.funneltable as {any:Entity}) do
 			v.timer = 0 as any
 		end
 	elseif input == "power" then

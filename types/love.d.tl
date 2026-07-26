@@ -97,7 +97,7 @@ global interface Entity is {any}
 	invincible: boolean
 	pickup: any
 	payload: any
-	gels: {string:number}
+	gels: any
 	slant: string
 	callback: any
 	link: any

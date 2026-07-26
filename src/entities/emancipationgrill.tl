@@ -8,10 +8,10 @@ function emancipationgrill.new(_: emancipationgrill, x: number, y: number, r: {a
 	return self
 end
 
-function emancipationgrill:init(x: number, y: number, r): any
+function emancipationgrill:init(x: number, y: number, r: any)
 	self.x = x
 	self.y = y
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	self.dir = "hor"
 	self.active = true
 	self.inputstate = "off" as any
@@ -41,7 +41,7 @@ function emancipationgrill:init(x: number, y: number, r): any
 		self.destroy = true
 	end
 	
-	for i, v in pairs(emancipationgrills) do
+	for i, v in pairs(emancipationgrills as {any:Entity}) do
 		local a, b = v:getTileInvolved(self.x, self.y)
 		if a and b == self.dir then
 			self.destroy = true
@@ -49,10 +49,10 @@ function emancipationgrill:init(x: number, y: number, r): any
 	end
 	
 	self.particles = {}
-	self.particles.i = {}
-	self.particles.dir = {}
-	self.particles.speed = {}
-	self.particles.mod = {}
+	(self.particles as {any:any}).i = {}
+	(self.particles as {any:any}).dir = {}
+	(self.particles as {any:any}).speed = {}
+	(self.particles as {any:any}).mod = {}
 	
 	self.involvedtiles = {}
 	
@@ -60,14 +60,14 @@ function emancipationgrill:init(x: number, y: number, r): any
 	if self.dir == "hor" then
 		local curx = self.x
 		while curx >= 1 and getTile(curx, self.y) == false do
-			self.involvedtiles[curx] = self.y
+			(self.involvedtiles as {any:any})[curx] = self.y
 			curx = curx - 1
 		end
 		self.startx = curx + 1
 		
 		local curx = self.x
 		while curx <= mapwidth and getTile(curx, self.y) == false do
-			self.involvedtiles[curx] = self.y
+			(self.involvedtiles as {any:any})[curx] = self.y
 			curx = curx + 1
 		end
 		self.endx = curx - 1
@@ -76,14 +76,14 @@ function emancipationgrill:init(x: number, y: number, r): any
 	else
 		local cury = self.y
 		while cury >= 1 and getTile(self.x, cury) == false do
-			self.involvedtiles[cury] = self.x
+			(self.involvedtiles as {any:any})[cury] = self.x
 			cury = cury - 1
 		end
 		self.starty = cury + 1
 		
 		local cury = self.y
 		while cury <= mapheight and getTile(self.x, cury) == false do
-			self.involvedtiles[cury] = self.x
+			(self.involvedtiles as {any:any})[cury] = self.x
 			cury = cury + 1
 		end
 		self.endy = cury - 1
@@ -91,22 +91,22 @@ function emancipationgrill:init(x: number, y: number, r): any
 		self.range = math.floor(((self.endy - self.starty + 1 + emanceimgwidth/16)*16)*scale)
 	end
 	
-	for i = 1, self.range/16/scale do
-		table.insert(self.particles.i, math.random())
-		table.insert(self.particles.speed, (1-emanceparticlespeedmod)+math.random()*emanceparticlespeedmod*2)
+	for i = 1, (self.range as number)/16/scale do
+		table.insert((self.particles as {any:any}).i, math.random())
+		table.insert((self.particles as {any:any}).speed, (1-emanceparticlespeedmod)+math.random()*emanceparticlespeedmod*2)
 		if math.random(2) == 1 then
-			table.insert(self.particles.dir, 1)
+			table.insert((self.particles as {any:any}).dir, 1)
 		else
-			table.insert(self.particles.dir, -1)
+			table.insert((self.particles as {any:any}).dir, -1)
 		end
-		table.insert(self.particles.mod, math.random(4)-2)
+		table.insert((self.particles as {any:any}).mod, math.random(4)-2)
 	end
 end
 
-function emancipationgrill:link(): any
+function emancipationgrill:link()
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w] as {Entity}) do
+			for i, v in pairs(objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -124,22 +124,22 @@ function emancipationgrill:update(dt: number): any
 		return true
 	end
 
-	for i, v in pairs(self.particles.i) do
-		self.particles.i[i] = self.particles.i[i] + emanceparticlespeed/(self.range/16/scale)*dt*self.particles.speed[i]
-		while self.particles.i[i] > 1 do
-			self.particles.i[i] = self.particles.i[i]-1
-			self.particles.speed[i] = (1-emanceparticlespeedmod)+math.random()*emanceparticlespeedmod*2 as any
+	for i, v in pairs((self.particles as {any:any}).i) do
+		(self.particles as {any:any}).i[i] = (self.particles as {any:any}).i[i] + emanceparticlespeed/((self.range as number)/16/scale)*dt*(self.particles as {any:any}).speed[i]
+		while (self.particles as {any:any}).i[i] > 1 do
+			(self.particles as {any:any}).i[i] = (self.particles as {any:any}).i[i]-1
+			(self.particles as {any:any}).speed[i] = (1-emanceparticlespeedmod)+math.random()*emanceparticlespeedmod*2 as any
 			if math.random(2) == 1 then
-				self.particles.dir[i] = 1 as any
+				(self.particles as {any:any}).dir[i] = 1 as any
 			else
-				self.particles.dir[i] = -1 as any
+				(self.particles as {any:any}).dir[i] = -1 as any
 			end
-			self.particles.mod[i] = math.random(4)-2 as any
+			(self.particles as {any:any}).mod[i] = math.random(4)-2 as any
 		end
 	end
 end
 
-function emancipationgrill:draw(): any
+function emancipationgrill:draw()
 	if self.destroy == false then
 		if self.dir == "hor" then
 			parstartleft = math.floor((self.startx-1-xscroll)*16*scale)
@@ -153,9 +153,9 @@ function emancipationgrill:draw(): any
 					self.range, self.thickness*scale)
 				love.graphics.setColor(1, 1, 1)
 				
-				for i, v in pairs(self.particles.i) do
-					local y = ((self.y-1-yscroll)*16-self.particles.mod[i])*scale
-					if self.particles.dir[i] == 1 then
+				for i, v in pairs((self.particles as {any:any}).i) do
+					local y = ((self.y-1-yscroll)*16-(self.particles as {any:any}).mod[i])*scale
+					if (self.particles as {any:any}).dir[i] == 1 then
 						local x = parstartleft+self.range*v
 						love.graphics.draw(emanceparticleimg, math.floor(x), y, math.pi/2, scale, scale)
 					else
@@ -182,9 +182,9 @@ function emancipationgrill:draw(): any
 					self.thickness*scale, self.range - emanceimgwidth*scale)
 				love.graphics.setColor(1, 1, 1)
 				
-				for i, v in pairs(self.particles.i) do
-					local x = ((self.x-1-xscroll)*16-self.particles.mod[i]+9)*scale
-					if self.particles.dir[i] == 1 then
+				for i, v in pairs((self.particles as {any:any}).i) do
+					local x = ((self.x-1-xscroll)*16-(self.particles as {any:any}).mod[i]+9)*scale
+					if (self.particles as {any:any}).dir[i] == 1 then
 						local y = parstartup-yscroll+self.range*v
 						love.graphics.draw(emanceparticleimg, math.floor(x), y, math.pi, scale, scale)
 					else
@@ -203,16 +203,16 @@ function emancipationgrill:draw(): any
 	end
 end
 
-function emancipationgrill:getTileInvolved(x, y): any
+function emancipationgrill:getTileInvolved(x: any, y: any): any
 	if self.active then
 		if self.dir == "hor" then
-			if self.involvedtiles[x] == y then
+			if (self.involvedtiles as {any:any})[x] == y then
 				return true, "hor"
 			else
 				return false, "hor"
 			end
 		else
-			if self.involvedtiles[y] == x then
+			if (self.involvedtiles as {any:any})[y] == x then
 				return true, "ver"
 			else
 				return false, "ver"
@@ -223,7 +223,7 @@ function emancipationgrill:getTileInvolved(x, y): any
 	end
 end
 
-function emancipationgrill:input(t, input): any
+function emancipationgrill:input(t: any, input: any)
 	if input == "power" then
 		if t == "on" and self.inputstate == "off" then
 			self.active = not self.active

@@ -32,7 +32,7 @@ global function level_split_file_contents(s: string): any, any, any, any, any, a
 	local s2 = strsplit(s, categorydelimiter)
 	local mapheight: any
 	local t: any
-	if string.find(s2[1], blockdelimiter) then
+	if string.find(s2[1] as string, blockdelimiter) then
 		mapheight = 15
 		t = strsplit(s2[1], blockdelimiter)
 	else
@@ -47,7 +47,7 @@ global function level_count_tile_entries(t: {any}, multipledelimiter: any): any
 	for i = 1, #(t as {any}) do
 		local parts = strsplit(t[i] as string, multipledelimiter as string)
 		if parts[2] then
-			entries = (entries as number) + (tonumber(parts[2]) or 0)
+			entries = (entries as number) + (tonumber(parts[2] as string) or 0)
 		else
 			entries = entries + 1
 		end
@@ -58,13 +58,13 @@ end
 -- Decode tile tokens into map/coinmap tables (no objects, no tile-ID clamp).
 -- Column-major order matches loadmap (x then wrap to next y).
 global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: number, layerdelimiter: any, multipledelimiter: any): any, any
-	local map = {}
-	local coinmap = {}
+	local map: {any:{any:any}} = {}
+	local coinmap: {any:{any}} = {}
 	for x = 1, mapwidth do
 		map[x] = {}
 		coinmap[x] = {}
 		for y = 1, mapheight do
-			(map as {{{any}}})[x][y] = {}
+			map[x][y] = {}
 		end
 	end
 
@@ -73,15 +73,15 @@ global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: 
 		if string.find(t[i] as string, multipledelimiter as string) then
 			local r = strsplit(tostring(t[i]), multipledelimiter as string)
 			local coin = false
-			if string.sub(r[1], -1) == "c" then
-				r[1] = string.sub(r[1], 1, -2)
+			if string.sub(r[1] as string, -1) == "c" then
+				r[1] = string.sub(r[1] as string, 1, -2)
 				coin = true
 			end
 			for _ = 1, tonumber(r[2]) do
 				if coin then
 					((coinmap as {{any}})[x] as {any})[y] = true
 				end
-				(map as {{{any}}})[x][y][1] = tonumber(r[1])
+				(map[x as number][y as number] as {any})[1] = tonumber(r[1])
 				x = x + 1
 				if x > mapwidth then
 					x = 1
@@ -90,15 +90,15 @@ global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: 
 			end
 		else
 			local r = strsplit(tostring(t[i]), layerdelimiter as string)
-			if string.sub(r[1], -1) == "c" then
-				r[1] = string.sub(r[1], 1, -2)
+			if string.sub(r[1] as string, -1) == "c" then
+				r[1] = string.sub(r[1] as string, 1, -2)
 				((coinmap as {{any}})[x] as {any})[y] = true
 			end
 			for li = 1, #r do
 				if tonumber(r[li]) then
-					(map as {{{any}}})[x][y][li] = tonumber(r[li])
+					(map[x as number][y as number] as {any})[li] = tonumber(r[li])
 				else
-					(map as {{{any}}})[x][y][li] = r[li]
+					(map[x as number][y as number] as {any})[li] = r[li]
 				end
 			end
 			x = x + 1
@@ -114,19 +114,23 @@ end
 -- Pure tile-body serializer (same run-length / layer encoding as savemap).
 global function level_serialize_maptiles(...: any): any
 	local map, coinmap, mapwidth, mapheight, v = ...
+	local m = map as {any:{any:any}}
+	local cm = coinmap as {any:{any}}
+	local mw = mapwidth as number
+	local mh = mapheight as number
 	local s = ""
 	local mul = 1
 	local prev = nil
 
-	for y = 1, mapheight do
-		for x = 1, mapwidth do
-			local current = (map as {{{any}}})[x][y][1] .. (((coinmap as {{any}})[x] as {any})[y] and "c" or "")
+	for y = 1, mh do
+		for x = 1, mw do
+			local current = tostring((m[x][y] as {any})[1]) .. ((cm[x] as {any})[y] and "c" or "")
 
 			--check if previous is the same
-			if #(map as {{{any}}})[x][y] == 1 then
-				if prev == current and (y ~= mapheight or x ~= mapwidth) then
+			if #(m[x][y] as {any}) == 1 then
+				if prev == current and (y ~= mh or x ~= mw) then
 					mul = mul + 1
-				elseif prev == current and y == mapheight and x == mapwidth then
+				elseif prev == current and y == mh and x == mw then
 					mul = mul + 1
 					s = s .. (prev as string) .. MULTIPLYDELIMITER[v] .. mul
 				else
@@ -137,13 +141,13 @@ global function level_serialize_maptiles(...: any): any
 							s = s .. (prev as string)
 						end
 
-						if y ~= mapheight or x ~= mapwidth then
+						if y ~= mh or x ~= mw then
 							s = s .. BLOCKDELIMITER[v]
 						end
 					end
 					prev = current
 					mul = 1
-					if y == mapheight and x == mapwidth then
+					if y == mh and x == mw then
 						if prev then
 							s = s .. BLOCKDELIMITER[v]
 						end
@@ -163,23 +167,23 @@ global function level_serialize_maptiles(...: any): any
 				prev = nil
 				mul = 1
 
-				for i = 1, #(map as {{{any}}})[x][y] do
-					if tonumber((map as {{{any}}})[x][y][i]) and tonumber((map as {{{any}}})[x][y][i]) < 0 then
-						s = s .. "m" .. math.abs(tostring((map as {{{any}}})[x][y][i]))
+				for i = 1, #(m[x][y] as {any}) do
+					if tonumber((m[x][y] as {any})[i]) and tonumber((m[x][y] as {any})[i]) < 0 then
+						s = s .. "m" .. tostring(math.abs(tonumber((m[x][y] as {any})[i] as any) as number) as number)
 					else
-						s = s .. tostring((map as {{{any}}})[x][y][i])
+						s = s .. tostring((m[x][y] as {any})[i])
 					end
 
-					if i == 1 and ((coinmap as {{any}})[x] as {any})[y] then
+					if i == 1 and (cm[x] as {any})[y] then
 						s = s .. "c"
 					end
 
-					if i ~= #(map as {{{any}}})[x][y] then
+					if i ~= #(m[x][y] as {any}) then
 						s = s .. LAYERDELIMITER[v]
 					end
 				end
 
-				if y ~= mapheight or x ~= mapwidth then
+				if y ~= mh or x ~= mw then
 					s = s .. BLOCKDELIMITER[v]
 				end
 			end
@@ -262,9 +266,9 @@ global function loadmap(...: any): any
 		map[x] = {}
 		coinmap[x] = {}
 		for y = 1, mapheight do
-			(map as {{{any}}})[x][y] = {}
-			(map as {{{any}}})[x][y]["gels"] = {}
-			(map as {{{any}}})[x][y]["portaloverride"] = {}
+			map[x as number][y as number] = {} as MapCell
+			(map[x as number][y as number] as {any})["gels"] = {}
+			(map[x as number][y as number] as {any})["portaloverride"] = {}
 		end
 	end
 	
@@ -274,8 +278,8 @@ global function loadmap(...: any): any
 			local r = strsplit(tostring(t[i]), multipledelimiter as string)
 			
 			local coin = false
-			if string.sub(r[1], -1) == "c" then
-				r[1] = string.sub(r[1], 1, -2)
+			if string.sub(r[1] as string, -1) == "c" then
+				r[1] = string.sub(r[1] as string, 1, -2)
 				coin = true
 			end
 			
@@ -288,7 +292,7 @@ global function loadmap(...: any): any
 					r[1] = 1
 				end
 				
-				(map as {{{any}}})[x][y][1] = tonumber(r[1])
+				(map[x as number][y as number] as {any})[1] = tonumber(r[1])
 				
 			
 				--create object for block
@@ -306,8 +310,8 @@ global function loadmap(...: any): any
 		else --Old stuff.
 			local r = strsplit(tostring(t[i]), layerdelimiter as string)
 			
-			if string.sub(r[1], -1) == "c" then
-				r[1] = string.sub(r[1], 1, -2)
+			if string.sub(r[1] as string, -1) == "c" then
+				r[1] = string.sub(r[1] as string, 1, -2)
 				((coinmap as {{any}})[x] as {any})[y] = true
 			end
 			
@@ -317,9 +321,9 @@ global function loadmap(...: any): any
 			
 			for i = 1, #r do
 				if tonumber(r[i]) then
-					(map as {{{any}}})[x][y][i] = tonumber(r[i])
+					(map[x as number][y as number] as {any})[i] = tonumber(r[i])
 				else
-					(map as {{{any}}})[x][y][i] = r[i]
+					(map[x as number][y as number] as {any})[i] = r[i]
 				end
 			end
 			
@@ -352,7 +356,7 @@ global function loadmap(...: any): any
 	
 	for y = 1, mapheight do
 		for x = 1, mapwidth do
-			local r = (map as {{{any}}})[x][y]
+			local r = (map[x as number][y as number] as {any})
 			
 			if r[1] > 10000 then
 				if tilequads[r[1]].triggered then
@@ -410,11 +414,11 @@ global function loadmap(...: any): any
 	for x = 0, -30, -1 do
 		map[x] = {}
 		for y = 1, mapheight-2 do
-			(map as {{{any}}})[x][y] = {1}
+			map[x as number][y as number] = {1} as MapCell
 		end
 		
 		for y = mapheight-1, mapheight do
-			(map as {{{any}}})[x][y] = {2}
+			map[x as number][y as number] = {2} as MapCell
 			if createobjects then
 				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
 			end
@@ -580,7 +584,7 @@ global function renderpreview(...: any): any
 	
 	for x = 1, mapwidth do
 		for y = 1, mapheight do
-			if (map as {{{any}}})[x][y][2] and entitylist[(map as {{{any}}})[x][y][2]] and entitylist[(map as {{{any}}})[x][y][2]].t == "spawn" then
+			if (map[x as number][y as number] as {any})[2] and entitylist[(map[x as number][y as number] as {any})[2]] and entitylist[(map[x as number][y as number] as {any})[2]].t == "spawn" then
 				startx, starty = x, y
 				break
 			end

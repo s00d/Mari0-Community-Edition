@@ -33,7 +33,9 @@ global record LoggerModule
 end
 
 global record BootModule
-	run_early: function(any, any)
+	setup_core_helpers: function()
+	setup_services: function(any, any): any, any, any, any, any, any
+	run_early: function(any, any): any, any, any, any, any, any
 	require_game: function()
 	load_media: function()
 	run_load: function()
@@ -93,7 +95,7 @@ global Boot: BootModule
 
 -- Runtime globals for LuaRocks modules (loaded in main / Boot)
 global JSON: JSONModule
-global sha1: function(string): string
+global sha1: any
 
 -- Entity records live in src/entities/*.tl (global record). Keep ambient helpers.
 
@@ -230,8 +232,8 @@ global server_start: function(...: any): any
 global spriteset: any
 global custombackground: any
 global customforeground: any
-global background: {any}
-global coinmap: {number:{number:boolean}}
+global background: any
+global coinmap: {any:{any}}
 global smbtilecount: integer
 global portaltilecount: integer
 global customtilecount: integer
@@ -363,7 +365,7 @@ global coinanimation: number
 global intermission: any
 global underwater: any
 global EQUALSIGN: {any:string}
-global seesawtype: number
+global seesawtype: {any:{any}}
 global pausemenuoptions: {number:string}
 global earthquake: number
 global animatedtiles: {animatedquad}
@@ -428,7 +430,7 @@ global dirscale: number
 global vsync: boolean
 global pipeanimationtime: number
 global sonicrainboom: boolean
-global fireballquad: {{Quad}}
+global fireballquad: {any}
 global arcade: boolean
 global multitilesoffset: number
 global savestates: {{any}}
@@ -1062,7 +1064,7 @@ global raccoonascendspeed: number
 global raccoondescendspeed: number
 global defaultvalues: {string:any}
 global nobasevalues: {number:string}
-global gelquad: {{Quad}}
+global gelquad: {Quad}
 global lightbridgeimg: Image
 global lightbridgeglowimg: Image
 global magicimg: Image
@@ -1070,7 +1072,7 @@ global blay: number
 global portalparticleimg: Image
 global portalprojectileimg: Image
 global portalprojectileparticleimg: Image
-global pushbuttonquad: {{Quad}}
+global pushbuttonquad: {any}
 global rainboomimg: Image
 global scaffoldimg: Image
 global vineimg: Image
@@ -1089,7 +1091,7 @@ global regiontoolX: number
 global regiontoolY: number
 global regiontoolt: any
 global checkboximg: Image
-global checkboxquad: {{Quad}}
+global checkboxquad: {any}
 global playedwilhelm: boolean
 global logo: Image
 global logoblood: Image
@@ -1400,7 +1402,7 @@ global getAngleFrame: function(...: any): any
 global getPortal: function(number, number, any): any
 global getSelectedTiles: function(...: any): {{any}}
 global getTiles: function(...: any): any
-global getaveragecolor: function(ImageData, number, number): number, number, number
+global getaveragecolor: function(...: any): any
 global getentityhighlight: function(...: any): any
 global getfilepath: function(...: any): any
 global getmaps: function(...: any): any

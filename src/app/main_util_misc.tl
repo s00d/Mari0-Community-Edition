@@ -157,7 +157,9 @@ end
 
 global function newRecoloredImage(...: any): any
 	local path, tablein, tableout = ...
-	local imagedata = love.image.newImageData( path )
+	local tin = tablein as {any}
+	local tout = tableout as {any}
+	local imagedata = love.image.newImageData( path as string )
 	local width, height = imagedata:getWidth(), imagedata:getHeight()
 	
 	for y = 0, height-1 do
@@ -165,23 +167,27 @@ global function newRecoloredImage(...: any): any
 			local oldr, oldg, oldb, olda = imagedata:getPixel(x, y)
 			
 			if olda > 0.5*LOVE_COLOR_MAX then
-				for i = 1, #tablein do
-					if oldr == tablein[i][1] and oldg == tablein[i][2] and oldb == tablein[i][3] then
-						local r, g, b = unpack(tableout[i])
-						imagedata:setPixel(x, y, r * LOVE_COLOR_MAX, g * LOVE_COLOR_MAX, b * LOVE_COLOR_MAX, olda)
+				for i = 1, #tin do
+					local tin_i = tin[i] as {any}
+					if oldr == tin_i[1] and oldg == tin_i[2] and oldb == tin_i[3] then
+						local r, g, b = unpack(tout[i] as {any})
+						imagedata:setPixel(x, y, (r as number) * LOVE_COLOR_MAX, (g as number) * LOVE_COLOR_MAX, (b as number) * LOVE_COLOR_MAX, olda)
 					end
 				end
 			end
 		end
 	end
 	
-	return AssetStore.load_image(imagedata)
+	return love.graphics.newImage(imagedata)
 end
 
 global function getaveragecolor(...: any): any
 	local imgdata, cox, coy = ...
-	local xstart = (cox-1)*17
-	local ystart = (coy-1)*17
+	local idata = imgdata as ImageData
+	local cx = cox as number
+	local cy = coy as number
+	local xstart = (cx-1)*17
+	local ystart = (cy-1)*17
 	
 	local r, g, b = 0, 0, 0
 	
@@ -189,7 +195,7 @@ global function getaveragecolor(...: any): any
 	
 	for x = xstart, xstart+15 do
 		for y = ystart, ystart+15 do
-			local pr, pg, pb, a = imgdata:getPixel(x, y)
+			local pr, pg, pb, a = idata:getPixel(x, y)
 			if a > 0.5*LOVE_COLOR_MAX then
 				r, g, b = r+pr, g+pg, b+pb
 				count = count + 1

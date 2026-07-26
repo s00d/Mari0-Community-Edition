@@ -863,7 +863,7 @@ global function menu_draw_options(...: any): any
 			if (mariohats[skinningplayer] as {any})[1] == 0 then
 				properprint("hat: none", (83)*scale, 90*scale)
 			else
-				properprint("hat: " .. (mariohats[skinningplayer] as {any})[1], (99-string.len((mariohats[skinningplayer] as {any})[1])*4)*scale, 90*scale)
+				properprint("hat: " .. tostring((mariohats[skinningplayer] as {any})[1]), (99-string.len((mariohats[skinningplayer] as {any})[1])*4)*scale, 90*scale)
 			end
 
 			if optionsselection == 5 then
@@ -986,7 +986,7 @@ global function menu_draw_options(...: any): any
 				properprint("fullscreen", (180-string.len("fullscreen")*8)*scale, 40*scale)
 			end
 		else
-			properprint("*" .. tostring(scale), (180-(string.len(scale)+1)*8)*scale, 40*scale)
+			properprint("*" .. tostring(scale), (180-(string.len(tostring(scale))+1)*8)*scale, 40*scale)
 		end
 		
 		
@@ -1224,7 +1224,7 @@ global function loadbackgroundsafe(...: any): any
 		custombackground = false
 		backgroundi = 1
 		love.graphics.setBackgroundColor(backgroundcolor[backgroundi as integer])
-		notice.new("Couldn't properly load|background " .. background .. "!", notice.red)
+		notice.new("Couldn't properly load|background " .. tostring(background) .. "!", notice.red)
 		
 		xscroll = 0
 		yscroll = 0
@@ -1267,7 +1267,7 @@ global function loadbackground(...: any): any
 	itemanimations = {}
 	textentities = {}
 	
-	if not love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. backgroundlevel) then
+	if not love.filesystem.getInfo("mappacks/" .. tostring(mappack) .. "/" .. backgroundlevel) then
 		return false
 	else
 		loadmap((backgroundlevel as string):sub(1, -5))
@@ -2271,7 +2271,7 @@ global function createmappack(...: any): any
 	
 	mappack = "custom_mappack_" .. i
 	
-	love.filesystem.createDirectory("mappacks/" .. mappack .. "/")
+	love.filesystem.createDirectory("mappacks/" .. tostring(mappack) .. "/")
 	
 	local s = ""
 	s = s .. "name=new mappack" .. "\n"
@@ -2284,7 +2284,7 @@ global function createmappack(...: any): any
 	local folderlist = {"animated", "animations", "backgrounds", "enemies", "graphics", "levelscreens", "music", "sounds"}
 	
 	for i, v in pairs(folderlist as {any:any}) do
-		love.filesystem.createDirectory("mappacks/" .. mappack .. "/" .. v .. "/")
+		love.filesystem.createDirectory("mappacks/" .. tostring(mappack) .. "/" .. v .. "/")
 	end
 end
 
@@ -2324,7 +2324,7 @@ global function selectworld(...: any): any
 	
 	selectworldexists = {}
 	for i = 1, 8 do
-		if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. i .. "-1.txt") then
+		if love.filesystem.getInfo("mappacks/" .. tostring(mappack) .. "/" .. i .. "-1.txt") then
 			selectworldexists[i] = true
 		end
 	end

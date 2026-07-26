@@ -75,22 +75,22 @@ global record animatedbooltimer is {any}
 end
 
 global record animatedquad is {any}
-	boolean: number
-	boolid: number
+	boolean: any
+	boolid: any
 	cache: any
 	delays: any
-	image: Image
+	image: any
 	imagedata: any
-	number: number
-	portalable: boolean
+	number: any
+	portalable: any
 	properties: any
 	props: any
-	quadi: number
+	quadi: any
 	quadlist: any
 	spikes: any
-	timer: number
-	triggered: boolean
-	init: function(animatedquad, number, number, any)
+	timer: any
+	triggered: any
+	init: function(animatedquad, any, any, any): any
 	updateproperties: function(animatedquad)
 	update: function(animatedquad, number): any
 	quad: function(animatedquad, any, any): any
@@ -424,7 +424,7 @@ global record button is Entity
 	dir: string
 	drawable: boolean
 	height: number
-	input1state: number
+	input1state: any
 	mask: {boolean}
 	objtable: {any}
 	out: boolean
@@ -564,7 +564,7 @@ global record checkpoint is Entity
 	all: number
 	cox: number
 	coy: number
-	input1state: number
+	input1state: any
 	p: number
 	r: {any}
 	regionX: number
@@ -610,7 +610,7 @@ global record cubedispenser is Entity
 	cox: number
 	coy: number
 	height: number
-	input1state: number
+	input1state: any
 	inputactive: boolean
 	mask: {boolean}
 	r: {any}
@@ -690,7 +690,7 @@ global record door is Entity
 	firstupdate: boolean
 	forceclose: number
 	height: number
-	input1state: number
+	input1state: any
 	mask: {boolean}
 	open: boolean
 	r: {any}
@@ -757,7 +757,7 @@ global record emancipationfizzle is Entity
 	new: function(emancipationfizzle, number, number, any, any): emancipationfizzle
 end
 
-global record emancipationgrill is Entity
+global record emancipationgrill is {any}
 	width: number
 	height: number
 	speedx: number
@@ -766,13 +766,13 @@ global record emancipationgrill is Entity
 	category: number
 	mask: {boolean}
 	active: boolean
-	destroy: boolean
-	dir: string
+	destroy: any
+	dir: any
 	endx: number
 	endy: number
-	inputstate: {any}
-	involvedtiles: number
-	particles: {any}
+	inputstate: any
+	involvedtiles: any
+	particles: any
 	r: {any}
 	range: number
 	startx: number
@@ -1080,7 +1080,7 @@ global record faithplate is Entity
 	dir: string
 	height: number
 	includetable: {any}
-	input1state: number
+	input1state: any
 	mask: {boolean}
 	power: boolean
 	r: {any}
@@ -1192,40 +1192,35 @@ global record fireworkboom is Entity
 	new: function(fireworkboom, any, any): fireworkboom
 end
 
-global record funnel is Entity
-	x: number
-	y: number
-	width: number
-	height: number
-	speedx: number
-	speedy: number
-	active: boolean
-	static: boolean
-	category: number
-	mask: {boolean}
-	animationtime: number
+global record funnel is {any}
+	funneltable: any
+	animationtime: any
 	cox: number
 	coy: number
-	dir: string
-	firstupdate: boolean
-	funneltable: any
-	input1state: number
-	input2state: number
-	lastblock: number
+	dir: any
+	firstupdate: any
+	height: number
+	input1state: any
+	input2state: any
 	objtable: {any}
-	power: boolean
+	power: any
 	quad: any
 	r: {any}
-	reverse: number
-	speed: number
+	reverse: any
+	speed: any
+	speedx: number
+	speedy: number
 	timer: number
-	timer2: number
+	timer2: any
+	width: number
+	x: number
+	y: number
 	init: function(funnel, number, number, any)
 	link: function(funnel)
+	input: function(funnel, any, any)
 	update: function(funnel, number): any
 	draw: function(funnel)
 	updaterange: function(funnel)
-	input: function(funnel, any, any)
 	new: function(funnel, number, number, {any}): funnel
 end
 
@@ -1276,7 +1271,7 @@ global record geldispenser is Entity
 	dropping: boolean
 	height: number
 	id: number
-	input1state: number
+	input1state: any
 	mask: {boolean}
 	r: {any}
 	speedx: number
@@ -1304,7 +1299,7 @@ global record groundlight is Entity
 	category: number
 	mask: {boolean}
 	dir: string
-	input1state: number
+	input1state: any
 	lighted: boolean
 	r: {any}
 	timer: number
@@ -1424,7 +1419,7 @@ global record itemanimation is Entity
 	new: function(itemanimation, number, number, any): itemanimation
 end
 
-global record laser is Entity
+global record laser is {any}
 	x: number
 	y: number
 	width: number
@@ -1435,15 +1430,15 @@ global record laser is Entity
 	static: boolean
 	category: number
 	mask: {boolean}
-	blocked: boolean
+	blocked: any
 	cox: number
 	coy: number
-	dir: string
+	dir: any
 	framestart: number
-	input1state: number
+	input1state: any
 	lasertable: {any}
 	outtable: {any}
-	power: boolean
+	power: any
 	r: {any}
 	init: function(laser, number, number, any)
 	link: function(laser)
@@ -1485,26 +1480,26 @@ global record laserdetector is Entity
 	new: function(laserdetector, number, number, {any}): laserdetector
 end
 
-global record lightbridge is Entity
+global record lightbridge is {any}
 	speedx: number
 	speedy: number
 	active: boolean
 	category: number
-	children: number
-	childtable: any
+	children: any
+	childtable: {any:any}
 	cox: number
 	coy: number
-	destroy: boolean
-	dir: string
-	gels: {string:number}
-	glowa: number
-	glowtimer: number
+	destroy: any
+	dir: any
+	gels: any
+	glowa: any
+	glowtimer: any
 	height: number
 	i: number
-	input1state: number
+	input1state: any
 	mask: {boolean}
 	parent: any
-	power: boolean
+	power: any
 	r: {any}
 	static: boolean
 	width: number
@@ -1514,7 +1509,7 @@ global record lightbridge is Entity
 	link: function(lightbridge)
 	input: function(lightbridge, any, any)
 	update: function(lightbridge, number): any
-	getglowa: function(lightbridge, any)
+	getglowa: function(lightbridge, any): any
 	draw: function(lightbridge)
 	updaterange: function(lightbridge)
 	addChild: function(lightbridge, any)
@@ -1537,7 +1532,7 @@ global record lightbridgebody is Entity
 	glowtimer: number
 	height: number
 	i: number
-	input1state: number
+	input1state: any
 	mask: {boolean}
 	parent: any
 	power: boolean
@@ -1814,7 +1809,7 @@ global record notgate is Entity
 	cox: number
 	coy: number
 	initial: boolean
-	input1state: number
+	input1state: any
 	outtable: {any}
 	power: boolean
 	r: {any}
@@ -1875,7 +1870,7 @@ global record panel is Entity
 	cox: number
 	coy: number
 	dir: string
-	input1state: number
+	input1state: any
 	out: boolean
 	r: {any}
 	t: string
@@ -2014,7 +2009,7 @@ global record portalent is Entity
 	coy: number
 	dir: string
 	id: number
-	input1state: number
+	input1state: any
 	portal: any
 	power: boolean
 	r: {any}
@@ -2367,7 +2362,7 @@ global record scaffold is Entity
 	drawable: boolean
 	gravity: number
 	height: number
-	input1state: number
+	input1state: any
 	mask: {boolean}
 	power: boolean
 	r: {any}
@@ -2454,7 +2449,7 @@ global record scrollingtext is Entity
 	new: function(scrollingtext, any, any, any): scrollingtext
 end
 
-global record seesaw is Entity
+global record seesaw is {any}
 	height: number
 	speedx: number
 	speedy: number
@@ -2464,14 +2459,14 @@ global record seesaw is Entity
 	mask: {boolean}
 	dist1: number
 	dist2: number
-	falloff: number
-	falloffside: number
-	lcount: number
-	leftplatform: number
+	falloff: any
+	falloffside: any
+	lcount: any
+	leftplatform: any
 	r: {any}
 	range: number
-	rcount: number
-	rightplatform: number
+	rcount: any
+	rightplatform: any
 	width: number
 	x: number
 	y: number
@@ -2484,9 +2479,9 @@ global record seesaw is Entity
 	new: function(seesaw, number, number, {any}): seesaw
 end
 
-global record seesawplatform is Entity
+global record seesawplatform is {any}
 	active: boolean
-	callback: number
+	callback: any
 	category: number
 	dir: string
 	drawable: boolean
@@ -2494,8 +2489,8 @@ global record seesawplatform is Entity
 	height: number
 	mask: {boolean}
 	rotation: number
-	side: number
-	size: number
+	side: any
+	size: any
 	speedx: number
 	speedy: number
 	startx: number
@@ -2549,7 +2544,7 @@ global record squarewave is Entity
 	cox: number
 	coy: number
 	initial: boolean
-	input1state: number
+	input1state: any
 	outtable: {any}
 	r: {any}
 	time1: number
@@ -2649,7 +2644,7 @@ global record wallindicator is Entity
 	static: boolean
 	category: number
 	mask: {boolean}
-	input1state: number
+	input1state: any
 	lighted: boolean
 	r: {any}
 	x: number
@@ -2673,7 +2668,7 @@ global record walltimer is Entity
 	mask: {boolean}
 	cox: number
 	coy: number
-	input1state: number
+	input1state: any
 	lighted: boolean
 	outtable: {any}
 	quad: any

@@ -10,29 +10,29 @@ function Boot.setup_core_helpers()
 	require("core.tableutil")
 end
 
-function Boot.setup_services(debugprints: any, music_type: any): any, any, any, any, any
-	local Logger = require("app.logger")
-	Logger.set_level(debugprints and "debug" or "info")
-	local AssetStore = require("assets.store")
-	local Gamestate = require("app.gamestate")
-	local World = require("world.session")
-	local assets = AssetStore.new(music_type or "stream")
-	local session = World.new()
-	return Logger, AssetStore, Gamestate, World, assets, session
+function Boot.setup_services(debugprints: any, music_type: any): any, any, any, any, any, any
+	local LoggerMod = require("app.logger") as any
+	(LoggerMod as LoggerModule).set_level(debugprints and "debug" or "info")
+	local AssetStoreMod = require("assets.store") as any
+	local GamestateMod = require("app.gamestate") as any
+	local WorldMod = require("world.session") as any
+	local assets = (AssetStoreMod as AssetStore).new(music_type or "stream")
+	local session = (WorldMod as World).new()
+	return LoggerMod, AssetStoreMod, GamestateMod, WorldMod, assets, session
 end
 
-function Boot.run_early(debugprints: any, music_type: any)
+function Boot.run_early(debugprints: any, music_type: any): any, any, any, any, any, any
 	Boot.setup_core_helpers()
-	local Logger, AssetStore, Gamestate, World, assets, session = Boot.setup_services(debugprints, music_type)
-	_G.Logger = Logger
-	_G.AssetStore = AssetStore
-	_G.Gamestate = Gamestate
-	_G.World = World
-	_G.assets = assets
-	_G.session = session
-	Logger.info("Loading Mari0 SE!")
-	Logger.info("=======================")
-	return Logger, AssetStore, Gamestate, World, assets, session
+	local LoggerMod, AssetStoreMod, GamestateMod, WorldMod, assets, session = Boot.setup_services(debugprints, music_type)
+	rawset(_G, "Logger", LoggerMod)
+	rawset(_G, "AssetStore", AssetStoreMod)
+	rawset(_G, "Gamestate", GamestateMod)
+	rawset(_G, "World", WorldMod)
+	rawset(_G, "assets", assets)
+	rawset(_G, "session", session)
+	(LoggerMod as LoggerModule).info("Loading Mari0 SE!")
+	(LoggerMod as LoggerModule).info("=======================")
+	return LoggerMod, AssetStoreMod, GamestateMod, WorldMod, assets, session
 end
 
 
@@ -189,7 +189,7 @@ function Boot.load_media()
 	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "musicentity", "smbtiles", "portaltiles",
 	"animatedtiletrigger", "delayer", "title", "menuselect"}
 	
-	for i, v in pairs(imagelist) do
+	for i, v in ipairs(imagelist) do
 		local path = "assets/graphics/DEFAULT/" .. v .. ".png"
 		assets:register_image(v, path)
 		local img = assets:get_image(v)
@@ -216,7 +216,7 @@ function Boot.load_media()
 	
 	for y = 1, height do
 		for x = 1, width do
-			table.insert(tilequads, quad:new(smbtilesimg, imgdata, x, y, imgwidth, imgheight))
+			table.insert(tilequads as {any}, quad:new(smbtilesimg, imgdata, x, y, imgwidth, imgheight) as TileQuad)
 			local r, g, b = getaveragecolor(imgdata, x, y)
 			table.insert(rgblist, {r / LOVE_COLOR_MAX, g / LOVE_COLOR_MAX, b / LOVE_COLOR_MAX})
 		end
@@ -231,7 +231,7 @@ function Boot.load_media()
 	
 	for y = 1, height do
 		for x = 1, width do
-			table.insert(tilequads, quad:new(portaltilesimg, imgdata, x, y, imgwidth, imgheight))
+			table.insert(tilequads as {any}, quad:new(portaltilesimg, imgdata, x, y, imgwidth, imgheight) as TileQuad)
 			local r, g, b = getaveragecolor(imgdata, x, y)
 			table.insert(rgblist, {r / LOVE_COLOR_MAX, g / LOVE_COLOR_MAX, b / LOVE_COLOR_MAX})
 		end
@@ -248,7 +248,7 @@ function Boot.load_media()
 	
 	for y = 1, height do
 		for x = 1, width do
-			table.insert(entityquads, entity:new(entitiesimg, x, y, imgwidth, imgheight))
+			table.insert(entityquads as {any}, entity:new(entitiesimg, x, y, imgwidth, imgheight) as EntityQuad)
 			entityquads[#entityquads]:sett(#entityquads)
 		end
 	end

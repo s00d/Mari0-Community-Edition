@@ -9,11 +9,11 @@ function lightbridge.new(_: lightbridge, x: number, y: number, r: {any}): lightb
 	return self
 end
 
-function lightbridge:init(x: number, y: number, r)
+function lightbridge:init(x: number, y: number, r: any)
 	self.cox = x
 	self.coy = y
 	self.dir = "right"
-	self.r = {unpack(r)}
+	self.r = {unpack(r as {any})}
 	
 	self.childtable = {}
 	
@@ -48,7 +48,7 @@ end
 function lightbridge:link()
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w] as {Entity}) do
+			for i, v in pairs(objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -76,17 +76,17 @@ function lightbridge:input(t, input)
 	end
 end
 
-function lightbridge:update(dt: number)
-	self.glowtimer = self.glowtimer + dt*2
+function lightbridge:update(dt: number): any
+	self.glowtimer = (self.glowtimer as number) + dt*2
 	
 end
 
-function lightbridge:getglowa(offset)
-	return math.sin(self.glowtimer-offset*0.5)*.25+.75
+function lightbridge:getglowa(offset: any): any
+	return math.sin((self.glowtimer as number)-offset*0.5)*.25+.75
 end
 
 function lightbridge:draw()
-	local rot = 0
+	local rot: any = 0
 	if self.dir == "up" then
 		rot = math.pi*1.5
 	elseif self.dir == "down" then
@@ -103,18 +103,20 @@ function lightbridge:updaterange()
 	local gels = {}
 	
 	for i, v in pairs(self.childtable) do
-		if v.gels.top then
-			table.insert(gels, {x=v.cox, y=v.coy, dir="top", i=v.gels.top})
-		elseif v.gels.left then
-			table.insert(gels, {x=v.cox, y=v.coy, dir="left", i=v.gels.left})
-		elseif v.gels.right then
-			table.insert(gels, {x=v.cox, y=v.coy, dir="right", i=v.gels.right})
-		elseif v.gels.bottom then
-			table.insert(gels, {x=v.cox, y=v.coy, dir="bottom", i=v.gels.bottom})
+		local v = v as Entity
+		if (v.gels as {any:any}).top then
+			table.insert(gels, {x=v.cox, y=v.coy, dir="top", i=(v.gels as {any:any}).top})
+		elseif (v.gels as {any:any}).left then
+			table.insert(gels, {x=v.cox, y=v.coy, dir="left", i=(v.gels as {any:any}).left})
+		elseif (v.gels as {any:any}).right then
+			table.insert(gels, {x=v.cox, y=v.coy, dir="right", i=(v.gels as {any:any}).right})
+		elseif (v.gels as {any:any}).bottom then
+			table.insert(gels, {x=v.cox, y=v.coy, dir="bottom", i=(v.gels as {any:any}).bottom})
 		end
 	end	
 	
 	for i, v in pairs(self.childtable) do
+		local v = v as Entity
 		v.destroy = true as any
 	end
 	self.childtable = {}
@@ -175,7 +177,7 @@ function lightbridge:updaterange()
 		end
 		
 		--doors
-		for i, v in pairs(objects["door"] as {Entity}) do
+		for i, v in pairs(objects["door"] as {any:Entity}) do
 			if v.active then
 				if v.dir == "ver" then
 					if x == v.cox and (y == v.coy or y == v.coy-1) then
