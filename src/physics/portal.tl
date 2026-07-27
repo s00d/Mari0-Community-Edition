@@ -70,6 +70,7 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 				portal1Y = portal1Y - 1
 			elseif v.facing1 == "down" then
 				portal1xplus = -1
+				portal1Y = portal1Y + 1
 			end
 			
 			if v.facing2 == "up" then
@@ -77,11 +78,16 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 				portal2Y = portal2Y - 1
 			elseif v.facing2 == "down" then
 				portal2xplus = -1
+				portal2Y = portal2Y + 1
 			end
 			
+			local portal1xmatch = v.x1 == math.floor(self.x+1) or (v.x1 as number)+portal1xplus == math.floor(self.x+1)
+			local portal2xmatch = v.x2 == math.floor(self.x+1) or (v.x2 as number)+portal2xplus == math.floor(self.x+1)
+			local portal1hit = portal1xmatch and inrange(portal1Y, self.y+self.height/2, nextY+self.height/2)
+			local portal2hit = portal2xmatch and inrange(portal2Y, self.y+self.height/2, nextY+self.height/2)
+			
 			--first part checks whether object is in the portal's x range,                                  second part whether object just moved through the portal's Y value
-			if ((v.x1 == math.floor(self.x+1) or (v.x1 as number)+portal1xplus == math.floor(self.x+1)) and inrange(portal1Y, self.y+self.height/2, nextY+self.height/2))
-			or ((v.x2 == math.floor(self.x+1) or (v.x2 as number)+portal2xplus == math.floor(self.x+1)) and inrange(portal2Y, self.y+self.height/2, nextY+self.height/2)) then
+			if portal1hit or portal2hit then
 			
 				--check which portal is entry
 				local entryportalX: number
@@ -94,7 +100,23 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 				local _: number = 0
 				local exitportalxplus: number = 0
 				local _: number = 0
-				if (v.x1 == math.floor(self.x+1) or (v.x1 as number)+portal1xplus == math.floor(self.x+1)) and inrange(portal1Y, self.y+self.height/2, nextY+self.height/2) then
+				local useportal1: boolean
+				if portal1hit and portal2hit then
+					local rising = self.speedy < 0
+					local falling = self.speedy > 0
+					local portal1ok = (v.facing1 == "down" and rising) or (v.facing1 == "up" and falling)
+					local portal2ok = (v.facing2 == "down" and rising) or (v.facing2 == "up" and falling)
+					if portal1ok and not portal2ok then
+						useportal1 = true
+					elseif portal2ok and not portal1ok then
+						useportal1 = false
+					else
+						useportal1 = portal1hit
+					end
+				else
+					useportal1 = portal1hit
+				end
+				if useportal1 then
 					entryportalX = v.x1 as number
 					entryportalY = v.y1 as number
 					entryportalfacing = v.facing1
@@ -119,16 +141,16 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 				--check if movement makes that portal even a possibility
 				if entryportalfacing == "up" then
 					if self.speedy < 0 then
-						return false
+						goto portal_hor_continue
 					end
 				elseif entryportalfacing == "down" then
 					if self.speedy > 0 then
-						return false
+						goto portal_hor_continue
 					end
 				end
 				
 				if entryportalfacing == "left" or entryportalfacing == "right" then
-					return false
+					goto portal_hor_continue
 				end
 				
 				local testx, testy, testspeedx, testspeedy, testrotation = portalcoords(self.x, self.y, self.speedx, self.speedy, self.width, self.height, self.rotation, self.animationdirection, entryportalX, entryportalY, entryportalfacing, exitportalX, exitportalY, exitportalfacing, self, true)
@@ -161,6 +183,7 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 				
 				return true
 			end
+			::portal_hor_continue::
 		end
 	end
 	return false

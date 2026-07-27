@@ -196,4 +196,54 @@ do
 	check("inportal empty false", inportal(self) == false)
 end
 
+-- checkportalHOR: down portal under platform uses down end when rising
+-- Platform tile at y=8; blue=down and orange=up on same column (opposite faces).
+do
+	portals = {
+		{
+			x1 = 5, y1 = 8, facing1 = "up",
+			x2 = 5, y2 = 8, facing2 = "down",
+		},
+	}
+	function checkrect()
+		return {}
+	end
+	local saw = nil
+	local self = {
+		x = 4.2, y = 9.0, width = 0.75, height = 0.75,
+		speedx = 0, speedy = -4, rotation = 0, animationdirection = "right",
+		jumping = true, falling = false,
+		portaled = function(_, face)
+			saw = face
+		end,
+	}
+	-- detection plane for down at y=8 is now y+1=9; center crosses 9 while rising
+	local ok = checkportalHOR(self, self.y - 1)
+	check("HOR under-platform picks down entry", ok == true)
+	check("HOR under-platform exit facing", saw == "up")
+	check("HOR under-platform moved up through portal", self.y < 9.0)
+end
+
+-- checkportalHOR: down under platform teleports to distant floor portal, not above platform
+do
+	portals = {
+		{
+			x1 = 5, y1 = 8, facing1 = "down",
+			x2 = 18, y2 = 20, facing2 = "up",
+		},
+	}
+	function checkrect()
+		return {}
+	end
+	local self = {
+		x = 4.2, y = 9.5, width = 0.75, height = 0.75,
+		speedx = 0, speedy = -5, rotation = 0, animationdirection = "right",
+		jumping = true, falling = false,
+	}
+	local ok = checkportalHOR(self, self.y - 1.5)
+	check("HOR down-under to floor exit ok", ok == true)
+	check("HOR down-under exits near floor portal", self.y > 15)
+	check("HOR down-under not on platform top", self.y > 10)
+end
+
 return failed
