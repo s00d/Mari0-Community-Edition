@@ -1257,6 +1257,9 @@ global mushroomspeed: number
 global musicentityimg: Image
 global netplayerid: string
 global netplayernumber: number
+global netstatus: string
+global netplay_update: function(dt: number)
+global net_get_status: function(): string
 global notgateimg: Image
 global objectstab: function(): any
 global onlinemappackbackground: {any}

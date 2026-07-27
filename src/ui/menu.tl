@@ -292,6 +292,8 @@ global function menu_draw_title()
 		love.graphics.draw(menuselectimg, 73*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
 	elseif selection == 4 then
 		love.graphics.draw(menuselectimg, 98*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
+	elseif selection == 5 then
+		love.graphics.draw(menuselectimg, 87*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
 	end
 	
 	if custombackground then
@@ -306,6 +308,8 @@ global function menu_draw_title()
 		properprintbackground("select mappack", 83*scale, 170*scale, true)
 		
 		properprintbackground("options", 111*scale, 186*scale, true)
+
+		properprintbackground("online play", 95*scale, 202*scale, true)
 	
 		properprintbackground(players, 87*scale, 138*scale, true)
 	else
@@ -320,6 +324,8 @@ global function menu_draw_title()
 		properprint("select mappack", 83*scale, 170*scale)
 		
 		properprint("options", 111*scale, 186*scale)
+
+		properprint("online play", 95*scale, 202*scale)
 	
 		properprint(players, 87*scale, 138*scale)
 	end
@@ -1698,7 +1704,7 @@ global function menu_keypressed(key: any)
 				end
 			end
 		elseif (key == "down" or key == "s") then
-			if selection < 4 then
+			if selection < 5 then
 				selection = selection + 1
 			end
 		elseif (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
@@ -1715,6 +1721,8 @@ global function menu_keypressed(key: any)
 				mappacks()
 			elseif selection == 4 then
 				gamestate = "options"
+			elseif selection == 5 then
+				onlinemenu_load()
 			end
 		elseif key == "escape" then
 			love.event.quit()

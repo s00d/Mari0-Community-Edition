@@ -7,7 +7,11 @@ global function onlinemenu_load()
 	gamestate = "onlinemenu"
 	
 	localnicks = {"littlepip", "velvet remedy", "calamity", "homage", "blackjack", "fallen glory", "p21", "rampage", "puppysmiles", "clover", "hired gun", "serenity"}
-	localnick = localnicks[math.random(#localnicks)]
+	if love.filesystem.getInfo("nickname.txt") then
+		localnick = love.filesystem.read("nickname.txt") or localnicks[math.random(#localnicks)]
+	else
+		localnick = localnicks[math.random(#localnicks)]
+	end
 	
 	guielements = {}
 	guielements.nickentry = guielement:new("input", 5, 30, 14, nil, localnick, 14, 1)
@@ -16,12 +20,12 @@ global function onlinemenu_load()
 	guielements.configincrease = guielement:new("button", 214, 31, "}", configincrease, 0)
 	
 	
-	guielements.ipentry = guielement:new("input", 6, 87, 23, joingame, "", 23, 1)
+	guielements.ipentry = guielement:new("input", 6, 87, 23, joingame, "127.0.0.1", 23, 1)
 	guielements.portentry2 = guielement:new("input", 131, 145, 5, nil, "7331", 5, 1, true)
 	
 	guielements.portentry = guielement:new("input", 274, 87, 5, nil, "7331", 5, 1, true)
 	
-	guielements.magiccheckbox = guielement:new("checkbox", 220, 147, togglemagic, true)
+	guielements.magiccheckbox = guielement:new("checkbox", 220, 147, togglemagic, false)
 	
 	guielements.hostbutton = guielement:new("button", 247, 199, "create game", creategame, 2)
 	guielements.hostbutton.bordercolor = {1, 0, 0}
@@ -37,11 +41,15 @@ global function onlinemenu_load()
 	
 	playerconfig = 1
 	
-	usemagic = true
+	usemagic = false
 	
 	magictimer = 0
 	magicdelay = 0.15
 	magics = {}
+
+	if not SERVER and not CLIENT then
+		rawset(_G, "netstatus", "offline")
+	end
 end
 
 global function onlinemenu_update(dt: number)
@@ -148,6 +156,12 @@ global function onlinemenu_draw()
 	for _, v in ipairs(magics) do
 		v:draw()
 	end
+
+	-- connection status strip (viewport is height*16 = 224)
+	love.graphics.setColor(0, 0, 0, 0.8)
+	love.graphics.rectangle("fill", 3*scale, 212*scale, 394*scale, 10*scale)
+	love.graphics.setColor(0.5, 1, 1)
+	properprint("status: " .. tostring(netstatus or "offline"), 4*scale, 213*scale)
 end
 
 global function configdecrease()
@@ -173,6 +187,8 @@ end
 
 global function creategame()
 	port = tonumber(guielements.portentry.value) or port
+	localnick = guielements.nickentry.value as string
+	love.filesystem.write("nickname.txt", localnick)
 	server_load()
 	if usemagic then
 		adjective, noun = magicdns_make()
@@ -181,6 +197,8 @@ end
 
 global function joingame()
 	port = tonumber(guielements.portentry2.value) or port
+	localnick = guielements.nickentry.value as string
+	love.filesystem.write("nickname.txt", localnick)
 	local s = guielements.ipentry.value as string
 	if checkmagic(s) then
 		usemagic = true
@@ -189,6 +207,7 @@ global function joingame()
 		local found_ip, found_port = magicdns_find(adjective, noun)
 		
 		if found_ip == "" then
+			notice.new("magicdns not found", notice.red)
 			return
 		end
 		ip = found_ip

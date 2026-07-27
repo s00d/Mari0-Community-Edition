@@ -66,6 +66,14 @@ Facades (keep `_G` function names via require):
 | `app.game_portal` | `game_portal_input`, `game_portal_world` |
 | `app.main_util` | `main_util_options`, `main_util_misc` |
 
+## Online / multiplayer (Phase 1 MVP)
+
+- **Transport:** LuaSocket UDP, non-blocking (`settimeout(0)`), burst recv capped per frame — no LUBE
+- **Modules:** `src/net/transport.tl`, `protocol.tl` (JSON via dkjson), `session.tl` (host/join/lobby/chat)
+- **Sync model (next):** host-authoritative input + sparse snapshots (Mari0 physics is not lockstep-deterministic)
+- **GUI:** main menu → Online play → Host/Join → Lobby + chat + connection status
+- **Not yet:** entity sync, lag compensation, mappack transfer, MagicDNS reliability on Love 12 without ssl
+
 ## Next work (real priorities)
 
 - **Golden replay on real physics** — deterministic regression over actual `physicsupdate`, not a fake harness

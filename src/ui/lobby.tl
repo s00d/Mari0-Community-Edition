@@ -2,6 +2,17 @@
 
 global function lobby_load()
 	gamestate = "lobby"
+	if not runanimationtimer then
+		runanimationtimer = 0
+		runanimationframe = 1
+		runanimationdelay = 0.1
+	end
+	if not playerlist then
+		playerlist = {}
+	end
+	if not chatmessages then
+		chatmessages = {}
+	end
 	guielements = {}
 	guielements.chatentry = guielement:new("input", 4, 207, 43+7/8, sendchat, "", 43)
 	guielements.sendbutton = guielement:new("button", 359, 207, "send", sendchat, 1)
@@ -46,8 +57,12 @@ global function lobby_draw()
 	if usemagic and adjective and noun then
 		properprintbackground("magicdns: " .. adjective .. " " .. noun, 4*scale, 98*scale, true)
 	end
+	properprintbackground("status: " .. tostring(netstatus or "?"), 4*scale, 4*scale, true)
 	if SERVER then
+		properprintbackground("port " .. tostring(port or 7331), 4*scale, 14*scale, true)
 		guielements.startbutton:draw()
+	else
+		properprintbackground("connected to host", 4*scale, 14*scale, true)
 	end
 	guielements.quitbutton:draw()
 	

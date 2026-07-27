@@ -38,11 +38,6 @@ end
 
 function Boot.require_game()
 	--require ALL the files!
-	--require "netplay"
-	--require "client"
-	--require "server"
-	--require "ui.lobby"
-	--require "ui.onlinemenu"
 	
 	require "assets.shaders"
 	require "app.variables"
@@ -180,6 +175,9 @@ function Boot.require_game()
 	
 	require "entities.enemy"
 	require "entities.enemies"
+	require "ui.lobby"
+	require "ui.onlinemenu"
+	require "net.session"
 	add("Requires")
 
 end

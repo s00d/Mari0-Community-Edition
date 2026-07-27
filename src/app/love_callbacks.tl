@@ -104,7 +104,9 @@ function love.update(dt: any)
 			v:update(dt as number)
 		end
 		
-		--netplay_update(dt)
+		if netplay_update then
+			netplay_update(dt as number)
+		end
 		
 		notice.update(dt as number)
 		
