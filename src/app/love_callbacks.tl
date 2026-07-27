@@ -104,7 +104,8 @@ function love.update(dt: any)
 			v:update(dt as number)
 		end
 		
-		if netplay_update and (SERVER or CLIENT) then
+		-- Net facade: NullNet offline (empty update). Live session only after host/join.
+		if netplay_update then
 			netplay_update(dt as number)
 		end
 		

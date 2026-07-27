@@ -1,10 +1,13 @@
 --[[ Online session: host/join lobby, chat, match start, host-auth sync.
-     Transport: non-blocking UDP + JSON. No LUBE. No Phase-2 stubs. ]]
+     Transport: non-blocking UDP + JSON. No LUBE.
+     Hot path: only runs while Net.activate()'d — offline uses NullNet facade. ]]
 
+local Net = require("net.facade") as {string:any}
 local Transport = require("net.transport") as {string:any}
 local Protocol = require("net.protocol") as {string:any}
 local Sync = require("net.sync") as {string:any}
 local Match = require("net.match") as {string:any}
+local State = require("net.state") as {string:any}
 
 local HEARTBEAT_INTERVAL = 2.0
 local PEER_TIMEOUT = 8.0
@@ -201,6 +204,30 @@ local function close_socket()
 	sock = nil
 end
 
+-- Forward decl via bag so Teal/Lua can bind before the body is assigned.
+local live: {string:any} = {}
+
+local function session_get_status(): string
+	return status
+end
+
+local function session_in_match(): boolean
+	return in_match
+end
+
+local function session_is_active(): boolean
+	return role ~= "idle" and sock ~= nil
+end
+
+local function bind_facade()
+	(Net.activate as function({string:any}))({
+		update = live.update,
+		get_status = session_get_status,
+		in_match = session_in_match,
+		is_active = session_is_active,
+	})
+end
+
 local function reset_session()
 	close_socket()
 	role = "idle"
@@ -214,6 +241,7 @@ local function reset_session()
 	rawset(_G, "playerlist", {})
 	rawset(_G, "chatmessages", {})
 	set_status("offline")
+	(Net.deactivate as function())()
 end
 
 local function peer_count(): integer
@@ -418,21 +446,8 @@ local function sync_tick(dt: number)
 end
 
 --------------------------------------------------------------------------
--- Public globals
+-- Public globals (lifecycle). Queries / update go through net.facade.
 --------------------------------------------------------------------------
-
-global function net_get_status(): string
-	return status
-end
-
-global function net_in_match(): boolean
-	return in_match
-end
-
--- True only while host/client socket is live. Offline singleplayer must stay false.
-global function net_is_active(): boolean
-	return role ~= "idle" and sock ~= nil
-end
 
 global function server_load()
 	ensure_defaults()
@@ -460,6 +475,7 @@ global function server_load()
 	rawset(_G, "chatmessages", {})
 	rawset(_G, "playerlist", {make_self_player()})
 	set_status("hosting (1/" .. MAX_PLAYERS .. ")")
+	bind_facade()
 	lobby_load()
 	notice.new("hosting on port " .. tostring(use_port))
 end
@@ -492,6 +508,7 @@ global function client_load()
 	rawset(_G, "playerlist", {})
 	set_status("connecting…")
 	connect_t = 0
+	bind_facade()
 	encode_send({
 		t = "hello",
 		id = local_id,
@@ -560,8 +577,8 @@ global function net_quit()
 	menu_load()
 end
 
-global function netplay_update(dt: number)
-	-- Offline / idle: hard no-op (no UDP poll, no JSON, no alloc).
+live.update = function(dt: number)
+	-- Only reached while facade ActiveNet points here (NullNet never calls us).
 	if role == "idle" or not sock then
 		return
 	end
@@ -573,11 +590,12 @@ global function netplay_update(dt: number)
 	for i = 1, #packets do
 		local pkt = packets[i] as {string:any}
 		local msg = (Protocol.decode as function(any): {string:any}|nil)(pkt.data)
-		if msg then
+		if msg ~= nil and (Protocol.is_op as function(any): boolean)((msg as {string:any}).t) then
+			local m = msg as {string:any}
 			if role == "host" then
-				handle_host_msg(msg, pkt.ip as string, (pkt.port as integer) or 0)
+				handle_host_msg(m, pkt.ip as string, (pkt.port as integer) or 0)
 			else
-				handle_client_msg(msg)
+				handle_client_msg(m)
 			end
 		end
 	end
@@ -628,13 +646,15 @@ global function netplay_update(dt: number)
 	end
 end
 
--- Init defaults at require time (before GlobalFreeze).
+-- Init defaults at require time (before GlobalFreeze). Facade stays NullNet.
 ensure_defaults()
 set_status("offline")
+(Net.deactivate as function())()
 
 return {
-	update = netplay_update,
-	get_status = net_get_status,
-	in_match = net_in_match,
-	is_active = net_is_active,
+	update = live.update,
+	get_status = session_get_status,
+	in_match = session_in_match,
+	is_active = session_is_active,
+	fsm = State,
 }

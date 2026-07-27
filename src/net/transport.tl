@@ -1,4 +1,9 @@
---[[ Non-blocking UDP via LuaSocket (Love 12 ships 3.1.0). No LUBE. ]]
+--[[ Pluggable datagram transport.
+
+Current: non-blocking UDP via LuaSocket (Love 12 ships 3.1.0). No LUBE.
+Future swap candidate: bundled lua-enet (reliable channels) behind the same
+create_host/create_client/send/recv_burst surface — no native compile needed.
+]]
 
 local MAX_RECV_PER_FRAME = 48
 local MAX_DATAGRAM = 1200

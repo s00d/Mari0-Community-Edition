@@ -177,6 +177,7 @@ function Boot.require_game()
 	require "entities.enemies"
 	require "ui.lobby"
 	require "ui.onlinemenu"
+	require "net.facade"
 	require "net.session"
 	add("Requires")
 

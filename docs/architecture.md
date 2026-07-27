@@ -68,19 +68,23 @@ Facades (keep `_G` function names via require):
 
 ## Online / multiplayer
 
-Stable host-authoritative multiplayer over non-blocking UDP + JSON (no LUBE).
+Stable host-authoritative multiplayer. **Singleplayer never touches live net code** — the app only calls `net.facade` (`NullNet` offline).
 
 | Piece | Module |
 |-------|--------|
-| Transport | `src/net/transport.tl` — LuaSocket UDP, `settimeout(0)`, burst recv cap |
-| Protocol | `src/net/protocol.tl` — JSON opcodes (`hello`, `start`, `input`, `snap`, chat, …) |
+| Facade | `src/net/facade.tl` — sole entry; `NullNet` offline, session activates on host/join |
+| State | `src/net/state.tl` — pure FSM (offline/hosting/connecting/connected/in_match) |
+| Transport | `src/net/transport.tl` — LuaSocket UDP (`settimeout(0)`); ENet-swappable surface |
+| Protocol | `src/net/protocol.tl` — JSON opcodes + `validate` / `decode_strict` (bitser optional later) |
 | Session | `src/net/session.tl` — host/join, lobby, timeouts, match lifecycle |
 | Match | `src/net/match.tl` — slot assign, cosmetics, `game_load` |
 | Sync | `src/net/sync.tl` — client input → host; host player snapshots → clients |
 
-**Flow:** Online play → Create game (host) or Join via IP:port → Lobby (chat) → Host Start → shared level → play.
+**Flow:** Online play → Create game (host) or Join via IP:port → Lobby (chat) → Host Start → shared level → play. Leaving online restores `NullNet`.
 
-**Sync model:** Host runs physics for all players. Clients send held controls (~30 Hz). Host applies remote input and broadcasts player snapshots (~20 Hz). Clients soft-correct local player and hard-apply remotes. MagicDNS is optional and **off by default** (disabled when `socket.http`/`ssl` stub on Love 12).
+**Sync model (Gaffer-informed):** Host runs physics for all players (host-auth + snapshots). Clients send held controls (~30 Hz). Host applies remote input and broadcasts player snapshots (~20 Hz). Clients soft-correct local player and hard-apply remotes. Full lockstep rejected (Lua physics not bit-identical); rollback too heavy for this scope. MagicDNS is optional and **off by default** (disabled when `socket.http`/`ssl` stub on Love 12) — never on the singleplayer hot path.
+
+**Love 12 / research notes:** Engine ships lua-enet + LuaSocket 3.1.0; Love 12 adds lightuserdata `peer:send`. sock.lua/bitser are popular but add deps / FFI. We keep pure LuaSocket UDP + JSON for macOS-friendly builds and headless tests; transport interface allows a later ENet backend without touching gameplay.
 
 **Not included:** full enemy/entity lockstep, mappack transfer, lag compensation beyond soft correct.
 

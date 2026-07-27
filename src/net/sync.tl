@@ -1,4 +1,9 @@
---[[ Host-authoritative input + player snapshots. ]]
+--[[ Host-authoritative input + player snapshots.
+
+Gaffer-style choice for Mari0: full lockstep is a poor fit (Lua physics not
+bit-identical); rollback is heavy. Host runs sim, clients send inputs (~30 Hz),
+host broadcasts player snaps (~20 Hz) with soft local correction.
+]]
 
 local INPUT_HZ = 30
 local SNAP_HZ = 20
