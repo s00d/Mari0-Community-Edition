@@ -6,16 +6,25 @@ local function addzeros(s: any, i: integer): string
 	return out
 end
 
-local function string_split(self: string, delimiter: string): {string}
+local function string_split(self: any, delimiter: any): {string}
 	local parts: {string} = {}
-	local from = 1
-	local delim_from, delim_to = string.find(self, delimiter, from)
-	while delim_from do
-		table.insert(parts, string.sub(self, from, delim_from - 1))
-		from = delim_to + 1
-		delim_from, delim_to = string.find(self, delimiter, from)
+	if self == nil then
+		return parts
 	end
-	table.insert(parts, string.sub(self, from))
+	local src = tostring(self)
+	local delim = tostring(delimiter or "/")
+	if delim == "" then
+		table.insert(parts, src)
+		return parts
+	end
+	local from = 1
+	local delim_from, delim_to = string.find(src, delim, from, true)
+	while delim_from do
+		table.insert(parts, string.sub(src, from, delim_from - 1))
+		from = (delim_to as integer) + 1
+		delim_from, delim_to = string.find(src, delim, from, true)
+	end
+	table.insert(parts, string.sub(src, from))
 	return parts
 end
 

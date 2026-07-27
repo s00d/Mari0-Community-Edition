@@ -303,6 +303,12 @@ function mario:adddata()
 end
 
 function mario:update(dt: number)
+	-- Clients render remotes from host snapshots; skip local sim for them.
+	if self.remote and CLIENT and not SERVER then
+		self:setquad()
+		return
+	end
+
 	self:update_replay(dt)
 	
 	self.passivemoved = false

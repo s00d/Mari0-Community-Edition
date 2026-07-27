@@ -66,13 +66,23 @@ Facades (keep `_G` function names via require):
 | `app.game_portal` | `game_portal_input`, `game_portal_world` |
 | `app.main_util` | `main_util_options`, `main_util_misc` |
 
-## Online / multiplayer (Phase 1 MVP)
+## Online / multiplayer
 
-- **Transport:** LuaSocket UDP, non-blocking (`settimeout(0)`), burst recv capped per frame — no LUBE
-- **Modules:** `src/net/transport.tl`, `protocol.tl` (JSON via dkjson), `session.tl` (host/join/lobby/chat)
-- **Sync model (next):** host-authoritative input + sparse snapshots (Mari0 physics is not lockstep-deterministic)
-- **GUI:** main menu → Online play → Host/Join → Lobby + chat + connection status
-- **Not yet:** entity sync, lag compensation, mappack transfer, MagicDNS reliability on Love 12 without ssl
+Stable host-authoritative multiplayer over non-blocking UDP + JSON (no LUBE).
+
+| Piece | Module |
+|-------|--------|
+| Transport | `src/net/transport.tl` — LuaSocket UDP, `settimeout(0)`, burst recv cap |
+| Protocol | `src/net/protocol.tl` — JSON opcodes (`hello`, `start`, `input`, `snap`, chat, …) |
+| Session | `src/net/session.tl` — host/join, lobby, timeouts, match lifecycle |
+| Match | `src/net/match.tl` — slot assign, cosmetics, `game_load` |
+| Sync | `src/net/sync.tl` — client input → host; host player snapshots → clients |
+
+**Flow:** Online play → Create game (host) or Join via IP:port → Lobby (chat) → Host Start → shared level → play.
+
+**Sync model:** Host runs physics for all players. Clients send held controls (~30 Hz). Host applies remote input and broadcasts player snapshots (~20 Hz). Clients soft-correct local player and hard-apply remotes. MagicDNS is optional and **off by default** (disabled when `socket.http`/`ssl` stub on Love 12).
+
+**Not included:** full enemy/entity lockstep, mappack transfer, lag compensation beyond soft correct.
 
 ## Next work (real priorities)
 

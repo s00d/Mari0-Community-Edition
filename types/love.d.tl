@@ -375,6 +375,8 @@ global record love
 		isDown: function(...: string): boolean
 		isScancodeDown: function(...: string): boolean
 		getScancodeFromKey: function(key: string): string
+		setTextInput: function(enable: boolean)
+		setKeyRepeat: function(enable: boolean)
 	end
 
 	record mouse

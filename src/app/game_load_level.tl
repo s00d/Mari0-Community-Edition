@@ -70,10 +70,18 @@ global function game_load(suspended?: any)
 	
 	jumpitems = { "mushroom", "oneup" }
 	
-	marioworld = 1
-	mariolevel = 1
-	mariosublevel = 0
-	respawnsublevel = 0
+	-- Online match: host already chose mappack/world/level via start packet.
+	if not (SERVER or CLIENT) then
+		marioworld = 1
+		mariolevel = 1
+		mariosublevel = 0
+		respawnsublevel = 0
+	else
+		marioworld = marioworld or 1
+		mariolevel = mariolevel or 1
+		mariosublevel = mariosublevel or 0
+		respawnsublevel = mariosublevel or 0
+	end
 	
 	objects = nil
 	if suspended == true then

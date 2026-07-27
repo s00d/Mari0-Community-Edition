@@ -664,6 +664,11 @@ function guielement:click(x: number, y: number, button: any): boolean
 					self.inputting = true
 					self.timer = 0
 					self.cursorblink = true
+					if love.keyboard and love.keyboard.setTextInput then
+						pcall(function()
+							love.keyboard.setTextInput(true)
+						end)
+					end
 				else
 					self.inputting = false
 				end

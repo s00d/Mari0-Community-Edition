@@ -132,7 +132,10 @@ global function game_keypressed(key: any)
 	end
 
 	for i = 1, players do
-		if controls[i]["jump"][1] == key then
+		-- Online remotes are driven by host-auth net input, not local keys.
+		if playerobjs[i] and playerobjs[i].remote then
+			-- skip
+		elseif controls[i]["jump"][1] == key then
 			playerobjs[i]:jump()
 		elseif controls[i]["run"][1] == key then
 			playerobjs[i]:fire()
@@ -145,15 +148,17 @@ global function game_keypressed(key: any)
 		elseif controls[i]["right"][1] == key then
 			playerobjs[i]:rightkey()
 		end
-		
-		if controls[i]["portal1"][i] == key then
-			shootportal(i, 1, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
-			return
-		end
-		
-		if controls[i]["portal2"][i] == key then
-			shootportal(i, 2, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
-			return
+
+		if playerobjs[i] and not playerobjs[i].remote then
+			if controls[i]["portal1"][i] == key then
+				shootportal(i, 1, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
+				return
+			end
+
+			if controls[i]["portal2"][i] == key then
+				shootportal(i, 2, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
+				return
+			end
 		end
 	end
 	
@@ -193,7 +198,9 @@ end
 global function game_keyreleased(key: any)
 	
 	for i = 1, players do
-		if controls[i]["jump"][1] == key then
+		if playerobjs[i] and playerobjs[i].remote then
+			-- skip
+		elseif controls[i]["jump"][1] == key then
 			playerobjs[i]:stopjump()
 		end
 	end
@@ -342,7 +349,22 @@ global function game_mousereleased(x: any, y: any, button: any)
 	end
 end
 
+local function net_held_action(i: any, action: string): boolean|nil
+	local slot = i as integer
+	if not net_held or not net_held[slot] then
+		return nil
+	end
+	return net_held[slot][action] == true
+end
+
 global function runkey(i: any): any
+	local netv = net_held_action(i, "run")
+	if netv ~= nil then
+		return netv
+	end
+	if playerobjs and playerobjs[i] and playerobjs[i].remote then
+		return false
+	end
 	return checkkey(controls[i]["run"])
 end
 
@@ -356,6 +378,13 @@ global function rightkey(i: any): any
 		action = "left"
 	else
 		action = "up"
+	end
+	local netv = net_held_action(i, action)
+	if netv ~= nil then
+		return netv
+	end
+	if playerobjs and playerobjs[i] and playerobjs[i].remote then
+		return false
 	end
 	return checkkey(controls[i][action])
 end
@@ -371,6 +400,13 @@ global function leftkey(i: any): any
 	else
 		action = "down"
 	end
+	local netv = net_held_action(i, action)
+	if netv ~= nil then
+		return netv
+	end
+	if playerobjs and playerobjs[i] and playerobjs[i].remote then
+		return false
+	end
 	return checkkey(controls[i][action])
 end
 
@@ -385,6 +421,13 @@ global function downkey(i: any): any
 	else
 		action = "right"
 	end
+	local netv = net_held_action(i, action)
+	if netv ~= nil then
+		return netv
+	end
+	if playerobjs and playerobjs[i] and playerobjs[i].remote then
+		return false
+	end
 	return checkkey(controls[i][action])
 end
 
@@ -398,6 +441,13 @@ global function upkey(i: any): any
 		action = "down"
 	else
 		action = "left"
+	end
+	local netv = net_held_action(i, action)
+	if netv ~= nil then
+		return netv
+	end
+	if playerobjs and playerobjs[i] and playerobjs[i].remote then
+		return false
 	end
 	return checkkey(controls[i][action])
 end
@@ -456,7 +506,7 @@ global function game_joystickpressed(joystick: any, button: any)
 	end
 	
 	for i = 1, players do
-		if not noupdate and playerobjs[i].controlsenabled and not playerobjs[i].vine then
+		if not noupdate and playerobjs[i].controlsenabled and not playerobjs[i].vine and not playerobjs[i].remote then
 			local s1 = controls[i]["jump"]
 			local s2 = controls[i]["run"]
 			local s3 = controls[i]["reload"]

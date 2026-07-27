@@ -1,13 +1,15 @@
---[[ Online session: host/join lobby + chat over non-blocking UDP.
-     Phase 1 MVP — no entity sync yet. Path to Phase 2: host-auth input + snapshots. ]]
+--[[ Online session: host/join lobby, chat, match start, host-auth sync.
+     Transport: non-blocking UDP + JSON. No LUBE. No Phase-2 stubs. ]]
 
 local Transport = require("net.transport") as {string:any}
 local Protocol = require("net.protocol") as {string:any}
+local Sync = require("net.sync") as {string:any}
+local Match = require("net.match") as {string:any}
 
 local HEARTBEAT_INTERVAL = 2.0
 local PEER_TIMEOUT = 8.0
 local MAX_CHAT = 64
-local MAX_PLAYERS = 4
+local MAX_PLAYERS = (Match.MAX_PLAYERS as integer) or 4
 local DEFAULT_PORT = 7331
 
 local sock: any = nil
@@ -16,7 +18,8 @@ local status: string = "offline"
 local local_id: string = ""
 local heartbeat_t: number = 0
 local connect_t: number = 0
-local peers_by_key: {string:any} = {} -- host-only: key -> {ip,port,id,nick,...}
+local peers_by_key: {string:any} = {} -- host-only
+local in_match: boolean = false
 
 local function gen_id(): string
 	local chars = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -87,6 +90,9 @@ local function ensure_defaults()
 	end
 	if netstatus == nil then
 		rawset(_G, "netstatus", "offline")
+	end
+	if usemagic == nil then
+		rawset(_G, "usemagic", false)
 	end
 end
 
@@ -201,6 +207,8 @@ local function reset_session()
 	peers_by_key = {}
 	heartbeat_t = 0
 	connect_t = 0
+	in_match = false
+	(Sync.clear_held as function())()
 	rawset(_G, "SERVER", false)
 	rawset(_G, "CLIENT", false)
 	rawset(_G, "playerlist", {})
@@ -208,16 +216,33 @@ local function reset_session()
 	set_status("offline")
 end
 
+local function peer_count(): integer
+	local n = 0
+	for _ in pairs(peers_by_key) do
+		n = n + 1
+	end
+	return n
+end
+
+local function start_match_from_msg(msg: {string:any})
+	in_match = true
+	(Sync.clear_held as function())()
+	local slot = (Match.begin_match as function({string:any}, string): integer)(msg, local_id)
+	rawset(_G, "netplayernumber", slot)
+	set_status(role == "host" and "in game (host)" or "in game")
+	notice.new("starting game")
+end
+
 local function handle_host_msg(msg: {string:any}, from_ip: string, from_port: integer)
 	local t = msg.t as string
 	local key = (Transport.peer_key as function(string, integer): string)(from_ip, from_port)
 
 	if t == "hello" then
-		local count = 0
-		for _ in pairs(peers_by_key) do
-			count = count + 1
+		if in_match then
+			encode_send({t = "reject", reason = "in game"}, from_ip, from_port)
+			return
 		end
-		if count >= MAX_PLAYERS - 1 then
+		if peer_count() >= MAX_PLAYERS - 1 then
 			encode_send({t = "reject", reason = "full"}, from_ip, from_port)
 			return
 		end
@@ -231,6 +256,7 @@ local function handle_host_msg(msg: {string:any}, from_ip: string, from_port: in
 			hats = msg.hats,
 			ping = 0,
 			last = love.timer.getTime(),
+			slot = peer_count() + 2,
 		}
 		encode_send({
 			t = "welcome",
@@ -250,9 +276,7 @@ local function handle_host_msg(msg: {string:any}, from_ip: string, from_port: in
 		}, key)
 		rebuild_playerlist_from_peers()
 		notice.new("player joined: " .. tostring(joined.nick))
-		local n = 1
-		for _ in pairs(peers_by_key) do n = n + 1 end
-		set_status("hosting (" .. n .. "/" .. MAX_PLAYERS .. ")")
+		set_status("hosting (" .. tostring(peer_count() + 1) .. "/" .. MAX_PLAYERS .. ")")
 		return
 	end
 
@@ -275,7 +299,20 @@ local function handle_host_msg(msg: {string:any}, from_ip: string, from_port: in
 		local t0 = tonumber(msg.t0)
 		if t0 then
 			p.ping = love.timer.getTime() - t0
-			rebuild_playerlist_from_peers()
+			if not in_match then
+				rebuild_playerlist_from_peers()
+			end
+		end
+	elseif t == "input" then
+		if in_match then
+			local slot, h = (Sync.unpack_input as function({string:any}): integer, {string:any})(msg)
+			-- Prefer peer.slot if assigned at start; fall back to packet slot.
+			local use_slot = (tonumber(p.slot) or slot) as integer
+			if use_slot >= 2 then
+				h.slot = use_slot
+				(Sync.set_held as function(integer, {string:any}))(use_slot, h)
+				(Sync.refresh_net_held_global as function())()
+			end
 		end
 	elseif t == "bye" then
 		local nick = tostring(p.nick or "player")
@@ -284,9 +321,10 @@ local function handle_host_msg(msg: {string:any}, from_ip: string, from_port: in
 		broadcast({t = "peer_leave", id = leave_pid}, nil)
 		rebuild_playerlist_from_peers()
 		notice.new("player left: " .. nick)
-		local n = 1
-		for _ in pairs(peers_by_key) do n = n + 1 end
-		set_status("hosting (" .. n .. "/" .. MAX_PLAYERS .. ")")
+		set_status("hosting (" .. tostring(peer_count() + 1) .. "/" .. MAX_PLAYERS .. ")")
+		if in_match and peer_count() == 0 then
+			notice.new("all clients left", notice.red)
+		end
 	end
 end
 
@@ -338,22 +376,53 @@ local function handle_client_msg(msg: {string:any})
 	elseif t == "ping" then
 		encode_send({t = "pong", t0 = msg.t0}, nil, nil)
 	elseif t == "pong" then
-		-- host RTT unused on client for MVP
+		-- RTT optional
 	elseif t == "start" then
-		notice.new("host started — full sync coming soon")
+		start_match_from_msg(msg)
+	elseif t == "snap" then
+		if in_match and objects then
+			(Sync.apply_snapshot as function({string:any}, boolean))(msg, true)
+		end
 	elseif t == "host_gone" then
 		notice.new("host disconnected", notice.red)
+		in_match = false
 		reset_session()
 		menu_load()
 	end
 end
 
+local function sync_tick(dt: number)
+	if not in_match or not objects or not playerobjs then
+		return
+	end
+
+	if role == "host" then
+		(Sync.host_process_edges as function())()
+		if (Sync.should_send_snap as function(number): boolean)(dt) then
+			local snap = (Sync.pack_snapshot as function(): {string:any})()
+			broadcast(snap, nil)
+		end
+	elseif role == "client" then
+		-- Undo physics drift on remotes every frame using last snap.
+		(Sync.reapply_last_snap as function(boolean))(true)
+		if (Sync.should_send_input as function(number): boolean)(dt) then
+			local slot = (netplayernumber as integer) or 1
+			local h = (Sync.read_local_held as function(integer): {string:any})(slot)
+			encode_send((Sync.pack_input as function(integer, {string:any}): {string:any})(slot, h), nil, nil)
+		end
+	end
+end
+
 --------------------------------------------------------------------------
--- Public globals (match onlinemenu / lobby / menu hooks)
+-- Public globals
 --------------------------------------------------------------------------
 
 global function net_get_status(): string
 	return status
+end
+
+global function net_in_match(): boolean
+	return in_match
 end
 
 global function server_load()
@@ -425,12 +494,31 @@ global function client_load()
 end
 
 global function server_start()
-	if not SERVER then
+	if not SERVER or role ~= "host" then
 		return
 	end
-	-- Phase 1: announce only. Phase 2 wires game sync / level load.
-	broadcast({t = "start", mappack = mappack}, nil)
-	notice.new("start queued — entity sync is phase 2")
+	if in_match then
+		return
+	end
+	-- Solo host allowed; peers optional.
+	local n = peer_count() + 1
+	-- Assign slots on peers before broadcast.
+	local slot = 2
+	for _, p in pairs(peers_by_key) do
+		(p as {string:any}).slot = slot
+		slot = slot + 1
+	end
+	local msg = (Match.build_start_msg as function(string, {string:any}, string, any, any, any): {string:any})(
+		local_id,
+		peers_by_key,
+		tostring(mappack or "smb"),
+		marioworld or 1,
+		mariolevel or 1,
+		mariosublevel or 0
+	)
+	broadcast(msg, nil)
+	start_match_from_msg(msg)
+	set_status("in game (host) " .. tostring(n) .. "p")
 end
 
 global function net_sendchat(message: any): any
@@ -455,7 +543,11 @@ global function net_quit()
 	if usemagic and SERVER and magicdns_remove then
 		pcall(magicdns_remove)
 	end
+	local was_match = in_match
 	reset_session()
+	if was_match then
+		objects = nil
+	end
 	menu_load()
 end
 
@@ -467,7 +559,7 @@ global function netplay_update(dt: number)
 	local packets = (Transport.recv_burst as function(any): {any})(sock)
 	for i = 1, #packets do
 		local pkt = packets[i] as {string:any}
-		local msg = (Protocol.decode as function(string): {string:any}|nil)(pkt.data as string)
+		local msg = (Protocol.decode as function(any): {string:any}|nil)(pkt.data)
 		if msg then
 			if role == "host" then
 				handle_host_msg(msg, pkt.ip as string, (pkt.port as integer) or 0)
@@ -476,6 +568,8 @@ global function netplay_update(dt: number)
 			end
 		end
 	end
+
+	sync_tick(dt)
 
 	heartbeat_t = heartbeat_t + dt
 	if heartbeat_t >= HEARTBEAT_INTERVAL then
@@ -500,12 +594,14 @@ global function netplay_update(dt: number)
 				local nick = tostring(peer.nick or "player")
 				peers_by_key[key] = nil
 				broadcast({t = "peer_leave", id = pid}, nil)
-				rebuild_playerlist_from_peers()
+				if not in_match then
+					rebuild_playerlist_from_peers()
+				end
 				notice.new("timed out: " .. nick, notice.red)
 			end
-			local n = 1
-			for _ in pairs(peers_by_key) do n = n + 1 end
-			set_status("hosting (" .. n .. "/" .. MAX_PLAYERS .. ")")
+			if not in_match then
+				set_status("hosting (" .. tostring(peer_count() + 1) .. "/" .. MAX_PLAYERS .. ")")
+			end
 		end
 	end
 
@@ -526,4 +622,5 @@ set_status("offline")
 return {
 	update = netplay_update,
 	get_status = net_get_status,
+	in_match = net_in_match,
 }

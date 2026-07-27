@@ -413,6 +413,7 @@ global record HttpLib
 end
 
 global http: HttpLib
+global http_is_stub: boolean
 global custombackgrounds: {any}
 global reachedworlds: {string:{number|string:boolean}}
 global superfriction: number
@@ -1260,6 +1261,9 @@ global netplayernumber: number
 global netstatus: string
 global netplay_update: function(dt: number)
 global net_get_status: function(): string
+global net_in_match: function(): boolean
+global net_held: {integer:{string:any}}
+global magicdns_available: function(): boolean
 global notgateimg: Image
 global objectstab: function(): any
 global onlinemappackbackground: {any}

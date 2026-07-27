@@ -568,12 +568,12 @@ function Boot.load_media()
 end
 
 
-local function try_load_http(): HttpLib
+local function try_load_http(): HttpLib, boolean
 	local req = require as function(string): any
 	local ok_http, mod = pcall(req, "socket.http")
 	local ok_ssl = pcall(req, "ssl.https")
 	if ok_http and ok_ssl then
-		return mod as HttpLib
+		return mod as HttpLib, false
 	end
 	-- LÖVE 12 may not bundle lua-socket/ssl; stub keeps startup alive.
 	return {
@@ -582,13 +582,17 @@ local function try_load_http(): HttpLib
 		request = function(_url: string): nil, number
 			return nil, 0
 		end,
-	} as HttpLib
+	} as HttpLib, true
 end
 
 function Boot.run_load()
 	Boot.require_game()
 	
-	http = try_load_http()
+	local http_mod: HttpLib
+	local stub: boolean
+	http_mod, stub = try_load_http()
+	http = http_mod
+	rawset(_G, "http_is_stub", stub)
 	http.PORT = 55555
 	http.TIMEOUT = 1
 	
