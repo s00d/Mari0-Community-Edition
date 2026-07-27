@@ -1575,11 +1575,13 @@ global record lightbridge
 	cox: number
 	coy: number
 	destroy: any
+	dirty: boolean
 	dir: string
 	gels: Dyn
 	gelSides: {number:number}
 	glowa: number
 	glowtimer: number
+	handheld: any
 	height: number
 	i: number
 	input1state: any
@@ -1594,7 +1596,7 @@ global record lightbridge
 	init: function(lightbridge, number, number, any)
 	link: function(lightbridge)
 	input: function(lightbridge, any, any)
-	update: function(lightbridge, number)
+	update: function(lightbridge, number): boolean
 	getglowa: function(lightbridge, any): number
 	draw: function(lightbridge)
 	updaterange: function(lightbridge)
@@ -1675,6 +1677,7 @@ global record mario is Entity, Body
 	bubbletimer: number
 	category: number
 	char: Character
+	form: string
 	climbframe: number
 	colors: {any}
 	combo: number
@@ -1784,6 +1787,9 @@ global record mario is Entity, Body
 	init: function(mario, number, number, any, any, any, any)
 	adddata: function(mario)
 	update: function(mario, number)
+	has_raccoon: function(mario): boolean
+	apply_form: function(mario, string)
+	grow_raccoon: function(mario)
 	update_raccoon_effects: function(mario, number)
 	update_star: function(mario, number)
 	update_animation: function(mario, number): boolean

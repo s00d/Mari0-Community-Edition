@@ -225,6 +225,7 @@ global interface Entity is {any}
 	killsonsides: any
 	stompcombosuppressor: any
 	makesmariogrow: any
+	makesmarioraccoon: any
 	givesacoin: any
 	givescoinamount: any
 	givestime: any

@@ -22,6 +22,14 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	else
 		self.size = (size or 1) as number
 	end
+	-- Power form (leaf→raccoon etc). Independent of character pack.
+	if self.size >= 3 then
+		self.form = "fire"
+	elseif self.size >= 2 then
+		self.form = "super"
+	else
+		self.form = "small"
+	end
 	self.t = (t or "portal") as string
 	self.portalsavailable = portalsavailable as {number:boolean}
 	self.weapons = nil
@@ -365,9 +373,32 @@ function mario:update(dt: number)
 	self:update_drains(dt)
 end
 
+function mario:has_raccoon(): boolean
+	-- Leaf unlocks raccoon on any character; char.raccoon still works for raccoon packs.
+	return self.form == "raccoon" or self.char.raccoon == true
+end
+
+function mario:apply_form(form: string)
+	local def = mario_form_def(form)
+	self.form = form
+	if def.size and (self.size as number) < (def.size as number) then
+		local old = self.size
+		self.size = def.size as number
+		if old == 1 and self.size >= 2 then
+			self.y = self.y - 12/16
+			self.height = 24/16
+		end
+	elseif def.size then
+		self.size = math.max(self.size as number, def.size as number)
+	end
+	if form == "fire" then
+		self.colors = (self.char.flowercolor or flowercolor) as {any}
+	end
+end
+
 function mario:update_raccoon_effects(dt: number)
 	--Tailwag!
-	if self.char.raccoon and (self.tailwag or self.tailwagtimer > 0) then
+	if self:has_raccoon() and (self.tailwag or self.tailwagtimer > 0) then
 		if self.tailwagtimer == 0 then
 			self.tailwag = false
 			playsound("tailwag")
@@ -384,7 +415,7 @@ function mario:update_raccoon_effects(dt: number)
 	end
 	
 	--Spin!
-	if self.char.raccoon and self.raccoonspinframe then
+	if self:has_raccoon() and self.raccoonspinframe then
 		if self.raccoonspintimer == 0 then
 			playsound("tailwag")
 		end
@@ -1228,7 +1259,7 @@ function mario:update_controls(dt: number): boolean
 		end
 		
 		--RACCOON STUFF
-		if self.char.raccoon and self.size == 2 then
+		if self:has_raccoon() and self.size == 2 then
 			if not self.falling and not self.jumping then
 				if math.abs(self.speedx) >= maxwalkspeed and runkey(self.playernumber) and ((rightkey(self.playernumber) and not leftkey(self.playernumber)) or (not rightkey(self.playernumber) and leftkey(self.playernumber))) then
 					if self.raccoonstarttimer < raccoonstarttime then
@@ -1916,15 +1947,15 @@ function mario:setquad(anim: any, s: any)
 			self.quad = self.char.grow[angleframe]
 		end
 	elseif (size as number) > 1 then
-		if self.char.raccoon and self.raccoontimer > 0 and self.falling and animationstate ~= "climbing" then
+		if self:has_raccoon() and self.raccoontimer > 0 and self.falling and animationstate ~= "climbing" then
 			self.quad = self.char.bigcustomframe[angleframe][self.tailwagframe+9]
-		elseif self.char.raccoon and self.raccoonspinframe then
+		elseif self:has_raccoon() and self.raccoonspinframe then
 			if self.falling or self.jumping then
 				self.quad = self.char.bigcustomframe[angleframe][(self.raccoonspinframe as number)+12]
 			else
 				self.quad = self.char.bigcustomframe[angleframe][self.raccoonspinframe as number]
 			end
-		elseif self.char.raccoon and (animationstate ~= "climbing" and not self.ducking and self.falling and not self.jumping) then
+		elseif self:has_raccoon() and (animationstate ~= "climbing" and not self.ducking and self.falling and not self.jumping) then
 			self.quad = self.char.bigcustomframe[angleframe][self.tailwagframe+3]
 			
 		elseif self.infunnel or (animationstate == "jumping" and not self.ducking and not self.underwater) then
@@ -1936,7 +1967,7 @@ function mario:setquad(anim: any, s: any)
 		elseif self.fireanimationtimer < fireanimationtime then
 			self.quad = self.char.bigfire[angleframe]
 		else
-			if animationstate == "running" or animationstate == "falling" or (self.char.raccoon and animationstate == "jumping") then
+			if animationstate == "running" or animationstate == "falling" or (self:has_raccoon() and animationstate == "jumping") then
 				if self.raccoonjump then
 					self.quad = self.char.bigcustomframe[angleframe][self.runframe+6]
 				else
@@ -1968,7 +1999,7 @@ function mario:jump(force: any)
 				self.tailwag = true
 			end
 			
-			if self.char.raccoon and self.size >= 2 and self.falling and not self.jumping then
+			if self:has_raccoon() and self.size >= 2 and self.falling and not self.jumping then
 				self.raccoonascendtimer = raccoonbuttondelay
 				self.tailwag = true
 			end
@@ -2090,8 +2121,12 @@ function mario:grow()
 		if self.size == 2 then		
 			self.y = self.y - 12/16
 			self.height = 24/16
+			if self.form ~= "raccoon" then
+				self.form = "super"
+			end
 		elseif self.size == 3 then
 			self.colors = (self.char.flowercolor or flowercolor) as {any}
+			self.form = "fire"
 		end
 		
 		if self.size == 2 then
@@ -2107,6 +2142,29 @@ function mario:grow()
 	end
 end
 
+function mario:grow_raccoon()
+	self.animationmisc = self.animationstate
+	if self.animation and self.animation ~= "invincible" then
+		return
+	end
+	addpoints(1000, self.x+self.width/2, self.y)
+	playsound("mushroomeat")
+	if bigmario then
+		return
+	end
+	local was_small = self.size == 1
+	self:apply_form("raccoon")
+	if was_small then
+		self.animation = "grow1"
+	else
+		self.animation = "grow2"
+	end
+	self.drawable = true
+	self.invincible = false
+	self.animationtimer = 0
+	noupdate = true
+end
+
 function mario:shrink()
 	self.animationmisc = self.animationstate
 	if self.animation then
@@ -2118,6 +2176,7 @@ function mario:shrink()
 	playsound("shrink")
 	
 	self.size = 1
+	self.form = "small"
 	
 	self.colors = mariocolors[self.playernumber as integer]
 	
@@ -2758,6 +2817,9 @@ function mario:globalcollide(a: any, b: Entity, c: any, d: any, dir: any): boole
 				return false
 			end
 		end
+	elseif b.makesmarioraccoon then
+		self:grow_raccoon()
+		return true
 	elseif b.makesmariogrow then
 		self:grow()
 		return true
@@ -3769,7 +3831,7 @@ function mario:star()
 end
 
 function mario:fire()
-	if (not noupdate and self.animation ~= "grow1" and self.animation ~= "grow2") and self.char.raccoon and self.size >= 2 and not self.ducking and not self.raccoonspinframe then --Wiggle wiggle wag wag
+	if (not noupdate and self.animation ~= "grow1" and self.animation ~= "grow2") and self:has_raccoon() and self.size >= 2 and not self.ducking and not self.raccoonspinframe then --Wiggle wiggle wag wag
 		self.raccoonspinframe = 1
 		self.raccoonspintimer = 0
 		
@@ -3806,9 +3868,13 @@ function mario:spinhit(x: number, y: number, dir: any)
 		local b = objects[a][col[i+1]]
 		if a == "tile" then
 			hitblock(b.cox, b.coy, self)
-		elseif a ~= "bowser" and b.shotted then
-			b:shotted(dir, true, true)
-			addpoints(b.firepoints or 200, self.x, self.y)
+		elseif a ~= "bowser" then
+			if punt_kill_entity and punt_kill_entity(b as {string:any}) then
+				addpoints(200, self.x, self.y)
+			elseif b.shotted then
+				b:shotted(dir, true, true)
+				addpoints(b.firepoints or 200, self.x, self.y)
+			end
 		end
 	end
 end

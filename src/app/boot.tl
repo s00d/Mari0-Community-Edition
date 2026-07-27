@@ -95,6 +95,7 @@ function Boot.require_game()
 	require "world.entitylist"
 	require "entities.portalwall"
 	require "world.tile"
+	require "entities.marioforms"
 	require "entities.mario"
 	require "entities.hatconfigs"
 	require "entities.bighatconfigs"
