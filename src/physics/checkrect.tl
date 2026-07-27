@@ -31,19 +31,18 @@ global function checkrect(x: number, y: number, width: number, height: number, l
 		end
 		
 		if list == "all" or contains then
-			for j, w in pairs(v) do
-				local wb = w as Body
-				if statics or wb.static ~= true or list ~= "all" then
+			for j, w in pairs(v as {any:Body}) do
+				if statics or w.static ~= true or list ~= "all" then
 					local skip = false
 					if inobj then
-						for ii, vv in pairs(inobj as {any:Body}) do
-							if vv == wb then
+						for _, vv in pairs(inobj as {any:Body}) do
+							if vv == w then
 								skip = true
 							end
 							
 							local vvmask = vv.mask
-							local wmask = wb.mask
-							if (vvmask ~= nil and (vvmask as {number:boolean})[wb.category] == true)
+							local wmask = w.mask
+							if (vvmask ~= nil and (vvmask as {number:boolean})[w.category] == true)
 								or (wmask ~= nil and (wmask as {number:boolean})[vv.category] == true) then
 								skip = true
 							end
@@ -51,9 +50,9 @@ global function checkrect(x: number, y: number, width: number, height: number, l
 						end
 					end
 					if not skip then
-						if wb.active then
-							if aabb(x, y, width, height, wb.x, wb.y, wb.width, wb.height) then
-								if (i=="enemy" and catlist == wb.category) or catlist == "" or i ~= "enemy" then
+						if w.active then
+							if aabb(x, y, width, height, w.x, w.y, w.width, w.height) then
+								if (i=="enemy" and catlist == w.category) or catlist == "" or i ~= "enemy" then
 									table.insert(out, i)
 									table.insert(out, j)
 								end

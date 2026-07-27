@@ -1,7 +1,7 @@
 -- Ambient class records (Teal handbook). Implementations live in src/**/*.tl.
 -- Required from types/game.d.tl so every module sees constructors / self types.
 
-global record actionblock is Entity
+global record actionblock is Entity, Body
 	active: boolean
 	category: number
 	cox: number
@@ -26,7 +26,7 @@ global record actionblock is Entity
 	new: function(actionblock, number, number): actionblock
 end
 
-global record andgate is Entity
+global record andgate is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -98,7 +98,7 @@ global record animatedquad is {any}
 	new: function(animatedquad, any, any, any): animatedquad
 end
 
-global record animatedtiletrigger is Entity
+global record animatedtiletrigger is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -198,7 +198,7 @@ global record animationguiline is {any}
 	new: function(animationguiline, any, any): animationguiline
 end
 
-global record animationtrigger is Entity
+global record animationtrigger is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -352,7 +352,7 @@ global record box is Entity, Body
 	new: function(box, number, number): box
 end
 
-global record bubble is Entity
+global record bubble is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -463,7 +463,7 @@ global record camera is {any}
 	mousepos: function(camera): number, number
 end
 
-global record castlefire is Entity
+global record castlefire is Entity, Body
 	speedx: number
 	speedy: number
 	draw: function(castlefire)
@@ -533,7 +533,7 @@ global record castlefirefire is Entity, Body
 	new: function(castlefirefire): castlefirefire
 end
 
-global record ceilblocker is Entity
+global record ceilblocker is Entity, Body
 	speedx: number
 	speedy: number
 	category: number
@@ -582,7 +582,7 @@ global record checkpoint is Entity, Body
 	new: function(checkpoint, number, number, {any}): checkpoint
 end
 
-global record coinblockanimation is Entity
+global record coinblockanimation is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -601,7 +601,7 @@ global record coinblockanimation is Entity
 	new: function(coinblockanimation, number, number): coinblockanimation
 end
 
-global record cubedispenser is Entity
+global record cubedispenser is Entity, Body
 	active: boolean
 	box: Entity
 	boxexists: boolean
@@ -631,7 +631,7 @@ global record cubedispenser is Entity
 	new: function(cubedispenser, number, number, {any}): cubedispenser
 end
 
-global record delayer is Entity
+global record delayer is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -709,7 +709,7 @@ global record door is Entity, Body
 	new: function(door, number, number, {any}): door
 end
 
-global record emancipateanimation is Entity
+global record emancipateanimation is Entity, Body
 	active: boolean
 	static: boolean
 	category: number
@@ -736,7 +736,7 @@ global record emancipateanimation is Entity
 	new: function(emancipateanimation, number, number, any, any, any, any, any, any, any, any, any, any, any): emancipateanimation
 end
 
-global record emancipationfizzle is Entity
+global record emancipationfizzle is Entity, Body
 	width: number
 	height: number
 	active: boolean
@@ -1014,7 +1014,7 @@ global record enemy is Entity, Body
 	new: function(self: enemy, x: number, y: number, t: string, extra?: any): enemy
 end
 
-global record enemyspawner is Entity
+global record enemyspawner is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -1068,7 +1068,7 @@ global record entitytooltip is {any}
 	new: function(entitytooltip, any): entitytooltip
 end
 
-global record faithplate is Entity
+global record faithplate is Entity, Body
 	speedx: number
 	speedy: number
 	active: boolean
@@ -1173,7 +1173,7 @@ global record fireball is Entity, Body
 	new: function(fireball, number, number, any, any): fireball
 end
 
-global record fireworkboom is Entity
+global record fireworkboom is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -1262,7 +1262,7 @@ global record gel is Entity, Body
 	new: function(gel, number, number, any): gel
 end
 
-global record geldispenser is Entity
+global record geldispenser is Entity, Body
 	active: boolean
 	category: number
 	cox: number
@@ -1289,7 +1289,7 @@ global record geldispenser is Entity
 	new: function(geldispenser, number, number, {any}): geldispenser
 end
 
-global record groundlight is Entity
+global record groundlight is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -1400,7 +1400,7 @@ global record guielement is {any}
 	new: function(guielement, ...: any): guielement
 end
 
-global record itemanimation is Entity
+global record itemanimation is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -1452,7 +1452,7 @@ global record laser is {any}
 	new: function(laser, number, number, {any}): laser
 end
 
-global record laserdetector is Entity
+global record laserdetector is Entity, Body
 	x: number
 	y: number
 	width: number
@@ -1753,7 +1753,7 @@ global record mario is Entity, Body
 	new: function(mario, number, number, any, any, any, any): mario
 end
 
-global record miniblock is Entity
+global record miniblock is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -1772,7 +1772,7 @@ global record miniblock is Entity
 	new: function(miniblock, number, number, any): miniblock
 end
 
-global record musicentity is Entity
+global record musicentity is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -1798,7 +1798,7 @@ global record musicentity is Entity
 	new: function(musicentity, number, number, {any}): musicentity
 end
 
-global record notgate is Entity
+global record notgate is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -1827,7 +1827,7 @@ global record notgate is Entity
 	new: function(notgate, number, number, {any}): notgate
 end
 
-global record orgate is Entity
+global record orgate is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -1856,7 +1856,7 @@ global record orgate is Entity
 	new: function(orgate, number, number, {any}): orgate
 end
 
-global record panel is Entity
+global record panel is Entity, Body
 	x: number
 	y: number
 	width: number
@@ -1883,7 +1883,7 @@ global record panel is Entity
 	new: function(panel, number, number, any): panel
 end
 
-global record pedestal is Entity
+global record pedestal is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -1944,7 +1944,7 @@ global record platform is Entity, Body
 	new: function(self: platform, x: number, y: number, r: {any}, diroverride?: any): platform
 end
 
-global record platformspawner is Entity
+global record platformspawner is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -1998,7 +1998,7 @@ global record portal is {any}
 	new: function(self: portal, id: any, a?: any, b?: any): portal
 end
 
-global record portalent is Entity
+global record portalent is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -2027,7 +2027,7 @@ global record portalent is Entity
 	new: function(portalent, number, number, any, any): portalent
 end
 
-global record portalparticle is Entity
+global record portalparticle is Entity, Body
 	width: number
 	height: number
 	active: boolean
@@ -2047,7 +2047,7 @@ global record portalparticle is Entity
 	new: function(portalparticle, number, number, any, any): portalparticle
 end
 
-global record portalprojectile is Entity
+global record portalprojectile is Entity, Body
 	width: number
 	height: number
 	active: boolean
@@ -2084,7 +2084,7 @@ global record portalprojectile is Entity
 	new: function(portalprojectile, number, number, any, any, any, any, any, any, any, any): portalprojectile
 end
 
-global record portalprojectileparticle is Entity
+global record portalprojectileparticle is Entity, Body
 	width: number
 	height: number
 	active: boolean
@@ -2119,7 +2119,7 @@ global record portalprojectileparticle is Entity
 	new: function(self: portalprojectileparticle, x: number, y: number, color: any, a?: any, b?: any, c?: any): portalprojectileparticle
 end
 
-global record portalwall is Entity
+global record portalwall is Entity, Body
 	speedx: number
 	speedy: number
 	update: function(portalwall, number): any...
@@ -2188,7 +2188,7 @@ global record quad is {any}
 	new: function(quad, any, any, any, any, any, any): quad
 end
 
-global record rainboom is Entity
+global record rainboom is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -2228,7 +2228,7 @@ global record regiondrag is {any}
 	new: function(regiondrag, number, number, any, any): regiondrag
 end
 
-global record regiontrigger is Entity
+global record regiontrigger is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -2292,7 +2292,7 @@ global record rightclickmenu is {any}
 	new: function(rightclickmenu, number, number, any, any, any): rightclickmenu
 end
 
-global record rocketlauncher is Entity
+global record rocketlauncher is Entity, Body
 	draw: function(rocketlauncher)
 	active: boolean
 	animationdirection: string
@@ -2330,7 +2330,7 @@ global record rocketlauncher is Entity
 	new: function(rocketlauncher, number, number): rocketlauncher
 end
 
-global record rsflipflop is Entity
+global record rsflipflop is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -2414,7 +2414,7 @@ global record screenboundary is Entity, Body
 	new: function(screenboundary, any): screenboundary
 end
 
-global record scrollingscore is Entity
+global record scrollingscore is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -2433,7 +2433,7 @@ global record scrollingscore is Entity
 	new: function(scrollingscore, any, any, any): scrollingscore
 end
 
-global record scrollingtext is Entity
+global record scrollingtext is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -2537,7 +2537,7 @@ global record spring is Entity, Body
 	new: function(spring, number, number): spring
 end
 
-global record squarewave is Entity
+global record squarewave is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -2566,7 +2566,7 @@ global record squarewave is Entity
 	new: function(squarewave, number, number, {any}): squarewave
 end
 
-global record textentity is Entity
+global record textentity is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -2640,7 +2640,7 @@ global record vine is Entity, Body
 	new: function(self: vine, x: number, y: number, a?: any): vine
 end
 
-global record wallindicator is Entity
+global record wallindicator is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -2662,7 +2662,7 @@ global record wallindicator is Entity
 	new: function(wallindicator, number, number, {any}): wallindicator
 end
 
-global record walltimer is Entity
+global record walltimer is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -2692,7 +2692,7 @@ global record walltimer is Entity
 	new: function(walltimer, number, number, {any}): walltimer
 end
 
-global record zgbooltrigger is Entity
+global record zgbooltrigger is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -2719,7 +2719,7 @@ global record zgbooltrigger is Entity
 	new: function(zgbooltrigger, number, number, {any}): zgbooltrigger
 end
 
-global record zginttrigger is Entity
+global record zginttrigger is Entity, Body
 	width: number
 	height: number
 	speedx: number

@@ -122,7 +122,7 @@ function platform:update(dt: number): any...
 	
 	if self.dir == "fall" then
 		for i, v in ipairs(checktable) do
-			for j, w in pairs(objects[v]) do
+			for j, w in pairs(objects[v] as {any:Body}) do
 				if inrange(w.x, self.x-w.width, self.x+self.width) and inrange(w.y + w.height, self.y - 0.1, self.y + 0.1) then
 					numberofobjects = numberofobjects + 1
 				end
@@ -135,9 +135,9 @@ function platform:update(dt: number): any...
 	local nextx, nexty = self.x + self.speedx*dt, self.y + self.speedy*dt
 	
 	for i, v in ipairs(checktable) do
-		for j, w in pairs(objects[v]) do
+		for j, w in pairs(objects[v] as {any:Body}) do
 			if inrange(w.x, self.x-w.width, self.x+self.width) and inrange(w.y + w.height, self.y - 0.1, self.y + 0.1) then
-				checkforemances(dt, w as Body, self.speedx, self.speedy)
+				checkforemances(dt, w, self.speedx, self.speedy)
 				local newx = w.x + self.speedx*dt
 				local newy = nexty - w.height
 				if #checkrect(newx, newy, w.width, w.height, {"exclude", w, self}, true) == 0 then

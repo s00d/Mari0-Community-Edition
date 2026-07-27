@@ -160,7 +160,7 @@ function scaffold:update(dt: number): any...
 		local nextx, nexty = self.x + self.speedx*dt, self.y + self.speedy*dt
 
 		for i, v in ipairs(checktable) do
-			for j, w in pairs(objects[v]) do
+			for j, w in pairs(objects[v] as {any:Body}) do
 				if inrange(w.x, self.x-w.width, self.x+self.width) and inrange(w.y + w.height, self.y - 0.1, self.y + 0.1) then
 					local newx = w.x + self.speedx*dt
 					local newy = nexty - w.height
