@@ -81,8 +81,7 @@ end
 _G.usebase = usebase
 
 
--- AABB vs camera view (globals xscroll/yscroll/width/height).
--- AE-style onscreen: world units vs camera. enemy_onscreen kept as alias.
+-- AABB vs camera view (globals xscroll/yscroll/width/height). World units.
 local function onscreen(x: number, y: number, w: number|nil, h: number|nil): boolean
 	if w and h then
 		return x + w >= xscroll and y + h - 0.5 >= yscroll
@@ -93,17 +92,7 @@ local function onscreen(x: number, y: number, w: number|nil, h: number|nil): boo
 end
 _G.onscreen = onscreen
 
--- Pixel-space cull for already-transformed draw coords (AE ondrawscreen).
-local function ondrawscreen(x: number, y: number, w: number|nil, h: number|nil): boolean
-	local maxx = width * 16 * scale
-	local maxy = height * 16 * scale
-	if w and h then
-		return x + w >= 0 and y + h >= 0 and x < maxx and y < maxy
-	end
-	return x >= 0 and y >= 0 and x < maxx and y < maxy
-end
-_G.ondrawscreen = ondrawscreen
-
+-- Enemy cull with size padding (not an onscreen alias — looser bounds for spawn/AI).
 local function enemy_onscreen(x: number, y: number, w: number, h: number): boolean
 	return x > xscroll - w and x < xscroll + width + w and y > yscroll - h and y < yscroll + height + h
 end
@@ -115,6 +104,5 @@ return {
 	apply_enemy_defaults = apply_enemy_defaults,
 	usebase = usebase,
 	onscreen = onscreen,
-	ondrawscreen = ondrawscreen,
 	enemy_onscreen = enemy_onscreen,
 }

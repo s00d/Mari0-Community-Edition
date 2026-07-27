@@ -181,8 +181,6 @@ function LoveLoad.run(arg: any)
 	speeddebug = false
 	portalveldebug = false
 	spritebatch_dirty = false
-	spritebatch_pending_dx = 0
-	spritebatch_pending_dy = 0
 
 	DEBUG = want_debug_from_env_or_arg(arg)
 

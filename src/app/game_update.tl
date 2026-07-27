@@ -7,6 +7,12 @@ local blockbounce_delete_scratch: {any} = {}
 global function game_update(dt: number)
 	if not objects then return end
 	gdt = dt
+
+	-- Flush coalesced spritebatch dirties on every exit (mario/editor may mark dirty
+	-- before early returns: pausemenu, everyonedead, noupdate).
+	local function flush_spritebatch()
+		updatespritebatch()
+	end
 	
 	--------
 	--GAME--
@@ -24,6 +30,7 @@ global function game_update(dt: number)
 	
 	--pausemenu
 	if pausemenuopen then
+		flush_spritebatch()
 		return
 	end
 	
@@ -91,7 +98,7 @@ global function game_update(dt: number)
 		for _, v in pairs(playerobjs) do
 			v:update(dt)
 		end
-		
+		flush_spritebatch()
 		return
 	end
 	
@@ -168,6 +175,7 @@ global function game_update(dt: number)
 		for _, v in pairs(playerobjs) do --But update players anyway.
 			v:update(dt)
 		end
+		flush_spritebatch()
 		return
 	end
 	
@@ -711,6 +719,6 @@ global function game_update(dt: number)
 	end
 
 	-- AE coalesce: flush spritebatch once per frame after all dirty marks.
-	updatespritebatch()
+	flush_spritebatch()
 end
 

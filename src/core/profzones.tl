@@ -5,7 +5,6 @@ local stack: {string} = {}
 local stack_t0: {number} = {}
 local totals: {string:number} = {}
 local counts: {string:integer} = {}
-local frame_totals: {string:number} = {}
 
 local function now(): number
 	if love and love.timer and love.timer.getTime then
@@ -59,16 +58,6 @@ global function prof_pop(name: string|nil)
 	stack_t0[n] = nil as number
 	totals[zone] = (totals[zone] or 0) + dt
 	counts[zone] = (counts[zone] or 0) + 1
-	frame_totals[zone] = (frame_totals[zone] or 0) + dt
-end
-
-global function profzones_frame_begin()
-	if not ENABLED then
-		return
-	end
-	for k in pairs(frame_totals) do
-		frame_totals[k] = 0
-	end
 end
 
 global function profzones_report(limit: integer|nil): string
@@ -101,9 +90,6 @@ global function profzones_reset()
 	for k in pairs(counts) do
 		counts[k] = nil as integer
 	end
-	for k in pairs(frame_totals) do
-		frame_totals[k] = nil as number
-	end
 	for i = #stack, 1, -1 do
 		stack[i] = nil as string
 		stack_t0[i] = nil as number
@@ -116,7 +102,6 @@ return {
 	profzones_set_enabled = profzones_set_enabled,
 	profzones_enabled = profzones_enabled,
 	profzones_toggle = profzones_toggle,
-	profzones_frame_begin = profzones_frame_begin,
 	profzones_report = profzones_report,
 	profzones_reset = profzones_reset,
 }

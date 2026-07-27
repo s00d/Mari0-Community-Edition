@@ -555,10 +555,9 @@ global function invalidate_spritebatch_after_portal_teleport()
 end
 
 -- AE-style coalesce: mark dirty; flush once via updatespritebatch (end of game_update).
-global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
+-- scroll args kept for call-site compat; incremental scroll is disabled (full rebuild only).
+global function generatespritebatch(_scroll_dx: integer, _scroll_dy: integer)
 	spritebatch_dirty = true
-	spritebatch_pending_dx = scroll_dx
-	spritebatch_pending_dy = scroll_dy
 end
 
 global function updatespritebatch()
@@ -570,10 +569,6 @@ global function updatespritebatch()
 		return
 	end
 	spritebatch_dirty = false
-	local scroll_dx: integer = (spritebatch_pending_dx as integer) or 0
-	local scroll_dy: integer = (spritebatch_pending_dy as integer) or 0
-	spritebatch_pending_dx = 0
-	spritebatch_pending_dy = 0
 
 	prof_push("generatespritebatch")
 	local xtodraw: number = 0
@@ -741,13 +736,6 @@ global function updatespritebatch()
 		cell.batch_id = nil
 	end
 
-	local function hide_cell_slot(maybe_cell: SpriteBatchViewCell|nil)
-		if maybe_cell == nil then
-			return
-		end
-		release_cell_slot(maybe_cell as SpriteBatchViewCell)
-	end
-
 	local function acquire_spritebatch_slot(
 		batch_id: integer,
 		batch: SpriteBatch,
@@ -793,17 +781,6 @@ global function updatespritebatch()
 		end
 	end
 
-	local function update_view_cell_position(maybe_cell: SpriteBatchViewCell|nil, screen_x: number, screen_y: number)
-		if maybe_cell == nil then
-			return
-		end
-		local cell = maybe_cell as SpriteBatchViewCell
-		if cell.slot_id == nil or cell.batch_id == nil then
-			return
-		end
-		get_batch(cell.batch_id):set(cell.slot_id, screen_x, screen_y, 0, scale, scale)
-	end
-
 	local function clear_all_spritebatches()
 		clear_spritebatch_free_pools()
 		smbspritebatch:clear()
@@ -831,104 +808,7 @@ global function updatespritebatch()
 		end
 	end
 
-	local function sync_view_slots(
-		view: {number:{number:SpriteBatchViewCell|nil}},
-		cols: integer,
-		rows: integer,
-		changed_col: integer|nil,
-		changed_row: integer|nil
-	)
-		for y = 0, rows - 1 do
-			for x = 1, cols do
-				local sx, sy = screen_coords(x, y)
-				if (changed_col ~= nil and x == changed_col) or (changed_row ~= nil and y == changed_row) then
-					place_view_cell(view[y][x], sx, sy)
-				else
-					update_view_cell_position(view[y][x], sx, sy)
-				end
-			end
-		end
-	end
-
-	-- Incremental scroll disabled: slot reuse + view cache corrupt tiles when map
-	-- cells change (bounce, reveal) or scroll jumps; full rebuild matches pre-perf behavior.
-	local can_incremental = false
-
-	if can_incremental then
-		local view = spritebatch_view as {number:{number:SpriteBatchViewCell|nil}}
-		local dx = scroll_dx
-		local dy = scroll_dy
-		local changed_col: integer|nil = nil
-		local changed_row: integer|nil = nil
-		if dx > 0 then
-			changed_col = xtodraw as integer
-			for y = 0, row_count - 1 do
-				hide_cell_slot(view[y][1])
-				local row = view[y]
-				for x = 1, xtodraw - 1 do
-					row[x] = row[x + 1]
-				end
-				local coy = math.min(flooredyscroll + y + 1, mapheight as number)
-				row[xtodraw] = fetch_view_cell(flooredxscroll + xtodraw, coy)
-			end
-		elseif dx < 0 then
-			changed_col = 1
-			for y = 0, row_count - 1 do
-				hide_cell_slot(view[y][xtodraw])
-				local row = view[y]
-				for x = xtodraw, 2, -1 do
-					row[x] = row[x - 1]
-				end
-				local coy = math.min(flooredyscroll + y + 1, mapheight as number)
-				row[1] = fetch_view_cell(flooredxscroll + 1, coy)
-			end
-		elseif dy > 0 then
-			changed_row = (row_count - 1) as integer
-			for x = 1, xtodraw do
-				hide_cell_slot(view[0][x])
-			end
-			local new_view: {number:{number:SpriteBatchViewCell|nil}} = {}
-			for y = 0, row_count - 2 do
-				new_view[y] = view[y + 1]
-			end
-			new_view[row_count - 1] = {}
-			for x = 1, xtodraw do
-				local coy = math.min(flooredyscroll + row_count, mapheight as number)
-				new_view[row_count - 1][x] = fetch_view_cell(flooredxscroll + x, coy)
-			end
-			view = new_view
-			spritebatch_view = new_view
-		else
-			changed_row = 0
-			for x = 1, xtodraw do
-				hide_cell_slot(view[row_count - 1][x])
-			end
-			local new_view: {number:{number:SpriteBatchViewCell|nil}} = {}
-			for y = row_count - 1, 1, -1 do
-				new_view[y] = view[y - 1]
-			end
-			new_view[0] = {}
-			for x = 1, xtodraw do
-				local coy = math.min(flooredyscroll + 1, mapheight as number)
-				new_view[0][x] = fetch_view_cell(flooredxscroll + x, coy)
-			end
-			view = new_view
-			spritebatch_view = new_view
-		end
-		spritebatch_floor_x = flooredxscroll as integer
-		spritebatch_floor_y = flooredyscroll as integer
-		sync_view_slots(view, xtodraw as integer, row_count as integer, changed_col, changed_row)
-		local scroll_hides = 0
-		if dx ~= 0 then
-			scroll_hides = row_count as integer
-		elseif dy ~= 0 then
-			scroll_hides = xtodraw as integer
-		end
-		spritebatch_orphan_slots = (spritebatch_orphan_slots or 0) + scroll_hides
-		prof_pop("generatespritebatch")
-		return
-	end
-
+	-- Dirty-only full rebuild (incremental scroll disabled: view cache corrupt on bounce/reveal).
 	clear_all_spritebatches()
 	spritebatch_orphan_slots = 0
 

@@ -54,8 +54,6 @@ function Boot.require_game()
 	require "core.frametime"
 	require "core.profzones"
 	require "core.framedebug"
-	require "core.replay"
-	require "physics.spatialhash"
 	require "util.updateutil"
 	require "physics.late"
 	require "physics.convert"

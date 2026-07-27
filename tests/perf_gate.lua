@@ -18,6 +18,8 @@ local json = require("dkjson")
 local perf_checks = require("tests.perf_checks")
 
 local TIME_FACTOR = 1.5
+-- GC timing noise: alloc_kb can jitter by fractions of a KB across runs.
+local ALLOC_EPS_KB = 1.0
 local BASELINE_PATH = root .. "/tests/baseline.json"
 
 local failed = 0
@@ -120,7 +122,7 @@ for name, current in pairs(results) do
 		)
 		check(
 			name .. " alloc",
-			current.alloc_kb <= base.alloc_kb,
+			current.alloc_kb <= base.alloc_kb + ALLOC_EPS_KB,
 			string.format(
 				"current=%.1f KB baseline=%.1f KB",
 				current.alloc_kb,

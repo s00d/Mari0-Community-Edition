@@ -6,7 +6,6 @@ local FrameDebug = require("core.framedebug")
 function love.update(dt: any)
 	local dt = dt as number
 	frametime_record(dt)
-	profzones_frame_begin()
 	if music then
 		music:update()
 	end
@@ -16,9 +15,9 @@ function love.update(dt: any)
 		frame_dt = recordtarget as number
 	end
 
-	-- FrameDebug: pause / step / fast-forward (debugbinds only for pause/step keys;
-	-- FF hold keys always polled when FrameDebug active via debugbinds session).
-	if debugbinds then
+	-- FrameDebug: pause / step / fast-forward only during gameplay so F5 does not freeze menus.
+	-- (debugbinds gate; FF hold keys polled inside FrameDebug.apply)
+	if debugbinds and gamestate == "game" then
 		local scaled = FrameDebug.apply(frame_dt)
 		if scaled == false then
 			return
