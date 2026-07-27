@@ -1,0 +1,3 @@
+name=super mario bros. 3 (dump)
+author=nintendo / auto-dump
+description=SMB3 levels decoded from ROM via Foundry; visual scaffold for Mari0 CE
