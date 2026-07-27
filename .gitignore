@@ -21,3 +21,9 @@
 
 # ROM-derived SMB3 mappack (regenerate locally from dump; do not commit)
 /mappacks/smb3/
+
+# Mari0 1.6 packs pending conversion (Nintendo/author assets — do not commit)
+/toconvert/
+
+# Converted 1.6 DLC outputs (regenerate via scripts/convert-mappack.lua)
+/mappacks/dlc_*/
