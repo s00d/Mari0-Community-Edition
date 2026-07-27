@@ -69,6 +69,82 @@ do
 	rawset(_G, "gamestate", nil)
 end
 
+do
+	-- game entry paths: tab-indented global writes must be declared in game.d.tl
+	local root = select(1, ...) or "."
+	local game_d_path = root .. "/types/game.d.tl"
+	local f = io.open(game_d_path, "r")
+	local declared = {}
+	if f then
+		local body = f:read("*a")
+		f:close()
+		for g in body:gmatch("global ([%w_]+)") do
+			declared[g] = true
+		end
+	end
+	local entry_files = {
+		"src/app/game_load_level.tl",
+		"src/app/game_spawn.tl",
+		"src/app/game_update.tl",
+		"src/app/game_load_objects.tl",
+		"src/world/levelio.tl",
+		"src/world/spawnregistry.tl",
+		"src/ui/levelscreen.tl",
+	}
+	local function collect_locals(body)
+		local locals = {}
+		for line in (body .. "\n"):gmatch("(.-)\n") do
+			for name in line:gmatch("local ([%w_]+)") do
+				locals[name] = true
+			end
+		end
+		return locals
+	end
+	local missing = {}
+	for _, rel in ipairs(entry_files) do
+		local path = root .. "/" .. rel
+		local ef = io.open(path, "r")
+		if ef then
+			local body = ef:read("*a")
+			ef:close()
+			local file_locals = collect_locals(body)
+			for line in (body .. "\n"):gmatch("(.-)\n") do
+				local name = line:match("^\t([%w_]+)%s*=")
+				if name and not line:match("^\tlocal ") and not file_locals[name]
+					and not line:match("^%s*" .. name .. "%s*=%s*" .. name) then
+					if not declared[name] then
+						missing[name] = missing[name] or {}
+						table.insert(missing[name], rel)
+					end
+				end
+			end
+		end
+	end
+	local count = 0
+	for name, locs in pairs(missing) do
+		count = count + 1
+		check("game entry global declared: " .. name, false, table.concat(locs, ", "))
+	end
+	if count == 0 then
+		check("game entry globals declared in game.d.tl", true)
+	end
+end
+
+do
+	-- game_update portal-particle cleanup must not write undeclared global delete
+	local root = select(1, ...) or "."
+	local path = root .. "/src/app/game_update.tl"
+	local f = io.open(path, "r")
+	local ok = false
+	if f then
+		local body = f:read("*a")
+		f:close()
+		local section = body:match("portal particles(.-)PORTAL PROJECTILES")
+		ok = section ~= nil and section:find("local delete = {}") ~= nil
+	end
+	check("game_update portal delete is local", ok)
+end
+
 if select("#", ...) > 0 then
 	return failed
 end

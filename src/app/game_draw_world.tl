@@ -63,7 +63,7 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 				end
 				
 				--Gel overlays!
-				if t["gels"] then
+				if t.gels then
 					for i = 1, 4 do
 						local dir = "top"
 						local r: number = 0
@@ -79,7 +79,7 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 						end
 						
 						for i = 1, 4 do
-							if t["gels"][dir] == i then
+							if t.gels[dir] == i then
 								local img: Image|nil = nil
 								if i == 1 then
 									img = gel1groundimg
@@ -308,7 +308,7 @@ global function drawforeground()
 					end
 					
 					--Gel overlays!
-					if t["gels"] then
+					if t.gels then
 						for i = 1, 4 do
 							local dir = "top"
 							local r: number = 0
@@ -324,7 +324,7 @@ global function drawforeground()
 							end
 							
 							for i = 1, 4 do
-								if t["gels"][dir] == i then
+								if t.gels[dir] == i then
 									local img: Image|nil = nil
 									if i == 1 then
 										img = gel1groundimg

@@ -283,6 +283,33 @@ if media_hits == 0 then
 	check("newImage/newSource confined to assets+boot+load", true)
 end
 
+-- GlobalFreeze.install_* only from menu_load (src/ui/menu.tl) or tests/core module
+do
+	local install_allowed = {
+		["src/ui/menu.tl"] = true,
+		["src/core/global_freeze.tl"] = true,
+		["tests/global_freeze_checks.lua"] = true,
+	}
+	local install_hits = 0
+	for _, path in ipairs(files) do
+		local rel = path:sub(#root + 2)
+		if rel:match("%.tl$") or rel:match("%.lua$") then
+			local f = io.open(path, "r")
+			if f then
+				local body = f:read("*a")
+				f:close()
+				if body:find("GlobalFreeze%.install") and not install_allowed[rel] then
+					install_hits = install_hits + 1
+					check("GlobalFreeze.install only from menu_load", false, rel)
+				end
+			end
+		end
+	end
+	if install_hits == 0 then
+		check("GlobalFreeze.install only from menu_load", true)
+	end
+end
+
 -- Progress ratchets: FAIL if counts go UP; suggest lower max when count drops.
 do
 	local RATCHET = {

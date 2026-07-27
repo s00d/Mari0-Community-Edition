@@ -539,52 +539,53 @@ global function game_update(dt: number)
 	while portalparticletimer > portalparticletime do
 		portalparticletimer = portalparticletimer - portalparticletime
 		
-		for _, v in pairs(portals) do
-			if (v as {string:any}).facing1 and (v as {string:number}).x1 and (v as {string:number}).y1 then
+		for _, pv in pairs(portals) do
+			local p = pv as portal
+			if p.facing1 and p.x1 and p.y1 then
 				local x1: number = 0
 				local y1: number = 0
 				
-				if (v as {string:any}).facing1 == "up" then
-					x1 = (v as {string:number}).x1 + math.random(1, 30)/16-1
-					y1 = (v as {string:number}).y1-1
-				elseif (v as {string:any}).facing1 == "down" then
-					x1 = (v as {string:number}).x1 + math.random(1, 30)/16-2
-					y1 = (v as {string:number}).y1
-				elseif (v as {string:any}).facing1 == "left" then
-					x1 = (v as {string:number}).x1-1
-					y1 = (v as {string:number}).y1 + math.random(1, 30)/16-2
-				elseif (v as {string:any}).facing1 == "right" then
-					x1 = (v as {string:number}).x1
-					y1 = (v as {string:number}).y1 + math.random(1, 30)/16-1
+				if p.facing1 == "up" then
+					x1 = (p.x1 as number) + math.random(1, 30)/16-1
+					y1 = (p.y1 as number)-1
+				elseif p.facing1 == "down" then
+					x1 = (p.x1 as number) + math.random(1, 30)/16-2
+					y1 = p.y1 as number
+				elseif p.facing1 == "left" then
+					x1 = (p.x1 as number)-1
+					y1 = (p.y1 as number) + math.random(1, 30)/16-2
+				elseif p.facing1 == "right" then
+					x1 = p.x1 as number
+					y1 = (p.y1 as number) + math.random(1, 30)/16-1
 				end
 				
-				table.insert(portalparticles, portalparticle:new(x1, y1, v.portal1color, v.facing1))
+				table.insert(portalparticles, portalparticle:new(x1, y1, p.portal1color, p.facing1))
 			end
 			
-			if (v as {string:any}).facing2 ~= nil and (v as {string:number}).x2 and (v as {string:number}).y2 then
+			if p.facing2 ~= nil and p.x2 and p.y2 then
 				local x2: number = 0
 				local y2: number = 0
 				
-				if (v as {string:any}).facing2 == "up" then
-					x2 = (v as {string:number}).x2 + math.random(1, 30)/16-1
-					y2 = (v as {string:number}).y2-1
-				elseif (v as {string:any}).facing2 == "down" then
-					x2 = (v as {string:number}).x2 + math.random(1, 30)/16-2
-					y2 = (v as {string:number}).y2
-				elseif (v as {string:any}).facing2 == "left" then
-					x2 = (v as {string:number}).x2-1
-					y2 = (v as {string:number}).y2 + math.random(1, 30)/16-2
-				elseif (v as {string:any}).facing2 == "right" then
-					x2 = (v as {string:number}).x2
-					y2 = (v as {string:number}).y2 + math.random(1, 30)/16-1
+				if p.facing2 == "up" then
+					x2 = (p.x2 as number) + math.random(1, 30)/16-1
+					y2 = (p.y2 as number)-1
+				elseif p.facing2 == "down" then
+					x2 = (p.x2 as number) + math.random(1, 30)/16-2
+					y2 = p.y2 as number
+				elseif p.facing2 == "left" then
+					x2 = (p.x2 as number)-1
+					y2 = (p.y2 as number) + math.random(1, 30)/16-2
+				elseif p.facing2 == "right" then
+					x2 = p.x2 as number
+					y2 = (p.y2 as number) + math.random(1, 30)/16-1
 				end
 				
-				table.insert(portalparticles, portalparticle:new(x2, y2, v.portal2color, v.facing2))
+				table.insert(portalparticles, portalparticle:new(x2, y2, p.portal2color, p.facing2))
 			end
 		end
 	end
 	
-	delete = {}
+	local delete = {}
 	
 	for i, v in pairs(portalparticles) do
 		if (v as Entity):update(dt) == true then
