@@ -376,28 +376,29 @@ global function callcollision(dir: any, obj: Entity, a: any, b: Entity, c: any, 
 		end		
 		
 		if not obj.runanimationprogress or obj.size == 1 then --cheap check for player
-			local sides = map[x][y].gelSides
-			if sides then
-				if dir == "left" and sides[GEL_SIDE_RIGHT] == 4 then
+			local sidesn = map[x][y].gelSides
+			if sidesn then
+				local sides = sidesn as {number:number}
+				if dir == "left" and gel_has(sides[GEL_SIDE_RIGHT], "adhere") then
 					if obj.gravitydirection == 0 then
 						obj.speedx = -obj.speedx
 					end
 					obj.gravitydirection = math.pi
 					purplegel = true
-				elseif dir == "floor" and sides[GEL_SIDE_TOP] == 4 then
+				elseif dir == "floor" and gel_has(sides[GEL_SIDE_TOP], "adhere") then
 					if obj.gravitydirection == math.pi*1.5 then
 						obj.speedx = -obj.speedx
 					end
 					obj.gravitydirection = math.pi/2
 					purplegel = true
 					allowskip = false
-				elseif dir == "right" and sides[GEL_SIDE_LEFT] == 4 then
+				elseif dir == "right" and gel_has(sides[GEL_SIDE_LEFT], "adhere") then
 					if obj.gravitydirection == math.pi then
 						obj.speedx = -obj.speedx
 					end
 					obj.gravitydirection = 0
 					purplegel = true
-				elseif dir == "ceil" and sides[GEL_SIDE_BOTTOM] == 4 then
+				elseif dir == "ceil" and gel_has(sides[GEL_SIDE_BOTTOM], "adhere") then
 					if obj.gravitydirection == math.pi/2 then
 						obj.speedx = -obj.speedx
 					end

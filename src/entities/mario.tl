@@ -1372,9 +1372,9 @@ function mario:movement(dt: number)
 			--x and y in map
 			if inmap(x, y) then
 				local topGel = map_cell_gel_id(map[x][y], GEL_SIDE_TOP)
-				if topGel == 2 then
+				if gel_has(topGel, "speed") then
 					orangegel = true
-				elseif topGel == 1 then
+				elseif gel_has(topGel, "bounce") then
 					bluegel = true
 				end
 			end
@@ -1385,7 +1385,7 @@ function mario:movement(dt: number)
 		local y = round(self.y+self.height+1)
 		
 		for _, v in pairs(objects["lightbridgebody"]) do
-			if x == v.cox and y == v.coy and v.gels.top then
+			if x == v.cox and y == v.coy and gel_has(entity_gel_id(v, GEL_SIDE_TOP), "speed") then
 				orangegel = true
 			end
 		end
@@ -1732,7 +1732,7 @@ function mario:underwatermovement(dt: number)
 			local y = self.y+self.height+1
 			--x and y in map
 			if inmap(x, y) then
-				if map_cell_gel_id(map[x][y], GEL_SIDE_TOP) == 2 then
+				if gel_has(map_cell_gel_id(map[x][y], GEL_SIDE_TOP), "speed") then
 					maxrunspeed = uwgelmaxrunspeed
 					maxwalkspeed = uwgelmaxwalkspeed
 					runacceleration = uwgelrunacceleration
@@ -2210,7 +2210,7 @@ function mario:floorcollide(a: any, b: Entity, c: any, d: any): boolean
 	elseif a == "tile" then
 		local x, y = b.cox, b.coy
 		
-		if map_cell_gel_id(map[x][y], GEL_SIDE_TOP) == 1 then
+		if gel_has(map_cell_gel_id(map[x][y], GEL_SIDE_TOP), "bounce") then
 			if self:bluegel("top") then
 				return false
 			end
@@ -2225,7 +2225,7 @@ function mario:floorcollide(a: any, b: Entity, c: any, d: any): boolean
 			self:die("enemy")
 			return false
 		end
-	elseif a == "lightbridgebody" and b.gels.top == 1 then
+	elseif a == "lightbridgebody" and gel_has(entity_gel_id(b, GEL_SIDE_TOP), "bounce") then
 		if self:bluegel("top") then
 			return false
 		end
@@ -2426,7 +2426,7 @@ function mario:rightcollide(a: any, b: Entity, c: any, d: any): boolean
 	elseif a == "tile" then
 		local x, y = b.cox, b.coy
 			
-		if map_cell_gel_id(map[x][y], GEL_SIDE_LEFT) == 1 then
+		if gel_has(map_cell_gel_id(map[x][y], GEL_SIDE_LEFT), "bounce") then
 			if self:bluegel("left") then
 				return false
 			end
@@ -2487,7 +2487,7 @@ function mario:rightcollide(a: any, b: Entity, c: any, d: any): boolean
 			self.speedy = 0
 		end
 		return false
-	elseif a == "lightbridgebody" and b.gels.left == 1 then
+	elseif a == "lightbridgebody" and gel_has(entity_gel_id(b, GEL_SIDE_LEFT), "bounce") then
 		if self:bluegel("left") then
 			return false
 		end
@@ -2550,7 +2550,7 @@ function mario:leftcollide(a: any, b: Entity, c: any, d: any): boolean
 	elseif a == "tile" then
 		local x, y = b.cox, b.coy
 		
-		if map_cell_gel_id(map[x][y], GEL_SIDE_RIGHT) == 1 then
+		if gel_has(map_cell_gel_id(map[x][y], GEL_SIDE_RIGHT), "bounce") then
 			if self:bluegel("right") then
 				return false
 			end
@@ -2593,7 +2593,7 @@ function mario:leftcollide(a: any, b: Entity, c: any, d: any): boolean
 			self.speedy = 0
 		end
 		return false
-	elseif a == "lightbridgebody" and b.gels.right == 1 then
+	elseif a == "lightbridgebody" and gel_has(entity_gel_id(b, GEL_SIDE_RIGHT), "bounce") then
 		if self:bluegel("right") then
 			return false
 		end
@@ -3876,6 +3876,7 @@ function mario:portaled(dir: any)
 end
 
 function mario:shootgel(i: any)
+	gel_pool_prepare()
 	table.insert(objects["gel"], gel:new(self.x+self.width/2+8/16, self.y+self.height/2+6/16, i))
 	
 	local xspeed = math.cos(-self.pointingangle-math.pi/2)*gelcannonspeed

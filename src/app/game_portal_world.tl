@@ -314,7 +314,7 @@ global function getTile(x: number, y: number, _?: any, portalcheck?: any, facing
 		end
 		
 		local gelSide = GEL_SIDE_BY_NAME[side as string]
-		if gelSide and map_cell_gel_id(map[x][y], gelSide) == 3 then
+		if gelSide and gel_has(map_cell_gel_id(map[x][y], gelSide), "cleanse") then
 			return true, map[x][y][1]
 		elseif tilequads[map[x][y][1] as number]:getproperty("mirror", x, y) and mirexc then
 			return "mirror"

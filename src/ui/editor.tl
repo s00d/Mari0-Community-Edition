@@ -2493,7 +2493,8 @@ function mapwidthapply()
 				newmap[x][y] = map[oldx][oldy]
 				newcoinmap[x][y] = coinmap[oldx][oldy]
 			else
-				newmap[x][y] = {1, gels={}, gelSides={}, portaloverride={0, 0}}
+				newmap[x][y] = {1, portaloverride={0, 0}}
+				init_map_cell_gels(newmap[x][y] as MapCell)
 			end
 			
 			if tilequads[newmap[x][y][1]]:getproperty("collision", x, y) then

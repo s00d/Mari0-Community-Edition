@@ -99,20 +99,23 @@ function lightbridge:draw()
 end
 
 function lightbridge:updaterange()
-	--save old gel values
+	--save old gel values (numeric gelSides)
 	local gels: {number:Dyn} = {}
 	
 	for _, v in pairs(self.childtable) do
 		local v = v as Entity
-		local vg = v.gels as Dyn
-		if vg["top"] then
-			table.insert(gels, {x=v.cox, y=v.coy, dir="top", i=vg["top"]} as Dyn)
-		elseif vg["left"] then
-			table.insert(gels, {x=v.cox, y=v.coy, dir="left", i=vg["left"]} as Dyn)
-		elseif vg["right"] then
-			table.insert(gels, {x=v.cox, y=v.coy, dir="right", i=vg["right"]} as Dyn)
-		elseif vg["bottom"] then
-			table.insert(gels, {x=v.cox, y=v.coy, dir="bottom", i=vg["bottom"]} as Dyn)
+		local top = entity_gel_id(v, GEL_SIDE_TOP)
+		local left = entity_gel_id(v, GEL_SIDE_LEFT)
+		local right = entity_gel_id(v, GEL_SIDE_RIGHT)
+		local bottom = entity_gel_id(v, GEL_SIDE_BOTTOM)
+		if top then
+			table.insert(gels, {x=v.cox, y=v.coy, dir="top", i=top} as Dyn)
+		elseif left then
+			table.insert(gels, {x=v.cox, y=v.coy, dir="left", i=left} as Dyn)
+		elseif right then
+			table.insert(gels, {x=v.cox, y=v.coy, dir="right", i=right} as Dyn)
+		elseif bottom then
+			table.insert(gels, {x=v.cox, y=v.coy, dir="bottom", i=bottom} as Dyn)
 		end
 	end	
 	
@@ -199,13 +202,16 @@ function lightbridge:updaterange()
 		for _, v in pairs(gels) do
 			if (v["x"] as number) == w.cox and (v["y"] as number) == w.coy then
 				local d = v["dir"] as string
-				if d == "left" or d == "right" then
-					if w.dir == "ver" then
-						(w.gels as Dyn)[d] = v["i"]
-					end
-				else
-					if w.dir == "hor" then
-						(w.gels as Dyn)[d] = v["i"]
+				local gelSide = GEL_SIDE_BY_NAME[d]
+				if gelSide then
+					if d == "left" or d == "right" then
+						if w.dir == "ver" then
+							entity_set_gel(w, gelSide, v["i"] as number)
+						end
+					else
+						if w.dir == "hor" then
+							entity_set_gel(w, gelSide, v["i"] as number)
+						end
 					end
 				end
 			end
@@ -251,8 +257,8 @@ function lightbridgebody:init(parent: lightbridge, x: number, y: number, dir: st
 	
 	self.mask = {true}
 	
-	self.gels = {}
-	self.gelSides = {}
+	self.gels = nil
+	self.gelSides = nil
 	
 	self:pushstuff()
 end

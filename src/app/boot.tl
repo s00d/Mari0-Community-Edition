@@ -59,6 +59,7 @@ function Boot.require_game()
 	require "util.hatutil"
 	require "util.portalutil"
 	require "util.scrollutil"
+	require "world.geltypes"
 	require "util.geldraw"
 	require "util.enemyutil"
 	require "world.spawnregistry"
@@ -209,7 +210,10 @@ function Boot.load_media()
 		(_G as {string:any})[(v as string) .. "img"] = img
 	end
 
-	gelgroundimgs = {gel1groundimg, gel2groundimg, gel3groundimg, gel4groundimg}
+	gelgroundimgs = {}
+	for gid = 1, GEL_MAX_ID do
+		gelgroundimgs[gid] = (_G as {string:any})["gel" .. tostring(gid) .. "groundimg"] as Image
+	end
 	
 	boot_image("mappackback", "mappackback")
 	boot_image("mappacknoicon", "mappacknoicon")

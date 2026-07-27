@@ -88,8 +88,8 @@ end
 -- Keep open-array escape: MapCell is a Teal array-record (numeric tile slots via `#` / [1],[2],… plus named fields).
 global record MapCell is {any}
 	portaloverride: {string:any}
-	gels: {string:any}
-	gelSides: {number:number}
+	gels: {string:any}|nil
+	gelSides: {number:number}|nil
 	portal: any
 end
 -- Pure tile parse result from level_parse_tiles_only (no entities / no LÖVE).
@@ -1360,6 +1360,7 @@ global build_blockbounce_lookup: function({any:any}, {any:any}): {any:any}
 global draw_tile_gel_overlays: function({number}, number, number, number, number)
 global draw_entity_gel_overlays: function({string:any}, number, number, number, number)
 global entity_set_gel: function(any, integer, number)
+global entity_gel_id: function(any, integer): number|nil
 global map_cell_set_gel: function(MapCell, integer, number)
 global map_cell_gel_id: function(MapCell, integer): number|nil
 global init_map_cell_gels: function(MapCell)
@@ -1368,6 +1369,15 @@ global GEL_SIDE_RIGHT: integer
 global GEL_SIDE_BOTTOM: integer
 global GEL_SIDE_LEFT: integer
 global GEL_SIDE_BY_NAME: {string:integer}
+global GEL_BOUNCE: integer
+global GEL_SPEED: integer
+global GEL_CLEANSE: integer
+global GEL_ADHERE: integer
+global GEL_MAX_ID: integer
+global GEL_POOL_MAX: integer
+global gel_has: function(number|nil, string): boolean
+global gel_clamp_id: function(any): integer
+global gel_pool_prepare: function()
 global callcollision: function(any, Entity, any, Entity, any, any): any
 global changebackground: function(any): any
 global changecharacter: function(any)

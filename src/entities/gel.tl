@@ -9,7 +9,7 @@ function gel.new(_: gel, x: number, y: number, id: any): gel
 end
 
 function gel:init(x: number, y: number, id)
-	self.id = id as number
+	self.id = gel_clamp_id(id)
 	
 	--PHYSICS STUFF
 	self.x = x-14/16
@@ -34,17 +34,8 @@ function gel:init(x: number, y: number, id)
 	self.quadcenterX = 8
 	self.quadcenterY = 8
 	self.rotation = 0 --for portals
-	if self.id == 1 then
-		self.graphic = gel1img
-	elseif self.id == 2 then
-		self.graphic = gel2img
-	elseif self.id == 3 then
-		self.graphic = gel3img
-	elseif self.id == 4 then
-		self.graphic = gel4img
-	elseif self.id == 5 then
-		self.graphic = gel5img
-	end
+	local gelimgs: {Image} = {gel1img, gel2img, gel3img, gel4img}
+	self.graphic = gelimgs[self.id as integer]
 	
 	self.destroy = false
 end

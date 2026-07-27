@@ -95,17 +95,18 @@ end
 
 MAP_SPAWN_HANDLERS["gel"] = function(x: number, y: number, r: {any})
 	if tilequads[map[x][y][1]]:getproperty("collision", x, y) then
+		local gid = gel_clamp_id(r[3])
 		if r[4] == "true" then
-			map_cell_set_gel(map[x][y], GEL_SIDE_LEFT, r[3] as number)
+			map_cell_set_gel(map[x][y], GEL_SIDE_LEFT, gid)
 		end
 		if r[5] == "true" then
-			map_cell_set_gel(map[x][y], GEL_SIDE_TOP, r[3] as number)
+			map_cell_set_gel(map[x][y], GEL_SIDE_TOP, gid)
 		end
 		if r[6] == "true" then
-			map_cell_set_gel(map[x][y], GEL_SIDE_RIGHT, r[3] as number)
+			map_cell_set_gel(map[x][y], GEL_SIDE_RIGHT, gid)
 		end
 		if r[7] == "true" then
-			map_cell_set_gel(map[x][y], GEL_SIDE_BOTTOM, r[3] as number)
+			map_cell_set_gel(map[x][y], GEL_SIDE_BOTTOM, gid)
 		end
 	end
 end

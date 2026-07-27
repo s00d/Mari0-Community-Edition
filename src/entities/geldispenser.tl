@@ -79,6 +79,7 @@ function geldispenser:update(dt: number): boolean
 		
 		while self.timer > geldispensespeed do
 			self.timer = self.timer - geldispensespeed
+			gel_pool_prepare()
 			local gels = objects["gel"] as {Entity}
 			if self.dir == "down" then
 				table.insert(gels, gel:new(self.x+1.5 + (math.random()-0.5)*1, self.y+12/16, self.id))
