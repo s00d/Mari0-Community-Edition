@@ -544,13 +544,7 @@ global function game_update(dt: number)
 			end
 		end
 
-		if spritebatch_portal_catchup or spritebatchX[1] == nil or spritebatchY[1] == nil then
-			generatespritebatch(0, 0)
-		else
-			generatespritebatch(sb_dx, sb_dy)
-		end
-		spritebatchX[1] = new_sbx
-		spritebatchY[1] = new_sby
+		generatespritebatch(0, 0)
 	end
 
 	if spritebatch_portal_catchup and not editormode then

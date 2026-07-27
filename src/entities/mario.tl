@@ -2986,6 +2986,7 @@ global function hitblock(x: number, y: number, t: any, koopa?: any): any
 		table.insert(blockbouncetimer, 0.000000001) --yeah it's a cheap solution to a problem but screw it.
 		table.insert(blockbouncex, x)
 		table.insert(blockbouncey, y)
+		generatespritebatch(0, 0)
 		if #r > 1 and entitylist[r[2]] and entitylist[r[2]].t ~= "manycoins" then --block contained something!
 			table.insert(blockbouncecontent, entitylist[r[2]].t)
 			table.insert(blockbouncecontent2, (t as {string:any}).size)

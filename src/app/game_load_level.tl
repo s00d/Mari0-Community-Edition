@@ -679,6 +679,10 @@ global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
 		if tilequads[tilenumber]:getproperty("coinblock", cox, coy) then
 			return nil
 		end
+		-- Animated tiles use position-dependent quads; drawn in drawlevel_tiles, not batch.
+		if tilenumber > 10000 then
+			return nil
+		end
 		return {
 			foreground = tilequads[tilenumber]:getproperty("foreground", cox, coy) as boolean,
 			tilenumber = tilenumber,
@@ -822,15 +826,9 @@ global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
 		end
 	end
 
-	local view_capacity = (xtodraw as integer) * (row_count as integer)
-	local can_incremental = not spritebatch_portal_catchup
-		and math.abs(scroll_dx) + math.abs(scroll_dy) == 1
-		and spritebatch_view ~= nil
-		and spritebatch_cols == xtodraw
-		and spritebatch_rows == row_count
-		and spritebatch_floor_x + scroll_dx == flooredxscroll
-		and spritebatch_floor_y + scroll_dy == flooredyscroll
-		and (spritebatch_orphan_slots or 0) < view_capacity
+	-- Incremental scroll disabled: slot reuse + view cache corrupt tiles when map
+	-- cells change (bounce, reveal) or scroll jumps; full rebuild matches pre-perf behavior.
+	local can_incremental = false
 
 	if can_incremental then
 		local view = spritebatch_view as {number:{number:SpriteBatchViewCell|nil}}
@@ -923,6 +921,8 @@ global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
 	spritebatch_floor_x = flooredxscroll as integer
 	spritebatch_floor_y = flooredyscroll as integer
 	draw_view(view, xtodraw as integer, row_count as integer)
+	spritebatchX[1] = flooredxscroll as integer
+	spritebatchY[1] = flooredyscroll as integer
 end
 
 
