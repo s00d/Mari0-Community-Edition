@@ -104,7 +104,7 @@ function textentity:init(x: number, y: number, r)
 	end
 end
 
-function textentity:link()
+function textentity:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w] as {any:any}) do
@@ -119,9 +119,10 @@ function textentity:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
-function textentity:input(t, input)
+function textentity:input(t, input): any
 	if input == "power" then
 		if t == "on" and self.input1state == "off" then
 			self.power = not self.power
@@ -133,6 +134,7 @@ function textentity:input(t, input)
 		
 		self.input1state = t
 	end
+	return nil
 end
 
 function textentity:update(dt: number): any...

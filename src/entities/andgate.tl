@@ -29,7 +29,7 @@ function andgate:init(x: number, y: number, r)
 	self.outputstate = "off" as any
 end
 
-function andgate:link()
+function andgate:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -44,6 +44,7 @@ function andgate:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function andgate:addoutput(a, t)
@@ -71,7 +72,7 @@ function andgate:out(t)
 	end
 end
 
-function andgate:input(t, input)
+function andgate:input(t, input): any
 	if tonumber(input) then
 		if t == "toggle" then
 			if self.inputstate[tonumber(input)] == "on" then
@@ -95,4 +96,5 @@ function andgate:input(t, input)
 			self.outputstate = pass as any
 		end
 	end
+	return nil
 end

@@ -44,7 +44,7 @@ global function physicsupdate(dt: number)
 					--VS OTHER OBJECTS PRE TILE GROUP
 					for h, u in pairs(lobjects) do
 						if h ~= "tile" and not PHYSICS_LATE_SET[h as string] then
-							local hor, ver = handlegroup(i, h, u, v, j, dt, passed)
+							local hor, ver = handlegroup(i, h, u as {any:Body}, v as Body, j, dt, passed)
 							if hor then
 								horcollision = true
 							end
@@ -93,7 +93,7 @@ global function physicsupdate(dt: number)
 					for _, h in ipairs(PHYSICS_LATE_LIST) do
 						local u = objects[h]
 						if u then
-							local hor, ver = handlegroup(i, h, u, v, j, dt, passed)
+							local hor, ver = handlegroup(i, h, u as {any:Body}, v as Body, j, dt, passed)
 							if hor then
 								horcollision = true
 							end
@@ -104,7 +104,7 @@ global function physicsupdate(dt: number)
 					end
 					
 					-- Emancipation grill once per mover (not once per object-group)
-					checkforemances(dt, v)
+					checkforemances(dt, v as Body)
 					
 					--Move the object
 					if vercollision == false then

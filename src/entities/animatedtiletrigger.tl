@@ -40,7 +40,7 @@ function animatedtiletrigger:init(x: number, y: number, r)
 	end
 end
 
-function animatedtiletrigger:link()
+function animatedtiletrigger:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -54,6 +54,7 @@ function animatedtiletrigger:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function animatedtiletrigger:update(): any...
@@ -66,7 +67,7 @@ function animatedtiletrigger:draw()
 	end
 end
 
-function animatedtiletrigger:input(t, input)
+function animatedtiletrigger:input(t, input): any
 	for x = (self.regionX as number)+1, (self.regionX as number) + (self.regionwidth as number) do
 		for y = (self.regionY as number)+1, (self.regionY as number) + (self.regionheight as number) do
 			if animatedtimers[x] and animatedtimers[x][y] then
@@ -74,4 +75,5 @@ function animatedtiletrigger:input(t, input)
 			end
 		end
 	end
+	return nil
 end

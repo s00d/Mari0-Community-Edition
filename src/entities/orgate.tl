@@ -29,7 +29,7 @@ function orgate:init(x: number, y: number, r)
 	self.outputstate = "off" as any
 end
 
-function orgate:link()
+function orgate:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -44,6 +44,7 @@ function orgate:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function orgate:addoutput(a, t)
@@ -71,7 +72,7 @@ function orgate:out(t)
 	end
 end
 
-function orgate:input(t, input)
+function orgate:input(t, input): any
 	if tonumber(input) then
 		if t == "toggle" then
 			if self.inputstate[tonumber(input)] == "on" then
@@ -95,4 +96,5 @@ function orgate:input(t, input)
 			self.outputstate = pass as any
 		end
 	end
+	return nil
 end

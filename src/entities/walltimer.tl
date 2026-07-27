@@ -34,7 +34,7 @@ function walltimer:init(x: number, y: number, r)
 	self.timer = self.time
 end
 
-function walltimer:link()
+function walltimer:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -48,6 +48,7 @@ function walltimer:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function walltimer:addoutput(a, t)
@@ -89,7 +90,7 @@ function walltimer:out(t)
 	end
 end
 
-function walltimer:input(t, input)
+function walltimer:input(t, input): any
 	if input == "power" then
 		if t == "on" and self.input1state == "off" then
 			self:out("on")
@@ -108,4 +109,5 @@ function walltimer:input(t, input)
 		
 		self.input1state = t
 	end
+	return nil
 end

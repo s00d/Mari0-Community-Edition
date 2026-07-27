@@ -88,7 +88,7 @@ function scaffold:init(x: number, y: number, r)
 	self.input1state = "off"
 end
 
-function scaffold:link()
+function scaffold:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -102,9 +102,10 @@ function scaffold:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
-function scaffold:input(t, input)
+function scaffold:input(t, input): any
 	if input == "power" then
 		if t == "on" and self.input1state == "off" then
 			self.power = not self.power
@@ -115,6 +116,7 @@ function scaffold:input(t, input)
 		end
 		self.input1state = t
 	end
+	return nil
 end
 
 function scaffold:update(dt: number): any...

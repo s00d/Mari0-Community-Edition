@@ -74,7 +74,7 @@ function pushbutton:addoutput(a, t)
 	table.insert(self.outtable, {a, t} as {any})
 end
 
-function pushbutton:used()
+function pushbutton:used(): any
 	if self.timer == pushbuttontime then
 		self.pusheddown = true
 		self.timer = 0
@@ -85,4 +85,5 @@ function pushbutton:used()
 		end
 		playsound("pushbutton")
 	end
+	return nil
 end

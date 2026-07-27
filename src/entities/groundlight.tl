@@ -29,7 +29,7 @@ function groundlight:init(x: number, y: number, dir, r)
 	end
 end
 
-function groundlight:link()
+function groundlight:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -43,6 +43,7 @@ function groundlight:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function groundlight:update(dt: number): any...
@@ -65,7 +66,7 @@ function groundlight:draw()
 	love.graphics.draw(entityquads[42+self.dir].image, entityquads[42+self.dir].quad, math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
 end
 
-function groundlight:input(t, input)
+function groundlight:input(t, input?: any): any
 	if input == "power" then
 		if t == "on" and self.input1state == "off" then
 			self.lighted = not self.lighted
@@ -77,4 +78,5 @@ function groundlight:input(t, input)
 		
 		self.input1state = t
 	end
+	return nil
 end

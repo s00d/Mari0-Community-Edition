@@ -49,7 +49,7 @@ function enemyspawner:init(x: number, y: number, r)
 	end
 end
 
-function enemyspawner:link()
+function enemyspawner:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -63,9 +63,10 @@ function enemyspawner:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
-function enemyspawner:input(t, input)
+function enemyspawner:input(t, input): any
 	if t ~= "off" then
 		if enemiesdata[self.enemytospawn] then
 			local temp = enemy:new(self.cox, self.coy, self.enemytospawn, {map[self.cox][self.coy][1], self.enemytospawn})
@@ -74,4 +75,5 @@ function enemyspawner:input(t, input)
 			temp.speedy = self.yspeed
 		end
 	end
+	return nil
 end

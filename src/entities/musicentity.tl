@@ -39,7 +39,7 @@ function musicentity:init(x: number, y: number, r)
 	end
 end
 
-function musicentity:link()
+function musicentity:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -53,6 +53,7 @@ function musicentity:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function musicentity:draw()
@@ -62,7 +63,7 @@ function musicentity:draw()
 	end
 end
 
-function musicentity:input(t, input)
+function musicentity:input(t, input): any
 	if t ~= "off" then
 		if not self.triggered or not self.single then
 			self.triggered = true
@@ -73,4 +74,5 @@ function musicentity:input(t, input)
 			end
 		end
 	end
+	return nil
 end

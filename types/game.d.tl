@@ -1302,7 +1302,7 @@ global changeportalgun: function(...: any): any
 global changescale: function(s: number, init?: boolean)
 global changespriteset: function(...: any): any
 global checkcollision: function(Entity, Entity, any, any, any, any, number, any): boolean, boolean
-global checkforemances: function(dt: number, v: Entity, speedx?: number, speedy?: number)
+global checkforemances: function(dt: number, v: Body, speedx?: number, speedy?: number)
 global checkkey: function(...: any): any
 global checkmagic: function(...: any): any
 global checkportalHOR: function(Entity, number): boolean
@@ -1437,7 +1437,7 @@ global givelive: function(...: any): any
 global globintCH: function(...: any): any
 global globintSH: function(...: any): any
 global globoolSH: function(...: any): any
-global handlegroup: function(i: any, h: any, u: {any:Entity}, v: Entity, j: any, dt: number, passed: any): boolean, boolean
+global handlegroup: function(i: any, h: any, u: {any:Body}, v: Body, j: any, dt: number, passed: any): boolean, boolean
 global hitblock: function(x: number, y: number, t: any, koopa?: any): any
 global hitrightside: function(...: any): any
 global horcollision: function(Entity, Entity, any, any, any, any, number): boolean

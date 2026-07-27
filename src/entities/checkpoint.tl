@@ -85,7 +85,7 @@ function checkpoint:update(): any...
 	end
 end
 
-function checkpoint:link()
+function checkpoint:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs as {any:any}) do
 			for i, v in pairs(objects[w] as {any:Entity}) do
@@ -99,9 +99,10 @@ function checkpoint:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
-function checkpoint:input(t, input)
+function checkpoint:input(t, input): any
 	if input == "trigger" then
 		if t == "on" and self.input1state == "off" then
 			self:trigger()
@@ -111,9 +112,10 @@ function checkpoint:input(t, input)
 		
 		self.input1state = t
 	end
+	return nil
 end
 
-function checkpoint:trigger()
+function checkpoint:trigger(): any
 	local modtable = {}
 	if self.all then
 		table.insert(modtable, 1)
@@ -139,4 +141,5 @@ function checkpoint:trigger()
 	end
 	
 	checkpointsub = mariosublevel
+	return nil
 end

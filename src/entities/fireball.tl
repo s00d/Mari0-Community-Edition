@@ -157,10 +157,11 @@ function fireball:explode()
 	end
 end
 
-function fireball:emancipate()
+function fireball:emancipate(): any
 	if not self.kill then
 		table.insert(emancipateanimations, emancipateanimation:new(self.x, self.y, self.width, self.height, self.graphic, self.quad, self.speedx, self.speedy, self.rotation, self.offsetX, self.offsetY, self.quadcenterX, self.quadcenterY))
 		self.kill = true
 		self.drawable = false
 	end
+	return nil
 end

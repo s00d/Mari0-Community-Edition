@@ -234,6 +234,7 @@ function bowser:startfall()
 	self.jump = true
 end
 
-function bowser:emancipate(a)
+function bowser:emancipate(a: any): any
 	self:shotted()
+	return nil
 end

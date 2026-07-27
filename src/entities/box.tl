@@ -234,7 +234,7 @@ function box:startfall()
 	self.falling = true
 end
 
-function box:emancipate(_a: any)
+function box:emancipate(_a: any): any
 	if not self.destroying then
 		local speedx, speedy = self.speedx, self.speedy
 		if self.parent then
@@ -246,6 +246,7 @@ function box:emancipate(_a: any)
 		table.insert(emancipateanimations, emancipateanimation:new(self.x, self.y, self.width, self.height, self.graphic, self.quad, speedx, speedy, self.rotation, self.offsetX, self.offsetY, self.quadcenterX, self.quadcenterY))
 		self:destroy()
 	end
+	return nil
 end
 
 function box:destroy()
@@ -264,10 +265,11 @@ function box:addoutput(a: any, t: any)
 	table.insert(self.outtable, {a, t} as {any})
 end
 
-function box:used(id: any)
+function box:used(id: any): any
 	self.parent = playerobjs[id as integer] as Entity
 	self.active = false
 	playerobjs[id as integer]:pickupbox(self)
+	return nil
 end
 
 function box:dropped()
@@ -292,10 +294,11 @@ function box:faithplate(_dir: any)
 	self.falling = true
 end
 
-function box:onbutton(s: any)
+function box:onbutton(s: any): any
 	if s then
 		self.quad = boxquad[2]
 	else
 		self.quad = boxquad[1]
 	end
+	return nil
 end

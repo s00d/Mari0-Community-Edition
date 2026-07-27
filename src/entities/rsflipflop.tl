@@ -28,7 +28,7 @@ function rsflipflop:init(x: number, y: number, r)
 	self.output = false
 end
 
-function rsflipflop:link()
+function rsflipflop:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -43,6 +43,7 @@ function rsflipflop:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function rsflipflop:addoutput(a, t)
@@ -64,7 +65,7 @@ function rsflipflop:out(t)
 	end
 end
 
-function rsflipflop:input(t, input)
+function rsflipflop:input(t, input): any
 	if input == "set" then
 		if (t == "on" or t == "toggle") and not self.output then
 			self.output = true
@@ -76,4 +77,5 @@ function rsflipflop:input(t, input)
 			self:out("off")
 		end
 	end
+	return nil
 end

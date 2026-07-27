@@ -51,7 +51,7 @@ function panel:init(x: number, y: number, t)
 	self:updatestuff()
 end
 
-function panel:link()
+function panel:link(): any|nil
 	while #self.t > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w] as {any:Entity}) do
@@ -65,6 +65,7 @@ function panel:link()
 		table.remove(self.t, 1)
 		table.remove(self.t, 1)
 	end
+	return nil
 end
 
 function panel:draw()
@@ -76,7 +77,7 @@ function panel:draw()
 	love.graphics.draw(panelimg, panelquad[quad], math.floor((self.cox-1-xscroll+.5)*16*scale), math.floor((self.coy-1-yscroll)*16*scale), self.r, scale, scale, 8, 8)
 end
 
-function panel:input(t, input)
+function panel:input(t, input): any
 	if input == "power" then
 		if t == "on" and self.input1state == "off" then
 			self.out = true
@@ -90,6 +91,7 @@ function panel:input(t, input)
 		
 		self:updatestuff()
 	end
+	return nil
 end
 	
 function panel:updatestuff()

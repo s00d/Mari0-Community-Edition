@@ -137,7 +137,7 @@ function platform:update(dt: number): any...
 	for i, v in ipairs(checktable) do
 		for j, w in pairs(objects[v]) do
 			if inrange(w.x, self.x-w.width, self.x+self.width) and inrange(w.y + w.height, self.y - 0.1, self.y + 0.1) then
-				checkforemances(dt, w, self.speedx, self.speedy)
+				checkforemances(dt, w as Body, self.speedx, self.speedy)
 				local newx = w.x + self.speedx*dt
 				local newy = nexty - w.height
 				if #checkrect(newx, newy, w.width, w.height, {"exclude", w, self}, true) == 0 then

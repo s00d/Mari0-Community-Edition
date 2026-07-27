@@ -5,12 +5,12 @@ global function checkrect(x: number, y: number, width: number, height: number, l
 	local unpack = table.unpack or unpack
 	local out = {} as {any}
 	
-	local inobj: {Entity}|nil = nil
+	local inobj: {Body}|nil = nil
 	
 	local catlist: any = ""
 	
 	if type(list) == "table" and (list as {any})[1] == "exclude" then
-		inobj = {unpack(list as {any})} as {Entity}
+		inobj = {unpack(list as {any})} as {Body}
 		table.remove(inobj as {any}, 1)
 		list = "all"
 	end
@@ -32,24 +32,28 @@ global function checkrect(x: number, y: number, width: number, height: number, l
 		
 		if list == "all" or contains then
 			for j, w in pairs(v) do
-				if statics or w.static ~= true or list ~= "all" then
+				local wb = w as Body
+				if statics or wb.static ~= true or list ~= "all" then
 					local skip = false
 					if inobj then
-						for ii, vv in pairs(inobj as {any:Entity}) do
-							if vv == w then
+						for ii, vv in pairs(inobj as {any:Body}) do
+							if vv == wb then
 								skip = true
 							end
 							
-							if (vv.mask ~= nil and vv.mask[w.category] == true) or (w.mask ~= nil and w.mask[vv.category] == true) then
+							local vvmask = vv.mask
+							local wmask = wb.mask
+							if (vvmask ~= nil and (vvmask as {number:boolean})[wb.category] == true)
+								or (wmask ~= nil and (wmask as {number:boolean})[vv.category] == true) then
 								skip = true
 							end
 							
 						end
 					end
 					if not skip then
-						if w.active then
-							if aabb(x, y, width, height, w.x, w.y, w.width, w.height) then
-								if (i=="enemy" and catlist == w.category) or catlist == "" or i ~= "enemy" then
+						if wb.active then
+							if aabb(x, y, width, height, wb.x, wb.y, wb.width, wb.height) then
+								if (i=="enemy" and catlist == wb.category) or catlist == "" or i ~= "enemy" then
 									table.insert(out, i)
 									table.insert(out, j)
 								end

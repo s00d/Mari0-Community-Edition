@@ -26,7 +26,7 @@ function animationtrigger:init(x: number, y: number, r)
 	end
 end
 
-function animationtrigger:link()
+function animationtrigger:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -40,9 +40,10 @@ function animationtrigger:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
-function animationtrigger:input(t, input)
+function animationtrigger:input(t, input): any
 	if input == "in" then
 		if t == "on" or t == "toggle" then
 			if not animationtriggerfuncs[self.id as string] then
@@ -54,4 +55,5 @@ function animationtrigger:input(t, input)
 			end
 		end
 	end
+	return nil
 end

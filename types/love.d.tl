@@ -74,6 +74,23 @@ end
 -- Heterogeneous world objects. Number/boolean fields used in arithmetic or
 -- control flow are concrete; polymorphic bags/methods stay `any` so concrete
 -- `record … is Entity` may refine them. Prefer `as mario` at call sites.
+global interface Body
+	x: number
+	y: number
+	width: number
+	height: number
+	speedx: number
+	speedy: number
+	active: boolean
+	static: boolean
+	category: number
+	mask: {boolean}|nil
+	cox: number
+	coy: number
+	gravity: number|nil
+	gravitydirection: number|nil
+	portalable: boolean|nil
+end
 global interface Entity is {any}
 	x: number
 	y: number
@@ -172,7 +189,7 @@ global interface Entity is {any}
 	gels: {string:any}
 	slant: string
 	callback: any
-	link: function(Entity, ...: any): any|nil
+	link: function(any, ...: any): any|nil
 	backwards: boolean
 	notkilledfromblocksbelow: boolean
 	jumpsfromblocksbelow: boolean
@@ -188,7 +205,7 @@ global interface Entity is {any}
 	die: any
 	fall: any
 	portaled: function(Entity, any)
-	cubeemancipate: function(Entity, ...: any): any
+	cubeemancipate: function(any, ...: any): any
 	-- EnemyDef-ish props accessed via Entity in mario collide paths
 	shellanimal: any
 	stompable: any
@@ -210,8 +227,8 @@ global interface Entity is {any}
 	intactoncollect: any
 	intactvalue: any
 	collectsound: any
-	hit: function(Entity, ...: any): any
-	emancipate: function(Entity, ...: any): any
+	hit: any
+	emancipate: function(any, ...: any): any
 	limit: any
 	destroying: any
 	dropped: any
@@ -229,9 +246,9 @@ global interface Entity is {any}
 	updaterange: function(Entity, ...: any): any
 	getTileInvolved: function(Entity, ...: any): any, any
 	updateangle: any
-	input: function(Entity, ...: any): any
-	used: function(Entity, ...: any): any
-	onbutton: function(Entity, ...: any): any
+	input: function(any, ...: any): any
+	used: function(any, ...: any): any
+	onbutton: function(any, ...: any): any
 	passivecollide: function(Entity, any, Entity, any, any): any
 	floorcollide: function(Entity, any, Entity, any, any): any
 	leftcollide: function(Entity, any, Entity, any, any): any
@@ -245,11 +262,11 @@ global interface Entity is {any}
 	faithplate: any
 	callbackleft: any
 	callbackright: any
-	clear: function(Entity, ...: any): any
+	clear: function(any, ...: any): any
 	firepoints: any
 	autodelete: boolean
 	autodeleted: any
-	trigger: function(Entity, ...: any): any
+	trigger: function(any, ...: any): any
 end
 
 -- Minimal LÖVE 11 API surface for Teal (expand as modules need more).

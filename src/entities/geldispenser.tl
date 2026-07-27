@@ -56,7 +56,7 @@ function geldispenser:init(x: number, y: number, r)
 	self:link()
 end
 
-function geldispenser:link()
+function geldispenser:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -70,6 +70,7 @@ function geldispenser:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function geldispenser:update(dt: number): any...
@@ -112,7 +113,7 @@ function geldispenser:draw()
 	end
 end
 
-function geldispenser:input(t, input)
+function geldispenser:input(t, input): any
 	if input == "power" then
 		if t == "on" and self.input1state == "off" then
 			self.dropping = not self.dropping
@@ -124,4 +125,5 @@ function geldispenser:input(t, input)
 		
 		self.input1state = t
 	end
+	return nil
 end

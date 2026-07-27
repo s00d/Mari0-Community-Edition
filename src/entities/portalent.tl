@@ -52,7 +52,7 @@ function portalent:init(x: number, y: number, i, r)
 	end
 end
 
-function portalent:link()
+function portalent:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -66,6 +66,7 @@ function portalent:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function portalent:update(dt: number): any...
@@ -76,7 +77,7 @@ function portalent:draw()
 	
 end
 
-function portalent:input(t, input)
+function portalent:input(t, input): any
 	if input == "power" then
 		local oldpower = self.power
 		if t == "on" and self.input1state == "off" then
@@ -95,10 +96,12 @@ function portalent:input(t, input)
 		
 		self.input1state = t
 	end
+	return nil
 end
 
-function portalent:trigger()
+function portalent:trigger(): any
 	portals[self.id]:createportal(self.portal as number, self.x, self.y, self.dir, -1)
+	return nil
 end
 
 function portalent:rem()

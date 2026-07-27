@@ -36,7 +36,7 @@ function delayer:init(x: number, y: number, r)
 	self.timers = {}
 end
 
-function delayer:link()
+function delayer:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -50,6 +50,7 @@ function delayer:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function delayer:addoutput(a, t)
@@ -87,6 +88,7 @@ function delayer:out(t)
 	end
 end
 
-function delayer:input(t, input)
+function delayer:input(t, input): any
 	table.insert(self.timers, {t=t, timeleft=self.delay})
+	return nil
 end

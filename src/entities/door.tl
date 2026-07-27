@@ -64,7 +64,7 @@ function door:init(x: number, y: number, r)
 	self.targetopen = self.open
 end
 
-function door:link()
+function door:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -78,6 +78,7 @@ function door:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function door:update(dt: number): any...	
@@ -152,7 +153,7 @@ function door:pushstuff()
 	end
 end
 
-function door:input(t, input)
+function door:input(t, input): any
 	if input == "open" then
 		if t == "on" and self.input1state == "off" then
 			self.targetopen = not self.targetopen
@@ -164,6 +165,7 @@ function door:input(t, input)
 		
 		self.input1state = t
 	end
+	return nil
 end
 
 function door:closeopen(open)

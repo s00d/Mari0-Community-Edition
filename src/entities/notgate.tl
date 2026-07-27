@@ -29,7 +29,7 @@ function notgate:init(x: number, y: number, r)
 	self.initial = true
 end
 
-function notgate:link()
+function notgate:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -43,6 +43,7 @@ function notgate:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function notgate:addoutput(a, t)
@@ -71,7 +72,7 @@ function notgate:out(t)
 	end
 end
 
-function notgate:input(t, input)
+function notgate:input(t, input): any
 	if input == "in" then
 		if t == "on" and self.input1state == "off" then
 			self.power = not self.power
@@ -90,4 +91,5 @@ function notgate:input(t, input)
 		
 		self:out(out)
 	end
+	return nil
 end

@@ -44,11 +44,12 @@ function laserdetector:update(dt: number): any...
 	end
 end
 
-function laserdetector:input(t)
+function laserdetector:input(t): any
 	self.allowclear = false
 	if t == "on" then
 		self.out = "on"
 	end
+	return nil
 end
 
 function laserdetector:draw()
@@ -67,9 +68,10 @@ function laserdetector:addoutput(a, t)
 	table.insert(self.outtable, {a, t} as {any})
 end
 
-function laserdetector:clear()
+function laserdetector:clear(): any
 	if self.allowclear then
 		self.allowclear = false
 		self.out = "off"
 	end
+	return nil
 end

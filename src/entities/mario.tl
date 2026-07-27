@@ -2847,7 +2847,7 @@ function mario:starcollide(a: any, b: Entity, c: any, d: any): any
 end
 
 function mario:hitspring(b: Entity)
-	b:hit()
+	(b as spring):hit()
 	self.springb = b
 	self.springx = self.x
 	self.springy = b.coy
@@ -3379,7 +3379,7 @@ global function getAngleFrame(angle: number, rotation: number): any
 	return angleframe
 end
 
-function mario:emancipate(a: any)
+function mario:emancipate(a: any): any
 	self:removeportals()
 	
 	local delete = {}
@@ -3391,6 +3391,7 @@ function mario:emancipate(a: any)
 	end
 	
 	remove_indices_desc(portalprojectiles, delete)
+	return nil
 end
 
 function mario:removeportals(i: any): any
@@ -3493,8 +3494,9 @@ function mario:dropbox()
 	self.pickup = false
 end
 
-function mario:cubeemancipate()
+function mario:cubeemancipate(): any
 	self.pickup = false
+	return nil
 end
 
 function mario:duck(ducking: any): any --goose

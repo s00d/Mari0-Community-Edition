@@ -57,7 +57,7 @@ function cubedispenser:init(x: number, y: number, r)
 	self.box = nil
 end
 
-function cubedispenser:input(t, input)
+function cubedispenser:input(t, input): any
 	if input == "drop" or input == "drop_enemy_triggered" then
 		if (t == "on" and self.input1state == "off") or (t == "toggle" ) then
 			if self.boxexists then
@@ -70,9 +70,10 @@ function cubedispenser:input(t, input)
 			self.timer = 0
 		end
 	end
+	return nil
 end
 
-function cubedispenser:link()
+function cubedispenser:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -86,6 +87,7 @@ function cubedispenser:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function cubedispenser:update(dt: number): any...
@@ -124,6 +126,7 @@ end
 
 function cubedispenser:removebox()
 	if self.box then
-		self.box:emancipate()
+		-- emancipate expects one extra argument on Entity.
+		self.box:emancipate(nil)
 	end
 end

@@ -229,7 +229,7 @@ function laser:checktile(x, y, dir)
 		--if (dir == "left" and v.dir == "right") or (dir == "right" and v.dir == "left") or (dir == "up" and v.dir == "down") or (dir == "down" and v.dir == "up") then
 			if x == v.cox and y == v.coy and (v.cox ~= self.r[4] or v.coy ~= self.r[5]) then
 				table.insert(self.outtable, v)
-				v:input("on")
+				v:input("on", nil)
 			end
 		--end
 	end

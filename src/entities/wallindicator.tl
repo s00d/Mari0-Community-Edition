@@ -26,7 +26,7 @@ function wallindicator:init(x: number, y: number, r)
 	self.input1state = "off"
 end
 
-function wallindicator:link()
+function wallindicator:link(): any|nil
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
 			for i, v in pairs(objects[w]) do
@@ -40,6 +40,7 @@ function wallindicator:link()
 		table.remove(self.r, 1)
 		table.remove(self.r, 1)
 	end
+	return nil
 end
 
 function wallindicator:update(): any...
@@ -56,7 +57,7 @@ function wallindicator:draw()
 	love.graphics.draw(wallindicatorimg, wallindicatorquad[quad], math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
 end
 
-function wallindicator:input(t, input)
+function wallindicator:input(t, input): any
 	if input == "power" then
 		if t == "on" and self.input1state == "off" then
 			self.lighted = not self.lighted
@@ -68,4 +69,5 @@ function wallindicator:input(t, input)
 		
 		self.input1state = t
 	end
+	return nil
 end
