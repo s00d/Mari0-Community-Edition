@@ -140,9 +140,25 @@ function AssetStore:release_scope(scope: string)
 	end
 end
 
+-- Path → Image cache: enemies_load / mappack assets used to newImage every level
+-- transition (GPU upload storm → Love 12 Metal hang until focus cycle).
+local image_path_cache: {string: Image} = {}
+
 function AssetStore.load_image(path: string): Image|nil
 	ensure_love()
-	return love.graphics.newImage(path)
+	local cached = image_path_cache[path]
+	if cached then
+		return cached
+	end
+	local img = love.graphics.newImage(path)
+	if img then
+		image_path_cache[path] = img
+	end
+	return img
+end
+
+function AssetStore.clear_image_path_cache()
+	image_path_cache = {}
 end
 
 function AssetStore.load_image_data(imagedata: ImageData): Image|nil

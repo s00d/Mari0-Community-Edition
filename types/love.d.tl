@@ -331,6 +331,7 @@ global record love
 		getStencilState: function(): string, string, number, number, number
 		isSupported: function(feature: string): boolean
 		isCreated: function(): boolean
+		isActive: function(): boolean
 		reset: function()
 		newFont: function(...: any): Font
 		setFont: function(font: Font)

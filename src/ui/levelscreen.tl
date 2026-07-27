@@ -1,5 +1,25 @@
 --[[ Teal port of root levelscreen.lua ]]
 
+-- One-frame defer so the black splash can present before heavy loadlevel work.
+-- Arm on first update; load on the next. Skiplevelscreen loads sync immediately.
+local pending_level_load: string|number|nil = nil
+local pending_level_armed = false
+
+local function queue_level_load(level: string|number)
+	pending_level_load = level
+	pending_level_armed = false
+end
+
+local function flush_pending_level_load()
+	if pending_level_load == nil then
+		return
+	end
+	local level = pending_level_load
+	pending_level_load = nil
+	pending_level_armed = false
+	loadlevel(level)
+end
+
 global function levelscreen_load(reason: any, levelarg?: any)
 	
 	--check if lives left
@@ -76,27 +96,38 @@ global function levelscreen_load(reason: any, levelarg?: any)
 		saveconfig()
 	end
 	
-	--Load the level
-	
+	-- Queue level load (defer one frame so splash can present first).
 	if gamestate == "levelscreen" then
 		if respawnsublevel ~= 0 then
-			loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel) .. "_" .. respawnsublevel)
+			queue_level_load(tostring(marioworld) .. "-" .. tostring(mariolevel) .. "_" .. respawnsublevel)
 		else
-			loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel))
+			queue_level_load(tostring(marioworld) .. "-" .. tostring(mariolevel))
 		end
 	elseif gamestate == "sublevelscreen" then
-		loadlevel(sublevelscreen_level)
+		queue_level_load(sublevelscreen_level)
 	end
 	
 	if skiplevelscreen and gamestate ~= "gameover" and gamestate ~= "mappackfinished" then
+		flush_pending_level_load()
 		startlevel(gamestate == "levelscreen")
 	end
 end
 
 global function levelscreen_update(dt: number)
+	-- Frame 1: arm. Frame 2: load. Gives love.run one present of the black splash
+	-- before enemies/map/GC work (avoids "frozen until minimize" on Love 12 Metal).
+	if pending_level_load ~= nil then
+		if pending_level_armed then
+			flush_pending_level_load()
+		else
+			pending_level_armed = true
+		end
+	end
+
 	levelscreentimer = levelscreentimer + dt
 	if levelscreentimer > blacktime then
 		if gamestate == "levelscreen" or gamestate == "sublevelscreen" then
+			flush_pending_level_load()
 			startlevel(gamestate == "levelscreen")
 		else
 			menu_load()

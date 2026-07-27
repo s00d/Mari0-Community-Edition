@@ -50,6 +50,17 @@ check("gcpace_step safe after alloc", ok_step)
 local ok_after = pcall(gcpace_after_load)
 check("gcpace_after_load safe", ok_after)
 
+-- after_load must not stop-the-world collect (source)
+local gc_src = read(root .. "/src/core/gcpace.tl") or ""
+local after_fn = gc_src:match("global function gcpace_after_load%(%)(.-)\nend")
+check("gcpace_after_load source found", after_fn ~= nil)
+if after_fn then
+	check(
+		"gcpace_after_load no full collect",
+		after_fn:find('collectgarbage("collect")', 1, true) == nil
+	)
+end
+
 -- Source: loadlevel must not full-collect at the start (sets low threshold).
 local loadlevel_src = read(root .. "/src/app/game_load_level.tl") or ""
 local loadlevel_fn = loadlevel_src:match("global function loadlevel.-return needs_to_be_saved")

@@ -104,6 +104,10 @@ require "app.game_draw"
 global function loadlevel(level: string|number): boolean
 	-- Do NOT full-collect here: that sets a low GC threshold, then map/entity
 	-- alloc balloons debt → multi-second pause ~5s into gameplay. Collect after load.
+	-- Pump events between heavy chunks so Love 12 + Metal cannot stall the window.
+	if keepalive_pump then
+		keepalive_pump()
+	end
 	love.audio.stop()
 	animationsystem_load()
 	
@@ -290,9 +294,16 @@ global function loadlevel(level: string|number): boolean
 		
 		create_tile_spritebatches()
 	end
-	
+
+	if keepalive_pump then
+		keepalive_pump()
+	end
 	
 	enemies_load()
+
+	if keepalive_pump then
+		keepalive_pump()
+	end
 	
 	objects["screenboundary"] = {}
 	objects["screenboundary"]["left"] = screenboundary:new(0)
@@ -453,8 +464,12 @@ global function loadlevel(level: string|number): boolean
 		end
 	end
 	
-	--load editor
+	--load editor (play mode: skip heavy rightclick menu rebuild)
 	editor_load()
+
+	if keepalive_pump then
+		keepalive_pump()
+	end
 	
 	updateranges()
 	
@@ -462,11 +477,12 @@ global function loadlevel(level: string|number): boolean
 	generatespritebatch(0, 0)
 	updatespritebatch()
 	if session then session:sync_session_from_globals() end
-	-- Sweep load temporaries now that the live set is stable, then pace GC.
+	-- Incremental reclaim after load (full collect freezes transition on Metal).
 	if gcpace_after_load then
 		gcpace_after_load()
-	else
-		collectgarbage("collect")
+	end
+	if keepalive_pump then
+		keepalive_pump()
 	end
 	return needs_to_be_saved
 end

@@ -47,6 +47,7 @@ function Boot.require_game()
 	require "world.bounceutil"
 	require "core.listutil"
 	require "core.gcpace"
+	require "core.keepalive"
 	gcpace_configure()
 	require "util.updateutil"
 	require "physics.late"

@@ -1,6 +1,14 @@
 --[[ Level editor (Teal port of root editor.lua + util.editorutil). ]]
 
 function editor_load()
+	-- Play mode: skip heavy rightclick menu / UI rebuild every level transition.
+	if not editormode then
+		if musiclist[#musiclist] ~= "princessmusic.ogg" then
+			musiclist[#musiclist+1] = "princessmusic.ogg"
+		end
+		return
+	end
+
 	print("Better editor loaded!")
 	
 	currentanimation = 1

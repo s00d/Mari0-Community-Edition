@@ -1,6 +1,32 @@
 --[[ Teal port of root enemies.lua ]]
 
+local enemies_loaded_mappack: string|nil = nil
+
+local function enemies_refresh_spriteset()
+	for i = 1, #enemies do
+		local s = enemies[i] as string
+		local ed = enemiesdata[s]
+		if ed and ed.quadbase and ed.graphic then
+			local qb = ed.quadbase as Dyn
+			ed.quadgroup = qb[spriteset as integer]
+			ed.drawable = true
+			if ed.animationtype == "frames" then
+				ed.quad = (qb[spriteset as integer] as Dyn)[ed.animationstart]
+			else
+				ed.quad = (qb[spriteset as integer] as Dyn)[ed.quadno]
+			end
+		end
+	end
+end
+
 global function enemies_load()
+	-- Same mappack: reuse JSON/graphics; only refresh spriteset-dependent quads.
+	-- Full reload every level re-decoded PNGs via newImage → transition hang.
+	if enemies_loaded_mappack == mappack and enemiesdata and next(enemiesdata) then
+		enemies_refresh_spriteset()
+		return
+	end
+
 	defaultvalues = {quadcount=1, quadno=1}
 	
 	nobasevalues = {"description"} --values that aren't loaded from base
@@ -29,6 +55,8 @@ global function enemies_load()
 			loadenemy(realfl[i])
 		end
 	end
+
+	enemies_loaded_mappack = mappack as string
 end
 
 global function loadenemy(filename: string)
@@ -145,4 +173,3 @@ global function loadenemy(filename: string)
 		--Bad.
 	end
 end
-

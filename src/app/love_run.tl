@@ -40,34 +40,43 @@ function love.run(): function()|nil
 
         -- Call update and draw
         love.update(dt) -- will pass 0 if love.timer is disabled
-		love.graphics.clear()
-		love.graphics.origin()
-		--Fullscreen hack (Love 11 canvas + stencil)
-		if not mkstation and fullscreen and gamestate ~= "intro" then
-			love.graphics.setCanvas{completecanvas, depthstencil=true}
-			love.graphics.clear()
-			love.graphics.setScissor()
-			love.graphics.setCanvas{completecanvas, depthstencil=true}
-			love.draw()
-			love.graphics.setCanvas()
 
-			love.graphics.setScissor()
-			love.graphics.setCanvas()
-			if fullscreenmode == "full" then
-				love.graphics.draw(completecanvas, 0, 0, 0, desktopsize.width/(width*16*scale), desktopsize.height/(height*16*scale))
-			else
-				love.graphics.draw(completecanvas, 0, touchfrominsidemissing/2, 0, touchfrominsidescaling/scale, touchfrominsidescaling/scale)
-				love.graphics.setColor(0, 0, 0)
-				love.graphics.rectangle("fill", 0, 0, desktopsize.width, touchfrominsidemissing/2)
-				love.graphics.rectangle("fill", 0, desktopsize.height-touchfrominsidemissing/2, desktopsize.width, touchfrominsidemissing/2)
-				love.graphics.setColor(1, 1, 1, 1)
-			end
-		else
-			love.graphics.setScissor()
-			love.draw()
+		-- Skip draw/present when the window is not active (Love 11+/12).
+		-- present() + vsync can otherwise stall until focus returns (minimize "fix").
+		local active = true
+		if love.graphics.isActive then
+			active = love.graphics.isActive()
 		end
-		
-		love.graphics.present()
+		if active then
+			love.graphics.clear()
+			love.graphics.origin()
+			--Fullscreen hack (Love 11 canvas + stencil)
+			if not mkstation and fullscreen and gamestate ~= "intro" then
+				love.graphics.setCanvas{completecanvas, depthstencil=true}
+				love.graphics.clear()
+				love.graphics.setScissor()
+				love.graphics.setCanvas{completecanvas, depthstencil=true}
+				love.draw()
+				love.graphics.setCanvas()
+
+				love.graphics.setScissor()
+				love.graphics.setCanvas()
+				if fullscreenmode == "full" then
+					love.graphics.draw(completecanvas, 0, 0, 0, desktopsize.width/(width*16*scale), desktopsize.height/(height*16*scale))
+				else
+					love.graphics.draw(completecanvas, 0, touchfrominsidemissing/2, 0, touchfrominsidescaling/scale, touchfrominsidescaling/scale)
+					love.graphics.setColor(0, 0, 0)
+					love.graphics.rectangle("fill", 0, 0, desktopsize.width, touchfrominsidemissing/2)
+					love.graphics.rectangle("fill", 0, desktopsize.height-touchfrominsidemissing/2, desktopsize.width, touchfrominsidemissing/2)
+					love.graphics.setColor(1, 1, 1, 1)
+				end
+			else
+				love.graphics.setScissor()
+				love.draw()
+			end
+			
+			love.graphics.present()
+		end
 		love.timer.sleep(0.001)
 	end
 end

@@ -1739,6 +1739,7 @@ global prof_pop: function(string|nil)
 global gcpace_configure: function()
 global gcpace_step: function()
 global gcpace_after_load: function()
+global keepalive_pump: function()
 global record LoveLoadModule
 	install_mouse: function(LoveLoadModule)
 	run: function(LoveLoadModule, any)

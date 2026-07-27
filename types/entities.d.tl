@@ -188,6 +188,7 @@ global record AssetStore
 	release_scope: function(AssetStore, string)
 	load_image: function(string): Image|nil
 	load_image_data: function(ImageData): Image|nil
+	clear_image_path_cache: function()
 	load_sound: function(string, string): Source|nil
 end
 
