@@ -290,7 +290,7 @@ do
 		{ pattern = "global [%w_]+: function%(%.%.%.: any%)", max = 21, label = "ambient (...: any) doors" },
 		{ pattern = " as any",                          max = 140, label = "as any" },
 		{ pattern = "is {any}",                         max = 2,   label = "is {any} records" },
-		{ pattern = "%): any%.%.%.",                    max = 101, label = "any... returns" },
+		{ pattern = "%): any%.%.%.",                    max = 2,   label = "any... returns" },
 	}
 
 	local bodies = {}

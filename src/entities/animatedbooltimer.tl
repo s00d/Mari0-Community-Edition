@@ -89,7 +89,7 @@ function animatedbooltimer:input(t)
 	end
 end
 
-function animatedbooltimer:geti(): any
+function animatedbooltimer:geti(): number
 	for i = 2, #self.frametimes do
 		if self.timer > self.frametimes[i-1] and self.timer <= self.frametimes[i] then
 			return i

@@ -527,7 +527,7 @@ function guielement:getheight(): number
 	return 0
 end
 
-function guielement:click(x: number, y: number, button: any): any
+function guielement:click(x: number, y: number, button: any): boolean
 	if self.active then
 		if self.type == "checkbox" then
 			if button == "l" then
@@ -672,7 +672,7 @@ function guielement:click(x: number, y: number, button: any): any
 	end
 end
 
-function guielement:textinput(text: string): any
+function guielement:textinput(text: string)
 	if self.type == "input" and self.inputting then
 		local ok = true
 		for i = 1, string.len(text) do
@@ -686,7 +686,7 @@ function guielement:textinput(text: string): any
 	end
 end
 
-function guielement:keypress(key: string): any
+function guielement:keypress(key: string): boolean
 	if self.active then
 		if self.type == "input" then
 			if self.inputting then
@@ -741,7 +741,7 @@ function guielement:keypress(key: string): any
 	end
 end
 
-function guielement:unclick(x: number, y: number, button: any): any
+function guielement:unclick(x: number, y: number, button: any)
 	if self.active then
 		if self.type == "scrollbar" then
 			self.dragging = false
@@ -759,7 +759,7 @@ function guielement:unclick(x: number, y: number, button: any): any
 	end
 end
 
-function guielement:inhighlight(x: number, y: number): any
+function guielement:inhighlight(x: number, y: number): number|boolean
 	if self.type == "checkbox" then
 		local xadd = 0
 		if self.text then
@@ -790,7 +790,7 @@ function guielement:inhighlight(x: number, y: number): any
 			end
 		end
 	elseif self.type == "submenu" then
-		local r: any = false
+		local r: number|boolean = false
 		if x >= self.x*scale and x < (self.x+10+self.width*8)*scale and y >= self.y*scale and y < (self.y+11)*scale then
 			r = 0
 		end

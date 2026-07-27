@@ -85,7 +85,7 @@ function animatedtimer:input(t)
 	end
 end
 
-function animatedtimer:geti(): any
+function animatedtimer:geti(): number
 	for i = 2, #self.frametimes do
 		if self.timer > self.frametimes[i-1] and self.timer <= self.frametimes[i] then
 			return i

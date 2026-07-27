@@ -81,7 +81,7 @@ function lightbridge:update(dt: number)
 	
 end
 
-function lightbridge:getglowa(offset: any): any
+function lightbridge:getglowa(offset: any): number
 	return math.sin(self.glowtimer - (offset as number)*0.5)*.25+.75
 end
 

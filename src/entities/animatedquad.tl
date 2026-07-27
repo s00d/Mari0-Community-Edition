@@ -8,7 +8,7 @@ function animatedquad.new(_: animatedquad, imgpath: any, s: any, number: any): a
 	return self
 end
 
-function animatedquad:init(imgpath, s, number): any
+function animatedquad:init(imgpath, s, number)
 	self.number = number
 	self.image = AssetStore.load_image(tostring(imgpath)) as Image
 	self.imagedata = love.image.newImageData(tostring(imgpath))
@@ -61,7 +61,7 @@ function animatedquad:init(imgpath, s, number): any
 	
 end
 
-function animatedquad:updateproperties(): any
+function animatedquad:updateproperties()
 	local oldcol = self.props.collision
 	local oldportalable = self.props.portalable
 	

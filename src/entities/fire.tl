@@ -86,15 +86,15 @@ function fire:update(dt: number)
 	end
 end
 
-function fire:leftcollide(a: any, b: Entity): any...
+function fire:leftcollide(a: any, b: Entity): boolean
 	return false
 end
 
-function fire:rightcollide(a: any, b: Entity): any...
+function fire:rightcollide(a: any, b: Entity): boolean
 	return false
 end
 
-function fire:floorcollide(a: any, b: Entity): any...
+function fire:floorcollide(a: any, b: Entity): boolean
 	return false
 end
 

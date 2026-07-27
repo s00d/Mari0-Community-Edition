@@ -423,7 +423,7 @@ function mario:update_star(dt: number)
 	end
 end
 
-function mario:update_animation(dt: number): any
+function mario:update_animation(dt: number): boolean
 	--animationS
 	if self.animation == "animationwalk" then
 		if self.animationmisc == "right" then
@@ -936,7 +936,7 @@ function mario:update_funnels(dt: number)
 	self.funnel = false
 end
 
-function mario:update_vine(dt: number): any
+function mario:update_vine(dt: number): boolean
 	--vine controls and shit
 	if self.vine then
 		self.gravity = 0
@@ -990,7 +990,7 @@ function mario:update_vine(dt: number): any
 	return false
 end
 
-function mario:update_springs(dt: number): any
+function mario:update_springs(dt: number): boolean
 	--springs
 	if self.spring then
 		self.x = self.springx
@@ -1152,7 +1152,7 @@ function mario:update_zones(dt: number)
 	end
 end
 
-function mario:update_controls(dt: number): any
+function mario:update_controls(dt: number): boolean
 	if self.controlsenabled then
 		--check for pipe pipe pipe�
 		if inmap(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16)) and downkey(self.playernumber) and self.falling == false and self.jumping == false then
@@ -1291,7 +1291,7 @@ function mario:update_drains(dt: number)
 	self:setquad()
 end
 
-function mario:updateangle(): any
+function mario:updateangle()
 	if self.remote then
 		return
 	end
@@ -1931,7 +1931,7 @@ function mario:setquad(anim: any, s: any)
 	end
 end
 
-function mario:jump(force: any): any
+function mario:jump(force: any)
 	if ((not noupdate or self.animation == "grow1" or self.animation == "grow2") and self.controlsenabled) or force then
 	
 		if not self.underwater then
@@ -2049,7 +2049,7 @@ function mario:leftkey()
 	end
 end
 
-function mario:grow(): any
+function mario:grow()
 	self.animationmisc = self.animationstate
 	if self.animation and self.animation ~= "invincible" then
 		return
@@ -2085,7 +2085,7 @@ function mario:grow(): any
 	end
 end
 
-function mario:shrink(): any
+function mario:shrink()
 	self.animationmisc = self.animationstate
 	if self.animation then
 		return
@@ -2112,7 +2112,7 @@ function mario:shrink(): any
 	noupdate = true
 end
 
-function mario:floorcollide(a: any, b: Entity, c: any, d: any): any
+function mario:floorcollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "floor") then
 		return false
 	end
@@ -2219,7 +2219,7 @@ function mario:floorcollide(a: any, b: Entity, c: any, d: any): any
 	self.combo = 1
 end
 
-function mario:bluegel(dir: any): any
+function mario:bluegel(dir: any): boolean
 	if dir == "top" then
 		if downkey(self.playernumber) == false and self.speedy > gdt*yacceleration*10 then
 			self.speedy = -self.speedy
@@ -2251,7 +2251,7 @@ function mario:bluegel(dir: any): any
 	end
 end
 
-function mario:stompenemy(a: any, b: Entity, c: any, d: any, side: any): any
+function mario:stompenemy(a: any, b: Entity, c: any, d: any, side: any)
 	if not b then
 		return
 	end
@@ -2361,7 +2361,7 @@ function mario:stompenemy(a: any, b: Entity, c: any, d: any, side: any): any
 	end
 end
 
-function mario:rightcollide(a: any, b: Entity, c: any, d: any): any
+function mario:rightcollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "right") then
 		return false
 	end
@@ -2484,7 +2484,7 @@ function mario:rightcollide(a: any, b: Entity, c: any, d: any): any
 	end
 end
 
-function mario:leftcollide(a: any, b: Entity, c: any, d: any): any
+function mario:leftcollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "left") then
 		return false
 	end
@@ -2590,7 +2590,7 @@ function mario:leftcollide(a: any, b: Entity, c: any, d: any): any
 	end
 end
 
-function mario:ceilcollide(a: any, b: Entity, c: any, d: any): any
+function mario:ceilcollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "ceil") then
 		return false
 	end
@@ -2680,7 +2680,7 @@ function mario:ceilcollide(a: any, b: Entity, c: any, d: any): any
 	end
 end
 
-function mario:globalcollide(a: any, b: Entity, c: any, d: any, dir: any): any
+function mario:globalcollide(a: any, b: Entity, c: any, d: any, dir: any): boolean
 	self.lastcollision = {a, b, c, d, dir}
 	
 	if a == "platform" or a == "seesawplatform" then
@@ -2769,7 +2769,7 @@ function mario:globalcollide(a: any, b: Entity, c: any, d: any, dir: any): any
 	end
 end
 
-function mario:passivecollide(a: any, b: Entity, c: any, d: any): any
+function mario:passivecollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "passive") then
 		return false
 	end
@@ -2831,7 +2831,7 @@ function mario:passivecollide(a: any, b: Entity, c: any, d: any): any
 	self:rightcollide(a, b, c, d)
 end
 
-function mario:starcollide(a: any, b: Entity, c: any, d: any): any
+function mario:starcollide(a: any, b: Entity, c: any, d: any): boolean
 	--enemies that die
 	if a == "enemy" then
 		b:shotted("right", nil, nil, false, true)
@@ -2890,7 +2890,7 @@ function mario:dropvine(dir: any)
 	self.mask[18] = false
 end
 
-function mario:grabvine(b: Entity): any
+function mario:grabvine(b: Entity)
 	if self.ducking then
 		self:duck(false)
 	end
@@ -3162,7 +3162,7 @@ global function hitblock(x: number, y: number, t: any, koopa?: any): any
 	end
 end
 
-function mario:goinvincible(): any
+function mario:goinvincible()
 	self.animationstate = self.animationmisc as string
 	self.animation = "invincible" as any
 	self.invincible = true
@@ -3244,7 +3244,7 @@ function mario:startfall()
 	end
 end
 
-function mario:die(how: any): any
+function mario:die(how: any)
 	if self.dead or levelfinished then 
 		return
 	end
@@ -3337,7 +3337,7 @@ function mario:die(how: any): any
 	return
 end
 
-function mario:laser(dir: any): any
+function mario:laser(dir: any)
 	if self.pickup then
 		if dir == "right" and self.pointingangle < 0 then
 			return
@@ -3409,7 +3409,7 @@ function mario:removeportals(i: any): any
 	end
 end
 
-function mario:use(xcenter: number, ycenter: number): any
+function mario:use(xcenter: number, ycenter: number)
 	if not xcenter then
 		xcenter = self.x + 6/16 - math.sin(self.pointingangle)*userange
 		ycenter = self.y + 6/16 - math.cos(self.pointingangle)*userange
@@ -3499,7 +3499,7 @@ function mario:cubeemancipate(): any
 	return nil
 end
 
-function mario:duck(ducking: any): any --goose
+function mario:duck(ducking: any) --goose
 	if self.infunnel then
 		self.ducking = false
 		return
@@ -3521,7 +3521,7 @@ function mario:duck(ducking: any): any --goose
 	end
 end
 
-function mario:pipe(x: number, y: number, dir: any, i: any): any	
+function mario:pipe(x: number, y: number, dir: any, i: any)	
 	if editormode then
 		return
 	end
@@ -3594,7 +3594,7 @@ function mario:savereplaydata()
 	end
 end
 
-function mario:flag(): any	
+function mario:flag()	
 	for i = 1, players do
 		playerobjs[i].invincible = true
 	end
@@ -3655,7 +3655,7 @@ function mario:flag(): any
 	playsound("levelend")
 end
 
-function mario:axe(): any
+function mario:axe()
 	if levelfinished then
 		return
 	end
@@ -3811,7 +3811,7 @@ global function collectcoin(x: number, y: number, i?: any): any
 	end
 end
 
-function mario:portaled(dir: any): any
+function mario:portaled(dir: any)
 	if self.pickup then
 		(self.pickup as Entity):portaled(dir)
 	end
@@ -3866,7 +3866,7 @@ function mario:shootgel(i: any)
 	objects["gel"][#(objects["gel"] as {any})].speedx = xspeed
 end
 
-function mario:respawn(): any
+function mario:respawn()
 	if mariolivecount ~= false and (mariolives[self.playernumber] == 0 or levelfinished) then
 		return
 	end
@@ -3993,7 +3993,7 @@ function mario:stopanimation()
 	self.animation = false as any
 end
 
-function mario:portalpickup(i: any): any
+function mario:portalpickup(i: any)
 	self.lastportal = i as number
 	
 	if not self.portalsavailable[1] and not self.portalsavailable[2] then

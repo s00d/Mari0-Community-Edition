@@ -1037,7 +1037,7 @@ for i, v in pairs(toenter as {any:Dyn}) do
 	table.insert(animationstrings[v.t.t as string], v.t.nicename as string)
 end
 
-function animationguiline:init(tabl: any, t2: any): any
+function animationguiline:init(tabl: any, t2: any)
 	self.t = tabl as {any:any}
 	self.type = t2 as string
 	
@@ -1258,15 +1258,15 @@ function animationguiline:unclick(x: number, y: number, button: any): any
 	end
 end
 
-function animationguiline:delete(): any
+function animationguiline:delete()
 	deleteanimationguiline(self.type, self)
 end
 
-function animationguiline:moveup(): any
+function animationguiline:moveup()
 	moveupanimationguiline(self.type, self)
 end
 
-function animationguiline:movedown(): any
+function animationguiline:movedown()
 	movedownanimationguiline(self.type, self)
 end
 
@@ -1286,7 +1286,7 @@ function animationguiline:textinput(text: string): any
 	end
 end
 
-function animationguiline:changemainthing(value): any
+function animationguiline:changemainthing(value)
 	local name: any = nil
 	for i, v in pairs(animationlist as {any:any}) do
 		if (v as {string:any}).nicename == animationstrings[self.type][value as integer] then

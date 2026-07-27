@@ -21,7 +21,7 @@ global record actionblock is Entity, Body
 	addoutput: function(actionblock, any, any)
 	update: function(actionblock, number)
 	draw: function(actionblock)
-	floorcollide: function(actionblock, any, Entity, any, any): any...
+	floorcollide: function(actionblock, any, Entity, any, any): any
 	out: function(actionblock, any)
 	new: function(actionblock, number, number): actionblock
 end
@@ -70,7 +70,7 @@ global record animatedbooltimer
 	init: function(animatedbooltimer, number, number, any)
 	update: function(animatedbooltimer, number)
 	input: function(animatedbooltimer, any)
-	geti: function(animatedbooltimer): any...
+	geti: function(animatedbooltimer): number
 	new: function(animatedbooltimer, number, number, any): animatedbooltimer
 end
 
@@ -90,11 +90,11 @@ global record animatedquad
 	spikes: {any}
 	timer: number
 	triggered: any
-	init: function(animatedquad, any, any, any): any...
-	updateproperties: function(animatedquad): any...
+	init: function(animatedquad, any, any, any)
+	updateproperties: function(animatedquad)
 	update: function(animatedquad, number)
-	quad: function(animatedquad, any, any): any...
-	getproperty: function(animatedquad, any, any, any): any...
+	quad: function(animatedquad, any, any): any
+	getproperty: function(animatedquad, any, any, any): any
 	new: function(animatedquad, any, any, any): animatedquad
 end
 
@@ -136,7 +136,7 @@ global record animatedtimer
 	init: function(animatedtimer, number, number, any)
 	update: function(animatedtimer, number)
 	input: function(animatedtimer, any)
-	geti: function(animatedtimer): any...
+	geti: function(animatedtimer): number
 	new: function(animatedtimer, number, number, any): animatedtimer
 end
 
@@ -182,17 +182,17 @@ global record animationguiline
 	t: {any:any}
 	type: string
 	upbutton: guielement
-	init: function(animationguiline, any, any): any...
+	init: function(animationguiline, any, any)
 	update: function(animationguiline, number)
 	draw: function(animationguiline, number, number)
 	click: function(animationguiline, number, number, any): any
 	unclick: function(animationguiline, number, number, any): any
-	delete: function(animationguiline): any...
-	moveup: function(animationguiline): any...
-	movedown: function(animationguiline): any...
+	delete: function(animationguiline)
+	moveup: function(animationguiline)
+	movedown: function(animationguiline)
 	keypressed: function(animationguiline, string): any
 	textinput: function(animationguiline, string): any
-	changemainthing: function(animationguiline, any): any...
+	changemainthing: function(animationguiline, any)
 	submenuchange: function(animationguiline, any, any): any
 	haspriority: function(animationguiline): any
 	new: function(animationguiline, any, any): animationguiline
@@ -208,7 +208,7 @@ global record animationtrigger is Entity, Body
 	category: number
 	mask: {boolean}
 	draw: function(animationtrigger)
-	update: function(animationtrigger, number): any...
+	update: function(animationtrigger, number)
 	cox: number
 	coy: number
 	id: any
@@ -402,13 +402,13 @@ global record bulletbill is Entity, Body
 	y: number
 	init: function(bulletbill, number, number, any)
 	update: function(bulletbill, number): boolean
-	stomp: function(Entity, ...: any): any...
-	shotted: function(Entity, ...: any): any...
-	rightcollide: function(bulletbill, any, Entity): any...
-	leftcollide: function(bulletbill, any, Entity): any...
-	ceilcollide: function(bulletbill, any, Entity): any...
-	floorcollide: function(bulletbill, any, Entity): any...
-	globalcollide: function(bulletbill, any, Entity): any...
+	stomp: function(Entity, ...: any): any
+	shotted: function(Entity, ...: any): any
+	rightcollide: function(bulletbill, any, Entity): boolean
+	leftcollide: function(bulletbill, any, Entity): boolean
+	ceilcollide: function(bulletbill, any, Entity): boolean
+	floorcollide: function(bulletbill, any, Entity): boolean
+	globalcollide: function(bulletbill, any, Entity): boolean
 	portaled: function(bulletbill)
 	new: function(bulletbill, number, number, any): bulletbill
 end
@@ -503,7 +503,7 @@ global record castlefirefire is Entity, Body
 	speedx: number
 	speedy: number
 	draw: function(castlefirefire)
-	update: function(castlefirefire, number): any...
+	update: function(castlefirefire, number)
 	active: boolean
 	angle: number
 	category: number
@@ -539,7 +539,7 @@ global record ceilblocker is Entity, Body
 	category: number
 	mask: {boolean}
 	draw: function(ceilblocker)
-	update: function(ceilblocker, number): any...
+	update: function(ceilblocker, number)
 	active: boolean
 	height: number
 	static: boolean
@@ -988,29 +988,29 @@ global record enemy is Entity, Body
 	y: number
 	init: function(self: enemy, x: number, y: number, t: string, extra?: any)
 	update: function(enemy, number): boolean
-	addoutput: function(enemy, any, any): any...
-	shotted: function(self: enemy, a?: any, b?: any, c?: any, d?: any, e?: any): any...
-	decodearg: function(enemy, any): any...
-	customtimeraction: function(self: enemy, a: any, b?: any): any...
+	addoutput: function(enemy, any, any)
+	shotted: function(self: enemy, a?: any, b?: any, c?: any, d?: any, e?: any): boolean|nil
+	decodearg: function(enemy, any): any
+	customtimeraction: function(self: enemy, a: any, b?: any): any
 	func: function(enemy, any): number
-	globalcollide: function(enemy, any, Entity, any, any, any): any...
-	leftcollide: function(enemy, any, Entity, any, any): any...
-	rightcollide: function(enemy, any, Entity, any, any): any...
-	ceilcollide: function(enemy, any, Entity, any, any): any...
-	floorcollide: function(enemy, any, Entity, any, any): any...
-	passivecollide: function(enemy, any, Entity, any, any): any...
-	startfall: function(enemy): any...
-	stomp: function(enemy, any, Entity): any...
-	autodeleted: function(enemy): any...
-	output: function(enemy): any...
-	portaled: function(enemy): any...
-	spawnenemy: function(enemy, any): any...
-	transform: function(enemy, any): any...
-	emancipate: function(enemy): any...
-	laser: function(enemy, any, any): any...
-	enteredfunnel: function(enemy, any): any...
-	getspawnedenemies: function(enemy): any...
-	onscreen: function(enemy): any...
+	globalcollide: function(enemy, any, Entity, any, any, any): boolean
+	leftcollide: function(enemy, any, Entity, any, any): boolean
+	rightcollide: function(enemy, any, Entity, any, any): boolean
+	ceilcollide: function(enemy, any, Entity, any, any): boolean
+	floorcollide: function(enemy, any, Entity, any, any): boolean
+	passivecollide: function(enemy, any, Entity, any, any): boolean
+	startfall: function(enemy)
+	stomp: function(enemy, any, Entity): any
+	autodeleted: function(enemy)
+	output: function(enemy)
+	portaled: function(enemy)
+	spawnenemy: function(enemy, any)
+	transform: function(enemy, any)
+	emancipate: function(enemy): any
+	laser: function(enemy, any, any)
+	enteredfunnel: function(enemy, any)
+	getspawnedenemies: function(enemy): number
+	onscreen: function(enemy): boolean
 	new: function(self: enemy, x: number, y: number, t: string, extra?: any): enemy
 end
 
@@ -1024,7 +1024,7 @@ global record enemyspawner is Entity, Body
 	category: number
 	mask: {boolean}
 	draw: function(enemyspawner)
-	update: function(enemyspawner, number): any...
+	update: function(enemyspawner, number)
 	cox: number
 	coy: number
 	enemytospawn: string
@@ -1124,9 +1124,9 @@ global record fire is Entity, Body
 	y: number
 	init: function(fire, number, number)
 	update: function(fire, number)
-	leftcollide: function(fire, any, Entity): any...
-	rightcollide: function(fire, any, Entity): any...
-	floorcollide: function(fire, any, Entity): any...
+	leftcollide: function(fire, any, Entity): boolean
+	rightcollide: function(fire, any, Entity): boolean
+	floorcollide: function(fire, any, Entity): boolean
 	ceilcollide: function(fire, any, Entity): boolean
 	new: function(fire, number, number): fire
 end
@@ -1252,7 +1252,7 @@ global record gel is Entity, Body
 	x: number
 	y: number
 	init: function(gel, number, number, any)
-	update: function(gel, number): any...
+	update: function(gel, number): boolean
 	leftcollide: function(gel, any, Entity): boolean|nil
 	rightcollide: function(gel, any, Entity): boolean|nil
 	floorcollide: function(gel, any, Entity): boolean|nil
@@ -1391,12 +1391,12 @@ global record guielement
 	update: function(guielement, number)
 	draw: function(self: guielement, a?: number, b?: number, c?: number)
 	getheight: function(guielement): number
-	click: function(guielement, number, number, any): any...
+	click: function(guielement, number, number, any): boolean
 	haspriority: function(guielement): boolean
-	textinput: function(guielement, string): any...
-	keypress: function(guielement, string): any...
-	unclick: function(guielement, number, number, any): any...
-	inhighlight: function(self: guielement, x?: number, y?: number): any...
+	textinput: function(guielement, string)
+	keypress: function(guielement, string): boolean
+	unclick: function(guielement, number, number, any)
+	inhighlight: function(self: guielement, x?: number, y?: number): number|boolean
 	new: function(guielement, ...: any): guielement
 end
 
@@ -1510,7 +1510,7 @@ global record lightbridge
 	link: function(lightbridge)
 	input: function(lightbridge, any, any)
 	update: function(lightbridge, number)
-	getglowa: function(lightbridge, any): any...
+	getglowa: function(lightbridge, any): number
 	draw: function(lightbridge)
 	updaterange: function(lightbridge)
 	addChild: function(lightbridge, lightbridgebody)
@@ -1686,70 +1686,70 @@ global record mario is Entity, Body
 	update: function(mario, number)
 	update_raccoon_effects: function(mario, number)
 	update_star: function(mario, number)
-	update_animation: function(mario, number): any...
+	update_animation: function(mario, number): boolean
 	update_funnels: function(mario, number)
-	update_vine: function(mario, number): any...
-	update_springs: function(mario, number): any...
+	update_vine: function(mario, number): boolean
+	update_springs: function(mario, number): boolean
 	update_world_pickups: function(mario, number)
 	update_replay: function(mario, number)
 	update_gravity: function(mario, number)
 	update_fire_animation: function(mario, number)
 	update_zones: function(mario, number)
-	update_controls: function(mario, number): any...
+	update_controls: function(mario, number): boolean
 	update_drains: function(mario, number)
-	updateangle: function(mario): any...
+	updateangle: function(mario)
 	movement: function(mario, number)
 	runanimation: function(mario, number)
 	underwatermovement: function(mario, number)
 	setquad: function(self: mario, a?: any, b?: any)
-	jump: function(self: mario, a?: any): any...
+	jump: function(self: mario, a?: any)
 	stopjump: function(self: mario, a?: any)
 	rightkey: function(mario)
 	leftkey: function(mario)
-	grow: function(mario): any...
-	shrink: function(mario): any...
-	floorcollide: function(mario, any, Entity, any, any): any...
-	bluegel: function(mario, any): any...
-	stompenemy: function(self: mario, a: any, b: Entity, c: any, d: any, e?: any): any...
-	rightcollide: function(mario, any, Entity, any, any): any...
-	leftcollide: function(mario, any, Entity, any, any): any...
-	ceilcollide: function(mario, any, Entity, any, any): any...
-	globalcollide: function(mario, any, Entity, any, any, any): any...
-	passivecollide: function(mario, any, Entity, any, any): any...
-	starcollide: function(mario, any, Entity, any, any): any...
+	grow: function(mario)
+	shrink: function(mario)
+	floorcollide: function(mario, any, Entity, any, any): boolean
+	bluegel: function(mario, any): boolean
+	stompenemy: function(self: mario, a: any, b: Entity, c: any, d: any, e?: any)
+	rightcollide: function(mario, any, Entity, any, any): boolean
+	leftcollide: function(mario, any, Entity, any, any): boolean
+	ceilcollide: function(mario, any, Entity, any, any): boolean
+	globalcollide: function(mario, any, Entity, any, any, any): boolean
+	passivecollide: function(mario, any, Entity, any, any): boolean
+	starcollide: function(mario, any, Entity, any, any): boolean
 	hitspring: function(mario, Entity)
 	leavespring: function(mario)
 	dropvine: function(mario, any)
-	grabvine: function(mario, Entity): any...
-	goinvincible: function(mario): any...
+	grabvine: function(mario, Entity)
+	goinvincible: function(mario)
 	faithplate: function(mario, any)
 	startfall: function(mario)
-	die: function(mario, any): any...
-	laser: function(mario, any): any...
+	die: function(mario, any)
+	laser: function(mario, any)
 	emancipate: function(mario, any): any
-	removeportals: function(mario, ...: any): any...
-	use: function(self: mario, x?: number, y?: number): any...
+	removeportals: function(mario, ...: any): any
+	use: function(self: mario, x?: number, y?: number)
 	pickupbox: function(mario, Entity)
 	dropbox: function(mario)
 	cubeemancipate: function(mario): any
-	duck: function(mario, any): any...
-	pipe: function(mario, number, number, any, any): any...
+	duck: function(mario, any)
+	pipe: function(mario, number, number, any, any)
 	savereplaydata: function(mario)
-	flag: function(mario): any...
-	axe: function(mario): any...
+	flag: function(mario)
+	axe: function(mario)
 	vineanimation: function(mario)
 	star: function(mario)
 	fire: function(mario)
 	spinhit: function(mario, number, number, any)
 	fireballcallback: function(mario)
-	portaled: function(mario, any): any...
+	portaled: function(mario, any)
 	shootgel: function(mario, any)
-	respawn: function(mario): any...
+	respawn: function(mario)
 	dive: function(mario, any)
 	enteredfunnel: function(mario, any)
 	animationwalk: function(mario, any)
 	stopanimation: function(mario)
-	portalpickup: function(mario, any): any...
+	portalpickup: function(mario, any)
 	new: function(mario, number, number, any, any, any, any): mario
 end
 
@@ -1781,7 +1781,7 @@ global record musicentity is Entity, Body
 	static: boolean
 	category: number
 	mask: {boolean}
-	update: function(musicentity, number): any...
+	update: function(musicentity, number)
 	cox: number
 	coy: number
 	musicname: string
@@ -1867,7 +1867,7 @@ global record panel is Entity, Body
 	static: boolean
 	category: number
 	mask: {boolean}
-	update: function(panel, number): any...
+	update: function(panel, number)
 	cox: number
 	coy: number
 	dir: string
@@ -2122,7 +2122,7 @@ end
 global record portalwall is Entity, Body
 	speedx: number
 	speedy: number
-	update: function(portalwall, number): any...
+	update: function(portalwall, number)
 	active: boolean
 	category: number
 	height: number
@@ -2183,7 +2183,7 @@ global record quad
 	slantupright: number
 	water: number
 	init: function(quad, any, any, any, any, any, any)
-	getproperty: function(quad, any): any...
+	getproperty: function(quad, any): any
 	quad: function(quad): Quad
 	new: function(quad, any, any, any, any, any, any): quad
 end
@@ -2325,7 +2325,7 @@ global record rocketlauncher is Entity, Body
 	y: number
 	init: function(rocketlauncher, number, number)
 	update: function(rocketlauncher, number): boolean
-	fire: function(rocketlauncher): any...
+	fire: function(rocketlauncher): boolean
 	randomtime: function(rocketlauncher)
 	new: function(rocketlauncher, number, number): rocketlauncher
 end
@@ -2339,7 +2339,7 @@ global record rsflipflop is Entity, Body
 	static: boolean
 	category: number
 	mask: {boolean}
-	update: function(rsflipflop, number): any...
+	update: function(rsflipflop, number)
 	cox: number
 	coy: number
 	output: boolean
@@ -2401,7 +2401,7 @@ global record screenboundary is Entity, Body
 	speedx: number
 	speedy: number
 	draw: function(screenboundary)
-	update: function(screenboundary, number): any...
+	update: function(screenboundary, number)
 	active: boolean
 	category: number
 	height: number

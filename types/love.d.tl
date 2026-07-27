@@ -104,7 +104,7 @@ global interface Entity is {any}
 	category: number
 	mask: {any:boolean}
 	draw: function(Entity)
-	update: function(Entity, number): any...
+	update: function(Entity, number)
 	t: any
 	i: any
 	cox: number

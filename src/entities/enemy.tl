@@ -846,11 +846,11 @@ function enemy:update(dt: number): boolean
 	end
 end
 
-function enemy:addoutput(a: any, t: any): any
+function enemy:addoutput(a: any, t: any)
 	table.insert(self.outtable, {a, t} as {any})
 end
 
-function enemy:shotted(dir: any, below: any, high: any, fireball: any, star: any): any
+function enemy:shotted(dir: any, below: any, high: any, fireball: any, star: any): boolean|nil
 	if fireball and self.resistsfire then
 		return false
 	end
@@ -1020,7 +1020,7 @@ function enemy:func(i: any): number -- 0-1 in please
 	return (-math.cos((i as number)*math.pi*2)+1)/2
 end
 
-function enemy:globalcollide(a: any, b: Entity, c: any, d: any, dir: any): any
+function enemy:globalcollide(a: any, b: Entity, c: any, d: any, dir: any): boolean
 	if a == "tile" then
 		if not self.resistsspikes then
 			dir = twistdirection(self.gravitydirection, dir)
@@ -1118,7 +1118,7 @@ function enemy:globalcollide(a: any, b: Entity, c: any, d: any, dir: any): any
 	end
 end
 
-function enemy:leftcollide(a: any, b: Entity, c: any, d: any): any
+function enemy:leftcollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "left") then
 		return false
 	end
@@ -1174,7 +1174,7 @@ function enemy:leftcollide(a: any, b: Entity, c: any, d: any): any
 	end
 end
 
-function enemy:rightcollide(a: any, b: Entity, c: any, d: any): any
+function enemy:rightcollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "right") then
 		return false
 	end
@@ -1230,7 +1230,7 @@ function enemy:rightcollide(a: any, b: Entity, c: any, d: any): any
 	end
 end
 
-function enemy:ceilcollide(a: any, b: Entity, c: any, d: any): any
+function enemy:ceilcollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "ceil") then
 		return false
 	end
@@ -1267,7 +1267,7 @@ function enemy:ceilcollide(a: any, b: Entity, c: any, d: any): any
 	end
 end
 
-function enemy:floorcollide(a: any, b: Entity, c: any, d: any): any
+function enemy:floorcollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "floor") then
 		return false
 	end
@@ -1303,7 +1303,7 @@ function enemy:floorcollide(a: any, b: Entity, c: any, d: any): any
 	self.falling = false
 end
 
-function enemy:passivecollide(a: any, b: Entity, c: any, d: any): any
+function enemy:passivecollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "passive") then
 		return false
 	end
@@ -1315,7 +1315,7 @@ function enemy:passivecollide(a: any, b: Entity, c: any, d: any): any
 	end
 end
 
-function enemy:startfall(): any
+function enemy:startfall()
 	self.falling = true
 end
 
@@ -1394,12 +1394,12 @@ function enemy:stomp(x: any, b: Entity): any
 	end
 end
 
-function enemy:autodeleted(): any
+function enemy:autodeleted()
 	self.dead = true
 	self:output()
 end
 
-function enemy:output(): any
+function enemy:output()
 	for i = 1, #self.outtable do
 		local ot = self.outtable[i as integer] as {any}
 		if (ot[1] as Entity).input then
@@ -1408,17 +1408,17 @@ function enemy:output(): any
 	end
 end
 
-function enemy:addoutput(a: any, t: any): any
+function enemy:addoutput(a: any, t: any)
 	table.insert(self.outtable, {a, t} as {any})
 end
 
-function enemy:portaled(): any
+function enemy:portaled()
 	if self.killsenemiesafterportal then
 		self.killsenemies = true
 	end
 end
 
-function enemy:spawnenemy(t: any): any
+function enemy:spawnenemy(t: any)
 	local speedx: number = 0
 	local speedy: number = 0
 	if self.spawnenemyspeedx then
@@ -1480,7 +1480,7 @@ function enemy:spawnenemy(t: any): any
 	temp.spawner = self
 end
 
-function enemy:transform(t: any): any
+function enemy:transform(t: any)
 
 	if self.transfoutid and self.transfoutaction then
 		if self.transfoutvalue then
@@ -1530,13 +1530,13 @@ function enemy:emancipate(): any
 	end
 end
 
-function enemy:laser(guns: any, pewpew: any): any
+function enemy:laser(guns: any, pewpew: any)
 	if not self.laserresistant then
 		self:shotted()
 	end
 end
 
-function enemy:enteredfunnel(inside: any): any
+function enemy:enteredfunnel(inside: any)
 	if inside then
 		self.infunnel = true
 	else
@@ -1545,7 +1545,7 @@ function enemy:enteredfunnel(inside: any): any
 	end
 end
 
-function enemy:getspawnedenemies(): any
+function enemy:getspawnedenemies(): number
 	local count = 0
 	for i, v in pairs(self.spawnedenemies as {any:enemy}) do
 		if not v.dead then
@@ -1556,7 +1556,7 @@ function enemy:getspawnedenemies(): any
 	return count
 end
 
-function enemy:onscreen(): any
+function enemy:onscreen(): boolean
 	return enemy_onscreen(self.x, self.y, self.width, self.height)
 end
 
