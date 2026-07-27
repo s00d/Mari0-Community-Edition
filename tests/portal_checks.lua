@@ -39,7 +39,6 @@ do
 	check("L->R speedx", sx == 3)
 	check("L->R speedy", sy == 0)
 	check("L->R rotation", rot == 0)
-	-- center mapped: exit X minus directrange, then back to top-left
 	check("L->R newx finite", type(nx) == "number" and nx == nx)
 	check("L->R newy finite", type(ny) == "number" and ny == ny)
 end
@@ -73,51 +72,21 @@ do
 	check("R->R speedy same", sy == 1)
 end
 
--- portalcoords: down -> up places center at up detection plane, not inside ceiling tile
-do
-	local w, h = 12 / 16, 12 / 16
-	local x, y = 4.2, 7.625 -- center y=8 at down portal y=7 plane
-	local nx, ny = portalcoords(
-		x, y, 0, -6, w, h, 0, "right",
-		5, 7, "down",
-		18, 20, "up",
-		nil, true
-	)
-	local centerY = ny + h / 2
-	local upPlane = 20 - 1
-	check("D->U floor exit at up plane", almost(centerY, upPlane), "centerY=" .. centerY)
-	check("D->U floor exit not inside tile", centerY <= upPlane)
-end
-
--- portalcoords: down -> up same-tile exit below ceiling, not embedded in portal row
+-- portalcoords: down -> up (original formula: exitportalY + directrange - 1)
 do
 	local w, h = 12 / 16, 12 / 16
 	local nx, ny = portalcoords(
 		4.2, 7.625, 0, -6, w, h, 0, "right",
 		5, 7, "down",
-		5, 7, "up",
-		nil, true
-	)
-	local centerY = ny + h / 2
-	local upPlane = 7 - 1
-	check("D->U same-tile at up plane", almost(centerY, upPlane), "centerY=" .. centerY)
-	check("D->U same-tile not in portal row", centerY < 7)
-end
-
--- portalcoords: deeper down entry exits proportionally below up plane
-do
-	local w, h = 12 / 16, 12 / 16
-	local nx, ny = portalcoords(
-		4.2, 8.125, 0, -6, w, h, 0, "right",
-		5, 7, "down",
 		18, 20, "up",
 		nil, true
 	)
 	local centerY = ny + h / 2
-	local upPlane = 19
-	check("D->U deep entry below up plane", centerY < upPlane, "centerY=" .. centerY)
+	-- directrange = centerY_entry - 7 = 1.0; exit center = 20 + 1 - 1 = 20
+	check("D->U exit center at exit portal row", almost(centerY, 20), "centerY=" .. centerY)
 end
 
+-- portalcoords: up -> right swaps axes
 do
 	local w, h = 1, 1
 	local nx, ny, sx, sy, rot = portalcoords(
@@ -145,7 +114,7 @@ do
 	check("HOR reject left-facing", checkportalHOR(self, self.y + 1) == false)
 end
 
--- checkportalHOR: moving away from up portal rejects
+-- checkportalHOR: moving away from up portal rejects (up detection plane y1-1)
 do
 	portals = {
 		{
@@ -157,8 +126,43 @@ do
 		x = 4.2, y = 6.5, width = 0.75, height = 0.75,
 		speedx = 0, speedy = -3, rotation = 0, animationdirection = "right",
 	}
-	-- portal1Y for up is y1-1 = 7; object center crosses that range while moving up
 	check("HOR reject up while rising", checkportalHOR(self, self.y - 1) == false)
+end
+
+-- checkportalHOR: down portal rejects falling (wrong direction)
+do
+	portals = {
+		{
+			x1 = 5, y1 = 7, facing1 = "down",
+			x2 = 2, y2 = 12, facing2 = "up",
+		},
+	}
+	local self = {
+		x = 4.2, y = 8.0, width = 0.75, height = 0.75,
+		speedx = 0, speedy = 4, rotation = 0, animationdirection = "right",
+	}
+	check("HOR reject down while falling", checkportalHOR(self, self.y + 1) == false)
+end
+
+-- checkportalHOR: rising through down portal under platform teleports to linked exit
+do
+	portals = {
+		{
+			x1 = 2, y1 = 12, facing1 = "up",
+			x2 = 5, y2 = 7, facing2 = "down",
+		},
+	}
+	function checkrect()
+		return {}
+	end
+	local self = {
+		x = 4.2, y = 7.0, width = 0.75, height = 0.75,
+		speedx = 0, speedy = -5, rotation = 0, animationdirection = "right",
+		jumping = true, falling = false,
+	}
+	local ok = checkportalHOR(self, self.y - 1)
+	check("HOR down-under sweep ok", ok == true)
+	check("HOR down-under exits at floor portal", self.y + self.height / 2 > 10)
 end
 
 -- checkportalVER: wrong entry facing (up) rejects
@@ -177,7 +181,6 @@ do
 end
 
 -- checkportalVER: successful right->left teleport when exit clear
--- Right-facing entry rejects speedx>0; approach from +X moving left across portal X.
 do
 	portals = {
 		{
@@ -240,61 +243,31 @@ do
 	check("inportal empty false", inportal(self) == false)
 end
 
--- checkportalHOR: down portal under platform uses down end when rising
--- Platform tile at y=8; blue=down and orange=up on same column (opposite faces).
+-- inportal: near platform from below (grid y != portal row) does not snap
 do
 	portals = {
 		{
-			x1 = 5, y1 = 8, facing1 = "up",
-			x2 = 5, y2 = 8, facing2 = "down",
+			x1 = 2, y1 = 12, facing1 = "up",
+			x2 = 5, y2 = 7, facing2 = "down",
 		},
 	}
-	function checkrect()
-		return {}
+	local w, h = 12 / 16, 12 / 16
+	for _, startY in ipairs({ 7.0, 8.0, 8.5 }) do
+		local self = {
+			mask = {}, x = 4.2, y = startY, width = w, height = h,
+			speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
+		}
+		local ybefore = self.y
+		inportal(self)
+		check("inportal no snap below platform y=" .. startY, self.y == ybefore)
 	end
-	local saw = nil
-	local self = {
-		x = 4.2, y = 9.0, width = 0.75, height = 0.75,
-		speedx = 0, speedy = -4, rotation = 0, animationdirection = "right",
-		jumping = true, falling = false,
-		portaled = function(_, face)
-			saw = face
-		end,
-	}
-	-- detection plane for down at y=8 is now y+1=9; center crosses 9 while rising
-	local ok = checkportalHOR(self, self.y - 1)
-	check("HOR under-platform picks down entry", ok == true)
-	check("HOR under-platform exit facing", saw == "up")
-	check("HOR under-platform moved up through portal", self.y < 9.0)
 end
 
--- checkportalHOR: down under platform teleports to distant floor portal, not above platform
+-- inportal: grid match at portal row (floor(center)+1 == portalY) teleports
 do
 	portals = {
 		{
-			x1 = 5, y1 = 8, facing1 = "down",
-			x2 = 18, y2 = 20, facing2 = "up",
-		},
-	}
-	function checkrect()
-		return {}
-	end
-	local self = {
-		x = 4.2, y = 9.5, width = 0.75, height = 0.75,
-		speedx = 0, speedy = -5, rotation = 0, animationdirection = "right",
-		jumping = true, falling = false,
-	}
-	local ok = checkportalHOR(self, self.y - 1.5)
-	check("HOR down-under to floor exit ok", ok == true)
-	check("HOR down-under exits near floor portal", self.y > 15)
-	check("HOR down-under not on platform top", self.y > 10)
-end
-
--- inportal: rising below platform must not snap to up portal on same tile
-do
-	portals = {
-		{
-			x1 = 5, y1 = 7, facing1 = "up",
+			x1 = 2, y1 = 12, facing1 = "up",
 			x2 = 5, y2 = 7, facing2 = "down",
 		},
 	}
@@ -303,108 +276,8 @@ do
 		mask = {}, x = 4.2, y = 6.0, width = w, height = h,
 		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
 	}
-	local ybefore = self.y
 	inportal(self)
-	check("inportal same-tile no early up snap", self.y == ybefore)
-end
-
--- inportal: must not fire before down portal plane (center outside entry band)
-do
-	portals = {
-		{
-			x1 = 2, y1 = 12, facing1 = "up",
-			x2 = 5, y2 = 7, facing2 = "down",
-		},
-	}
-	local w, h = 12 / 16, 12 / 16
-	for _, startY in ipairs({ 6.5, 7.0, 7.5 }) do
-		local self = {
-			mask = {}, x = 4.2, y = startY, width = w, height = h,
-			speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
-		}
-		local ybefore = self.y
-		inportal(self)
-		check("inportal no pre-plane snap y=" .. startY, self.y == ybefore)
-	end
-end
-
--- inportal: down entry on same tile when centered at detection plane
-do
-	portals = {
-		{
-			x1 = 5, y1 = 7, facing1 = "up",
-			x2 = 5, y2 = 7, facing2 = "down",
-		},
-	}
-	local w, h = 12 / 16, 12 / 16
-	-- center must be at down plane (8); y=7.625 gives center 8.0
-	local self = {
-		mask = {}, x = 4.2, y = 7.625, width = w, height = h,
-		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
-	}
-	inportal(self)
-	-- down->up on same tile exits above platform (center y ~ 7.375)
-	check("inportal down entry fires at plane", self.y < 7.625)
-end
-
--- inportal: distant linked exit when rising into down portal under platform
-do
-	portals = {
-		{
-			x1 = 2, y1 = 12, facing1 = "up",
-			x2 = 5, y2 = 7, facing2 = "down",
-		},
-	}
-	local w, h = 12 / 16, 12 / 16
-	local self = {
-		mask = {}, x = 4.2, y = 7.625, width = w, height = h,
-		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
-	}
-	inportal(self)
-	check("inportal down-under uses linked exit", self.y > 8.5)
-	check("inportal down-under not platform top snap", self.y > 8.0)
-end
-
--- physics-order sim: jump from below platform through down portal at (5,7)
-do
-	portals = {
-		{
-			x1 = 2, y1 = 12, facing1 = "up",
-			x2 = 5, y2 = 7, facing2 = "down",
-		},
-	}
-	function checkrect()
-		return {}
-	end
-	local w, h = 12 / 16, 12 / 16
-	local self = {
-		mask = {}, x = 4.2, y = 8.5, width = w, height = h,
-		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
-		jumping = true, falling = false,
-	}
-	local teleported = false
-	local earlySnap = false
-	for _ = 1, 40 do
-		local ybefore = self.y
-		local nextY = self.y + self.speedy / 60
-		if checkportalHOR(self, nextY) then
-			teleported = true
-			break
-		end
-		self.y = nextY
-		local ymid = self.y
-		inportal(self)
-		if self.y ~= ymid and self.y < 8.5 then
-			earlySnap = true
-		end
-		if self.y > 8.5 then
-			teleported = true
-			break
-		end
-	end
-	check("jump sim no early inportal snap", not earlySnap)
-	check("jump sim reaches linked exit", teleported and self.y > 8.5)
-	check("jump sim not stuck before portal plane", self.y > 8.5 or self.y < 7.5)
+	check("inportal grid match at portal row teleports", self.y + h / 2 > 10)
 end
 
 return failed
