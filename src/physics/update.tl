@@ -5,9 +5,12 @@
 global function physicsupdate(dt: number)
 	local lobjects = objects
 	
-	for j, w in pairs(lobjects) do
-		if j ~= "tile" then
-			for i, v in pairs(w) do
+	for gi = 1, #PHYSICS_GROUP_ORDER do
+		local group_name = PHYSICS_GROUP_ORDER[gi]
+		local w = lobjects[group_name]
+		if w and group_name ~= "tile" then
+			for _, i in ipairs(physics_group_keys_sorted(w)) do
+				local v = w[i]
 				if v.static == false and v.active then
 					local body = v as Body
 					--GRAVITY
@@ -33,7 +36,7 @@ global function physicsupdate(dt: number)
 							passed = true
 						end
 						
-						if passed and j == "player" then
+						if passed and group_name == "player" then
 							playsound("portalenter")
 						end
 					end
@@ -43,9 +46,11 @@ global function physicsupdate(dt: number)
 					local vercollision = false
 					
 					--VS OTHER OBJECTS PRE TILE GROUP
-					for h, u in pairs(lobjects) do
-						if h ~= "tile" and not PHYSICS_LATE_SET[h as string] then
-							local hor, ver = handlegroup(i, h, u as {any:Body}, body, j, dt, passed)
+					for hi = 1, #PHYSICS_GROUP_ORDER do
+						local h = PHYSICS_GROUP_ORDER[hi]
+						local u = lobjects[h]
+						if u and h ~= "tile" and not PHYSICS_LATE_SET[h as string] then
+							local hor, ver = handlegroup(i, h, u as {any:Body}, body, group_name, dt, passed)
 							if hor then
 								horcollision = true
 							end
@@ -72,13 +77,13 @@ global function physicsupdate(dt: number)
 					for x = xfrom, xto, dir do
 						for y = ystart, ystart+math.ceil(v.height+0.0001) do
 							--check if invisible block
-							if inmap(x, y) and (not tilequads[map[x][y][1]]:getproperty("invisible", x, y) or j == "player") then
+							if inmap(x, y) and (not tilequads[map[x][y][1]]:getproperty("invisible", x, y) or group_name == "player") then
 								local tk = tilekey(x, y)
 								local t = tiles[tk]
 								if t then
 									--    Same object          Active        Not masked
-									if (i ~= tk or j ~= "tile") and t.active and v.mask[t.category] ~= true then
-										local collision1, collision2 = checkcollision(v, t, "tile", tk, j, i, dt, passed)
+									if (i ~= tk or group_name ~= "tile") and t.active and v.mask[t.category] ~= true then
+										local collision1, collision2 = checkcollision(v, t, "tile", tk, group_name, i, dt, passed)
 										if collision1 then
 											horcollision = true
 										elseif collision2 then
@@ -94,7 +99,7 @@ global function physicsupdate(dt: number)
 					for _, h in ipairs(PHYSICS_LATE_LIST) do
 						local u = objects[h]
 						if u then
-							local hor, ver = handlegroup(i, h, u as {any:Body}, body, j, dt, passed)
+							local hor, ver = handlegroup(i, h, u as {any:Body}, body, group_name, dt, passed)
 							if hor then
 								horcollision = true
 							end

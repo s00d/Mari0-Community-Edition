@@ -1023,6 +1023,8 @@ global xplus: number
 global yplus: number
 global PHYSICS_LATE_SET: {string:boolean}
 global PHYSICS_LATE_LIST: {string}
+global PHYSICS_GROUP_ORDER: {string}
+global physics_group_keys_sorted: function({any: any}): {any}
 global directionsimg: Image
 global fontquadsback: {string:Quad}
 global lastline: number

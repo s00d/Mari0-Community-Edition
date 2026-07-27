@@ -46,6 +46,7 @@
 
 -- Thin facade: movers + AABB query live in dedicated modules.
 require("physics.checkrect")
+require("physics.order")
 require("physics.update")
 
 return {}
