@@ -21,7 +21,7 @@ function button:init(x: number, y: number, r)
 	self.active = false
 	self.category = 22
 	self.dir = "down"
-	self.objtable = {"player", "enemy", "box"}
+	self.objtable = {"player", "enemy", "box", "iceblock"}
 	
 	self.mask = {true}
 	

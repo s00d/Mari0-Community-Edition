@@ -59,6 +59,7 @@ function box:init(x: number, y: number)
 	self.grabbable = true
 	self.beamed = nil
 	self.punttimer = 0
+	self.gelreactive = true
 end
 
 function box:update(dt: number): boolean

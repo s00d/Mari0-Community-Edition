@@ -54,6 +54,9 @@ local function clear_fields(pl: {string:any})
 	pl.grapple_coy = nil
 	pl.grapple_len = nil
 	pl.grapple_reel = nil
+	pl.grapple_body = nil
+	pl.grapple_offx = nil
+	pl.grapple_offy = nil
 end
 
 local function detach(pl: {string:any}, reason: string, boost: boolean)
@@ -73,6 +76,9 @@ local function attach(pl: {string:any}, ax: number, ay: number, cox: number, coy
 	pl.grapple_y = ay
 	pl.grapple_cox = cox
 	pl.grapple_coy = coy
+	pl.grapple_body = nil
+	pl.grapple_offx = nil
+	pl.grapple_offy = nil
 	local px = (pl.x as number) + (pl.width as number) / 2
 	local py = (pl.y as number) + (pl.height as number) / 2
 	pl.grapple_len = math.min(MAX_LEN, math.sqrt((ax - px) ^ 2 + (ay - py) ^ 2))
@@ -80,6 +86,54 @@ local function attach(pl: {string:any}, ax: number, ay: number, cox: number, coy
 	if playsound then
 		playsound("hookshot") -- no-op until assets/sounds/hookshot.ogg exists
 	end
+end
+
+-- Attach to a movable body; anchor follows body+offset each frame.
+local function attach_body(pl: {string:any}, body: {string:any}, ax: number, ay: number)
+	pl.grapple = true
+	pl.grapple_body = body
+	pl.grapple_offx = ax - ((body.x as number) or 0)
+	pl.grapple_offy = ay - ((body.y as number) or 0)
+	pl.grapple_x = ax
+	pl.grapple_y = ay
+	pl.grapple_cox = nil
+	pl.grapple_coy = nil
+	local px = (pl.x as number) + ((pl.width as number) or 0.75) / 2
+	local py = (pl.y as number) + ((pl.height as number) or 0.75) / 2
+	pl.grapple_len = math.min(MAX_LEN, math.sqrt((ax - px) ^ 2 + (ay - py) ^ 2))
+	pl.grapple_reel = true
+	if playsound then
+		playsound("hookshot")
+	end
+end
+
+local function body_alive(body: {string:any}|nil): boolean
+	if body == nil then
+		return false
+	end
+	local b = body as {string:any}
+	if b.destroying or b.destroy or b.dead or b.kill then
+		return false
+	end
+	if b.active == false and not b.static then
+		-- lightbridgebody may be static+active; inactive non-static = gone
+		return false
+	end
+	return true
+end
+
+local function sync_body_anchor(pl: {string:any}): boolean
+	local body = pl.grapple_body as {string:any}|nil
+	if body == nil then
+		return true
+	end
+	if not body_alive(body) then
+		return false
+	end
+	local b = body as {string:any}
+	pl.grapple_x = (b.x as number) + ((pl.grapple_offx as number) or 0)
+	pl.grapple_y = (b.y as number) + ((pl.grapple_offy as number) or 0)
+	return true
 end
 
 local function reel_target_to(pl: {string:any}, target: {string:any})
@@ -246,12 +300,20 @@ local function update(pl: {string:any}, dt: number)
 	end
 	pl.grapple_reel = true
 
-	-- 4) anchor tile no longer collision
-	local cox = pl.grapple_cox as number|nil
-	local coy = pl.grapple_coy as number|nil
-	if cox ~= nil and coy ~= nil and not anchor_solid(cox as number, coy as number) then
-		detach(pl, "broken_anchor", false)
-		return
+	-- 2) movable-body anchor: follow or detach if gone
+	if pl.grapple_body then
+		if not sync_body_anchor(pl) then
+			detach(pl, "body_gone", false)
+			return
+		end
+	else
+		-- 4) anchor tile no longer collision
+		local cox = pl.grapple_cox as number|nil
+		local coy = pl.grapple_coy as number|nil
+		if cox ~= nil and coy ~= nil and not anchor_solid(cox as number, coy as number) then
+			detach(pl, "broken_anchor", false)
+			return
+		end
 	end
 
 	-- 5) emancipation grill between player and anchor
@@ -348,6 +410,9 @@ return {
 	rope_step = rope_step,
 	detach = detach,
 	attach = attach,
+	attach_body = attach_body,
+	sync_body_anchor = sync_body_anchor,
+	body_alive = body_alive,
 	reel_target_to = reel_target_to,
 	anchor_solid = anchor_solid,
 	grill_between = grill_between,

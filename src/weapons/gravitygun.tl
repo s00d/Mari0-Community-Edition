@@ -4,6 +4,7 @@ local aimmod = require("weapons.aim") as {string:any}
 
 local MAX_RANGE = aimmod.MAX_RANGE as number
 local OMEGA = 14
+local MAXV = 40
 local GRAB_DIST = 0.45
 local REACH_LIMIT = 10
 local COOLDOWN = 0.12
@@ -95,8 +96,6 @@ local function release_obj(pl: {string:any}, reason: string)
 			clear_beam(held)
 			pl.gg_pulling = nil
 			pl.gg_state = "idle"
-			pl.gg_vx = 0
-			pl.gg_vy = 0
 			;(pl.dropbox as function({string:any}))(pl)
 			return
 		end
@@ -104,8 +103,6 @@ local function release_obj(pl: {string:any}, reason: string)
 		pl.pickup = false
 		pl.gg_pulling = nil
 		pl.gg_state = "idle"
-		pl.gg_vx = 0
-		pl.gg_vy = 0
 		return
 	end
 
@@ -126,8 +123,6 @@ local function release_obj(pl: {string:any}, reason: string)
 
 	pl.gg_pulling = nil
 	pl.gg_state = "idle"
-	pl.gg_vx = 0
-	pl.gg_vy = 0
 end
 
 -- Portal-anchored tiles must not be yanked out from under a portal.
@@ -250,8 +245,6 @@ end
 local function begin_pull(pl: {string:any}, obj: {string:any})
 	pl.gg_state = "pulling"
 	pl.gg_pulling = obj
-	pl.gg_vx = (obj.speedx as number) or 0
-	pl.gg_vy = (obj.speedy as number) or 0
 	mark_grabbed(pl, obj)
 	-- Keep active so drawable/update runs; no parent → no Mario snap.
 	obj.active = true
@@ -266,8 +259,6 @@ local function enter_hold(pl: {string:any}, obj: {string:any})
 	-- Critical: do NOT set parent — box:update would snap to pointingangle*0.3.
 	obj.parent = nil
 	obj.active = true
-	obj.speedx = 0
-	obj.speedy = 0
 end
 
 local function on_cooldown(pl: {string:any}): boolean
@@ -367,21 +358,18 @@ local function hold(pl: {string:any}, button: any, dt: number)
 	fire(pl, "l")
 end
 
+-- Critically damped spring writes velocity only; integrator moves x/y.
 local function spring_object(pl: {string:any}, obj: {string:any}, dt: number): number, number, number, number
 	local tx, ty = hold_point(pl, obj)
 	local ox = obj.x as number
 	local oy = obj.y as number
-	local vx = (pl.gg_vx as number) or 0
-	local vy = (pl.gg_vy as number) or 0
-	ox, vx = spring_step(ox, vx, tx, OMEGA, dt)
-	oy, vy = spring_step(oy, vy, ty, OMEGA, dt)
-	obj.x = ox
-	obj.y = oy
-	obj.speedx = 0
-	obj.speedy = 0
+	local vx = (obj.speedx as number) or 0
+	local vy = (obj.speedy as number) or 0
+	vx = vx + (-2 * OMEGA * vx - OMEGA * OMEGA * (ox - tx)) * dt
+	vy = vy + (-2 * OMEGA * vy - OMEGA * OMEGA * (oy - ty)) * dt
+	obj.speedx = math.max(-MAXV, math.min(MAXV, vx))
+	obj.speedy = math.max(-MAXV, math.min(MAXV, vy))
 	obj.gravity = 0
-	pl.gg_vx = vx
-	pl.gg_vy = vy
 	return tx, ty, ox, oy
 end
 
@@ -527,6 +515,8 @@ return {
 	equip = equip,
 	unequip = unequip,
 	spring_step = spring_step,
+	spring_object = spring_object,
+	MAXV = MAXV,
 	mouse_world = mouse_world,
 	hold_point = hold_point,
 	clip_range = clip_range,

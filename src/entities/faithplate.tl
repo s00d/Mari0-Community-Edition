@@ -26,7 +26,7 @@ function faithplate:init(x: number, y: number, r)
 	
 	self.animationtimer = 1
 	
-	self.includetable = {"player", "box", "enemy"}
+	self.includetable = {"player", "box", "iceblock", "enemy"}
 	
 	self.xspeed = 0
 	self.yspeed = 20

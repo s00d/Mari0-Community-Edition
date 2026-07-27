@@ -1,4 +1,4 @@
---[[ Freeze ray — replace enemy with iceblock (metatable box). ]]
+--[[ Freeze ray — replace enemy with iceblock; cleanse gel on tiles. ]]
 
 local aimmod = require("weapons.aim") as {string:any}
 
@@ -8,6 +8,28 @@ local BEAM_TIME = 0.1
 
 local pick_entity = aimmod.pick_entity as function({string:any}, number|nil): {string:any}|nil
 local aim = aimmod.aim as function({string:any}): number, number, number, number, number
+
+local function cleanse_tile_gels(cox: number, coy: number)
+	if not map or not map[cox] or not map[cox][coy] then
+		return
+	end
+	local cell = map[cox][coy]
+	local had = false
+	for side = 1, 4 do
+		if map_cell_gel_id(cell, side) then
+			had = true
+			break
+		end
+	end
+	if not had then
+		return
+	end
+	for side = 1, 4 do
+		if map_cell_gel_id(cell, side) then
+			map_cell_set_gel(cell, side, GEL_CLEANSE)
+		end
+	end
+end
 
 local function fire(pl: {string:any}, button: any)
 	local _: any = button
@@ -26,25 +48,26 @@ local function fire(pl: {string:any}, button: any)
 		playsound("portalgun")
 	end
 
-	if target == nil then
-		return
-	end
-	local t = target as {string:any}
-	if t.gg_group ~= "enemy" then
-		return
-	end
-	if t.freezeimmune or t.dead or t.shot then
-		return
+	if target ~= nil then
+		local t = target as {string:any}
+		if t.gg_group == "enemy" and not t.freezeimmune and not t.dead and not t.shot then
+			t.kill = true
+			t.drawable = false
+			if iceblock and iceblock.new and objects and objects["iceblock"] then
+				table.insert(objects["iceblock"] as {any},
+					(iceblock.new as function(any, {string:any}): any)(iceblock, t))
+			end
+			return
+		end
 	end
 
-	t.kill = true
-	t.drawable = false
-	if not iceblock or not iceblock.new then
-		return
-	end
-	if objects and objects["iceblock"] then
-		table.insert(objects["iceblock"] as {any},
-			(iceblock.new as function(any, {string:any}): any)(iceblock, t))
+	-- No freezable enemy: cleanse gel on aimed tile (cleanse role).
+	local sx, sy, _, _, ang = aim(pl)
+	if traceline then
+		local cox, coy = traceline(sx, sy, ang, nil)
+		if cox and coy and cox ~= false and coy ~= false then
+			cleanse_tile_gels(cox as number, coy as number)
+		end
 	end
 end
 
@@ -101,4 +124,5 @@ return {
 	draw = draw,
 	equip = equip,
 	unequip = unequip,
+	cleanse_tile_gels = cleanse_tile_gels,
 }

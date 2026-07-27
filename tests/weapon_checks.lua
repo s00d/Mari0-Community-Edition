@@ -79,8 +79,6 @@ do
 			pickup = obj,
 			gg_pulling = nil,
 			gg_state = "held",
-			gg_vx = 1,
-			gg_vy = 1,
 		}
 		obj.beamed = pl
 		gravitygun.release_obj(pl, reason)
@@ -100,7 +98,7 @@ do
 	check("release 8 reasons clear", all_ok)
 
 	local obj2 = { beamed = nil, gravity = 0 }
-	local pl2 = { pickup = false, gg_pulling = obj2, gg_state = "pulling", gg_vx = 0, gg_vy = 0 }
+	local pl2 = { pickup = false, gg_pulling = obj2, gg_state = "pulling" }
 	obj2.beamed = pl2
 	gravitygun.release_obj(pl2, "cancel")
 	check("release pulling clears beam", obj2.beamed == nil and pl2.gg_pulling == nil)
@@ -201,6 +199,9 @@ do
 
 	for _ = 1, 180 do
 		gravitygun.update(pl, 1 / 60)
+		-- Spring writes velocity; physics integrator moves (headless stub).
+		box.x = box.x + (box.speedx or 0) / 60
+		box.y = box.y + (box.speedy or 0) / 60
 		if pl.weapondelay.gravitygun then
 			pl.weapondelay.gravitygun = math.max(0, pl.weapondelay.gravitygun - 1 / 60)
 		end
@@ -470,9 +471,11 @@ do
 	check("enemy AI frozen", enemy.movement == nil and enemy.gravity == 0 and enemy.gg_saved ~= nil)
 	check("enemy no parent snap", enemy.parent == nil)
 
-	-- spring toward cursor (not character)
+	-- spring toward cursor (not character); integrator applies speed
 	for _ = 1, 180 do
 		gravitygun.update(p2, 1 / 60)
+		enemy.x = enemy.x + (enemy.speedx or 0) / 60
+		enemy.y = enemy.y + (enemy.speedy or 0) / 60
 		if p2.weapondelay.gravitygun then
 			p2.weapondelay.gravitygun = math.max(0, p2.weapondelay.gravitygun - 1 / 60)
 		end

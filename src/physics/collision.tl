@@ -407,6 +407,21 @@ global function callcollision(dir: any, obj: Entity, a: any, b: Entity, c: any, 
 				end
 			end
 		end
+
+		-- Opt-in bounce/speed gel for non-mario bodies (strangler: mario keeps its path).
+		if (obj as {string:any}).gelreactive and map[x] and map[x][y] then
+			local sidesn = map[x][y].gelSides
+			if sidesn then
+				local sides = sidesn as {number:number}
+				if dir == "floor" then
+					gel_react_floor(obj as {string:any}, sides[GEL_SIDE_TOP])
+				elseif dir == "left" then
+					gel_react_side(obj as {string:any}, sides[GEL_SIDE_RIGHT], GEL_SIDE_RIGHT)
+				elseif dir == "right" then
+					gel_react_side(obj as {string:any}, sides[GEL_SIDE_LEFT], GEL_SIDE_LEFT)
+				end
+			end
+		end
 		
 		if purplegel then
 			obj.speedy = 0

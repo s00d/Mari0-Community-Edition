@@ -60,6 +60,7 @@ function Boot.require_game()
 	require "util.portalutil"
 	require "util.scrollutil"
 	require "world.geltypes"
+	require "world.gelreact"
 	require "util.geldraw"
 	require "util.enemyutil"
 	require "world.spawnregistry"

@@ -91,6 +91,7 @@ gelmaxrunspeed = 50
 gelmaxwalkspeed = 25
 gelrunacceleration = 25
 gelwalkacceleration = 12.5
+gelspeedmul = 2 -- non-mario gelreactive bodies: floor speed gel multiplier
 
 uwgelmaxrunspeed = 50
 uwgelmaxwalkspeed = 12.5

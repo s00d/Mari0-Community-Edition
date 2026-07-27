@@ -44,8 +44,6 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	self.grapple_len = nil
 	self.grapple_reel = nil
 	self.gg_pulling = nil
-	self.gg_vx = 0
-	self.gg_vy = 0
 	if Weapons then
 		Weapons.setup_player(self as {string:any})
 	end

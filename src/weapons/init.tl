@@ -83,8 +83,6 @@ local function setup_player(pl_any: any)
 	pl.weapondelay = pl.weapondelay or {}
 	pl.gg_state = "idle"
 	pl.gg_pulling = nil
-	pl.gg_vx = 0
-	pl.gg_vy = 0
 	local w = current(pl)
 	if w and w.equip then
 		(w.equip as function({string:any}))(pl)

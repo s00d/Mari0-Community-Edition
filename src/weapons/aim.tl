@@ -1,4 +1,6 @@
---[[ Shared beam aim + entity pick for gravitygun / freezeray / lightgun. ]]
+--[[ Shared beam aim + entity pick for gravitygun / freezeray / lightgun.
+     Light bridges are intentionally transparent to beams ("light doesn't block light"):
+     traceline walks tiles only; lightbridgebody is not in PICK_LISTS. ]]
 
 local MAX_RANGE = 8
 local STEP = 0.2
