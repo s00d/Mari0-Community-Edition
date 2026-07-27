@@ -252,6 +252,7 @@ function lightbridgebody:init(parent: lightbridge, x: number, y: number, dir: st
 	self.mask = {true}
 	
 	self.gels = {}
+	self.gelSides = {}
 	
 	self:pushstuff()
 end
@@ -318,9 +319,9 @@ function lightbridgebody:draw()
 	love.graphics.setColor(1, 1, 1)
 	
 	--gel
-	if self.gels then
+	if self.gelSides then
 		local px = math.floor((self.cox - .5 - xscroll) * 16 * scale)
 		local py = math.floor((self.coy - 1 - yscroll) * 16 * scale)
-		draw_entity_gel_overlays(self.gels as {string:any}, px, py, 8, 2)
+		draw_tile_gel_overlays(self.gelSides, px, py, 8, 2)
 	end
 end

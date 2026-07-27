@@ -96,7 +96,7 @@ function gel:leftcollide(a: any, b: Entity): boolean|nil
 		
 		map_cell_set_gel(map[x][y], GEL_SIDE_RIGHT, self.id)
 	elseif a == "lightbridgebody" and b.dir == "ver" then
-		b.gels.right = self.id
+		entity_set_gel(b, GEL_SIDE_RIGHT, self.id)
 	end
 	return nil
 end
@@ -122,7 +122,7 @@ function gel:rightcollide(a: any, b: Entity): boolean|nil
 		
 		map_cell_set_gel(map[x][y], GEL_SIDE_LEFT, self.id)
 	elseif a == "lightbridgebody" and b.dir == "ver" then
-		b.gels.left = self.id
+		entity_set_gel(b, GEL_SIDE_LEFT, self.id)
 	end
 	return nil
 end
@@ -176,7 +176,7 @@ function gel:floorcollide(a: any, b: Entity): boolean|nil
 			end
 		end
 	elseif a == "lightbridgebody" and b.dir == "hor" then
-		b.gels.top = self.id
+		entity_set_gel(b, GEL_SIDE_TOP, self.id)
 	end
 	return nil
 end
@@ -194,7 +194,7 @@ function gel:ceilcollide(a: any, b: Entity): boolean|nil
 			map_cell_set_gel(map[x][y], GEL_SIDE_BOTTOM, self.id)
 		end
 	elseif a == "lightbridgebody" and b.dir == "hor" then
-		b.gels.bottom = self.id
+		entity_set_gel(b, GEL_SIDE_BOTTOM, self.id)
 	end
 	return nil
 end

@@ -47,6 +47,24 @@ global function map_cell_gel_id(cell: MapCell, side: integer): number|nil
 	return gels[GEL_SIDE_KEY[side] as string] as number|nil
 end
 
+global function entity_set_gel(entity: any, side: integer, gelId: number)
+	local ent = entity as {any:any}
+	local gels = ent.gels as {string:any}|nil
+	if gels == nil then
+		gels = {}
+		ent.gels = gels
+	end
+	local sides = ent.gelSides as {number:number}|nil
+	if sides == nil then
+		sides = {}
+		ent.gelSides = sides
+	end
+	local gels_tbl = gels as {string:any}
+	local sides_tbl = sides as {number:number}
+	gels_tbl[GEL_SIDE_KEY[side] as string] = gelId
+	sides_tbl[side] = gelId
+end
+
 global function draw_tile_gel_overlays(gelSides: {number}, drawx: number, drawy: number, ox: number, oy: number)
 	local pivotx = ox
 	local pivoty = oy

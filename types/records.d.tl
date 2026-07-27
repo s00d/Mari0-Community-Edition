@@ -1493,6 +1493,7 @@ global record lightbridge
 	destroy: any
 	dir: string
 	gels: Dyn
+	gelSides: {number:number}
 	glowa: number
 	glowtimer: number
 	height: number
@@ -1529,6 +1530,7 @@ global record lightbridgebody is Entity, Body
 	destroy: boolean
 	dir: string
 	gels: Dyn
+	gelSides: {number:number}
 	glowa: number
 	glowtimer: number
 	height: number

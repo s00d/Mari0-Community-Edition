@@ -1327,6 +1327,7 @@ global animationsystem_update: function(number)
 global build_blockbounce_lookup: function({any:any}, {any:any}): {any:any}
 global draw_tile_gel_overlays: function({number}, number, number, number, number)
 global draw_entity_gel_overlays: function({string:any}, number, number, number, number)
+global entity_set_gel: function(any, integer, number)
 global map_cell_set_gel: function(MapCell, integer, number)
 global map_cell_gel_id: function(MapCell, integer): number|nil
 global init_map_cell_gels: function(MapCell)
