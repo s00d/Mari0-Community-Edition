@@ -74,7 +74,9 @@ test-shaders: check ## Compile all .frag shaders under Love
 	@cp assets/shaders/*.frag "$(DIST)/shader_smoke/shaders/"
 	@"$(LOVE)" "$(DIST)/shader_smoke"
 
-run: check teal ## Launch the game from this directory
+run: check ## Launch the game from this directory (fresh Teal build)
+	@chmod +x scripts/cyan scripts/teal-build
+	@./scripts/teal-build -u
 	@"$(LOVE)" .
 
 play: run ## Alias for run

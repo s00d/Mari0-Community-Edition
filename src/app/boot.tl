@@ -44,7 +44,7 @@ function Boot.require_game()
 	--require "ui.lobby"
 	--require "ui.onlinemenu"
 	
-	-- require "assets.shaders" -- teal: no type info
+	require "assets.shaders"
 	require "app.variables"
 	require "core.tilekey"
 	require "world.zones"
