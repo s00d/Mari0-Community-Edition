@@ -893,6 +893,7 @@ global function nextlevel()
 		testlevel = false
 		loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel) .. ((mariosublevel as number) > 0 and ("_" .. tostring(mariosublevel)) or ""))
 		startlevel()
+		editor_apply_test_restore(false)
 		return
 	end
 	
@@ -942,6 +943,7 @@ global function endgame()
 		editormode = true
 		loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel))
 		startlevel()
+		editor_apply_test_restore(false)
 	else
 		love.audio.stop()
 		gamefinished = true

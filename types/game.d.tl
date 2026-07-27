@@ -1917,3 +1917,106 @@ global GCA: number
 global unstatics: any
 global net_quit: function()
 global net_sendchat: function(any): any
+
+global START_ROOM: string
+global roomtransition: number
+global ABILITIES: {string:{string:string}}
+global DOOR_TYPES: {string:function(any, any): boolean}
+global DOOR_COLOR: {string:{number}}
+global rooms_clear: function()
+global map_reveal: function(string)
+global grant_ability: function(any, string)
+global has_weapon: function(any, string): boolean
+global door_can_pass: function(string, any, any): boolean
+global door_try_open: function(string, string, any, any): boolean
+global door_uid: function(number, number): string
+global door_is_open: function(string): boolean
+global door_set_open: function(string, boolean)
+global fake_player_from_abilities: function({string:boolean}): {string:any}
+global world_reachability_check: function(string|nil): {string}
+global createdialogbox: function(any, any)
+
+
+global record GelDef
+	id: integer
+	name: string
+	bounce: boolean|nil
+	speed: boolean|nil
+	cleanse: boolean|nil
+	adhere: boolean|nil
+end
+global GEL_DEFS: {integer:GelDef}
+
+-- Editor docks / palettes / autotile / cell-undo (ui.editor_*)
+global record EditorRect
+	x: number
+	y: number
+	w: number
+	h: number
+end
+
+global record EditorLayoutState
+	toolbar: EditorRect
+	palette: EditorRect
+	canvas: EditorRect
+	props: EditorRect
+	minimap: EditorRect
+	hint: EditorRect
+	palette_collapsed: boolean
+	props_collapsed: boolean
+	palette_w: number
+	props_w: number
+	tile_ox: number
+	tile_oy: number
+	tile_cols: number
+	dock_mode: boolean
+end
+
+global EDITOR_LAYOUT: EditorLayoutState
+global tilelist_ox: number
+global tilelist_oy: number
+global tilelist_cols: number
+
+global record AutotileGroup
+	name: string
+	mode: integer
+	tiles: {integer}
+	set: {integer:boolean}
+end
+
+global AUTOTILE_GROUPS: {string:AutotileGroup}
+global AUTOTILE_BY_TILE: {integer:string}
+global autotile_enabled: boolean
+
+global editor_test_restore: {string:any}|nil
+
+-- Function bindings (implemented in ui.* modules)
+global layout_recalc: function(string|nil, boolean|nil)
+global layout_toggle_palette: function()
+global layout_toggle_props: function()
+global layout_hit: function(EditorRect, number, number): boolean
+global layout_over_canvas: function(number, number): boolean
+global layout_rects_on_grid: function(): boolean
+
+global build_palettes: function({string:any}|nil): any
+
+global autotile_parse: function(string): {string:AutotileGroup}
+global autotile_load_text: function(string)
+global autotile_load_mappack: function(string|nil)
+global autotile_mask: function(number, number, AutotileGroup): integer
+global autotile_pick: function(AutotileGroup, integer): integer
+global autotile_refresh_cell: function(number, number)
+global autotile_around: function(number, number)
+global autotile_paint: function(number, number, integer, boolean): boolean
+global autotile_group_for_tile: function(integer): AutotileGroup|nil
+
+global editor_undo_begin: function()
+global editor_undo_record: function(number, number)
+global editor_undo_commit: function()
+global editor_undo: function(): boolean
+global editor_redo: function(): boolean
+global editor_undo_clear: function()
+
+global editor_capture_test_restore: function({string:any}|nil)
+global editor_apply_test_restore: function(boolean|nil)
+global test_level_from_cursor: function()

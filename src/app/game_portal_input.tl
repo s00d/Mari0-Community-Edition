@@ -175,6 +175,12 @@ global function game_keypressed(key: any)
 	
 	if key == "escape" then
 		if not editormode and testlevel then
+			local shift = love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")
+			if editor_test_restore and objects and objects["player"] and objects["player"][1] then
+				local pl = objects["player"][1] as {string:any}
+				(editor_test_restore as {string:any}).death_x = pl.x
+				(editor_test_restore as {string:any}).death_y = pl.y
+			end
 			checkpointsub = false
 			marioworld = testlevelworld
 			mariolevel = testlevellevel
@@ -189,6 +195,7 @@ global function game_keypressed(key: any)
 				loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel))
 			end
 			startlevel()
+			editor_apply_test_restore(shift)
 			return
 		elseif not editormode and not everyonedead then
 			pausemenuopen = true

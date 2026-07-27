@@ -40,13 +40,22 @@ _G.editor_filter_map_files = editor_filter_map_files
 
 
 local function gettilelistpos(x: number, y: number): number|boolean
-	if x >= 5*scale and y >= 38*scale and x < 378*scale and y < 203*scale then
-		x = (x - 5*scale)/scale
+	local ox = tilelist_ox or 5
+	local oy = tilelist_oy or 38
+	local cols = tilelist_cols or 22
+	local x2 = ox + cols * 17
+	local y2 = oy + 165
+	local L = EDITOR_LAYOUT
+	if L and L.dock_mode and L.palette then
+		y2 = L.palette.y + L.palette.h - 8
+	end
+	if x >= ox*scale and y >= oy*scale and x < x2*scale and y < y2*scale then
+		x = (x - ox*scale)/scale
 		y = y + tilesoffset
-		y = (y - 38*scale)/scale
+		y = (y - oy*scale)/scale
 
-		local out = math.floor(x/17)+1
-		out = out + math.floor(y/17)*22
+		local out = math.floor(math.floor(x/17)+1) as integer
+		out = math.floor(out + math.floor(y/17)*cols) as integer
 
 		return out
 	end

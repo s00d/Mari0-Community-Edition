@@ -1,0 +1,2 @@
+# Endless procedural pack — simple solid fill group
+solid=4:2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2

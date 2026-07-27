@@ -1,5 +1,33 @@
 --[[ Level editor (Teal port of root editor.lua + util.editorutil). ]]
 
+global editor_test_restore: {string:any}|nil = nil
+
+global function test_level_from_cursor()
+	local cox, coy = getMouseTile(love.mouse.getX(), love.mouse.getY()-8*scale)
+	editor_capture_test_restore({ cursor_x = cox, cursor_y = coy })
+	savelevel()
+	editorclose()
+	editormode = false
+	testlevel = true
+	testlevelworld = marioworld as number
+	testlevellevel = mariolevel
+	autoscroll = true
+	if mariosublevel ~= 0 then
+		loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel) .. "_" .. tostring(mariosublevel))
+	else
+		loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel))
+	end
+	startlevel()
+	-- Warp player 1 to cursor tile if possible
+	if objects and objects["player"] and objects["player"][1] and inmap(cox, coy) then
+		objects["player"][1].x = cox - 1 + 2 / 16
+		objects["player"][1].y = coy - 1 + 2 / 16
+		xscroll = math.max(0, cox - width / 2)
+		yscroll = math.max(0, coy - height / 2)
+		if splitxscroll then splitxscroll[1] = xscroll end
+	end
+end
+
 function editor_load()
 	-- Play mode: skip heavy rightclick menu / UI rebuild every level transition.
 	-- Still clear minimapdragging — game_update only scrolls when it is false
@@ -45,6 +73,11 @@ function editor_load()
 	savestates = {}
 	maxstates = 15
 	currentstate = 1
+
+	-- Dock layout + cell undo + autotile (Mario Maker-ish)
+	layout_recalc(nil, nil)
+	editor_undo_clear()
+	autotile_load_mappack(nil)
 	
 	tileswitcherkey = (controls[1]["use"][1] == "joy" and "e" or controls[1]["use"][1]) as string
 	
@@ -183,6 +216,7 @@ function editor_load()
 	guielements["savebutton"] = guielement:new("button", 10, 200, "save", savelevel, 2)
 	guielements["menubutton"] = guielement:new("button", 54, 200, "return to menu", editorexit, 2)
 	guielements["testbutton"] = guielement:new("button", 204, 200, "test level", test_level, 2)
+	guielements["testcursorbutton"] = guielement:new("button", 204, 184, "test@cursor", test_level_from_cursor, 2)
 	guielements["widthbutton"] = guielement:new("button", 296, 200, "change size", openchangewidth, 2)
 	
 	guielements["savebutton"].bordercolor = {1, 0, 0}
@@ -414,6 +448,18 @@ function editor_update(dt: number)
 		editor_update_main(dt)
 	elseif editorstate == "tiles" then
 		editor_update_tiles(dt)
+		-- Dock: paint map under cursor without closing palette
+		if EDITOR_LAYOUT and EDITOR_LAYOUT.dock_mode and love.mouse.isDown(1) and allowdrag then
+			local mx, my = mouse.getPosition()
+			local ux, uy = mx / scale, my / scale
+			if layout_over_canvas(ux, uy) then
+				for t1 = 1, brush[1] do
+					for t2 = 1, brush[2] do
+						placetile(mx+(t1-1)*16*scale, my+(t2-1)*16*scale)
+					end
+				end
+			end
+		end
 	elseif editorstate == "objects" then
 		editor_update_objects(dt)
 	end
@@ -1280,6 +1326,9 @@ function editor_draw_status()
 			{"u","on the tile screen, removes the tile group|" ..
 				 "bound to the highlighted tile.", 1},--     |
 			{"ctrl+z/ctrl+y","undo/redo the last changes.", 0},
+			{"tab / p","toggle palette / props docks.", 0},
+			{"t","test level from cursor position.", 0},
+			{"alt+paint","place raw tile (skip autotile).", 0},
 			{"ctrl+c/ctrl+x/ctrl+v","copy/cut/paste region.", 0},
 			{"ctrl+a","select the entire level.", 0},--      |
 			{"middle click drag","navigates in-editor between|" ..
@@ -1312,14 +1361,43 @@ function editor_draw_menu(emx: number, emy: number)
 		return
 	end
 
-	love.graphics.setColor(0, 0, 0, 0.9)
-	
-	if minimapdragging == false then
-		love.graphics.rectangle("fill", 1*scale, 18*scale, 398*scale, 205*scale)		
+	layout_recalc(editorstate, true)
+	local L = EDITOR_LAYOUT
+	local dock = L and L.dock_mode
+
+	if dock then
+		-- Side docks; canvas stays visible (no fullscreen modal cover).
+		if not L.palette_collapsed and L.palette.w >= 24 then
+			draw_panel(L.palette.x, L.palette.y, L.palette.w, L.palette.h)
+		end
+		if not L.props_collapsed and L.props.w >= 24 then
+			draw_panel(L.props.x, L.props.y, L.props.w, L.props.h)
+		end
+		if L.minimap.w >= 24 and L.minimap.h >= 16 then
+			-- thin strip under canvas
+			local c = UI.COL.panel
+			love.graphics.setColor(c[1], c[2], c[3], (c[4] or 1) * 0.9)
+			love.graphics.rectangle("fill", L.minimap.x*scale, L.minimap.y*scale, L.minimap.w*scale, L.minimap.h*scale)
+		end
+		if L.hint.w >= 24 then
+			ui_set_color("text_dim")
+			properprint("tab palette  p props  t test@cursor  alt raw tile", (L.hint.x+8)*scale, (L.hint.y+4)*scale)
+			love.graphics.setColor(1, 1, 1, 1)
+		end
 	else
-		love.graphics.rectangle("fill", 1*scale, 18*scale, 398*scale, (18+minimapheight*2)*scale)
+		-- animations / maps / objects: denser overlay (keep usable)
+		if minimapdragging == false then
+			if draw_panel then
+				draw_panel(0, 16, 400, 192)
+			else
+				love.graphics.setColor(0, 0, 0, 0.9)
+				love.graphics.rectangle("fill", 1*scale, 18*scale, 398*scale, 205*scale)
+			end
+		else
+			love.graphics.setColor(0, 0, 0, 0.9)
+			love.graphics.rectangle("fill", 1*scale, 18*scale, 398*scale, (18+minimapheight*2)*scale)
+		end
 	end
-	
 
 	if editorstate == "tiles" then
 		editor_draw_menu_tiles(emx, emy)
@@ -1397,23 +1475,33 @@ function editor_draw_menu_tiles(_: number, _: number)
 	
 	--TILES
 	love.graphics.setColor(1, 1, 1)
+	local cols = tilelist_cols or 22
+	local ox = tilelist_ox or 5
+	local oy = tilelist_oy or 38
+	local area_w = cols * 17 + 1
+	local area_h = 165
+	local L = EDITOR_LAYOUT
+	if L and L.dock_mode and L.palette.w > 0 then
+		area_w = math.max(17, math.floor(L.palette.w - 16))
+		area_h = math.max(17, math.floor(L.palette.h - 40))
+	end
 	
-	drawrectangle(4, 37, 375, 167)
+	drawrectangle(ox - 1, oy - 1, area_w, area_h)
 	
-	love.graphics.setScissor(5*scale, 38*scale, 373*scale, 165*scale)
+	love.graphics.setScissor(ox*scale, oy*scale, area_w*scale, area_h*scale)
 	
 	if editentities then
 		if editenemies then
 			for i = 1, #enemies do
 				local v = enemiesdata[enemies[i]]
 				
-				with_mask(function() love.graphics.rectangle("fill", math.fmod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 16*scale, 16*scale) end, function()
-					love.graphics.draw(v.graphic, v.quad, math.fmod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
+				with_mask(function() love.graphics.rectangle("fill", math.fmod((i-1), cols)*17*scale+ox*scale, math.floor((i-1)/cols)*17*scale+oy*scale-tilesoffset, 16*scale, 16*scale) end, function()
+					love.graphics.draw(v.graphic, v.quad, math.fmod((i-1), cols)*17*scale+ox*scale, math.floor((i-1)/cols)*17*scale+oy*scale-tilesoffset, 0, scale, scale)
 				end)
 				local hotkey = hasHotkey(3, i)
 				if hotkey then
 					love.graphics.setColor(1, 0, 0, .5)
-					drawrectangle(math.fmod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
+					drawrectangle(math.fmod((i-1), cols)*17+ox, math.floor((i-1)/cols)*17+oy-tilesoffset/scale, 16, 16)
 					love.graphics.setColor(1, 1, 1)
 				end
 			end
@@ -1447,31 +1535,31 @@ function editor_draw_menu_tiles(_: number, _: number)
 	else
 		if animatedtilelist then
 			for i = 1, tilelistcount+1 do
-				love.graphics.draw(tilequads[i+tileliststart-1+10000].image, tilequads[i+tileliststart-1+10000]:quad(), math.fmod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
+				love.graphics.draw(tilequads[i+tileliststart-1+10000].image, tilequads[i+tileliststart-1+10000]:quad(), math.fmod((i-1), cols)*17*scale+ox*scale, math.floor((i-1)/cols)*17*scale+oy*scale-tilesoffset, 0, scale, scale)
 				if multitilegroups[tostring(i+tileliststart-1+10000)] then
 					love.graphics.setColor(0, .5, 0)
-					drawrectangle(math.fmod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
+					drawrectangle(math.fmod((i-1), cols)*17+ox, math.floor((i-1)/cols)*17+oy-tilesoffset/scale, 16, 16)
 					love.graphics.setColor(1, 1, 1)
 				end
 				local hotkey = hasHotkey(1, i+tileliststart-1+10000)
 				if hotkey then
 					love.graphics.setColor(1, 0, 0, .5)
-					drawrectangle(math.fmod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
+					drawrectangle(math.fmod((i-1), cols)*17+ox, math.floor((i-1)/cols)*17+oy-tilesoffset/scale, 16, 16)
 					love.graphics.setColor(1, 1, 1)
 				end
 			end
 		else
 			for i = 1, tilelistcount+1 do
-				love.graphics.draw(tilequads[i+tileliststart-1].image, tilequads[i+tileliststart-1]:quad(), math.fmod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
+				love.graphics.draw(tilequads[i+tileliststart-1].image, tilequads[i+tileliststart-1]:quad(), math.fmod((i-1), cols)*17*scale+ox*scale, math.floor((i-1)/cols)*17*scale+oy*scale-tilesoffset, 0, scale, scale)
 				if multitilegroups[tostring(i+tileliststart-1)] then
 					love.graphics.setColor(0, .5, 0)
-					drawrectangle(math.fmod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
+					drawrectangle(math.fmod((i-1), cols)*17+ox, math.floor((i-1)/cols)*17+oy-tilesoffset/scale, 16, 16)
 					love.graphics.setColor(1, 1, 1)
 				end
 				local hotkey = hasHotkey(1, i+tileliststart-1)
 				if hotkey then
 					love.graphics.setColor(1, 0, 0, .5)
-					drawrectangle(math.fmod((i-1), 22)*17+5, math.floor((i-1)/22)*17+38-tilesoffset/scale, 16, 16)
+					drawrectangle(math.fmod((i-1), cols)*17+ox, math.floor((i-1)/cols)*17+oy-tilesoffset/scale, 16, 16)
 					love.graphics.setColor(1, 1, 1)
 				end
 			end
@@ -1487,10 +1575,10 @@ function editor_draw_menu_tiles(_: number, _: number)
 			else
 				love.graphics.setColor(1, 1, 1, 0.5)
 			end
-			love.graphics.rectangle("fill", (5+math.fmod(((tile as number)-1), 22)*17)*scale, (38+math.floor(((tile as number)-1)/22)*17)*scale-tilesoffset, 16*scale, 16*scale)
+			love.graphics.rectangle("fill", (ox+math.fmod(((tile as number)-1), cols)*17)*scale, (oy+math.floor(((tile as number)-1)/cols)*17)*scale-tilesoffset, 16*scale, 16*scale)
 			if hotkey then
 				love.graphics.setColor(1, 1, 1, 1)
-				properprint(hotkey, (5+math.fmod(((tile as number)-1), 22)*17)*scale+7*scale, (38+math.floor(((tile as number)-1)/22)*17)*scale-tilesoffset+8*scale)
+				properprint(hotkey, (ox+math.fmod(((tile as number)-1), cols)*17)*scale+7*scale, (oy+math.floor(((tile as number)-1)/cols)*17)*scale-tilesoffset+8*scale)
 			end
 		end
 	elseif editenemies then
@@ -1501,10 +1589,10 @@ function editor_draw_menu_tiles(_: number, _: number)
 			else
 				love.graphics.setColor(1, 1, 1, 0.5)
 			end
-			love.graphics.rectangle("fill", (5+math.fmod(((tile as number)-1), 22)*17)*scale, (38+math.floor(((tile as number)-1)/22)*17)*scale-tilesoffset, 16*scale, 16*scale)
+			love.graphics.rectangle("fill", (ox+math.fmod(((tile as number)-1), cols)*17)*scale, (oy+math.floor(((tile as number)-1)/cols)*17)*scale-tilesoffset, 16*scale, 16*scale)
 			if hotkey then
 				love.graphics.setColor(1, 1, 1, 1)
-				properprint(hotkey, (5+math.fmod(((tile as number)-1), 22)*17)*scale+7*scale, (38+math.floor(((tile as number)-1)/22)*17)*scale-tilesoffset+8*scale)
+				properprint(hotkey, (ox+math.fmod(((tile as number)-1), cols)*17)*scale+7*scale, (oy+math.floor(((tile as number)-1)/cols)*17)*scale-tilesoffset+8*scale)
 			end
 		end
 	end
@@ -1520,9 +1608,9 @@ function editor_draw_menu_tiles(_: number, _: number)
 					if string.len(newstring) > 49 then
 						newstring = string.sub(newstring, 1, 49) .. "|" .. string.sub(newstring, 50, 98)
 					end
-					properprint(newstring, 3*scale, 205*scale)
+					properprint(newstring, ox*scale, (oy+area_h+4)*scale)
 				else
-					properprint(enemies[tile as integer], 3*scale, 205*scale)
+					properprint(enemies[tile as integer], ox*scale, (oy+area_h+4)*scale)
 				end
 			end
 		else
@@ -1532,17 +1620,17 @@ function editor_draw_menu_tiles(_: number, _: number)
 				if string.len(newstring) > 49 then
 					newstring = string.sub(newstring, 1, 49) .. "|" .. string.sub(newstring, 50, 98)
 				end
-				properprint(newstring, 3*scale, 205*scale)
+				properprint(newstring, ox*scale, (oy+area_h+4)*scale)
 			end
 		end
 	elseif animatedtilelist then
 		if tile and animatedtiles[tile as integer] then
-			properprint("frames: " .. #(animatedtiles[tile as integer].delays as {any}), 3*scale, 205*scale)
+			properprint("frames: " .. #(animatedtiles[tile as integer].delays as {any}), ox*scale, (oy+area_h+4)*scale)
 			local t: number = 0
 			for i = 1, #(animatedtiles[tile as integer].delays as {any}) do
 				t = t + ((animatedtiles[tile as integer].delays as {any})[i] as number)
 			end
-			properprint("total time: " .. t, 3*scale, 215*scale)
+			properprint("total time: " .. t, ox*scale, (oy+area_h+14)*scale)
 		end
 	else
 		if tile and tilequads[(tile as number)+tileliststart-1] and (tile as number)+tileliststart-1 <= tilelistcount+tileliststart then
@@ -1601,7 +1689,7 @@ function editor_draw_menu_tiles(_: number, _: number)
 				x = 0
 			end
 			--Finally actually draw it
-			properprint("tile id: " .. (tile as number)+tileliststart-1, 3*scale, 205*scale)
+			properprint("tile id: " .. (tile as number)+tileliststart-1, ox*scale, (oy+area_h+4)*scale)
 			properprintbackground(s, x, y, false)
 			properprint(s, x, y)
 		end
@@ -1922,6 +2010,9 @@ function maintab()
 	guielements["savebutton"].active = true
 	guielements["menubutton"].active = true
 	guielements["testbutton"].active = true
+	if guielements["testcursorbutton"] then
+		guielements["testcursorbutton"].active = true
+	end
 	guielements["widthbutton"].active = true
 	guielements["intermissioncheckbox"].active = true
 	guielements["warpzonecheckbox"].active = true
@@ -2757,6 +2848,25 @@ function placetile(x: number, y: number, t: any, ent: any, preventMultiTile: any
 	if inmap(cox, coy) == false then
 		return
 	end
+
+	-- Cell undo: snapshot before mutation
+	editor_undo_record(cox, coy)
+
+	-- Autotile brush (ALT = raw tile)
+	local alt = love.keyboard.isDown("lalt") or love.keyboard.isDown("ralt")
+	if editentities == false and not preventMultiTile and not alt then
+		if autotile_paint(cox, coy, currenttile as integer, false) then
+			-- collision objects for resulting tile
+			local nt = map[cox][coy][1] as number
+			if tilequads[nt]:getproperty("collision") == true then
+				objects["tile"][tilekey(cox, coy)] = tile:new(cox-1, coy-1, 1, 1, true) as Entity
+			else
+				objects["tile"][tilekey(cox, coy)] = nil
+			end
+			generatespritebatch(0, 0)
+			return
+		end
+	end
 	
 	if editentities == false then
 		if tilequads[currenttile as number]:getproperty("coin") then
@@ -2773,6 +2883,9 @@ function placetile(x: number, y: number, t: any, ent: any, preventMultiTile: any
 			map[cox][coy][1] = currenttile
 			init_map_cell_gels(map[cox][coy])
 			generatespritebatch(0, 0)
+			if not preventMultiTile and not alt and AUTOTILE_BY_TILE[currenttile as integer] then
+				autotile_around(cox, coy)
+			end
 		end
 		
 		--Tile grouping
@@ -3240,6 +3353,7 @@ function editor_mousepressed_left(x: number, y: number)
 	else
 		if editorstate == "tiles" then
 			local tile = gettilelistpos(x, y) as number
+			local keep_dock = EDITOR_LAYOUT and EDITOR_LAYOUT.dock_mode
 			if editentities == false then
 				if tile and tile <= tilelistcount+1 then
 					if animatedtilelist then
@@ -3247,22 +3361,27 @@ function editor_mousepressed_left(x: number, y: number)
 					else
 						currenttile = tile + tileliststart-1
 					end
-					
-					editorclose()
+					if not keep_dock then
+						editorclose()
+					end
 					allowdrag = false
 				end
 			else
 				if editenemies then
 					if tile and tile <= #enemies then
 						currenttile = enemies[tile as integer]
-						editorclose()
+						if not keep_dock then
+							editorclose()
+						end
 						allowdrag = false
 					end
 				else
 					local ent = getentityhighlight(x, y)
 					if ent then
 						currenttile = (ent as EntityListEntry).i
-						editorclose()
+						if not keep_dock then
+							editorclose()
+						end
 						allowdrag = false
 					end
 				end
@@ -3501,6 +3620,7 @@ function editor_mousereleased(x: number, y: number, button: any)
 	end
 	
 	if button == "l" or button == "r" then
+		editor_undo_commit()
 		savestate()
 		currentstate = #savestates
 	end
@@ -3722,6 +3842,18 @@ function editor_keypressed(key: string)
 		end
 	end
 	
+	-- Dock toggles (work with menu open or closed)
+	if key == "tab" then
+		layout_toggle_palette()
+		return
+	elseif key == "p" and not ctrlpressed and editormenuopen then
+		layout_toggle_props()
+		return
+	elseif key == "t" and not ctrlpressed and not editormenuopen then
+		test_level_from_cursor()
+		return
+	end
+
 	if key == "escape" then
 		if tileselection or pastingtiles then
 			tileselection = false
@@ -3769,16 +3901,22 @@ function editor_keypressed(key: string)
 		elseif key == "down" and shiftpressed then
 			brush[2] = math.min(brushmax, brush[2]+1)
 		elseif key == "z" and ctrlpressed then
-			local ok = (currentstate > 1 and true) or false
-			currentstate = math.max(1, currentstate-1)
-			loadstate()
+			local ok = editor_undo()
+			if not ok then
+				ok = (currentstate > 1 and true) or false
+				currentstate = math.max(1, currentstate-1)
+				loadstate()
+			end
 			if ok then
 				notice.new("Changes undone!", notice.white, 1)
 			end
 		elseif key == "y" and ctrlpressed then
-			local ok = (currentstate < #(savestates as {any}) and true) or false
-			currentstate = math.min(#(savestates as {any}), (currentstate as number)+1)
-			loadstate()
+			local ok = editor_redo()
+			if not ok then
+				ok = (currentstate < #(savestates as {any}) and true) or false
+				currentstate = math.min(#(savestates as {any}), (currentstate as number)+1)
+				loadstate()
+			end
 			if ok then
 				notice.new("Changes redone!", notice.white, 1)
 			end
@@ -4024,6 +4162,7 @@ function increasetimelimit()
 end
 
 function test_level()
+	editor_capture_test_restore(nil)
 	savelevel()
 	editorclose()
 	editormode = false
@@ -4038,6 +4177,53 @@ function test_level()
 	end
 	startlevel()
 end
+
+-- Snapshot editor view so ESC can restore scroll/palette after playtest.
+global function editor_capture_test_restore(extra: {string:any}|nil)
+	local r: {string:any} = {
+		xscroll = xscroll,
+		yscroll = yscroll,
+		editorstate = editorstate,
+		currenttile = currenttile,
+		editentities = editentities,
+		editenemies = editenemies,
+		palette_collapsed = EDITOR_LAYOUT.palette_collapsed,
+		props_collapsed = EDITOR_LAYOUT.props_collapsed,
+		death_x = nil,
+		death_y = nil,
+	}
+	if extra ~= nil then
+		local ex = extra as {string:any}
+		for k, v in pairs(ex) do
+			r[k] = v
+		end
+	end
+	editor_test_restore = r
+end
+
+global function editor_apply_test_restore(shift_death: boolean|nil)
+	if editor_test_restore == nil then
+		return
+	end
+	local r = editor_test_restore as {string:any}
+	if shift_death and r.death_x ~= nil then
+		xscroll = math.max(0, (r.death_x as number) - width / 2)
+		yscroll = math.max(0, (r.death_y as number) - height / 2)
+	else
+		if r.xscroll ~= nil then xscroll = r.xscroll as number end
+		if r.yscroll ~= nil then yscroll = r.yscroll as number end
+	end
+	if splitxscroll then
+		splitxscroll[1] = xscroll
+	end
+	if r.palette_collapsed ~= nil then EDITOR_LAYOUT.palette_collapsed = r.palette_collapsed as boolean end
+	if r.props_collapsed ~= nil then EDITOR_LAYOUT.props_collapsed = r.props_collapsed as boolean end
+	layout_recalc(nil, nil)
+	if r.currenttile ~= nil then currenttile = r.currenttile end
+	if r.editentities ~= nil then editentities = r.editentities as boolean end
+	if r.editenemies ~= nil then editenemies = r.editenemies as boolean end
+end
+
 
 function drawpowerlines()
 	advanceddrawtool = "powerlines"
