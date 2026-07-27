@@ -321,6 +321,6 @@ function lightbridgebody:draw()
 	if self.gels then
 		local px = math.floor((self.cox - .5 - xscroll) * 16 * scale)
 		local py = math.floor((self.coy - 1 - yscroll) * 16 * scale)
-		draw_tile_gel_overlays(self.gels as {string:any}, px, py, 8, 2)
+		draw_entity_gel_overlays(self.gels as {string:any}, px, py, 8, 2)
 	end
 end

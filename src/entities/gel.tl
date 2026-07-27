@@ -94,7 +94,7 @@ function gel:leftcollide(a: any, b: Entity): boolean|nil
 			end
 		end
 		
-		map[x][y]["gels"]["right"] = self.id
+		map_cell_set_gel(map[x][y], GEL_SIDE_RIGHT, self.id)
 	elseif a == "lightbridgebody" and b.dir == "ver" then
 		b.gels.right = self.id
 	end
@@ -120,7 +120,7 @@ function gel:rightcollide(a: any, b: Entity): boolean|nil
 			end
 		end
 		
-		map[x][y]["gels"]["left"] = self.id
+		map_cell_set_gel(map[x][y], GEL_SIDE_LEFT, self.id)
 	elseif a == "lightbridgebody" and b.dir == "ver" then
 		b.gels.left = self.id
 	end
@@ -147,12 +147,12 @@ function gel:floorcollide(a: any, b: Entity): boolean|nil
 		end
 		
 		if inmap(x, y) and tilequads[map[x][y][1]]:getproperty("collision", x, y) then
-			if map[x][y]["gels"]["top"] == self.id then
+			if map_cell_gel_id(map[x][y], GEL_SIDE_TOP) == self.id then
 				if self.speedx > 0 then
 					for cox = x+1, x+self.speedx*0.2 do
 						if inmap(cox, y-1) and tilequads[map[cox][y][1]]:getproperty("collision", cox, y) == true and tilequads[map[cox][y-1][1]]:getproperty("collision", cox, y-1) == false then
-							if map[cox][y]["gels"]["top"] ~= self.id then
-								map[cox][y]["gels"]["top"] = self.id
+							if map_cell_gel_id(map[cox][y], GEL_SIDE_TOP) ~= self.id then
+								map_cell_set_gel(map[cox][y], GEL_SIDE_TOP, self.id)
 								break
 							end
 						else
@@ -162,8 +162,8 @@ function gel:floorcollide(a: any, b: Entity): boolean|nil
 				elseif self.speedx < 0 then
 					for cox = x-1, x+self.speedx*0.2, -1 do
 						if inmap(cox, y-1) and tilequads[map[cox][y][1]]:getproperty("collision", cox, y) and tilequads[map[cox][y-1][1]]:getproperty("collision", cox, y-1) == false then
-							if map[cox][y]["gels"]["top"] ~= self.id then
-								map[cox][y]["gels"]["top"] = self.id
+							if map_cell_gel_id(map[cox][y], GEL_SIDE_TOP) ~= self.id then
+								map_cell_set_gel(map[cox][y], GEL_SIDE_TOP, self.id)
 								break
 							end
 						else
@@ -172,7 +172,7 @@ function gel:floorcollide(a: any, b: Entity): boolean|nil
 					end
 				end
 			else
-				map[x][y]["gels"]["top"] = self.id
+				map_cell_set_gel(map[x][y], GEL_SIDE_TOP, self.id)
 			end
 		end
 	elseif a == "lightbridgebody" and b.dir == "hor" then
@@ -191,7 +191,7 @@ function gel:ceilcollide(a: any, b: Entity): boolean|nil
 		if not inmap(x, y+1) or tilequads[map[x][y+1][1]]:getproperty("collision", x, y+1) == false then
 			local x, y = b.cox, b.coy
 			
-			map[x][y]["gels"]["bottom"] = self.id
+			map_cell_set_gel(map[x][y], GEL_SIDE_BOTTOM, self.id)
 		end
 	elseif a == "lightbridgebody" and b.dir == "hor" then
 		b.gels.bottom = self.id

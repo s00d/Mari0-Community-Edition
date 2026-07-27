@@ -374,31 +374,34 @@ global function callcollision(dir: any, obj: Entity, a: any, b: Entity, c: any, 
 		end		
 		
 		if not obj.runanimationprogress or obj.size == 1 then --cheap check for player
-			if dir == "left" and map[x][y]["gels"]["right"] == 4 then
-				if obj.gravitydirection == 0 then
-					obj.speedx = -obj.speedx
+			local sides = map[x][y].gelSides
+			if sides then
+				if dir == "left" and sides[GEL_SIDE_RIGHT] == 4 then
+					if obj.gravitydirection == 0 then
+						obj.speedx = -obj.speedx
+					end
+					obj.gravitydirection = math.pi
+					purplegel = true
+				elseif dir == "floor" and sides[GEL_SIDE_TOP] == 4 then
+					if obj.gravitydirection == math.pi*1.5 then
+						obj.speedx = -obj.speedx
+					end
+					obj.gravitydirection = math.pi/2
+					purplegel = true
+					allowskip = false
+				elseif dir == "right" and sides[GEL_SIDE_LEFT] == 4 then
+					if obj.gravitydirection == math.pi then
+						obj.speedx = -obj.speedx
+					end
+					obj.gravitydirection = 0
+					purplegel = true
+				elseif dir == "ceil" and sides[GEL_SIDE_BOTTOM] == 4 then
+					if obj.gravitydirection == math.pi/2 then
+						obj.speedx = -obj.speedx
+					end
+					obj.gravitydirection = math.pi*1.5
+					purplegel = true
 				end
-				obj.gravitydirection = math.pi
-				purplegel = true
-			elseif dir == "floor" and map[x][y]["gels"]["top"] == 4 then
-				if obj.gravitydirection == math.pi*1.5 then
-					obj.speedx = -obj.speedx
-				end
-				obj.gravitydirection = math.pi/2
-				purplegel = true
-				allowskip = false
-			elseif dir == "right" and map[x][y]["gels"]["left"] == 4 then
-				if obj.gravitydirection == math.pi then
-					obj.speedx = -obj.speedx
-				end
-				obj.gravitydirection = 0
-				purplegel = true
-			elseif dir == "ceil" and map[x][y]["gels"]["bottom"] == 4 then
-				if obj.gravitydirection == math.pi/2 then
-					obj.speedx = -obj.speedx
-				end
-				obj.gravitydirection = math.pi*1.5
-				purplegel = true
 			end
 		end
 		

@@ -386,7 +386,7 @@ global function reachedx(currentx: any)
 				cell[j] = src[j]
 				coinmap[x][y] = coinmap[repeatX as number][y]
 			end
-			cell["gels"] = {}
+			init_map_cell_gels(cell as MapCell)
 			cell["portaloverride"] = {}
 			
 			for cox = mapwidth, x, -1 do

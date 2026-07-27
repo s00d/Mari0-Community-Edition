@@ -259,7 +259,7 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 		coinmap[x] = {}
 		for y = 1, mapheight do
 			map[x][y] = {} as MapCell
-			map[x][y]["gels"] = {}
+			init_map_cell_gels(map[x][y])
 			map[x][y]["portaloverride"] = {}
 		end
 	end

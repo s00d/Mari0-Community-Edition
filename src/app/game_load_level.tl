@@ -252,11 +252,11 @@ global function loadlevel(level: string|number): boolean
 				if y > 13 then
 					map[x][y] = {2}
 					objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
-					map[x][y]["gels"] = {}
+					init_map_cell_gels(map[x][y])
 					map[x][y]["portaloverride"] = {}
 				else
 					map[x][y] = {1}
-					map[x][y]["gels"] = {}
+					init_map_cell_gels(map[x][y])
 					map[x][y]["portaloverride"] = {}
 				end
 			end
@@ -433,7 +433,7 @@ global function loadlevel(level: string|number): boolean
 	
 	updateranges()
 	
-	generatespritebatch()
+	generatespritebatch(0, 0)
 	if session then session:sync_session_from_globals() end
 	return needs_to_be_saved
 end
@@ -472,7 +472,7 @@ global function changemapwidth(width: number)
 			map[x] = {}
 			for y = 1, (mapheight as number)-2 do
 				map[x][y] = {1}
-				map[x][y].gels = {}
+				init_map_cell_gels(map[x][y])
 				map[x][y].portaloverride = {}
 				objects["tile"][tilekey(x, y)] = nil
 			end
@@ -480,7 +480,7 @@ global function changemapwidth(width: number)
 			for y = (mapheight as number)-1, mapheight as number do
 				map[x][y] = {2}
 				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
-				map[x][y].gels = {}
+				init_map_cell_gels(map[x][y])
 				map[x][y].portaloverride = {}
 			end
 		end
@@ -493,7 +493,7 @@ global function changemapwidth(width: number)
 		playerobjs[1].x = (mapwidth as number)-1
 	end
 	
-	generatespritebatch()
+	generatespritebatch(0, 0)
 end
 
 global function changemapheight(height: number)
@@ -502,7 +502,7 @@ global function changemapheight(height: number)
 		for x = 1, mapwidth as number do
 			for y = (mapheight as number)+1, height do
 				map[x][y] = {currenttile}
-				map[x][y].gels = {}
+				init_map_cell_gels(map[x][y])
 				map[x][y].portaloverride = {}
 				
 				if tilequads[currenttile]:getproperty("collision", x, y) then
@@ -524,10 +524,10 @@ global function changemapheight(height: number)
 		playerobjs[1].y = (mapheight as number)-1
 	end
 	
-	generatespritebatch()
+	generatespritebatch(0, 0)
 end
 
-global function generatespritebatch()
+global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
 	smbspritebatch:clear()
 	smbspritebatchfront:clear()
 	
@@ -585,65 +585,170 @@ global function generatespritebatch()
 	end
 
 	local bounce_batch_skip = build_blockbounce_lookup(blockbouncex, blockbouncey) as {any:any}
-	
-	for y = 0, ytodraw+1 do
-		for x = 1, xtodraw do
-			if inmap(flooredxscroll+x, math.min(flooredyscroll+y+1, mapheight as number)) then
-				local _ = 0
-				
-				local draw = true
-				local coy = math.min(flooredyscroll+y+1, mapheight as number)
-				if bounce_batch_skip[tilekey(flooredxscroll+x, coy)] then
-					draw = false
-				end	
-				if draw == true then
-					local cox = flooredxscroll+x
-					local t = lmap[cox][coy]
-					
-					local tilenumber = t[1] as number
-					
-					if not tilequads[tilenumber]:getproperty("foreground", cox, coy) then
-						if tilenumber ~= 0 and tilequads[tilenumber]:getproperty("invisible", cox, coy) == false and tilequads[tilenumber]:getproperty("coinblock", cox, coy) == false then
-							if tilenumber <= smbtilecount then
-								smbspritebatch:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
-							elseif tilenumber <= smbtilecount+portaltilecount then
-								portalspritebatch:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
-							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount then
-								customspritebatch:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
-							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0) then
-								for i = 1, modcustomtiles as integer do
-									if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i] then
-										(modcustomspritebatch[i as number] as SpriteBatch):add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
-										break
-									end
-								end
-							end								
-						end
-					else
-						if tilenumber ~= 0 and tilequads[tilenumber]:getproperty("invisible", cox, coy) == false and tilequads[tilenumber]:getproperty("coinblock", cox, coy) == false then
-							if tilenumber <= smbtilecount then
-								smbspritebatchfront:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
-							elseif tilenumber <= smbtilecount+portaltilecount then
-								portalspritebatchfront:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
-							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount then
-								customspritebatchfront:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
-							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0) then
-								for i = 1, modcustomtiles as integer do
-									if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i] then
-										(modcustomspritebatch[i as number] as SpriteBatch):add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
-										break
-									end
-								end
-							end
-						end
+
+	local function fetch_view_cell(cox: number, coy: number): SpriteBatchViewCell|nil
+		if not inmap(cox, coy) then
+			return nil
+		end
+		if bounce_batch_skip[tilekey(cox, coy)] then
+			return nil
+		end
+		local t = lmap[cox][coy]
+		local tilenumber = t[1] as number
+		if tilenumber == 0 then
+			return nil
+		end
+		if tilequads[tilenumber]:getproperty("invisible", cox, coy) then
+			return nil
+		end
+		if tilequads[tilenumber]:getproperty("coinblock", cox, coy) then
+			return nil
+		end
+		return {
+			foreground = tilequads[tilenumber]:getproperty("foreground", cox, coy) as boolean,
+			tilenumber = tilenumber,
+		} as SpriteBatchViewCell
+	end
+
+	local function draw_view_cell(cell: SpriteBatchViewCell, screen_x: number, screen_y: number)
+		local tilenumber = cell.tilenumber as number
+		local foreground = cell.foreground as boolean
+		if not foreground then
+			if tilenumber <= smbtilecount then
+				smbspritebatch:add(tilequads[tilenumber]:quad(), screen_x, screen_y, 0, scale, scale)
+			elseif tilenumber <= smbtilecount+portaltilecount then
+				portalspritebatch:add(tilequads[tilenumber]:quad(), screen_x, screen_y, 0, scale, scale)
+			elseif tilenumber <= smbtilecount+portaltilecount+customtilecount then
+				customspritebatch:add(tilequads[tilenumber]:quad(), screen_x, screen_y, 0, scale, scale)
+			elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0) then
+				for i = 1, modcustomtiles as integer do
+					if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i] then
+						(modcustomspritebatch[i as number] as SpriteBatch):add(tilequads[tilenumber]:quad(), screen_x, screen_y, 0, scale, scale)
+						break
+					end
+				end
+			end
+		else
+			if tilenumber <= smbtilecount then
+				smbspritebatchfront:add(tilequads[tilenumber]:quad(), screen_x, screen_y, 0, scale, scale)
+			elseif tilenumber <= smbtilecount+portaltilecount then
+				portalspritebatchfront:add(tilequads[tilenumber]:quad(), screen_x, screen_y, 0, scale, scale)
+			elseif tilenumber <= smbtilecount+portaltilecount+customtilecount then
+				customspritebatchfront:add(tilequads[tilenumber]:quad(), screen_x, screen_y, 0, scale, scale)
+			elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0) then
+				for i = 1, modcustomtiles as integer do
+					if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i] then
+						(modcustomspritebatchfront[i as number] as SpriteBatch):add(tilequads[tilenumber]:quad(), screen_x, screen_y, 0, scale, scale)
+						break
 					end
 				end
 			end
 		end
 	end
-	
-	--Unbind spritebatches
+
+	local function draw_view(view: {number:{number:SpriteBatchViewCell|nil}}, cols: integer, rows: integer)
+		for y = 0, rows - 1 do
+			local screen_y = ((y) * 16 - 8) * scale
+			for x = 1, cols do
+				local cell = view[y][x]
+				if cell ~= nil then
+					draw_view_cell(cell, (x - 1) * 16 * scale, screen_y)
+				end
+			end
+		end
+	end
+
+	local row_count = ytodraw + 2
+	local can_incremental = math.abs(scroll_dx) + math.abs(scroll_dy) == 1
+		and spritebatch_view ~= nil
+		and spritebatch_cols == xtodraw
+		and spritebatch_rows == row_count
+		and spritebatch_floor_x + scroll_dx == flooredxscroll
+		and spritebatch_floor_y + scroll_dy == flooredyscroll
+
+	if can_incremental then
+		local view = spritebatch_view as {number:{number:SpriteBatchViewCell|nil}}
+		local dx = scroll_dx
+		local dy = scroll_dy
+		if dx > 0 then
+			for y = 0, row_count - 1 do
+				local row = view[y]
+				for x = 1, xtodraw - 1 do
+					row[x] = row[x + 1]
+				end
+				local coy = math.min(flooredyscroll + y + 1, mapheight as number)
+				row[xtodraw] = fetch_view_cell(flooredxscroll + xtodraw, coy)
+			end
+		elseif dx < 0 then
+			for y = 0, row_count - 1 do
+				local row = view[y]
+				for x = xtodraw, 2, -1 do
+					row[x] = row[x - 1]
+				end
+				local coy = math.min(flooredyscroll + y + 1, mapheight as number)
+				row[1] = fetch_view_cell(flooredxscroll + 1, coy)
+			end
+		elseif dy > 0 then
+			local new_view: {number:{number:SpriteBatchViewCell|nil}} = {}
+			for y = 0, row_count - 2 do
+				new_view[y] = view[y + 1]
+			end
+			new_view[row_count - 1] = {}
+			for x = 1, xtodraw do
+				local coy = math.min(flooredyscroll + row_count, mapheight as number)
+				new_view[row_count - 1][x] = fetch_view_cell(flooredxscroll + x, coy)
+			end
+			view = new_view
+			spritebatch_view = new_view
+		else
+			local new_view: {number:{number:SpriteBatchViewCell|nil}} = {}
+			for y = row_count - 1, 1, -1 do
+				new_view[y] = view[y - 1]
+			end
+			new_view[0] = {}
+			for x = 1, xtodraw do
+				local coy = math.min(flooredyscroll + 1, mapheight as number)
+				new_view[0][x] = fetch_view_cell(flooredxscroll + x, coy)
+			end
+			view = new_view
+			spritebatch_view = new_view
+		end
+		spritebatch_floor_x = flooredxscroll as integer
+		spritebatch_floor_y = flooredyscroll as integer
+		smbspritebatch:clear()
+		smbspritebatchfront:clear()
+		portalspritebatch:clear()
+		portalspritebatchfront:clear()
+		if customtiles then
+			customspritebatch:clear()
+			customspritebatchfront:clear()
+		end
+		if modcustomtiles then
+			for i = 1, modcustomtiles as number do
+				(modcustomspritebatch[i as number] as SpriteBatch):clear()
+				(modcustomspritebatchfront[i as number] as SpriteBatch):clear()
+			end
+		end
+		draw_view(view, xtodraw as integer, row_count as integer)
+		return
+	end
+
+	local view: {number:{number:SpriteBatchViewCell|nil}} = {}
+	for y = 0, row_count - 1 do
+		view[y] = {}
+		for x = 1, xtodraw do
+			local coy = math.min(flooredyscroll+y+1, mapheight as number)
+			view[y][x] = fetch_view_cell(flooredxscroll+x, coy)
+		end
+	end
+	spritebatch_view = view
+	spritebatch_cols = xtodraw as integer
+	spritebatch_rows = row_count as integer
+	spritebatch_floor_x = flooredxscroll as integer
+	spritebatch_floor_y = flooredyscroll as integer
+	draw_view(view, xtodraw as integer, row_count as integer)
 end
+
 
 global function nextlevel()
 	if not levelfinished then

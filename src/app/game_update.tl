@@ -196,7 +196,7 @@ global function game_update(dt: number)
 	remove_indices_desc_multi({blockbouncetimer, blockbouncex, blockbouncey, blockbouncecontent, blockbouncecontent2}, delete)
 	
 	if ndelete >= 1 then
-		generatespritebatch()
+		generatespritebatch(0, 0)
 	end
 	
 	--coinblocktimer things
@@ -526,18 +526,28 @@ global function game_update(dt: number)
 	end
 	
 	--SPRITEBATCH UPDATE and CASTLEREPEATS
-	if math.floor(xscroll) ~= spritebatchX[1] then
+	local new_sbx = math.floor(xscroll)
+	local new_sby = math.floor(yscroll)
+	if new_sbx ~= spritebatchX[1] then
 		if not editormode then
-			for currentx = lastrepeat+1+width, math.floor(xscroll)+1+width do
+			for currentx = lastrepeat+1+width, new_sbx+1+width do
 				reachedx(currentx)
 			end
 		end
 		
-		generatespritebatch()
-		spritebatchX[1] = math.floor(xscroll)
-	elseif math.floor(yscroll) ~= spritebatchY[1] then
-		generatespritebatch()
-		spritebatchY[1] = math.floor(yscroll)
+		if spritebatchX[1] ~= nil then
+			generatespritebatch(new_sbx - (spritebatchX[1] as integer), 0)
+		else
+			generatespritebatch(0, 0)
+		end
+		spritebatchX[1] = new_sbx
+	elseif new_sby ~= spritebatchY[1] then
+		if spritebatchY[1] ~= nil then
+			generatespritebatch(0, new_sby - (spritebatchY[1] as integer))
+		else
+			generatespritebatch(0, 0)
+		end
+		spritebatchY[1] = new_sby
 	end
 	
 	--portal update

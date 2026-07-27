@@ -62,8 +62,8 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 					end
 				end
 				
-				if t.gels then
-					draw_tile_gel_overlays(t.gels, math.floor((x - .5 - xscrollfrac) * 16 * scale), math.floor((y - 1 - yscrollfrac - bounceyoffset) * 16 * scale))
+				if t.gelSides then
+					draw_tile_gel_overlays(t.gelSides, math.floor((x - .5 - xscrollfrac) * 16 * scale), math.floor((y - 1 - yscrollfrac - bounceyoffset) * 16 * scale), 8, 8)
 				end
 				
 				if editormode then
@@ -276,8 +276,8 @@ global function drawforeground()
 						end
 					end
 					
-					if t.gels then
-						draw_tile_gel_overlays(t.gels, math.floor((x - .5 - math.fmod(xscroll, 1)) * 16 * scale), math.floor((y - 1 - math.fmod(yscroll, 1)) * 16 * scale))
+					if t.gelSides then
+						draw_tile_gel_overlays(t.gelSides, math.floor((x - .5 - math.fmod(xscroll, 1)) * 16 * scale), math.floor((y - 1 - math.fmod(yscroll, 1)) * 16 * scale), 8, 8)
 					end
 				end
 			end

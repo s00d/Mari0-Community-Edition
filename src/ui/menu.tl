@@ -1240,7 +1240,7 @@ global function loadbackgroundsafe(background: any): any
 		create_tile_spritebatches()
 	end
 	
-	generatespritebatch()
+	generatespritebatch(0, 0)
 end
 
 global function loadbackground(backgroundlevel: any): any

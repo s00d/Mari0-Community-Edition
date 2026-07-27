@@ -448,7 +448,7 @@ function editor_update_keyscroll(_: number)
 			if oldxscroll ~= xscroll or oldyscroll ~= yscroll then
 				autoscroll = false
 				guielements["autoscrollcheckbox"].var = autoscroll
-				generatespritebatch()
+				generatespritebatch(0, 0)
 				
 				if regiondragging and (regiondragging as RegionDragging).movex and (regiondragging as RegionDragging).movey then
 					(regiondragging as RegionDragging).movex = (regiondragging as RegionDragging).movex + (oldxscroll-xscroll)*16*scale
@@ -719,7 +719,7 @@ function editor_update_main(dt: number)
 				--SPRITEBATCH UPDATE
 				if math.floor(splitxscroll[1]) ~= spritebatchX[1] then
 					spritebatchX[1] = math.floor(splitxscroll[1])
-					generatespritebatch()
+					generatespritebatch(0, 0)
 				end
 				
 				--VERTICAL
@@ -754,7 +754,7 @@ function editor_update_main(dt: number)
 					batch_dirty = true
 				end
 				if batch_dirty then
-					generatespritebatch()
+					generatespritebatch(0, 0)
 				end
 			end
 		end
@@ -2484,7 +2484,7 @@ function mapwidthapply()
 				newmap[x][y] = map[oldx][oldy]
 				newcoinmap[x][y] = coinmap[oldx][oldy]
 			else
-				newmap[x][y] = {1, gels={}, portaloverride={0, 0}}
+				newmap[x][y] = {1, gels={}, gelSides={}, portaloverride={0, 0}}
 			end
 			
 			if tilequads[newmap[x][y][1]]:getproperty("collision", x, y) then
@@ -2541,7 +2541,7 @@ function mapwidthapply()
 	end
 	
 	objects["screenboundary"]["right"].x = mapwidth
-	generatespritebatch()
+	generatespritebatch(0, 0)
 	
 	--editorclose()
 	
@@ -2761,8 +2761,8 @@ function placetile(x: number, y: number, t: any, ent: any, preventMultiTile: any
 		end
 		if map[cox][coy][1] ~= currenttile then
 			map[cox][coy][1] = currenttile
-			map[cox][coy]["gels"] = {}
-			generatespritebatch()
+			init_map_cell_gels(map[cox][coy])
+			generatespritebatch(0, 0)
 		end
 		
 		--Tile grouping
@@ -3011,7 +3011,7 @@ function loadstate(s: any)
 		end
 	end
 	
-	generatespritebatch()
+	generatespritebatch(0, 0)
 end
 
 --[[function getmaps() VANILLA GETMAPS
@@ -3208,7 +3208,7 @@ function editor_mousepressed_left(x: number, y: number)
 									end
 								end
 							end
-							generatespritebatch()
+							generatespritebatch(0, 0)
 							--local x, y = love.mouse.getPosition()
 							--placetile(x, y)
 						end
@@ -4079,10 +4079,10 @@ function emptySelection()
 	for i = 1, xnum do
 		for j = 1, ynum do
 			map[tile1x + i - 1][tile1y + j - 1] = {1} as MapCell
-			map[tile1x + i - 1][tile1y + j - 1]["gels"] = {}
+			init_map_cell_gels(map[tile1x + i - 1][tile1y + j - 1])
 		end
 	end
-	generatespritebatch()
+	generatespritebatch(0, 0)
 end
 
 function getSelectedTiles(): {{any}}

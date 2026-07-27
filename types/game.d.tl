@@ -60,10 +60,15 @@ global record JSONModule
 end
 
 -- Map / camera / session
+global record SpriteBatchViewCell
+	foreground: boolean
+	tilenumber: number
+end
 -- Keep open-array escape: MapCell is a Teal array-record (numeric tile slots via `#` / [1],[2],… plus named fields).
 global record MapCell is {any}
 	portaloverride: {string:any}
 	gels: {string:any}
+	gelSides: {number:number}
 	portal: any
 end
 -- Pure tile parse result from level_parse_tiles_only (no entities / no LÖVE).
@@ -510,6 +515,12 @@ global infinitetime: boolean
 global portaldelay: {number:number}
 global gelcannontimer: number
 global spritebatchX: {any}
+global spritebatchY: {any}
+global spritebatch_cols: integer
+global spritebatch_rows: integer
+global spritebatch_floor_x: integer
+global spritebatch_floor_y: integer
+global spritebatch_view: {number:{number:SpriteBatchViewCell|nil}}
 global firestartx: any
 global pipestarty: number
 global fireanimationtime: number
@@ -605,7 +616,6 @@ global dialogboxes: {any:Entity}
 global blockbouncecontent2: {any:any}
 global xpantimer: number
 global ypantimer: number
-global spritebatchY: {any}
 global portalparticletimer: number
 global firedelay: number
 global flyingfishstarted: boolean
@@ -1312,7 +1322,16 @@ global animationsystem_draw: function()
 global animationsystem_load: function()
 global animationsystem_update: function(number)
 global build_blockbounce_lookup: function({any:any}, {any:any}): {any:any}
-global draw_tile_gel_overlays: function({string:any}, number, number, number, number)
+global draw_tile_gel_overlays: function({number}, number, number, number, number)
+global draw_entity_gel_overlays: function({string:any}, number, number, number, number)
+global map_cell_set_gel: function(MapCell, integer, number)
+global map_cell_gel_id: function(MapCell, integer): number|nil
+global init_map_cell_gels: function(MapCell)
+global GEL_SIDE_TOP: integer
+global GEL_SIDE_RIGHT: integer
+global GEL_SIDE_BOTTOM: integer
+global GEL_SIDE_LEFT: integer
+global GEL_SIDE_BY_NAME: {string:integer}
 global callcollision: function(any, Entity, any, Entity, any, any): any
 global changebackground: function(any): any
 global changecharacter: function(any)
@@ -1450,7 +1469,7 @@ global game_mousereleased: function(any, any, any)
 global game_textinput: function(any)
 global generateanimationgui: function(): any
 global generateentitylist: function(): any
-global generatespritebatch: function()
+global generatespritebatch: function(integer, integer)
 global getAngleFrame: function(number, number): any
 global getPortal: function(x: number, y: number, dir?: any): number|boolean, number|nil, any, any, any, any, any, any
 global getSelectedTiles: function(): {{any}}

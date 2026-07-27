@@ -631,7 +631,7 @@ function mario:update_animation(dt: number): boolean
 				end
 				
 				if removedtile then
-					generatespritebatch()
+					generatespritebatch(0, 0)
 					playsound("bridgebreak")
 					self.animationbridgex = self.animationbridgex - 1
 				else
@@ -3158,7 +3158,7 @@ global function hitblock(x: number, y: number, t: any, koopa?: any): any
 			collectcoin(x, y-1)
 			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
 		end
-		generatespritebatch()
+		generatespritebatch(0, 0)
 	end
 end
 
@@ -3218,7 +3218,7 @@ global function destroyblock(x: number, y: number): any
 	
 	map[x][y][1] = 1
 	objects["tile"][tilekey(x, y)] = nil
-	map[x][y]["gels"] = {}
+	init_map_cell_gels(map[x][y])
 	playsound("blockbreak")
 	addpoints(50)
 	
@@ -3227,7 +3227,7 @@ global function destroyblock(x: number, y: number): any
 	table.insert(blockdebristable, blockdebris:new(x-.5, y-.5, 3.5, -14))
 	table.insert(blockdebristable, blockdebris:new(x-.5, y-.5, -3.5, -14))
 	
-	generatespritebatch()
+	generatespritebatch(0, 0)
 end
 
 function mario:faithplate(_: any)

@@ -142,7 +142,7 @@ global function changescale(s: number, init?: boolean)
 	end
 	
 	if generatespritebatch then
-		generatespritebatch()
+		generatespritebatch(0, 0)
 	end
 end
 
