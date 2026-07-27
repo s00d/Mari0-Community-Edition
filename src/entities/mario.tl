@@ -1355,10 +1355,10 @@ function mario:movement(dt: number)
 			local y = self.y+self.height+1
 			--x and y in map
 			if inmap(x, y) then
-				--top of block orange
-				if map[x][y]["gels"]["top"] == 2 then
+				local topGel = map_cell_gel_id(map[x][y], GEL_SIDE_TOP)
+				if topGel == 2 then
 					orangegel = true
-				elseif map[x][y]["gels"]["top"] == 1 then
+				elseif topGel == 1 then
 					bluegel = true
 				end
 			end
@@ -1716,8 +1716,7 @@ function mario:underwatermovement(dt: number)
 			local y = self.y+self.height+1
 			--x and y in map
 			if inmap(x, y) then
-				--top of block orange
-				if map[x][y]["gels"]["top"] == 2 then
+				if map_cell_gel_id(map[x][y], GEL_SIDE_TOP) == 2 then
 					maxrunspeed = uwgelmaxrunspeed
 					maxwalkspeed = uwgelmaxwalkspeed
 					runacceleration = uwgelrunacceleration
@@ -2195,7 +2194,7 @@ function mario:floorcollide(a: any, b: Entity, c: any, d: any): boolean
 	elseif a == "tile" then
 		local x, y = b.cox, b.coy
 		
-		if map[x][y].gels and map[x][y].gels.top == 1 then
+		if map_cell_gel_id(map[x][y], GEL_SIDE_TOP) == 1 then
 			if self:bluegel("top") then
 				return false
 			end
@@ -2411,7 +2410,7 @@ function mario:rightcollide(a: any, b: Entity, c: any, d: any): boolean
 	elseif a == "tile" then
 		local x, y = b.cox, b.coy
 			
-		if map[x][y].gels and map[x][y].gels.left == 1 then
+		if map_cell_gel_id(map[x][y], GEL_SIDE_LEFT) == 1 then
 			if self:bluegel("left") then
 				return false
 			end
@@ -2535,7 +2534,7 @@ function mario:leftcollide(a: any, b: Entity, c: any, d: any): boolean
 	elseif a == "tile" then
 		local x, y = b.cox, b.coy
 		
-		if map[x][y].gels and map[x][y].gels.right == 1 then
+		if map_cell_gel_id(map[x][y], GEL_SIDE_RIGHT) == 1 then
 			if self:bluegel("right") then
 				return false
 			end

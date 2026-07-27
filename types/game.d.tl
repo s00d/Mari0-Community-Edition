@@ -63,6 +63,8 @@ end
 global record SpriteBatchViewCell
 	foreground: boolean
 	tilenumber: number
+	batch_id: integer|nil
+	slot_id: integer|nil
 end
 -- Keep open-array escape: MapCell is a Teal array-record (numeric tile slots via `#` / [1],[2],… plus named fields).
 global record MapCell is {any}

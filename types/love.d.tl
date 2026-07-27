@@ -517,6 +517,7 @@ global record SpriteBatch
 	add: function(self: SpriteBatch, ...: any): integer
 	clear: function(self: SpriteBatch)
 	flush: function(self: SpriteBatch)
+	set: function(self: SpriteBatch, ...: any)
 	setColor: function(self: SpriteBatch, ...: number)
 end
 
