@@ -4,6 +4,8 @@ rawset(_G, "box", rawget(_G, "box") or {})
 
 require("weapons.punt")
 
+local BOX_KILL_SPEED = 8 -- fall ~0.4 tile at yacceleration=80
+
 function box.new(_: box, x: number, y: number): box
 	local self = setmetatable({}, { __index = box }) as box
 	self:init(x, y)
@@ -210,22 +212,20 @@ function box:floorcollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "floor") then
 		return false
 	end
-	
+
+	if a == "enemy" and not (b as Dyn).immunetoboxes then
+		if (self.speedy as number) >= BOX_KILL_SPEED then
+			if punt_kill_entity(b as {string:any}) then
+				addpoints(200, self.x, self.y)
+				self.falling = true
+				self.speedy = -6
+				return false
+			end
+		end
+	end
+
 	if self.falling then
 		self.falling = false
-	end
-	
-	if a == "enemy" and (b as Dyn).killedbyboxes then
-		if b.stompable then
-			b:stomp()
-		else
-			b:shotted("right", false, false, false)
-		end
-		addpoints(200, self.x, self.y)
-		playsound("stomp")
-		self.falling = true
-		self.speedy = -10
-		return false
 	end
 	return true
 end

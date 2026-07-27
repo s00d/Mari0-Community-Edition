@@ -1631,6 +1631,7 @@ global playmusic: function()
 global playsound: function(any)
 global punt_hit: function({string:any}, string, {string:any}): boolean
 global punt_kill: function({string:any}): boolean
+global punt_kill_entity: function({string:any}): boolean
 global punt_tick: function({string:any}, number)
 global portalcoords: function(x: number, y: number, speedx: number, speedy: number, width: number, height: number, rotation: number, animationdirection: any, entryportalX: number|boolean, entryportalY: number|boolean, entryportalfacing: any, exitportalX: number|boolean, exitportalY: number|boolean, exitportalfacing: any, self?: Entity, live?: boolean): number, number, number, number, number, any
 global prerotatecall: function(any, any): boolean

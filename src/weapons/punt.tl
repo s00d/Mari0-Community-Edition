@@ -1,4 +1,4 @@
---[[ Shared punt blast lethality: timer tick + collide kill + direct blast kill. ]]
+--[[ Shared lethality: box crush, gravity ball, legacy punt timer. ]]
 
 global function punt_tick(obj: {string:any}, dt: number)
 	local t = obj.punttimer as number|nil
@@ -29,7 +29,7 @@ global function punt_hit(self: {string:any}, othertype: string, other: {string:a
 	return true
 end
 
--- Direct kill from blast (no flight)
+-- Direct kill from blast (no flight). Prefer punt_kill_entity for new call sites.
 global function punt_kill(obj: {string:any}): boolean
 	if obj.stompable and obj.stomp then
 		(obj.stomp as function({string:any}))(obj)
@@ -44,8 +44,34 @@ global function punt_kill(obj: {string:any}): boolean
 	return true
 end
 
+-- Shared kill for box crush + gravity ball (health-aware, no points here).
+global function punt_kill_entity(target: {string:any}): boolean
+	if target.destroying or target.dead or target.kill then
+		return false
+	end
+	if target.stompable then
+		if (target.stomp as function({string:any}): any)(target) == false then
+			return false
+		end
+	elseif target.shotted then
+		local r = (target.shotted as function({string:any}, string, boolean, boolean, boolean): any)(
+			target, "right", false, false, false)
+		if r == false then
+			return false
+		end
+		if r == nil and (target.health or target.shothealth) then
+			return false
+		end
+	else
+		return false
+	end
+	playsound("stomp")
+	return true
+end
+
 return {
 	punt_tick = punt_tick,
 	punt_hit = punt_hit,
 	punt_kill = punt_kill,
+	punt_kill_entity = punt_kill_entity,
 }
