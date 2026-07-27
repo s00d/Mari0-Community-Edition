@@ -1,4 +1,4 @@
-# Architecture (Teal migration)
+# Architecture (Mari0 CE / Teal)
 
 ## Layout
 
@@ -6,12 +6,28 @@
 - `build/` — generated Lua from Teal (`make teal`); gitignored; **included in `.love` packages**
 - **No root re-export shims** — use dotted requires (`core.tilekey`, `physics.collision`, `util.hatutil`, `entities.mario`, `ui.menu`, …)
 - `types/love.d.tl` — LÖVE 11 globals for the Teal checker
-- `types/game.d.tl` — major gameplay/session globals (`map`, `objects`, `xscroll`, …); required from `love.d.tl`
+- `types/game.d.tl` — ~1519 ambient gameplay globals (`map`, `objects`, `xscroll`, …); required from `love.d.tl`
 - `assets/` — graphics, sounds, shaders, characters, built-in enemies
 - `legacy/netplayinc/` — unused netplay helpers (kept for reference; not required at runtime)
 - `mappacks/` — unchanged format (`N-M.txt`, settings **disk colors 0–255** via `DISK_COLOR_MAX`)
 
-## Runtime
+## Runtime model
+
+**`_G` is the source of truth.** Mari0 CE intentionally keeps the original Love2D global style: gameplay state lives in `_G`, typed for the checker via `types/game.d.tl`. There is no ongoing migration to a context object or Level OOP wrapper.
+
+| Concern | Where it lives |
+|---------|----------------|
+| Map, objects, scroll, most gameplay | `_G` (declared in `types/game.d.tl`) |
+| New globals after boot | Blocked by `core.global_freeze` (write-only `_G` metatable; late writes use `rawset`) |
+| Per-frame step budget | `app.love_frame` — module-local `steptimer` |
+| RNG | `core.rng` — `Rng.install(seed?)` |
+| Physics iteration order | `physics.order` — `PHYSICS_GROUP_ORDER` + sorted keys |
+| Level load reset | `reset_level_state()` / `fresh_objects()` in `world.level` — replaces manual zeroing; **not** Ctx, **not** Level OOP |
+| Game-flow bag | `world.session` (`World`) — `mariotimer`, `gamestate`, `mappack`, `currentlevel`, `editormode`, `paused` only; reads `_G` via `sync_session_from_globals` on load/spawn; `set_gamestate` / `set_scroll` write back to `_G` where wired |
+
+Entity/UI classes are Teal `global record`s in `types/records.d.tl` (impl in `src/`). That is normal OO for entities — not a deglobalization layer for map/objects.
+
+### Boot & loop
 
 - Target: **LÖVE 11.x only**
 - Color: `LOVE_COLOR_MAX = 1` (Love 11 channels); mappack/disk bytes use `DISK_COLOR_MAX = 255`
@@ -20,38 +36,26 @@
 - Physics: custom AABB + portals (`src/physics/`), **not** `love.physics`
 - Boot: `app.boot` (`Boot.run_early`, `Boot.require_game`, `Boot.load_media`, `Boot.run_load`)
 - Thin entry: `main.lua` (<300 LOC) — thin `love.load`, mouse wrappers; `app.errhand`, `app.love_run`, `app.love_callbacks`, `app.main_util`
-- Game loop phases: `app.game_update`; draw/load/portal/main_util split into facades + parts (see below)
+- Game loop: `app.game_update`; draw/load/portal/main_util split into facades + parts (below)
 - Logging: `app.logger`
-- Assets: `assets.store` (`AssetStore`) with path prefixes under `assets/`; default imagelist/sounds registered in `Boot.load_media`; one-shot loads via `AssetStore.load_image` / `load_sound`
-- Session bag: `world.session` (`World`) — `sync_session_from_globals` on load/spawn; `set_gamestate` / `set_scroll` are single writers to `_G` where wired
-- Gamestate: `app.gamestate` — handlers registered in `Boot.register_gamestates` for menu/game/intro/levelscreen; `love_callbacks` prefer handlers when present
+- Assets: `assets.store` (`AssetStore`); default imagelist/sounds in `Boot.load_media`
+- Gamestate: `app.gamestate` — handlers in `Boot.register_gamestates`; `love_callbacks` prefer handlers when present
 
-## Smoke checklist (`make run`)
+Headless checks: `tests/global_freeze_checks.lua`, `steptimer_checks.lua`, `rng_checks.lua`, `physics_order_checks.lua`, `session_checks.lua`, `level_leak_checks.lua`.
 
-1. Title / intro plays (or skip with debug), then main menu appears
-2. Start game → levelscreen → world 1-1 loads and scrolls
-3. Pause / return to menu still works; no missing-module errors in console
+## Removed experiments (do not revive without cause)
 
-## Stability architecture (teal-migration)
+Stage 2 briefly tried `core.ctx` (Ctx.level bag), Level OOP with push/pull mirrors, and `push_globals` on session. PR3 removed Ctx and the session mirror; Phase 3 dropped `push_globals` in favor of one-way `sync_session_from_globals`. PR4 removed a stub replay harness that did not exercise real physics. **Mass deglobalization is not planned** — fix globals only when a specific bug or test demands it.
 
-| Layer | Module | Role |
-|-------|--------|------|
-| Global guard | `core.global_freeze` | Write-only `_G` metatable after `love.load` completes |
-| RNG | `core.rng` | `Rng.install(seed?)` — `MARI0_SEED`, `--seed=N`, else `os.time()` |
-| Physics order | `physics.order` | `PHYSICS_GROUP_ORDER` + sorted per-group keys in `physicsupdate` |
-| Session | `world.session` | `sync_session_from_globals`; `set_gamestate` single-writer for state |
+## Structural Teal migration (complete)
 
-Headless checks: `tests/global_freeze_checks.lua`, `steptimer_checks.lua`, `rng_checks.lua`, `physics_order_checks.lua`, `session_checks.lua`.
-
-## Structural migration status
-
-**Structural Teal migration is complete.** Post-migration polish waves L–O:
+Post-migration polish waves L–O:
 
 | Wave | Status |
 |------|--------|
 | L — remove root `game.lua`, thin `main.lua`, smoke docs | done |
 | M — `types/game.d.tl`, media lint → AssetStore, root lua allowlist | done |
-| N — expand `world.session`, wire Gamestate handlers | done (Teal `global record` OO) |
+| N — `world.session` for game-flow; Gamestate handlers | done |
 | O — split draw/load/portal/main_util monoliths | done |
 
 Facades (keep `_G` function names via require):
@@ -62,6 +66,14 @@ Facades (keep `_G` function names via require):
 | `app.game_load` | `game_load_level`, `game_load_objects` |
 | `app.game_portal` | `game_portal_input`, `game_portal_world` |
 | `app.main_util` | `main_util_options`, `main_util_misc` |
+
+## Next work (real priorities)
+
+- **Golden replay on real physics** — deterministic regression over actual `physicsupdate`, not a fake harness
+- **Weapons stage** — typed/weapons subsystem cleanup where needed
+- **Broadphase** — collision performance / correctness improvements in `src/physics/`
+
+Not a priority: wrapping `_G` in Ctx, mirroring map/objects into session, or shrinking `game.d.tl` for aesthetics.
 
 ## Ported modules (dotted require)
 
@@ -91,8 +103,6 @@ make package                    # .love includes build/ + lib/
 **Lua constraint:** Cyan/`lfs` must run on the Lua version luarocks built them for. Do **not** force Cyan under LuaJIT when rocks were installed for Lua 5.x — `lfs.so` will fail to load. `scripts/cyan` picks the luarocks `cyan` binary (which embeds the correct interpreter).
 
 **Deps (Love-safe):** pure-Lua rocks vendored into `lib/` (`dkjson`, `sha1`) via `scripts/vendor-rocks` / [`dependencies-1.rockspec`](../dependencies-1.rockspec). `conf.lua` prepends `lib/?.lua` to `package.path`. Prefer **dkjson** over `lua-cjson` (C modules do not ship inside `.love`).
-
-**OO:** Entity/UI classes are Teal `global record`s in `types/records.d.tl` (impl in `src/`). Drive remaining type diagnostics down via ambient records/globals until `cyan build -u` is clean.
 
 Runtime uses precompiled `build/` — `tl.loader` is **dev-only**, not the default for `make run`.
 
