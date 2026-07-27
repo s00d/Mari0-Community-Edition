@@ -67,6 +67,7 @@ global function game_load(suspended?: any)
 	autoscroll = true
 	autoscrollx = true
 	autoscrolly = true
+	minimapdragging = false
 	
 	jumpitems = { "mushroom", "oneup" }
 	
@@ -185,6 +186,10 @@ global function loadlevel(level: string|number): boolean
 	lakitoendx = false
 	lakitoend = false
 	noupdate = false
+	minimapdragging = false
+	autoscroll = true
+	autoscrollx = true
+	autoscrolly = true
 	xscroll = 0
 	repeatX = 0
 	lastrepeat = 0

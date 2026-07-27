@@ -2,7 +2,10 @@
 
 function editor_load()
 	-- Play mode: skip heavy rightclick menu / UI rebuild every level transition.
+	-- Still clear minimapdragging — game_update only scrolls when it is false
+	-- (nil == false is false in Lua, which freezes the camera).
 	if not editormode then
+		minimapdragging = false
 		if musiclist[#musiclist] ~= "princessmusic.ogg" then
 			musiclist[#musiclist+1] = "princessmusic.ogg"
 		end

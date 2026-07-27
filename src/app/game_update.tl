@@ -284,7 +284,8 @@ global function game_update(dt: number)
 	local oldxscroll = xscroll
 	local oldyscroll = yscroll
 	
-	if autoscroll and minimapdragging == false then
+	-- not minimapdragging: treat nil as false (play-mode editor_load skip used to leave it nil)
+	if autoscroll and not minimapdragging then
 		--scrolling
 		local i = 1
 		while i <= players and (playerobjs[i].dead or playerobjs[i].remote) do
