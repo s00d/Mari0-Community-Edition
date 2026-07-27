@@ -6,13 +6,12 @@ function love.update(dt: any)
 		music:update()
 	end
 	realdt = dt
-	dt = math.min(0.5, dt) --ignore any dt higher than half a second
+	local frame_dt = math.min(0.5, dt) --ignore any dt higher than half a second
 	
 	if recording then
-		dt = recordtarget as number
+		frame_dt = recordtarget as number
 	end
 	
-	steptimer = steptimer + dt
 	dt = targetdt as number
 	
 	if skipupdate then
@@ -46,7 +45,13 @@ function love.update(dt: any)
 		end
 	end
 	
-	while steptimer >= targetdt do
+	-- Bullet time scales step accumulation, not per-step dt (see game_update).
+	steptimer = steptimer + frame_dt * speed
+	
+	local max_physics_steps = 5
+	local steps = 0
+	while steptimer >= targetdt and steps < max_physics_steps do
+		steps = steps + 1
 		steptimer = steptimer - targetdt
 		
 		if frameskip then
@@ -92,6 +97,9 @@ function love.update(dt: any)
 		
 		--No longer needed
 		--love.window.setTitle("FPS:" .. love.timer.getFPS() .. " - Send feedback/issues to crash@stabyourself.net")
+	end
+	if steps >= max_physics_steps and steptimer >= targetdt then
+		steptimer = 0
 	end
 end
 

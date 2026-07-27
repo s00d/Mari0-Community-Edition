@@ -4,7 +4,6 @@
 
 global function game_update(dt: number)
 	if not objects then return end
-	dt = dt * speed
 	gdt = dt
 	
 	--------
