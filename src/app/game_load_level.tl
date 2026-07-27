@@ -506,8 +506,8 @@ global function loadlevel(level: string|number): boolean
 	return needs_to_be_saved
 end
 
-global function startlevel(...: any): any
-	local levelstart = ...
+global function startlevel(levelstart?: any)
+	
 	gamestate = "game"
 	if Gamestate then Gamestate.set("game") end
 	if session then
@@ -533,8 +533,8 @@ global function startlevel(...: any): any
 	end
 end
 
-global function changemapwidth(...: any): any
-	local width = ... as number
+global function changemapwidth(width: number)
+	
 	if width > (mapwidth as number) then
 		for x = (mapwidth as number)+1, width do
 			map[x] = {}
@@ -564,8 +564,8 @@ global function changemapwidth(...: any): any
 	generatespritebatch()
 end
 
-global function changemapheight(...: any): any
-	local height = ... as number
+global function changemapheight(height: number)
+	
 	if height > (mapheight as number) then
 		for x = 1, mapwidth as number do
 			for y = (mapheight as number)+1, height do
@@ -595,7 +595,7 @@ global function changemapheight(...: any): any
 	generatespritebatch()
 end
 
-global function generatespritebatch(...: any): any
+global function generatespritebatch()
 	smbspritebatch:clear()
 	smbspritebatchfront:clear()
 	
@@ -713,7 +713,7 @@ global function generatespritebatch(...: any): any
 	--Unbind spritebatches
 end
 
-global function nextlevel(...: any): any
+global function nextlevel()
 	if not levelfinished then
 		return
 	end
@@ -737,8 +737,8 @@ global function nextlevel(...: any): any
 	levelscreen_load("next")
 end
 
-global function warpzone(...: any): any
-	local w, l = ...
+global function warpzone(w: any, l: any)
+	
 	love.audio.stop()
 	mariolevel = l as number
 	marioworld = w as number|string
@@ -753,7 +753,7 @@ global function warpzone(...: any): any
 	levelscreen_load("next")
 end
 
-global function hitrightside(...: any): any
+global function hitrightside()
 	if haswarpzone then
 		for i, v in pairs(objects["enemy"] as {any:any}) do
 			if (v as Entity).t == "plant" then	
@@ -764,7 +764,7 @@ global function hitrightside(...: any): any
 	end
 end
 
-global function endgame(...: any): any
+global function endgame()
 	if testlevel then
 		marioworld = testlevelworld
 		mariolevel = testlevellevel
@@ -780,7 +780,7 @@ global function endgame(...: any): any
 	end
 end
 
-global function respawnplayers(...: any): any
+global function respawnplayers()
 	if mariolivecount == false then
 		return
 	end

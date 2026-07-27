@@ -778,7 +778,7 @@ function editor_update_tiles(dt: number)
 	tilesoffset = (guielements["tilesscrollbar"].value as number) * tilescrollbarheight * scale
 	if editentities and not editenemies then
 		local x, y = mouse.getPosition()
-		local tile = getentityhighlight(x, y) as any as entitylistitem|nil
+		local tile = getentityhighlight(x, y)
 		
 		if tile ~= prevtile then
 			if tile ~= nil and tooltipimages[(tile as entitylistitem).i] then

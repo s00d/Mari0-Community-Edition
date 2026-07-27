@@ -119,16 +119,16 @@ global MUSIC_SOURCE_TYPE: string
 global unpack: function(list: {any}, ...: number): any...
 
 -- Core helpers exported as globals from src/core/*
-global tilekey: function(...: any): any
+global tilekey: function(any, any): integer
 global bounce_at: {any:any}
 global tilekey_xy: function(key: integer): integer, integer
 global TILEKEY_STRIDE: integer
 global inmap: function(x: number|nil, y: number|nil): boolean
-global inrange: function(...: any): boolean
+global inrange: function(i: any, a: any, b: any, include?: boolean): boolean
 global round: function(num: number, idp?: number): number
 global tablecontains: function(t: {any}, entry: any): boolean
 global getTile: function(x: number, y: number, portalable?: any, portalcheck?: any, facing?: any, ignoregrates?: any, dir?: any, mirexc?: any): any, any
-global getMouseTile: function(...: any): number, number
+global getMouseTile: function(any, any): number, number
 
 -- Tiles / enemies / characters
 global tilequads: {any:TileQuad}
@@ -1282,7 +1282,7 @@ global add: function(any)
 global addanimationaction: function(...: any): any
 global addanimationcondition: function(...: any): any
 global addanimationtrigger: function(...: any): any
-global addpoints: function(...: any): any
+global addpoints: function(i: any, x?: any, y?: any)
 global adjustcollside: function(any, any): any
 global animationsystem_draw: function()
 global animationsystem_load: function()
@@ -1294,8 +1294,8 @@ global changecharacter: function(...: any): any
 global changeforeground: function(...: any): any
 global changelevelscreen: function(...: any): any
 global changeline: function(...: any): any
-global changemapheight: function(...: any): any
-global changemapwidth: function(...: any): any
+global changemapheight: function(number)
+global changemapwidth: function(number)
 global changemusic: function(...: any): any
 global changenewmapsize: function(...: any): any
 global changepastemode: function(...: any): any
@@ -1322,7 +1322,7 @@ global convertfromstandard: function(Entity, number, number): number, number
 global convertmappack: function(...: any): any
 global converttostandard: function(Entity, number, number): number, number
 global count_spawn_handlers: function({any:any}): number
-global createdialogbox: function(...: any): any
+global createdialogbox: function(any, any)
 global creategame: function(...: any): any
 global createmappack: function(...: any): any
 global createnewanimation: function(...: any): any
@@ -1384,8 +1384,8 @@ global editorclose: function(...: any): any
 global editorexit: function(...: any): any
 global editoropen: function(...: any): any
 global emptySelection: function(...: any): any
-global endgame: function(...: any): any
-global enemies_load: function(...: any): any
+global endgame: function()
+global enemies_load: function()
 global finishlinking: function(...: any): any
 global finishregion: function(...: any): any
 global fromanimationstab: function(...: any): any
@@ -1423,33 +1423,33 @@ global game_mousereleased: function(...: any): any
 global game_textinput: function(...: any): any
 global generateanimationgui: function(...: any): any
 global generateentitylist: function(...: any): any
-global generatespritebatch: function(...: any): any
+global generatespritebatch: function()
 global getAngleFrame: function(number, number): any
 global getPortal: function(x: number, y: number, dir?: any): any...
 global getSelectedTiles: function(): {{any}}
 global getTiles: function(...: any): {{any}}
 global getaveragecolor: function(...: any): number, number, number
-global getentityhighlight: function(...: any): any
+global getentityhighlight: function(any, any): entitylistitem|nil
 global getfilepath: function(any): any
 global getmaps: function(...: any): any
 global getportalposition: function(...: any): any...
 global getupdate: function(): boolean
-global givelive: function(...: any): any
+global givelive: function(any, Entity)
 global globintCH: function(...: any): any
 global globintSH: function(...: any): any
 global globoolSH: function(...: any): any
 global handlegroup: function(i: any, h: any, u: {any:Body}, v: Body, j: any, dt: number, passed: any): boolean, boolean
 global hitblock: function(x: number, y: number, t: any, koopa?: any): any
-global hitrightside: function(...: any): any
+global hitrightside: function()
 global horcollision: function(Entity, Entity, any, any, any, any, number): boolean
 global increasetimelimit: function(...: any): any
 global inportal: function(Entity): boolean
 global insideportal: function(number, number, number, number): any, any
-global intro_draw: function(...: any): any
-global intro_keypressed: function(...: any): any
-global intro_load: function(...: any): any
-global intro_mousepressed: function(...: any): any
-global intro_update: function(...: any): any
+global intro_draw: function()
+global intro_keypressed: function()
+global intro_load: function()
+global intro_mousepressed: function()
+global intro_update: function(number)
 global item: function(i: any, x: number, y: number, size?: any)
 global joingame: function(...: any): any
 global keyprompt_update: function()
@@ -1463,21 +1463,21 @@ global level_filename: function(world: number|string, level: number|string, subl
 global level_parse_tiles_only: function(s: string): LevelTilesParse|nil, string|nil
 global level_serialize_maptiles: function(map: {number:{number:MapCell}}, coinmap: {number:{number:any}}, mapwidth: number, mapheight: number, v: integer): string
 global level_split_file_contents: function(s: string): integer, number, {string}, {string}, string, string, string, string, string
-global levelscreen_draw: function(...: any): any
-global levelscreen_load: function(...: any): any
-global levelscreen_update: function(...: any): any
+global levelscreen_draw: function()
+global levelscreen_load: function(reason: any, levelarg?: any)
+global levelscreen_update: function(number)
 global livesdecrease: function(...: any): any
 global livesincrease: function(...: any): any
 global loadHotKeys: function(...: any): any
 global loadanimatedtiles: function()
 global loadbackground: function(...: any): any
 global loadbackgroundsafe: function(...: any): any
-global loadcharacter: function(...: any): any
+global loadcharacter: function(string): Character|boolean
 global loadconfig: function(...: any): any
 global loadcustomimages: function(string)
 global loadcustomsounds: function(string)
-global loadenemy: function(...: any): any
-global loadhat: function(...: any): any
+global loadenemy: function(string)
+global loadhat: function(string)
 global loadlevel: function(level: string|number): boolean
 global loadlevelscreens: function()
 global loadmap: function(filename: string, createobjects?: boolean): boolean
@@ -1524,7 +1524,7 @@ global moveupanimationguiline: function(string, animationguiline)
 global newRecoloredImage: function(string, {{number}}, {{number}}): Image|nil
 global newlevel: function(...: any): any
 global nextcharacter: function(...: any): any
-global nextlevel: function(...: any): any
+global nextlevel: function()
 global objectclipboardcopy: function(...: any): any
 global onlinemenu_draw: function(...: any): any
 global onlinemenu_load: function(...: any): any
@@ -1534,19 +1534,19 @@ global openchangewidth: function(...: any): any
 global passivecollision: function(Entity, Entity, any, any, any, any, number): boolean
 global physicsupdate: function(dt: number)
 global placetile: function(...: any): any
-global playmusic: function(...: any): any
-global playsound: function(...: any): any
+global playmusic: function()
+global playsound: function(any)
 global portalcoords: function(x: number, y: number, speedx: number, speedy: number, width: number, height: number, rotation: number, animationdirection: any, entryportalX: number|boolean, entryportalY: number|boolean, entryportalfacing: any, exitportalX: number|boolean, exitportalY: number|boolean, exitportalfacing: any, self?: Entity, live?: boolean): number, number, number, number, number, any
 global prerotatecall: function(any, any): boolean
 global previouscharacter: function(...: any): any
-global properprint2: function(...: any): any
+global properprint2: function(any, number, number, ...: any)
 global properprintbackground: function(...: any): any
 global removelink: function(...: any): any
 global renameline: function(...: any): any
 global renderpreview: function(): ImageData
 global reset_mappacks: function(...: any): any
 global resetconfig: function(...: any): any
-global respawnplayers: function(...: any): any
+global respawnplayers: function()
 global reversefscrollfactor: function(...: any): any
 global reversescrollfactor: function(...: any): any
 global rightkey: function(...: any): any
@@ -1570,10 +1570,10 @@ global sendchat: function(...: any): any
 global serializetable: function(...: any): any
 global shootportal: function(...: any): any
 global spawnenemy: function(x: number, y: number)
-global startlevel: function(...: any): any
+global startlevel: function(levelstart?: any)
 global startlinking: function(...: any): any
 global startregion: function(...: any): any
-global stopmusic: function(...: any): any
+global stopmusic: function()
 global suspendgame: function(...: any): any
 global test_level: function(...: any): any
 global tilesall: function(...: any): any
@@ -1604,13 +1604,13 @@ global unrotate: function(number, number, number): number
 global updateanimationdropdown: function(...: any): any
 global updatebackground: function(...: any): any
 global updatefscrollfactor: function(...: any): any
-global updateranges: function(...: any): any
+global updateranges: function()
 global updatescroll: function(...: any): any
 global updatescrollfactor: function(...: any): any
-global updatesizes: function(...: any): any
+global updatesizes: function()
 global upkey: function(...: any): any
 global vercollision: function(Entity, Entity, any, any, any, any, number): boolean
-global warpzone: function(...: any): any
+global warpzone: function(any, any)
 
 -- Typed free-function replacement for legacy string:split (see core.stringutil).
 global strsplit: function(...: any): {string}

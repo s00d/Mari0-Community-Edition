@@ -1,7 +1,7 @@
 --[[ Teal port of root levelscreen.lua ]]
 
-global function levelscreen_load(...: any): any
-	local reason, i = ...
+global function levelscreen_load(reason: any, levelarg?: any)
+	
 	--check if lives left
 	livesleft = false
 	for i = 1, players do
@@ -13,11 +13,11 @@ global function levelscreen_load(...: any): any
 	if reason == "sublevel" then
 		gamestate = "sublevelscreen"
 		blacktime = sublevelscreentime
-		sublevelscreen_level = i as number
+		sublevelscreen_level = levelarg as number
 	elseif reason == "vine" then
 		gamestate = "sublevelscreen"
 		blacktime = sublevelscreentime
-		sublevelscreen_level = i as number
+		sublevelscreen_level = levelarg as number
 	elseif livesleft then
 		gamestate = "levelscreen"
 		blacktime = levelscreentime
@@ -93,9 +93,8 @@ global function levelscreen_load(...: any): any
 	end
 end
 
-global function levelscreen_update(...: any): any
-	local dt = ...
-	levelscreentimer = levelscreentimer + (dt as number)
+global function levelscreen_update(dt: number)
+	levelscreentimer = levelscreentimer + dt
 	if levelscreentimer > blacktime then
 		if gamestate == "levelscreen" or gamestate == "sublevelscreen" then
 			startlevel(gamestate == "levelscreen")
@@ -107,7 +106,7 @@ global function levelscreen_update(...: any): any
 	end
 end
 
-global function levelscreen_draw(...: any): any
+global function levelscreen_draw()
 	--black background
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.rectangle("fill", 0, 0, width*16*scale, height*16*scale)

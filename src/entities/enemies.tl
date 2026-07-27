@@ -1,6 +1,6 @@
 --[[ Teal port of root enemies.lua ]]
 
-global function enemies_load(...: any): any
+global function enemies_load()
 	defaultvalues = {quadcount=1, quadno=1}
 	
 	nobasevalues = {"description"} --values that aren't loaded from base
@@ -31,8 +31,8 @@ global function enemies_load(...: any): any
 	end
 end
 
-global function loadenemy(...: any): any
-	local filename = ... as string
+global function loadenemy(filename: string)
+	
 	local ss = strsplit(filename, "/")
 	local folder = ""
 	for i = 1, #ss-1 do

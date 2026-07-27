@@ -51,10 +51,8 @@ global function spawnenemy(x: number, y: number)
 	if session then session:bind_globals() end
 end
 
-global function givelive(...: any): any
-	local args = {...}
-	local id = args[1]
-	local t = args[2] as Entity
+global function givelive(id: any, t: Entity)
+	
 	if mariolivecount ~= false then
 		for i = 1, players do
 			mariolives[i] = mariolives[i]+1
@@ -67,18 +65,15 @@ global function givelive(...: any): any
 	playsound("oneup")
 end	
 
-global function addpoints(...: any): any
-	local args = {...}
-	local i = args[1] as number
-	local x = args[2]
-	local y = args[3]
-	if i > 0 then
-		marioscore = marioscore + i
+global function addpoints(i: any, x?: any, y?: any)
+	
+	if (i as number) > 0 then
+		marioscore = marioscore + (i as number)
 		if x and y then
 			table.insert(scrollingscores, scrollingscore:new(i, x, y))
 		end
 	else
-		table.insert(scrollingscores, scrollingscore:new(-i, x, y))
+		table.insert(scrollingscores, scrollingscore:new(-(i as number), x, y))
 	end
 end
 

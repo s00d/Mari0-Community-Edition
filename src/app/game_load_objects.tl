@@ -406,8 +406,8 @@ global function reachedx(...: any): any
 	end--]]
 end
 
-global function properprint2(...: any): any
-	local s, x, y = ...
+global function properprint2(s: any, x: number, y: number, ...: any)
+	
 	for i = 1, string.len(tostring(s)) do
 		if fontquads[string.sub(s as string, i, i)] then
 			love.graphics.draw(fontimage2, font2quads[string.sub(s as string, i, i)], (x as number)+((i-1)*4)*scale, y as number, 0, scale, scale)
@@ -415,8 +415,8 @@ global function properprint2(...: any): any
 	end
 end
 
-global function playsound(...: any): any
-	local sound = ...
+global function playsound(sound: any)
+	
 	if not soundlist[sound] then
 		return
 	end
@@ -444,7 +444,7 @@ global function drawrectangle(x: any, y: any, width: any, height: any): any
 	love.graphics.rectangle("fill", ((x as number)+(width as number)-1)*scale, (y as number)*scale, scale, (height as number)*scale)
 end
 
-global function playmusic(...: any): any
+global function playmusic()
 	if not editormode and musicname then
 		if (mariotime as number) <= 99 and (mariotime as number) > 0 then
 			music:play(musicname, true)
@@ -454,7 +454,7 @@ global function playmusic(...: any): any
 	end
 end
 
-global function stopmusic(...: any): any
+global function stopmusic()
 	if musicname then
 		if (mariotime as number) <= 99 and (mariotime as number) > 0 then
 			music:stop(musicname, true)
@@ -464,7 +464,7 @@ global function stopmusic(...: any): any
 	end
 end
 
-global function updatesizes(...: any): any
+global function updatesizes()
 	mariosizes = {}
 	if not objects then
 		for i = 1, players do
@@ -477,7 +477,7 @@ global function updatesizes(...: any): any
 	end
 end
 
-global function updateranges(...: any): any
+global function updateranges()
 	for i, v in pairs(objects["laser"]) do
 		(v as Entity):updaterange()
 	end
@@ -489,8 +489,8 @@ global function updateranges(...: any): any
 	end
 end
 
-global function createdialogbox(...: any): any
-	local text, speaker = ...
+global function createdialogbox(text: any, speaker: any)
+	
 	dialogboxes = {}
 	table.insert(dialogboxes, dialogbox:new(text, speaker) as Entity)
 end

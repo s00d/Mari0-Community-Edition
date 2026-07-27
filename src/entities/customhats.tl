@@ -2,9 +2,8 @@
 
 --Not the hatloader mod.
 
-global function loadhat(...: any): any
-	local path = ...
-	local s = love.filesystem.read(path as string)
+global function loadhat(path: string)
+	local s = love.filesystem.read(path)
 	if not s then
 		return
 	end

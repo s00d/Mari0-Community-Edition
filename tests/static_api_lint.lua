@@ -286,9 +286,9 @@ end
 -- Progress ratchets: FAIL if counts go UP; suggest lower max when count drops.
 do
 	local RATCHET = {
-		{ pattern = "global function [%w_]+%(%.%.%.: any%)", max = 137, label = "untyped global function doors" },
-		{ pattern = "global [%w_]+: function%(%.%.%.: any%)", max = 297, label = "ambient (...: any) doors" },
-		{ pattern = " as any",                          max = 142, label = "as any" },
+		{ pattern = "global function [%w_]+%(%.%.%.: any%)", max = 106, label = "untyped global function doors" },
+		{ pattern = "global [%w_]+: function%(%.%.%.: any%)", max = 263, label = "ambient (...: any) doors" },
+		{ pattern = " as any",                          max = 141, label = "as any" },
 		{ pattern = "is {any}",                         max = 2,   label = "is {any} records" },
 		{ pattern = "%): any%.%.%.",                    max = 250, label = "any... returns" },
 	}

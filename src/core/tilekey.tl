@@ -3,8 +3,8 @@
 
 local TILEKEY_STRIDE: integer = 65536
 
-local function tilekey(x: number, y: number): integer
-	return math.floor(x) * TILEKEY_STRIDE + math.floor(y)
+local function tilekey(x: any, y: any): integer
+	return math.floor(x as number) * TILEKEY_STRIDE + math.floor(y as number)
 end
 
 local function tilekey_xy(key: integer): integer, integer

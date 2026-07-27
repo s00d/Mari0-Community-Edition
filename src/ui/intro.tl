@@ -1,6 +1,6 @@
 --[[ Teal port of root intro.lua ]]
 
-global function intro_load(...: any): any
+global function intro_load()
 	gamestate = "intro"
 	
 	introduration = 2.5
@@ -11,8 +11,8 @@ global function intro_load(...: any): any
 	allowskip = false
 end
 
-global function intro_update(...: any): any
-	local dt = ... as number
+global function intro_update(dt: number)
+	
 	allowskip = true
 	if introprogress < introduration+blackafterintro then
 		introprogress = introprogress + dt
@@ -34,7 +34,7 @@ global function intro_update(...: any): any
 	end
 end
 
-global function intro_draw(...: any): any
+global function intro_draw()
 	local logoscale = scale
 	if logoscale <= 1 then
 		logoscale = 0.5
@@ -73,7 +73,7 @@ global function intro_draw(...: any): any
 	end
 end
 
-global function intro_mousepressed(...: any): any
+global function intro_mousepressed()
 	if not allowskip then
 		return
 	end
@@ -84,7 +84,7 @@ global function intro_mousepressed(...: any): any
 	shaders:set(2, shaderlist[currentshaderi2])
 end
 
-global function intro_keypressed(...: any): any
+global function intro_keypressed()
 	if not allowskip then
 		return
 	end

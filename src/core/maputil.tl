@@ -1,11 +1,14 @@
-local function inrange(i: number, a: number, b: number, include: boolean|nil): boolean
-	if a > b then
-		a, b = b, a
+local function inrange(i: any, a: any, b: any, include?: boolean): boolean
+	local ni = i as number
+	local na = a as number
+	local nb = b as number
+	if na > nb then
+		na, nb = nb, na
 	end
 	if include then
-		return i >= a and i <= b
+		return ni >= na and ni <= nb
 	end
-	return i > a and i < b
+	return ni > na and ni < nb
 end
 
 -- Uses globals mapwidth / mapheight (set by level load).

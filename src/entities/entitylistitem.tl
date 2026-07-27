@@ -23,8 +23,8 @@ function entitylistitem:gethighlight(x, y): boolean
 	return nx >= self.x and nx < self.x+16 and ny >= self.y and ny < self.y+16
 end
 
-global function getentityhighlight(...: any): any
-	local x, y = ...
+global function getentityhighlight(x: any, y: any): entitylistitem|nil
+	
 	for i, v in ipairs(entitylistitems) do
 		for j, k in ipairs(v.entries) do
 			if k:gethighlight(mouse.getX(), mouse.getY()) then

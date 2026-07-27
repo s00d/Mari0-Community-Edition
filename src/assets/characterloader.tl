@@ -1,7 +1,7 @@
 --[[ Teal port of root characterloader.lua ]]
 
-global function loadcharacter(...: any): any
-	local charname = (... as string)
+global function loadcharacter(charname: string): Character|boolean
+	
 	local folder = "assets/characters/" .. charname .. "/"
 	if not love.filesystem.getInfo(folder .. "config.txt") then
 		return false
