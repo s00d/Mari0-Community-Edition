@@ -254,6 +254,10 @@ function LoveLoad.run(_: any)
 		intro_load()
 	end
 	add("Intro Load")
+
+	local GlobalFreeze = require("core.global_freeze")
+	GlobalFreeze.install_writes_only()
+
 	print("=======================\nDONE!")
 	print("TOTAL: " .. totaltime .. "ms")
 end

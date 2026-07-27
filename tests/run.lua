@@ -51,6 +51,7 @@ end
 
 run_file("tests/issue_regression_checks.lua")
 run_file("tests/static_api_lint.lua")
+run_file("tests/global_freeze_checks.lua")
 run_file("tests/helper_checks.lua")
 run_file("tests/teal_checks.lua")
 run_file("tests/collision_checks.lua")
