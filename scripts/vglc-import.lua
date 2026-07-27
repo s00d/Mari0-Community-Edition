@@ -1,6 +1,17 @@
 #!/usr/bin/env lua
 --[[
-  CLI: convert TheVGLC smb2 / smbl into Mari0 mappacks.
+  CLI: convert TheVGLC smbl (and legacy smb2) into Mari0 mappacks.
+
+  Prefer dlc_smb2J (Mari0 1.6 pack → scripts/convert-mappack.lua) over VGLC smb2.
+  Keep --smbl for Super Mario Land from TheVGLC.
+
+  Usage:
+    lua scripts/vglc-import.lua \
+      --smbl /path/to/TheVGLC/smbl \
+      --out-smbl mappacks/smbl
+    # optional legacy:
+    lua scripts/vglc-import.lua --smb2 /path/to/TheVGLC/smb2 --out-smb2 mappacks/smb2
+]]
 
   Usage:
     lua scripts/vglc-import.lua \

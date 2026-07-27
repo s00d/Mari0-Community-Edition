@@ -1,6 +1,10 @@
 --[[
   VGLC → Mari0 mappack converter (pure Lua, no LÖVE).
 
+  Note: VGLC smb2 (Lost Levels) is superseded by converting the Mari0 1.6 pack
+  dlc_smb2J via scripts/convert-mappack.lua (toconvert/ → mappacks/). Prefer that
+  path for SMB2J; keep import_smbl for Super Mario Land.
+
   Algorithms:
     A  pad/trim height to 15 from TOP only (never cut non-empty tops)
     B  smb2 p/P pipe stacks → mouth + body tiles

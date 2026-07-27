@@ -1,5 +1,8 @@
 --[[
   VGLC source adapter — wraps scripts/vglc/import.lua into mapsdk IR.
+
+  Prefer Mari0 1.6 dlc_smb2J (scripts/convert-mappack.lua) over VGLC smb2.
+  See sources/mari0_16.lua.
 ]]
 
 local function script_dir()
