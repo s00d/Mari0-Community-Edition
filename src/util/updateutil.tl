@@ -3,6 +3,8 @@
 -- Update entity lists and compact removed entries (dense in-place or sparse remove).
 -- Uses globals mapwidth / mapheight for autodelete bounds (same as game loop).
 
+require("weapons.punt")
+
 -- Reused across sparse-path calls to avoid per-frame table allocation.
 local delete_scratch: {any} = {}
 
@@ -26,6 +28,7 @@ local function update_and_compact(v: Dyn, dt: number)
 				end
 			end
 			if not remove then
+				punt_tick(w as {string:any}, dt)
 				if write ~= j then
 					arr[write] = w
 				end
@@ -43,17 +46,22 @@ local function update_and_compact(v: Dyn, dt: number)
 	local n = 0
 	local mapv = v as {any:Entity}
 	for j, w in pairs(mapv) do
+		local remove = false
 		if w.update and w:update(dt) then
-			n = n + 1
-			delete[n] = j
+			remove = true
 		elseif w.autodelete then
 			if w.y > mapheight+5 or w.x > mapwidth+5 or w.x < -5 or w.y < -5 then
 				if w.autodeleted then
 					(w.autodeleted as function(Entity))(w)
 				end
-				n = n + 1
-				delete[n] = j
+				remove = true
 			end
+		end
+		if remove then
+			n = n + 1
+			delete[n] = j
+		else
+			punt_tick(w as {string:any}, dt)
 		end
 	end
 	for i = n + 1, #delete do

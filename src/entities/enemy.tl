@@ -2,6 +2,8 @@
 
 rawset(_G, "enemy", rawget(_G, "enemy") or {})
 
+require("weapons.punt")
+
 function enemy.new(_: enemy, x: number, y: number, t: string, a: any): enemy
 	local self = setmetatable({}, { __index = enemy }) as enemy
 	self:init(x, y, t, a)
@@ -1021,6 +1023,9 @@ function enemy:func(i: any): number -- 0-1 in please
 end
 
 function enemy:globalcollide(a: any, b: Entity, _: any, _: any, dir: any): boolean
+	if punt_hit(self as {string:any}, a as string, b as {string:any}) then
+		return true
+	end
 	if a == "tile" then
 		if not self.resistsspikes then
 			dir = twistdirection(self.gravitydirection, dir)

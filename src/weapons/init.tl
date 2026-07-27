@@ -190,6 +190,12 @@ local function update_all(dt: number)
 	if not playerobjs then
 		return
 	end
+	local lmb = false
+	local rmb = false
+	if love and love.mouse and love.mouse.isDown then
+		lmb = love.mouse.isDown(1) == true
+		rmb = love.mouse.isDown(2) == true
+	end
 	for i = 1, players do
 		local pl = playerobjs[i]
 		if pl and not pl.dead then
@@ -197,9 +203,9 @@ local function update_all(dt: number)
 			if i == mouseowner and pl.controlsenabled and not pl.vine then
 				local w = current(pl)
 				if w and w.hold then
-					if love.mouse.isDown(1) then
+					if lmb then
 						hold(pl, "l", dt)
-					elseif love.mouse.isDown(2) then
+					elseif rmb then
 						hold(pl, "r", dt)
 					end
 				end

@@ -149,12 +149,6 @@ function love.draw()
 				end
 			end)
 			recordframe = recordframe + 1
-		else
-			local ok, shot = pcall(love.graphics.newScreenshot)
-			if ok and shot then
-				(shot as ImageData):encode("recording/" .. tostring(frame) .. ".png")
-				recordframe = recordframe + 1
-			end
 		end
 
 		if recordframe % 100 == 0 then

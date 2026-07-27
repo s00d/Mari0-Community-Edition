@@ -17,8 +17,9 @@ local function median(values)
 	local n = #sorted
 	if n % 2 == 1 then
 		return sorted[(n + 1) / 2]
+	else
+		return (sorted[n / 2] + sorted[n / 2 + 1]) / 2
 	end
-	return (sorted[n / 2] + sorted[n / 2 + 1]) / 2
 end
 
 --- Run a benchmark.
@@ -40,11 +41,14 @@ function bench.run(name, fn, opts)
 		if warmup then
 			warmup()
 		end
+		-- Stop GC so alloc delta measures growth during fn, not residual heap churn.
+		collectgarbage("stop")
 		local mem_before = collectgarbage("count")
 		local t0 = os.clock()
 		fn()
 		local t1 = os.clock()
 		local mem_after = collectgarbage("count")
+		collectgarbage("restart")
 
 		times[#times + 1] = t1 - t0
 		allocs[#allocs + 1] = mem_after - mem_before

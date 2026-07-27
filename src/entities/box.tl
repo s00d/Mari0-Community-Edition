@@ -2,6 +2,8 @@
 
 rawset(_G, "box", rawget(_G, "box") or {})
 
+require("weapons.punt")
+
 function box.new(_: box, x: number, y: number): box
 	local self = setmetatable({}, { __index = box }) as box
 	self:init(x, y)
@@ -92,10 +94,6 @@ function box:update(dt: number): boolean
 	
 	self.rotation = 0
 
-	if self.punttimer and (self.punttimer as number) > 0 then
-		self.punttimer = (self.punttimer as number) - dt
-	end
-
 	-- gravity-gun beam: stay in physics loop with gravity=0 (spring runs in weapon update)
 	if self.beamed and not self.parent then
 		self.gravity = 0
@@ -147,7 +145,10 @@ function box:update(dt: number): boolean
 	end
 end
 
-function box:globalcollide(a: any, _: Entity, _: any, _: any, dir: any): boolean
+function box:globalcollide(a: any, b: Entity, _: any, _: any, dir: any): boolean
+	if punt_hit(self as {string:any}, a as string, b as {string:any}) then
+		return true
+	end
 	if a == "platform" or a == "seesawplatform" then
 		if dir == "floor" then
 			if self.jumping and self.speedy < -jumpforce + 0.1 then
@@ -224,17 +225,6 @@ function box:floorcollide(a: any, b: Entity, c: any, d: any): boolean
 		playsound("stomp")
 		self.falling = true
 		self.speedy = -10
-		return false
-	end
-	-- punt kill window: any enemy hit while punttimer active
-	if a == "enemy" and self.punttimer and (self.punttimer as number) > 0 then
-		if b.stompable then
-			b:stomp()
-		elseif b.shotted then
-			b:shotted("right", false, false, false)
-		end
-		addpoints(200, self.x, self.y)
-		playsound("stomp")
 		return false
 	end
 	return true

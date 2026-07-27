@@ -204,6 +204,8 @@ do
 	check("rmb punt releases", pl.gg_state == "idle" and pl.pickup == false)
 	check("rmb punt impulse", (box.speedx or 0) ~= 0 or (box.speedy or 0) ~= 0, tostring(box.speedx))
 	check("rmb punt ball look", box.gg_ball == true)
+	check("rmb punt sets punttimer", (box.punttimer or 0) > 0)
+	check("rmb blast flash", (pl.gg_blast or 0) > 0)
 end
 
 -- 6) extract_tile clears map cell and spawns prop box
@@ -462,7 +464,107 @@ do
 	gravitygun.fire(p2, "r")
 	check("rmb punt while cooldown", p2.gg_state == "idle" and p2.pickup == false)
 	check("rmb enemy impulse", (enemy.speedx or 0) ~= 0 or (enemy.speedy or 0) ~= 0)
-	check("rmb enemy ball", enemy.gg_ball == true)
+	check("rmb enemy no ball look", enemy.gg_ball ~= true)
+	check("rmb enemy punttimer", (enemy.punttimer or 0) > 0)
+end
+
+-- 10) blast always sets cooldown + gg_blast even if cone empty
+do
+	objects = { box = {}, enemy = {} }
+	traceline = function(sx, sy)
+		return false, false, nil, 0, sx + 8, sy
+	end
+	checkrect = function()
+		return {}
+	end
+	love = {
+		mouse = {
+			getPosition = function()
+				return 200, 100
+			end,
+			isDown = function()
+				return false
+			end,
+		},
+	}
+	xscroll, yscroll, scale = 0, 0, 1
+	mouseowner = 1
+	local sounds = {}
+	playsound = function(name)
+		sounds[#sounds + 1] = name
+	end
+
+	local pl = {
+		x = 0,
+		y = 0.5,
+		speedx = 0,
+		speedy = 0,
+		pointingangle = -math.pi / 2,
+		playernumber = 1,
+		weapondelay = {},
+		gg_state = "idle",
+		pickup = false,
+	}
+	gravitygun.fire(pl, "r")
+	check("empty blast sets cooldown", (pl.weapondelay.gravitygun or 0) > 0)
+	check("empty blast sets gg_blast", (pl.gg_blast or 0) > 0, tostring(pl.gg_blast))
+	check("empty blast plays sound", sounds[1] == "portalgun")
+	check("empty blast recoil", (pl.speedx or 0) ~= 0 or (pl.speedy or 0) ~= 0)
+end
+
+-- 11) punt_hit false when punttimer==0; apply_impulse no ball on stompable
+do
+	local ok_punt, punt = pcall(require, "weapons.punt")
+	check("load weapons.punt", ok_punt)
+	if ok_punt then
+		local attacker = { x = 1, y = 1, punttimer = 0 }
+		local target = { stompable = true, stomped = false }
+		target.stomp = function()
+			target.stomped = true
+		end
+		check("punt_hit false when punttimer==0", punt.punt_hit(attacker, "enemy", target) == false)
+		check("punt_hit no stomp when timer 0", target.stomped ~= true)
+
+		attacker.punttimer = 0.5
+		check("punt_hit true when timer active", punt.punt_hit(attacker, "enemy", target) == true)
+		check("punt_hit stomps", target.stomped == true)
+	end
+
+	local pl = { x = 0, y = 0, pointingangle = -math.pi / 2 }
+	love = {
+		mouse = {
+			getPosition = function()
+				return 80, 40
+			end,
+		},
+	}
+	xscroll, yscroll, scale = 0, 0, 1
+	local stompy = {
+		x = 2,
+		y = 1,
+		width = 0.75,
+		height = 0.75,
+		speedx = 0,
+		speedy = 0,
+		grabbable = true,
+		stompable = true,
+	}
+	gravitygun.apply_impulse(stompy, pl, 22, true)
+	check("apply_impulse no ball on stompable", stompy.gg_ball ~= true)
+	check("apply_impulse lethal punttimer", (stompy.punttimer or 0) > 0)
+
+	local crate = {
+		x = 2,
+		y = 1,
+		width = 0.75,
+		height = 0.75,
+		speedx = 0,
+		speedy = 0,
+		grabbable = true,
+		stompable = false,
+	}
+	gravitygun.apply_impulse(crate, pl, 22, true)
+	check("apply_impulse ball on grabbable box", crate.gg_ball == true)
 end
 
 print(string.format("weapon_checks: %s", failed == 0 and "PASS" or ("FAIL x" .. failed)))
