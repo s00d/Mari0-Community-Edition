@@ -134,10 +134,13 @@ function love.draw()
 	love.graphics.setColor(1, 1, 1)
 	
 	if recording then
-		screenshotimagedata = love.graphics.newScreenshot( )
-		(screenshotimagedata as ImageData):encode("recording/" .. tostring(recordframe) .. ".png")
-		recordframe = recordframe + 1
-		screenshotimagedata = nil
+		local ok, shot = pcall(love.graphics.newScreenshot)
+		if ok and shot then
+			screenshotimagedata = shot
+			(screenshotimagedata as ImageData):encode("recording/" .. tostring(recordframe) .. ".png")
+			recordframe = recordframe + 1
+			screenshotimagedata = nil
+		end
 		
 		if recordframe%100 == 0 then
 			collectgarbage("collect")

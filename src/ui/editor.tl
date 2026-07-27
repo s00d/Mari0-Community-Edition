@@ -489,7 +489,7 @@ end
 
 function editor_update_closed(_: number)
 	if editorstate == "lightdraw" then
-		if love.mouse.isDown("l") then
+		if love.mouse.isDown(1) then
 			local _, _ = mouse.getPosition()
 			local currentx, currenty = getMouseTile(mousex, mousey+8*scale)
 			
@@ -600,7 +600,7 @@ function editor_update_closed(_: number)
 		return
 	end
 	
-	if love.mouse.isDown("l") and allowdrag then
+	if love.mouse.isDown(1) and allowdrag then
 		if not (pastingtiles or tileselection) then
 			local x, y = mouse.getPosition()
 			for t1 = 1, brush[1] do
@@ -690,7 +690,7 @@ function editor_update_closed(_: number)
 end
 
 function editor_update_main(dt: number)
-	if love.mouse.isDown("l") then
+	if love.mouse.isDown(1) then
 		local _, _ = mouse.getPosition()
 		if mousey >= minimapy*scale and mousey < (minimapy+minimapheight*2+4)*scale then
 			if mousex >= minimapx*scale and mousex < (minimapx+394)*scale then

@@ -203,10 +203,10 @@ global function game_update(dt: number)
 				gelcannontimer = 0
 			end
 		else
-			if love.mouse.isDown("l") then
+			if love.mouse.isDown(1) then
 				gelcannontimer = gelcannondelay
 				playerobjs[mouseowner]:shootgel(1)
-			elseif love.mouse.isDown("r") then
+			elseif love.mouse.isDown(2) then
 				gelcannontimer = gelcannondelay
 				playerobjs[mouseowner]:shootgel(2)
 			end

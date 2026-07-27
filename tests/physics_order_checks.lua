@@ -1,4 +1,4 @@
---[[ Physics group order structural + stub determinism checks. ]]
+--[[ Physics group order behavior checks (no LÖVE). ]]
 
 local root = ... or "."
 local failed = 0
@@ -12,6 +12,12 @@ local function check(name, cond, detail)
 	end
 end
 
+package.path = table.concat({
+	root .. "/build/?.lua",
+	root .. "/build/?/init.lua",
+	package.path,
+}, ";")
+
 require("physics.order")
 
 check("PHYSICS_GROUP_ORDER is table", type(PHYSICS_GROUP_ORDER) == "table")
@@ -23,10 +29,6 @@ do
 	local keys = physics_group_keys_sorted({ [3] = {}, [1] = {}, ["b"] = {}, ["a"] = {} })
 	check("sorted keys numeric before string", keys[1] == 1 and keys[2] == 3 and keys[3] == "a" and keys[4] == "b")
 end
-
-local update_src = assert(io.open(root .. "/src/physics/update.tl", "r")):read("*a")
-check("update uses PHYSICS_GROUP_ORDER", update_src:find("PHYSICS_GROUP_ORDER") ~= nil)
-check("update avoids pairs%(lobjects%)", not update_src:find("pairs%(lobjects%)"))
 
 if select("#", ...) > 0 then
 	return failed

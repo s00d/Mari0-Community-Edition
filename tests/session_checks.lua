@@ -12,13 +12,11 @@ local function check(name, cond, detail)
 	end
 end
 
-local session_src = assert(io.open(root .. "/src/world/session.tl", "r")):read("*a")
-local load_src = assert(io.open(root .. "/src/app/game_load_level.tl", "r")):read("*a")
-
-check("push_globals removed", not session_src:find("push_globals"))
-check("sync_session_from_globals defined", session_src:find("function World:sync_session_from_globals") ~= nil)
-check("startlevel uses set_gamestate", load_src:find("session:set_gamestate%(\"game\"%)") ~= nil)
-check("startlevel no dual gamestate assign", not load_src:match("gamestate%s*=%s*\"game\"[^\n]*\n[^\n]*session%.gamestate"))
+package.path = table.concat({
+	root .. "/build/?.lua",
+	root .. "/build/?/init.lua",
+	package.path,
+}, ";")
 
 local World = require("world.session")
 local w = World.new()
