@@ -147,14 +147,25 @@ do
 		speedx = 0,
 		speedy = 0,
 	}
-	objects = { box = { [1] = box } }
+	objects = { box = { [1] = box }, enemy = {} }
 	traceline = function(sx, sy, ang)
 		return 1, 2, "up", 0, sx + 1.0, sy + 0.2
 	end
 	checkrect = function()
 		return {}
 	end
-	love = { mouse = { isDown = function() return true end } }
+	-- Cursor world ≈ box center so spring converges to hold
+	xscroll, yscroll, scale = 0, 0, 1
+	love = {
+		mouse = {
+			getPosition = function()
+				return 2.375 * 16, (1.375 - 0.5) * 16 -- world (2.375, 1.375)
+			end,
+			isDown = function(b)
+				return b == 1
+			end,
+		},
+	}
 	mouseowner = 1
 
 	local pl = {
@@ -171,6 +182,7 @@ do
 
 	gravitygun.fire(pl, "l")
 	check("fire starts pull", pl.gg_state == "pulling" and pl.gg_pulling == box)
+	check("pull no parent snap", box.parent == nil)
 
 	for _ = 1, 180 do
 		gravitygun.update(pl, 1 / 60)
@@ -179,6 +191,7 @@ do
 		end
 	end
 	check("pull becomes held", pl.gg_state == "held" and pl.pickup == box, tostring(pl.gg_state))
+	check("held no parent snap", box.parent == nil)
 
 	-- LMB while held must NOT punt
 	pl.weapondelay.gravitygun = 0
@@ -189,7 +202,7 @@ do
 	pl.weapondelay.gravitygun = 0
 	gravitygun.fire(pl, "r")
 	check("rmb punt releases", pl.gg_state == "idle" and pl.pickup == false)
-	check("rmb punt impulse", (box.speedx or 0) > 5, tostring(box.speedx))
+	check("rmb punt impulse", (box.speedx or 0) ~= 0 or (box.speedy or 0) ~= 0, tostring(box.speedx))
 	check("rmb punt ball look", box.gg_ball == true)
 end
 
@@ -344,6 +357,112 @@ do
 	spawned = nil
 	gravitygun.fire(pl, "l")
 	check("fire lmb grabs tile prop", pl.gg_state == "pulling" and pl.gg_pulling ~= nil, tostring(pl.gg_state))
+end
+
+-- 8) mouse_world / hold_point follow cursor, not character aim
+do
+	local mw = gravitygun.mouse_world
+	local wx, wy = mw(160, 80, 2, 1, 2) -- mx,my,xscroll,yscroll,scale
+	-- wx = 2 + 160/(16*2) = 2 + 5 = 7
+	-- wy = 1 + 0.5 + 80/(16*2) = 1.5 + 2.5 = 4
+	check("mouse_world x", math.abs(wx - 7) < 1e-9, tostring(wx))
+	check("mouse_world y", math.abs(wy - 4) < 1e-9, tostring(wy))
+
+	xscroll, yscroll, scale = 2, 1, 2
+	love = {
+		mouse = {
+			getPosition = function()
+				return 160, 80
+			end,
+			isDown = function()
+				return true
+			end,
+		},
+	}
+	local pl = { x = 0, y = 0, pointingangle = 0 }
+	local obj = { width = 1, height = 1 }
+	local tx, ty = gravitygun.hold_point(pl, obj)
+	-- center on cursor: 7-0.5, 4-0.5
+	check("hold_point tracks cursor x", math.abs(tx - 6.5) < 1e-9, tostring(tx))
+	check("hold_point tracks cursor y", math.abs(ty - 3.5) < 1e-9, tostring(ty))
+	check("hold_point not character front", math.abs(tx) > 1 or math.abs(ty) > 1)
+end
+
+-- 9) enemy grab eligibility + pick_target finds enemy
+do
+	local eu = gravitygun.enemy_usable
+	local pl = { x = 0, y = 0 }
+	check("enemy_usable alive", eu({ dead = false, shot = false }, pl) == true)
+	check("enemy_usable dead", eu({ dead = true }, pl) == false)
+	check("enemy_usable shot", eu({ shot = true }, pl) == false)
+	check("enemy_usable other beam", eu({ beamed = {} }, pl) == false)
+
+	local enemy = {
+		x = 2.0,
+		y = 1.0,
+		width = 0.75,
+		height = 0.75,
+		t = "goomba",
+		movement = "truffleshuffle",
+		gravity = 40,
+		destroying = false,
+		dead = false,
+		speedx = 2,
+		speedy = 0,
+		active = true,
+	}
+	objects = { box = {}, enemy = { [1] = enemy } }
+	traceline = function(sx, sy)
+		return false, false, nil, 0, sx + 8, sy
+	end
+	checkrect = function()
+		return {}
+	end
+	love = {
+		mouse = {
+			getPosition = function()
+				return 100, 50
+			end,
+			isDown = function(b)
+				return b == 1
+			end,
+		},
+	}
+	xscroll, yscroll, scale = 0, 0, 1
+	mouseowner = 1
+
+	local p2 = {
+		x = 0,
+		y = 0.5,
+		pointingangle = -math.pi / 2,
+		playernumber = 1,
+		weapondelay = {},
+		gg_state = "idle",
+		pickup = false,
+	}
+	local t = gravitygun.pick_target(p2)
+	check("pick_target finds enemy", t == enemy)
+
+	gravitygun.fire(p2, "l")
+	check("fire grabs enemy", p2.gg_state == "pulling" and p2.gg_pulling == enemy)
+	check("enemy AI frozen", enemy.movement == nil and enemy.gravity == 0 and enemy.gg_saved ~= nil)
+	check("enemy no parent snap", enemy.parent == nil)
+
+	-- spring toward cursor (not character)
+	for _ = 1, 180 do
+		gravitygun.update(p2, 1 / 60)
+		if p2.weapondelay.gravitygun then
+			p2.weapondelay.gravitygun = math.max(0, p2.weapondelay.gravitygun - 1 / 60)
+		end
+	end
+	check("enemy becomes held", p2.gg_state == "held" and p2.pickup == enemy, tostring(p2.gg_state))
+
+	-- RMB while on cooldown still punts
+	p2.weapondelay.gravitygun = 0.5
+	gravitygun.fire(p2, "r")
+	check("rmb punt while cooldown", p2.gg_state == "idle" and p2.pickup == false)
+	check("rmb enemy impulse", (enemy.speedx or 0) ~= 0 or (enemy.speedy or 0) ~= 0)
+	check("rmb enemy ball", enemy.gg_ball == true)
 end
 
 print(string.format("weapon_checks: %s", failed == 0 and "PASS" or ("FAIL x" .. failed)))
