@@ -18,25 +18,25 @@ local function hor_portal_detection_y(facing: any, portalY: number): number|nil
 	return nil
 end
 
--- inportal up/down: center must have crossed the same plane checkportalHOR sweeps.
--- Grid cell alone fires a tile early (center in [portalY, portalY+1) vs plane at portalY+1).
-local function inportal_hor_center_match(facing: any, portalY: number, centerY: number): boolean
+-- inportal up/down: center must be in the entry band at the detection plane
+-- (not anywhere on the wrong side — that caused early snaps from far below/above).
+local function inportal_hor_center_match(facing: any, portalY: number, centerY: number, height: number): boolean
 	local plane = hor_portal_detection_y(facing, portalY)
 	if not plane then
 		return false
 	end
 	if facing == "up" then
-		return centerY <= plane
+		return centerY >= plane and centerY <= plane + height / 8
 	elseif facing == "down" then
-		return centerY >= plane
+		return centerY <= plane and centerY >= plane - height / 8
 	end
 	return false
 end
 
-local function inportal_y_match(facing: any, portalY: number, gridY: number, portalYplus: number, centerY: number): boolean
+local function inportal_y_match(facing: any, portalY: number, gridY: number, portalYplus: number, centerY: number, height: number): boolean
 	local plane = hor_portal_detection_y(facing, portalY)
 	if plane then
-		return inportal_hor_center_match(facing, portalY, centerY)
+		return inportal_hor_center_match(facing, portalY, centerY, height)
 	end
 	if portalYplus ~= 0 then
 		return gridY == portalY + portalYplus
@@ -70,14 +70,21 @@ global function inportal(self: Entity): boolean
 			local portal1xplus, portal1yplus = portal_facing_offset(v.facing1)
 			local portal2xplus, portal2yplus = portal_facing_offset(v.facing2)
 			
-			local x = math.floor(self.x+self.width/2)+1
-			local y = math.floor(self.y+self.height/2)+1
-			local centerY = self.y + self.height/2
+			-- Match checkportalHOR X indexing; horizontal portals use checkportalVER only.
+			local x = math.floor(self.x + 1)
+			local y = math.floor(self.y + self.height / 2) + 1
+			local centerY = self.y + self.height / 2
 			
-			local portal1match = inportal_x_match(portal1X, x, portal1xplus)
-				and inportal_y_match(v.facing1, portal1Y, y, portal1yplus, centerY)
-			local portal2match = inportal_x_match(portal2X, x, portal2xplus)
-				and inportal_y_match(v.facing2, portal2Y, y, portal2yplus, centerY)
+			local portal1match = false
+			local portal2match = false
+			if v.facing1 ~= "left" and v.facing1 ~= "right" then
+				portal1match = inportal_x_match(portal1X, x, portal1xplus)
+					and inportal_y_match(v.facing1, portal1Y, y, portal1yplus, centerY, self.height)
+			end
+			if v.facing2 ~= "left" and v.facing2 ~= "right" then
+				portal2match = inportal_x_match(portal2X, x, portal2xplus)
+					and inportal_y_match(v.facing2, portal2Y, y, portal2yplus, centerY, self.height)
+			end
 			
 			if portal1match or portal2match then
 				local useportal1: boolean

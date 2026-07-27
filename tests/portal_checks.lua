@@ -308,7 +308,7 @@ do
 	check("inportal same-tile no early up snap", self.y == ybefore)
 end
 
--- inportal: must not fire before down portal plane (center < portalY+1)
+-- inportal: must not fire before down portal plane (center outside entry band)
 do
 	portals = {
 		{
@@ -337,7 +337,7 @@ do
 		},
 	}
 	local w, h = 12 / 16, 12 / 16
-	-- center must be >= portalY+1 (8); y=7.625 gives center 8.0
+	-- center must be at down plane (8); y=7.625 gives center 8.0
 	local self = {
 		mask = {}, x = 4.2, y = 7.625, width = w, height = h,
 		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
@@ -357,7 +357,7 @@ do
 	}
 	local w, h = 12 / 16, 12 / 16
 	local self = {
-		mask = {}, x = 4.2, y = 7.65, width = w, height = h,
+		mask = {}, x = 4.2, y = 7.625, width = w, height = h,
 		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
 	}
 	inportal(self)
