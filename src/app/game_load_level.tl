@@ -687,6 +687,7 @@ global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
 		if slot_id == nil or batch_id == nil then
 			return
 		end
+		get_batch(batch_id):set(slot_id, 0, 0, 0, 0, 0)
 		local pool = spritebatch_free[batch_id]
 		local len = spritebatch_free_len[batch_id] or 0
 		if pool == nil then
