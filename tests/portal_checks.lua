@@ -264,6 +264,26 @@ do
 	check("inportal same-tile no early up snap", self.y == ybefore)
 end
 
+-- inportal: must not fire before down portal plane (center < portalY+1)
+do
+	portals = {
+		{
+			x1 = 2, y1 = 12, facing1 = "up",
+			x2 = 5, y2 = 7, facing2 = "down",
+		},
+	}
+	local w, h = 12 / 16, 12 / 16
+	for _, startY in ipairs({ 6.5, 7.0, 7.5 }) do
+		local self = {
+			mask = {}, x = 4.2, y = startY, width = w, height = h,
+			speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
+		}
+		local ybefore = self.y
+		inportal(self)
+		check("inportal no pre-plane snap y=" .. startY, self.y == ybefore)
+	end
+end
+
 -- inportal: down entry on same tile when centered at detection plane
 do
 	portals = {
@@ -273,37 +293,39 @@ do
 		},
 	}
 	local w, h = 12 / 16, 12 / 16
+	-- center must be >= portalY+1 (8); y=7.625 gives center 8.0
 	local self = {
-		mask = {}, x = 4.2, y = 7.0, width = w, height = h,
+		mask = {}, x = 4.2, y = 7.625, width = w, height = h,
 		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
 	}
 	inportal(self)
-	-- down->up on same tile exits above platform (center y ~ 7.075)
-	check("inportal down entry fires at plane", self.y < 7.0)
+	-- down->up on same tile exits above platform (center y ~ 7.375)
+	check("inportal down entry fires at plane", self.y < 7.625)
 end
 
 -- inportal: distant linked exit when rising into down portal under platform
 do
 	portals = {
 		{
-			x1 = 18, y1 = 20, facing1 = "up",
+			x1 = 2, y1 = 12, facing1 = "up",
 			x2 = 5, y2 = 7, facing2 = "down",
 		},
 	}
 	local w, h = 12 / 16, 12 / 16
 	local self = {
-		mask = {}, x = 4.2, y = 7.0, width = w, height = h,
+		mask = {}, x = 4.2, y = 7.65, width = w, height = h,
 		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
 	}
 	inportal(self)
-	check("inportal down-under uses linked exit", self.y > 15)
+	check("inportal down-under uses linked exit", self.y > 10)
+	check("inportal down-under not platform top snap", self.y > 8.5)
 end
 
 -- physics-order sim: jump from below platform through down portal at (5,7)
 do
 	portals = {
 		{
-			x1 = 18, y1 = 20, facing1 = "up",
+			x1 = 2, y1 = 12, facing1 = "up",
 			x2 = 5, y2 = 7, facing2 = "down",
 		},
 	}
@@ -312,25 +334,33 @@ do
 	end
 	local w, h = 12 / 16, 12 / 16
 	local self = {
-		mask = {}, x = 4.2, y = 9.0, width = w, height = h,
+		mask = {}, x = 4.2, y = 8.5, width = w, height = h,
 		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
 		jumping = true, falling = false,
 	}
 	local teleported = false
-	for _ = 1, 20 do
+	local earlySnap = false
+	for _ = 1, 40 do
+		local ybefore = self.y
 		local nextY = self.y + self.speedy / 60
 		if checkportalHOR(self, nextY) then
 			teleported = true
 			break
 		end
 		self.y = nextY
+		local ymid = self.y
 		inportal(self)
-		if self.y > 15 then
+		if self.y ~= ymid and self.y < 10 then
+			earlySnap = true
+		end
+		if self.y > 10 then
 			teleported = true
 			break
 		end
 	end
-	check("jump sim reaches linked exit", teleported and self.y > 15)
+	check("jump sim no early inportal snap", not earlySnap)
+	check("jump sim reaches linked exit", teleported and self.y > 10)
+	check("jump sim not stuck before portal plane", self.y > 8.5 or self.y < 7.5)
 end
 
 return failed

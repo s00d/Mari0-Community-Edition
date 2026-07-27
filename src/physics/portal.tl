@@ -8,15 +8,38 @@ local function portal_spritebatch_after_teleport(self: Entity)
 	end
 end
 
--- Grid-Y match for inportal; up/down use the same detection planes as checkportalHOR.
-local function inportal_y_match(facing: any, portalY: number, gridY: number, portalYplus: number): boolean
-	if portalYplus ~= 0 then
-		return gridY == portalY + portalYplus
+-- World-Y detection plane for up/down portals (shared with checkportalHOR).
+local function hor_portal_detection_y(facing: any, portalY: number): number|nil
+	if facing == "up" then
+		return portalY - 1
+	elseif facing == "down" then
+		return portalY + 1
+	end
+	return nil
+end
+
+-- inportal up/down: center must have crossed the same plane checkportalHOR sweeps.
+-- Grid cell alone fires a tile early (center in [portalY, portalY+1) vs plane at portalY+1).
+local function inportal_hor_center_match(facing: any, portalY: number, centerY: number): boolean
+	local plane = hor_portal_detection_y(facing, portalY)
+	if not plane then
+		return false
 	end
 	if facing == "up" then
-		return gridY == portalY - 1 or gridY == portalY
+		return centerY <= plane
 	elseif facing == "down" then
-		return gridY == portalY + 1
+		return centerY >= plane
+	end
+	return false
+end
+
+local function inportal_y_match(facing: any, portalY: number, gridY: number, portalYplus: number, centerY: number): boolean
+	local plane = hor_portal_detection_y(facing, portalY)
+	if plane then
+		return inportal_hor_center_match(facing, portalY, centerY)
+	end
+	if portalYplus ~= 0 then
+		return gridY == portalY + portalYplus
 	end
 	return gridY == portalY
 end
@@ -49,11 +72,12 @@ global function inportal(self: Entity): boolean
 			
 			local x = math.floor(self.x+self.width/2)+1
 			local y = math.floor(self.y+self.height/2)+1
+			local centerY = self.y + self.height/2
 			
 			local portal1match = inportal_x_match(portal1X, x, portal1xplus)
-				and inportal_y_match(v.facing1, portal1Y, y, portal1yplus)
+				and inportal_y_match(v.facing1, portal1Y, y, portal1yplus, centerY)
 			local portal2match = inportal_x_match(portal2X, x, portal2xplus)
-				and inportal_y_match(v.facing2, portal2Y, y, portal2yplus)
+				and inportal_y_match(v.facing2, portal2Y, y, portal2yplus, centerY)
 			
 			if portal1match or portal2match then
 				local useportal1: boolean
@@ -117,18 +141,22 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 			--Get the extra block of each portal
 			if v.facing1 == "up" then
 				portal1xplus = 1
-				portal1Y = portal1Y - 1
 			elseif v.facing1 == "down" then
 				portal1xplus = -1
-				portal1Y = portal1Y + 1
+			end
+			local portal1plane = hor_portal_detection_y(v.facing1, portal1Y)
+			if portal1plane then
+				portal1Y = portal1plane
 			end
 			
 			if v.facing2 == "up" then
 				portal2xplus = 1
-				portal2Y = portal2Y - 1
 			elseif v.facing2 == "down" then
 				portal2xplus = -1
-				portal2Y = portal2Y + 1
+			end
+			local portal2plane = hor_portal_detection_y(v.facing2, portal2Y)
+			if portal2plane then
+				portal2Y = portal2plane
 			end
 			
 			local portal1xmatch = v.x1 == math.floor(self.x+1) or (v.x1 as number)+portal1xplus == math.floor(self.x+1)
