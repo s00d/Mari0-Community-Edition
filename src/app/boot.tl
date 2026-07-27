@@ -123,6 +123,7 @@ function Boot.require_game()
 	require "entities.screenboundary"
 	require "entities.bulletbill"
 	require "entities.fireball"
+	require "entities.gravityball"
 	require "ui.gui"
 	require "entities.blockdebris"
 	require "entities.firework"

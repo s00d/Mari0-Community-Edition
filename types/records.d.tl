@@ -1173,6 +1173,50 @@ global record fireball is Entity, Body
 	new: function(fireball, number, number, any, any): fireball
 end
 
+global record gravityball is Body
+	active: boolean
+	autodelete: boolean
+	category: number
+	drawable: boolean
+	emancipatecheck: boolean
+	frame: number
+	frametimer: number
+	graphic: any
+	gravity: number
+	gravitydirection: number
+	height: number
+	mask: {boolean}
+	offsetX: number
+	offsetY: number
+	owner: any
+	portalable: boolean
+	quad: any
+	quadcenterX: number
+	quadcenterY: number
+	rotation: number
+	speedx: number
+	speedy: number
+	state: string
+	static: boolean
+	timer: number
+	trail: {{string:number}}
+	traili: number
+	width: number
+	x: number
+	y: number
+	init: function(gravityball, number, number, number, number, any)
+	update: function(gravityball, number): boolean
+	leftcollide: function(gravityball, any, Entity): boolean
+	rightcollide: function(gravityball, any, Entity): boolean
+	floorcollide: function(gravityball, any, Entity): boolean
+	ceilcollide: function(gravityball, any, Entity): boolean
+	passivecollide: function(gravityball, any, Entity): boolean
+	hitstuff: function(gravityball, any, Entity)
+	explode: function(gravityball)
+	emancipate: function(gravityball): any
+	new: function(gravityball, number, number, number, number, any): gravityball
+end
+
 global record fireworkboom is Entity, Body
 	width: number
 	height: number

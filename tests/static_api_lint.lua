@@ -67,6 +67,7 @@ local banned_flat_requires = {
 	"bowser",
 	"bulletbill",
 	"fireball",
+	"gravityball",
 	"castlefire",
 	"fire",
 	"firework",

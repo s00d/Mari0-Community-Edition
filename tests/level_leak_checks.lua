@@ -38,7 +38,7 @@ end
 do
 	local objects, playerobjs = fresh_objects()
 	check("player group aliases playerobjs", objects["player"] == playerobjs)
-	check("object group count", #OBJECT_GROUP_KEYS == 48)
+	check("object group count", #OBJECT_GROUP_KEYS == 49)
 	for i = 1, #OBJECT_GROUP_KEYS do
 		local key = OBJECT_GROUP_KEYS[i]
 		check("group " .. key .. " exists", objects[key] ~= nil)

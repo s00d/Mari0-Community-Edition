@@ -193,19 +193,24 @@ do
 	check("pull becomes held", pl.gg_state == "held" and pl.pickup == box, tostring(pl.gg_state))
 	check("held no parent snap", box.parent == nil)
 
-	-- LMB while held must NOT punt
+	-- LMB while held must NOT shoot
 	pl.weapondelay.gravitygun = 0
 	gravitygun.fire(pl, "l")
 	check("lmb while held keeps hold", pl.gg_state == "held" and pl.pickup == box)
 
-	-- RMB punts as ball
+	-- RMB fires ball but keeps hold (no punt / no drop)
+	objects.gravityball = {}
+	gravityball = {
+		new = function(_, x, y, dx, dy, owner)
+			return { x = x, y = y, dx = dx, dy = dy, owner = owner, state = "flying", speedx = dx * 22, speedy = dy * 22 }
+		end,
+	}
 	pl.weapondelay.gravitygun = 0
+	local hold_before = pl.pickup
 	gravitygun.fire(pl, "r")
-	check("rmb punt releases", pl.gg_state == "idle" and pl.pickup == false)
-	check("rmb punt impulse", (box.speedx or 0) ~= 0 or (box.speedy or 0) ~= 0, tostring(box.speedx))
-	check("rmb punt ball look", box.gg_ball == true)
-	check("rmb punt sets punttimer", (box.punttimer or 0) > 0)
-	check("rmb blast flash", (pl.gg_blast or 0) > 0)
+	check("rmb keeps hold", pl.gg_state == "held" and pl.pickup == hold_before)
+	check("rmb shoots ball", #objects.gravityball == 1)
+	check("rmb sets ball cooldown", (pl.weapondelay.gravitygun or 0) > 0)
 end
 
 -- 6) extract_tile clears map cell and spawns prop box
@@ -459,18 +464,38 @@ do
 	end
 	check("enemy becomes held", p2.gg_state == "held" and p2.pickup == enemy, tostring(p2.gg_state))
 
-	-- RMB while on cooldown still punts
+	-- RMB while on cooldown does nothing; hold remains
 	p2.weapondelay.gravitygun = 0.5
+	objects.gravityball = {}
+	gravityball = {
+		new = function()
+			return { state = "flying" }
+		end,
+	}
 	gravitygun.fire(p2, "r")
-	check("rmb punt while cooldown", p2.gg_state == "idle" and p2.pickup == false)
-	check("rmb enemy impulse", (enemy.speedx or 0) ~= 0 or (enemy.speedy or 0) ~= 0)
-	check("rmb enemy no ball look", enemy.gg_ball ~= true)
-	check("rmb enemy punttimer", (enemy.punttimer or 0) > 0)
+	check("rmb cooldown keeps hold", p2.gg_state == "held" and p2.pickup == enemy)
+	check("rmb cooldown no ball", #objects.gravityball == 0)
 end
 
--- 10) blast always sets cooldown + gg_blast even if cone empty
+-- 10) shoot_ball: one gravityball + cooldown + sound + recoil
 do
-	objects = { box = {}, enemy = {} }
+	objects = { box = {}, enemy = {}, gravityball = {} }
+	local spawned = nil
+	gravityball = {
+		new = function(_, x, y, dx, dy, owner)
+			spawned = {
+				x = x,
+				y = y,
+				dx = dx,
+				dy = dy,
+				owner = owner,
+				speedx = dx * 22,
+				speedy = dy * 22,
+				state = "flying",
+			}
+			return spawned
+		end,
+	}
 	traceline = function(sx, sy)
 		return false, false, nil, 0, sx + 8, sy
 	end
@@ -505,66 +530,145 @@ do
 		gg_state = "idle",
 		pickup = false,
 	}
-	gravitygun.fire(pl, "r")
-	check("empty blast sets cooldown", (pl.weapondelay.gravitygun or 0) > 0)
-	check("empty blast sets gg_blast", (pl.gg_blast or 0) > 0, tostring(pl.gg_blast))
-	check("empty blast plays sound", sounds[1] == "portalgun")
-	check("empty blast recoil", (pl.speedx or 0) ~= 0 or (pl.speedy or 0) ~= 0)
+	gravitygun.shoot_ball(pl)
+	check("shoot_ball one object", #objects.gravityball == 1 and objects.gravityball[1] == spawned)
+	check("shoot_ball sets cooldown", (pl.weapondelay.gravitygun or 0) > 0)
+	check("shoot_ball plays sound", sounds[1] == "portalgun")
+	check("shoot_ball recoil", (pl.speedx or 0) ~= 0 or (pl.speedy or 0) ~= 0)
+	check("shoot_ball velocity", spawned and ((spawned.speedx or 0) ~= 0 or (spawned.speedy or 0) ~= 0))
 end
 
--- 11) punt_hit false when punttimer==0; apply_impulse no ball on stompable
+-- 11) gravityball hitstuff/explode lifetime + punt_kill_entity + box crush
 do
+	local FRAME_TIME = 0.05
 	local ok_punt, punt = pcall(require, "weapons.punt")
 	check("load weapons.punt", ok_punt)
+
+	-- Stub fireball graphics for gravityball module
+	fireballimg = "fbimg"
+	fireballquad = {}
+	for i = 1, 7 do
+		fireballquad[i] = "q" .. i
+	end
+	earthquake = 0
+	local sounds = {}
+	playsound = function(name)
+		sounds[#sounds + 1] = name
+	end
+	local points = {}
+	addpoints = function(n, x, y)
+		points[#points + 1] = { n = n, x = x, y = y }
+	end
+
+	package.loaded["entities.gravityball"] = nil
+	local ok_gb, _ = pcall(require, "entities.gravityball")
+	check("load entities.gravityball", ok_gb)
+
+	-- hitstuff enemy → shotted once, exploding
+	local shot_n = 0
+	local enemy = {
+		shotted = function(self)
+			shot_n = shot_n + 1
+			self.dead = true
+			return true
+		end,
+	}
+	local ball = gravityball:new(1, 1, 1, 0, nil)
+	check("ball starts flying", ball.state == "flying" and ball.gravity == 0)
+	ball:hitstuff("enemy", enemy)
+	check("hitstuff enemy shotted once", shot_n == 1)
+	check("hitstuff enemy exploding", ball.state == "exploding" and ball.active == false)
+
+	-- hitstuff tile → explode, no kill call
+	shot_n = 0
+	local ball2 = gravityball:new(1, 1, 1, 0, nil)
+	ball2:hitstuff("tile", {})
+	check("hitstuff tile exploding", ball2.state == "exploding")
+	check("hitstuff tile no shotted", shot_n == 0)
+
+	-- explode animation finishes after 3 frame steps
+	local ball3 = gravityball:new(1, 1, 1, 0, nil)
+	ball3:explode()
+	local done = false
+	for _ = 1, 3 do
+		done = ball3:update(FRAME_TIME + 0.001)
+	end
+	check("explode update returns true", done == true)
+
 	if ok_punt then
+		-- health edge: first hit returns nil → no kill credit
+		local healthy = { health = 2 }
+		healthy.shotted = function(self)
+			self.health = self.health - 1
+			return nil
+		end
+		check("punt_kill_entity health no credit", punt.punt_kill_entity(healthy) == false)
+
+		local deadish = {}
+		deadish.shotted = function()
+			return true
+		end
+		check("punt_kill_entity kill credit", punt.punt_kill_entity(deadish) == true)
+
 		local attacker = { x = 1, y = 1, punttimer = 0 }
 		local target = { stompable = true, stomped = false }
 		target.stomp = function()
 			target.stomped = true
 		end
 		check("punt_hit false when punttimer==0", punt.punt_hit(attacker, "enemy", target) == false)
-		check("punt_hit no stomp when timer 0", target.stomped ~= true)
-
-		attacker.punttimer = 0.5
-		check("punt_hit true when timer active", punt.punt_hit(attacker, "enemy", target) == true)
-		check("punt_hit stomps", target.stomped == true)
 	end
 
-	local pl = { x = 0, y = 0, pointingangle = -math.pi / 2 }
-	love = {
-		mouse = {
-			getPosition = function()
-				return 80, 40
+	-- box crush speed gate
+	package.loaded["entities.box"] = nil
+	-- Minimal stubs so box init can be skipped; call floorcollide on prototype
+	adduserect = function(x, y, w, h, self)
+		return { x = x, y = y }
+	end
+	boximg = "boximg"
+	boxquad = { [1] = "bq" }
+	local ok_box = pcall(require, "entities.box")
+	check("load entities.box", ok_box)
+	if ok_box then
+		local crate = {
+			speedy = 2,
+			falling = true,
+			x = 1,
+			y = 1,
+			globalcollide = function()
+				return false
 			end,
-		},
-	}
-	xscroll, yscroll, scale = 0, 0, 1
-	local stompy = {
-		x = 2,
-		y = 1,
-		width = 0.75,
-		height = 0.75,
-		speedx = 0,
-		speedy = 0,
-		grabbable = true,
-		stompable = true,
-	}
-	gravitygun.apply_impulse(stompy, pl, 22, true)
-	check("apply_impulse no ball on stompable", stompy.gg_ball ~= true)
-	check("apply_impulse lethal punttimer", (stompy.punttimer or 0) > 0)
+		}
+		local stomped = false
+		local foe = {
+			stompable = true,
+			stomp = function()
+				stomped = true
+			end,
+		}
+		points = {}
+		box.floorcollide(crate, "enemy", foe, nil, nil)
+		check("box crush slow no kill", stomped == false and crate.speedy == 2)
 
-	local crate = {
-		x = 2,
-		y = 1,
-		width = 0.75,
-		height = 0.75,
-		speedx = 0,
-		speedy = 0,
-		grabbable = true,
-		stompable = false,
-	}
-	gravitygun.apply_impulse(crate, pl, 22, true)
-	check("apply_impulse ball on grabbable box", crate.gg_ball == true)
+		crate.speedy = 12
+		crate.falling = true
+		stomped = false
+		points = {}
+		box.floorcollide(crate, "enemy", foe, nil, nil)
+		check("box crush fast kills", stomped == true and crate.speedy == -6)
+		check("box crush awards points", #points == 1 and points[1].n == 200)
+
+		local immune = {
+			immunetoboxes = true,
+			stompable = true,
+			stomp = function()
+				stomped = true
+			end,
+		}
+		stomped = false
+		crate.speedy = 12
+		box.floorcollide(crate, "enemy", immune, nil, nil)
+		check("box crush immune", stomped == false)
+	end
 end
 
 print(string.format("weapon_checks: %s", failed == 0 and "PASS" or ("FAIL x" .. failed)))

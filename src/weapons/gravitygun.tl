@@ -1,6 +1,4 @@
---[[ Gravity gun — grab boxes/tiles/enemies, spring-drag to cursor, RMB blast/punt. ]]
-
-require("weapons.punt")
+--[[ Gravity gun — grab boxes/tiles/enemies, spring-drag to cursor; RMB fires gravity ball. ]]
 
 local MAX_RANGE = 8
 local STEP = 0.2
@@ -8,19 +6,13 @@ local PROBE = 0.55
 local OMEGA = 14
 local GRAB_DIST = 0.45
 local REACH_LIMIT = 10
-local BLAST_RANGE = 3.2
-local BLAST_CONE = 0.55
-local BLAST_IMPULSE = 22
-local PUNT_IMPULSE = 30
-local BLAST_FLASH = 0.12
-local PUNT_TIME = 0.55
 local COOLDOWN = 0.12
+local BALL_COOLDOWN = 0.35
 local CONE_DOT = 0.72
 local RETRY = 0.08
 
 local PICK_LISTS = {"box", "enemy"}
 
-local ball_quad: any = nil
 -- LuaJIT/5.1: atan2; Lua 5.3+: atan(y, x)
 local atan2 = math.atan2 or math.atan
 
@@ -197,14 +189,6 @@ local function release_obj(pl: {string:any}, reason: string)
 	pl.gg_vy = 0
 end
 
-local function clear_hold(pl: {string:any})
-	pl.pickup = false
-	pl.gg_pulling = nil
-	pl.gg_state = "idle"
-	pl.gg_vx = 0
-	pl.gg_vy = 0
-end
-
 local function box_usable(obj: {string:any}, pl: {string:any}): boolean
 	if not obj or not obj.grabbable or obj.destroying then
 		return false
@@ -363,34 +347,6 @@ local function pick_cone(pl: {string:any}, sx: number, sy: number, dx: number, d
 	return best
 end
 
--- Cone collect: everything in the sector ahead of the player.
-local function cone_hits(pl: {string:any}, sx: number, sy: number, dx: number, dy: number, range: number, cone: number): {{string:any}}
-	local out: {{string:any}} = {}
-	if not objects then
-		return out
-	end
-	for gi = 1, #PICK_LISTS do
-		local group = PICK_LISTS[gi]
-		local listn = objects[group] as {any:{string:any}}|nil
-		if listn ~= nil then
-			local list = listn as {any:{string:any}}
-			for _, obj in pairs(list) do
-				if entity_usable(group, obj, pl) then
-					local cx = (obj.x as number) + ((obj.width as number) or 0.75) / 2
-					local cy = (obj.y as number) + ((obj.height as number) or 0.75) / 2
-					local tox, toy = cx - sx, cy - sy
-					local d = math.sqrt(tox * tox + toy * toy)
-					if d > 0.05 and d <= range and (tox / d * dx + toy / d * dy) >= cone then
-						obj.gg_group = group
-						out[#out + 1] = obj
-					end
-				end
-			end
-		end
-	end
-	return out
-end
-
 -- Entity pick (boxes + enemies). Used for grab.
 local function pick_entity(pl: {string:any}): {string:any}|nil
 	local sx, sy, dx, dy, ang = aim(pl)
@@ -464,45 +420,6 @@ local function enter_hold(pl: {string:any}, obj: {string:any})
 	obj.speedy = 0
 end
 
-local function apply_ball_look(obj: {string:any})
-	obj.gg_ball = true
-	if portalprojectileimg and love and love.graphics and love.graphics.newQuad then
-		obj.graphic = portalprojectileimg
-		if not ball_quad then
-			local w = (portalprojectileimg.getWidth and portalprojectileimg:getWidth()) or 12
-			local h = (portalprojectileimg.getHeight and portalprojectileimg:getHeight()) or 12
-			ball_quad = love.graphics.newQuad(0, 0, w, h, w, h)
-		end
-		obj.quad = ball_quad
-		obj.offsetX = 6
-		obj.offsetY = 6
-		obj.quadcenterX = 6
-		obj.quadcenterY = 6
-	end
-end
-
-local function apply_impulse(obj: {string:any}, pl: {string:any}, strength: number, lethal: boolean)
-	local ox = (obj.x as number) + ((obj.width as number) or 0.75) / 2
-	local oy = (obj.y as number) + ((obj.height as number) or 0.75) / 2
-	local dx, dy = aim_dir(pl, ox, oy)
-	obj.parent = nil
-	obj.gg_saved = nil
-	obj.gg_grabbed = nil
-	obj.beamed = nil
-	obj.active = true
-	obj.gravity = nil
-	obj.speedx = ((obj.speedx as number) or 0) + dx * strength
-	obj.speedy = ((obj.speedy as number) or 0) + dy * strength
-	obj.falling = true
-	if lethal then
-		obj.punttimer = PUNT_TIME
-	end
-	-- Ball look only for boxes / extracted tiles — enemies stay enemies.
-	if obj.grabbable and not obj.stompable then
-		apply_ball_look(obj)
-	end
-end
-
 local function on_cooldown(pl: {string:any}): boolean
 	local d = pl.weapondelay as {string:number}|nil
 	if d == nil then
@@ -529,34 +446,30 @@ local function held_object(pl: {string:any}): {string:any}|nil
 	return nil
 end
 
--- Unconditional blast: cooldown + sound + flash + recoil always fire.
-local function blast(pl: {string:any})
-	set_cooldown(pl)
+local function shoot_ball(pl: {string:any})
+	local sx, sy, dx, dy = aim(pl)
+	if not objects or not gravityball or not gravityball.new then
+		return
+	end
+	local list = objects["gravityball"] as {any}|nil
+	if list == nil then
+		list = {} as {any}
+		objects["gravityball"] = list as {any:Entity}
+	end
+	-- Offset forward so the ball does not spawn inside the player.
+	table.insert(list as {any}, (gravityball.new as function(any, number, number, number, number, any): any)(
+		gravityball, sx + dx * 0.6, sy + dy * 0.6, dx, dy, pl))
+
+	if not pl.weapondelay then
+		pl.weapondelay = {}
+	end
+	(pl.weapondelay as {string:number}).gravitygun = BALL_COOLDOWN
 	if playsound then
 		playsound("portalgun")
 	end
-	pl.gg_blast = BLAST_FLASH
-	local sx, sy, dx, dy, _ = aim(pl)
+	pl.gg_blast = 0.12
 	pl.speedx = ((pl.speedx as number) or 0) - dx * 2
 	pl.speedy = ((pl.speedy as number) or 0) - dy * 2
-
-	local obj = held_object(pl)
-	if obj then
-		clear_hold(pl)
-		apply_impulse(obj, pl, PUNT_IMPULSE, true)
-		return
-	end
-
-	local hits = cone_hits(pl, sx, sy, dx, dy, BLAST_RANGE, BLAST_CONE)
-	for k = 1, #hits do
-		local o = hits[k]
-		if o.gg_group == "enemy" then
-			punt_kill(o)
-		else
-			apply_impulse(o, pl, BLAST_IMPULSE, true)
-		end
-		o.gg_group = nil
-	end
 end
 
 local function fire(pl: {string:any}, button: any)
@@ -564,10 +477,10 @@ local function fire(pl: {string:any}, button: any)
 	local rmb = button == "r" or button == 2
 
 	if rmb then
-		-- Held punt bypasses LMB grab cooldown; empty blast respects cooldown.
-		if held_object(pl) or not on_cooldown(pl) then
-			blast(pl)
+		if on_cooldown(pl) then
+			return
 		end
+		shoot_ball(pl)
 		return
 	end
 
@@ -576,7 +489,7 @@ local function fire(pl: {string:any}, button: any)
 	end
 
 	if lmb then
-		-- LMB only acquires; drag continues while held. Never punt on LMB.
+		-- LMB only acquires; drag continues while held. Never shoot on LMB.
 		if pl.gg_state == "idle" or pl.gg_state == nil then
 			local obj = pick_target(pl)
 			if obj then
@@ -632,36 +545,8 @@ local function mouse_held_pull(pl: {string:any}): boolean
 	return true
 end
 
-local function mouse_rmb_edge(pl: {string:any}): boolean
-	if pl.playernumber ~= mouseowner then
-		return false
-	end
-	local down = false
-	if love and love.mouse and love.mouse.isDown then
-		down = love.mouse.isDown(2) == true
-	end
-	local was = pl.gg_rmb_down == true
-	pl.gg_rmb_down = down
-	return down and not was
-end
-
 local function update(pl: {string:any}, dt: number)
-	local flash = (pl.gg_blast as number) or 0
-	if flash > 0 then
-		pl.gg_blast = math.max(0, flash - dt)
-	end
-
 	local state = (pl.gg_state as string) or "idle"
-
-	if state == "pulling" or state == "held" then
-		-- Backup RMB path: mousepressed can miss while LMB is held on some platforms.
-		if mouse_rmb_edge(pl) and held_object(pl) then
-			fire(pl, "r")
-			return
-		end
-	else
-		pl.gg_rmb_down = false
-	end
 
 	if state == "pulling" then
 		local objn = pl.gg_pulling as {string:any}|nil
@@ -718,22 +603,37 @@ local function world_to_screen(wx: number, wy: number): number, number
 	return math.floor((wx - xs) * 16 * sc), math.floor((wy - ys - 0.5) * 16 * sc)
 end
 
+local function draw_trails()
+	local balls = objects["gravityball"] as {any:{string:any}}|nil
+	if balls == nil then
+		return
+	end
+	for _, b in pairs(balls as {any:{string:any}}) do
+		if b.state == "flying" then
+			local trail = b.trail as {{string:number}}
+			local n = #trail
+			local head = b.traili as integer
+			for k = 1, n - 1 do
+				local i0 = (head - k - 1) % n + 1
+				local i1 = (head - k) % n + 1
+				local a = 1 - k / n
+				local x0, y0 = world_to_screen(trail[i0].x, trail[i0].y)
+				local x1, y1 = world_to_screen(trail[i1].x, trail[i1].y)
+				love.graphics.setColor(0.45, 0.9, 1.0, a * 0.7)
+				love.graphics.setLineWidth(((scale as number) or 1) * a * 2)
+				love.graphics.line(x0, y0, x1, y1)
+			end
+		end
+	end
+	love.graphics.setColor(1, 1, 1, 1)
+end
+
 local function draw(pl: {string:any})
 	if not love or not love.graphics then
 		return
 	end
 
-	local flash = (pl.gg_blast as number) or 0
-	if flash > 0 then
-		local sx, sy, dx, dy = aim(pl)
-		local a = flash / BLAST_FLASH
-		local x1, y1 = world_to_screen(sx, sy)
-		local x2, y2 = world_to_screen(sx + dx * BLAST_RANGE, sy + dy * BLAST_RANGE)
-		love.graphics.setColor(0.5, 0.9, 1.0, a * 0.6)
-		love.graphics.setLineWidth(((scale as number) or 1) * (1 + 4 * a))
-		love.graphics.line(x1, y1, x2, y2)
-		love.graphics.setColor(1, 1, 1, 1)
-	end
+	draw_trails()
 
 	local state = (pl.gg_state as string) or "idle"
 	if state ~= "pulling" and state ~= "held" then
@@ -786,9 +686,8 @@ return {
 	extract_tile = extract_tile,
 	tile_can_grab = tile_can_grab,
 	enemy_usable = enemy_usable,
-	apply_impulse = apply_impulse,
-	blast = blast,
+	shoot_ball = shoot_ball,
 	aim = aim,
 	MAX_RANGE = MAX_RANGE,
-	BLAST_FLASH = BLAST_FLASH,
+	BALL_COOLDOWN = BALL_COOLDOWN,
 }
