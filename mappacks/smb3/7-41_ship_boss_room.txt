@@ -1,1 +1,0 @@
-15¸2653¤2758·3¤2653·44¤2531·192¸backgroundr¨0¸backgroundg¨0¸backgroundb¨8¸spriteset¨1¸music¨castle.ogg¸timelimit¨300¸scrollfactor¨0¸fscrollfactor¨0

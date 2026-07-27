@@ -1,1 +1,0 @@
-15¸2531·960¸backgroundr¨0¸backgroundg¨248¸backgroundb¨252¸spriteset¨1¸music¨overworld.ogg¸timelimit¨200¸scrollfactor¨0¸fscrollfactor¨0
