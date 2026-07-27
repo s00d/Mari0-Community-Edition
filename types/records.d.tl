@@ -221,7 +221,7 @@ global record animationtrigger is Entity
 	new: function(animationtrigger, number, number, {any}): animationtrigger
 end
 
-global record blockdebris is Entity
+global record blockdebris is Entity, Body
 	width: number
 	height: number
 	active: boolean
@@ -240,7 +240,7 @@ global record blockdebris is Entity
 	new: function(blockdebris, number, number, any, any): blockdebris
 end
 
-global record bowser is Entity
+global record bowser is Entity, Body
 	active: boolean
 	animationdirection: string
 	animationtimer: number
@@ -369,7 +369,7 @@ global record bubble is Entity
 	new: function(bubble, number, number): bubble
 end
 
-global record bulletbill is Entity
+global record bulletbill is Entity, Body
 	draw: function(bulletbill)
 	active: boolean
 	animationdirection: string
@@ -413,7 +413,7 @@ global record bulletbill is Entity
 	new: function(bulletbill, number, number, any): bulletbill
 end
 
-global record button is Entity
+global record button is Entity, Body
 	speedx: number
 	speedy: number
 	active: boolean
@@ -499,7 +499,7 @@ global record castlefire is Entity
 	new: function(castlefire, number, number, {any}): castlefire
 end
 
-global record castlefirefire is Entity
+global record castlefirefire is Entity, Body
 	speedx: number
 	speedy: number
 	draw: function(castlefirefire)
@@ -677,7 +677,7 @@ global record dialogbox is {any}
 	new: function(dialogbox, any, any): dialogbox
 end
 
-global record door is Entity
+global record door is Entity, Body
 	speedx: number
 	speedy: number
 	active: boolean
@@ -788,7 +788,7 @@ global record emancipationgrill is {any}
 	new: function(emancipationgrill, number, number, {any}): emancipationgrill
 end
 
-global record enemy is Entity
+global record enemy is Entity, Body
 	category: number
 	draw: function(enemy)
 	a: {any}
@@ -1097,7 +1097,7 @@ global record faithplate is Entity
 	new: function(faithplate, number, number, {any}): faithplate
 end
 
-global record fire is Entity
+global record fire is Entity, Body
 	draw: function(fire)
 	active: boolean
 	autodelete: boolean
@@ -1131,7 +1131,7 @@ global record fire is Entity
 	new: function(fire, number, number): fire
 end
 
-global record fireball is Entity
+global record fireball is Entity, Body
 	draw: function(fireball)
 	active: boolean
 	category: number
@@ -1224,7 +1224,7 @@ global record funnel is {any}
 	new: function(funnel, number, number, {any}): funnel
 end
 
-global record gel is Entity
+global record gel is Entity, Body
 	draw: function(gel)
 	active: boolean
 	autodelete: boolean
@@ -1517,7 +1517,7 @@ global record lightbridge is {any}
 	new: function(lightbridge, number, number, {any}): lightbridge
 end
 
-global record lightbridgebody is Entity
+global record lightbridgebody is Entity, Body
 	speedx: number
 	speedy: number
 	active: boolean
@@ -1549,7 +1549,7 @@ global record lightbridgebody is Entity
 	new: function(lightbridgebody, lightbridge, number, number, string, any): lightbridgebody
 end
 
-global record magic is Entity
+global record magic is Entity, Body
 	width: number
 	height: number
 	speedx: number
@@ -2136,7 +2136,7 @@ global record portalwall is Entity
 	new: function(portalwall, number, number, any, any, any): portalwall
 end
 
-global record pushbutton is Entity
+global record pushbutton is Entity, Body
 	x: number
 	y: number
 	width: number
@@ -2397,7 +2397,7 @@ global record scaffold is Entity, Body
 	new: function(scaffold, number, number, {any}): scaffold
 end
 
-global record screenboundary is Entity
+global record screenboundary is Entity, Body
 	speedx: number
 	speedy: number
 	draw: function(screenboundary)
@@ -2482,7 +2482,7 @@ global record seesaw is {any}
 	new: function(seesaw, number, number, {any}): seesaw
 end
 
-global record seesawplatform is {any}
+global record seesawplatform is {any}, Body
 	active: boolean
 	callback: any
 	category: number
@@ -2514,7 +2514,7 @@ global record seesawplatform is {any}
 	new: function(seesawplatform, number, number, any, any, any): seesawplatform
 end
 
-global record spring is Entity
+global record spring is Entity, Body
 	speedx: number
 	speedy: number
 	active: boolean
@@ -2599,7 +2599,7 @@ global record textentity is Entity
 	new: function(textentity, number, number, {any}): textentity
 end
 
-global record tile is Entity
+global record tile is Entity, Body
 	active: boolean
 	category: number
 	cox: number
@@ -2616,7 +2616,7 @@ global record tile is Entity
 	new: function(tile, ...: any): tile
 end
 
-global record vine is Entity
+global record vine is Entity, Body
 	speedx: number
 	speedy: number
 	active: boolean
@@ -2748,6 +2748,6 @@ global record zginttrigger is Entity
 end
 
 
-global record upfire is Entity
+global record upfire is Entity, Body
 	new: function(any, number, number, any): upfire
 end
