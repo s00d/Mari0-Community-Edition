@@ -47,7 +47,7 @@ function andgate:link()
 end
 
 function andgate:addoutput(a, t)
-	table.insert(self.outtable, {a, t})
+	table.insert(self.outtable, {a, t} as {any})
 end
 
 function andgate:update(dt: number): any...
@@ -65,8 +65,8 @@ end
 
 function andgate:out(t)
 	for i = 1, #self.outtable do
-		if self.outtable[i][1].input then
-			self.outtable[i][1]:input(t, self.outtable[i][2])
+		if (self.outtable[i] as {Entity, any})[1].input then
+			(self.outtable[i] as {Entity, any})[1]:input(t, (self.outtable[i] as {Entity, any})[2])
 		end
 	end
 end

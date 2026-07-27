@@ -18,11 +18,12 @@ global function loadcharacter(...: any): any
 	char.name = (char.name and string.lower(char.name)) or string.lower(charname)
 
 	if char.defaultcolors then
-		local dcolors = char.defaultcolors as {any:{any:{number}}}
-		for i, colors in ipairs(dcolors) do
-			for j, color in ipairs(colors) do
-				for k = 1, 3 do
-					dcolors[i][j][k] = dcolors[i][j][k] / 255
+		local dcolors = char.defaultcolors as {integer:{{number}}}
+		for ii = 1, #dcolors do
+			local colors = dcolors[ii]
+			for jj = 1, #colors do
+				for kk = 1, 3 do
+					colors[jj][kk] = colors[jj][kk] / 255
 				end
 			end
 		end
@@ -56,21 +57,22 @@ global function loadcharacter(...: any): any
 				if not chardyn[curtype] then
 					chardyn[curtype] = {}
 				end
-				chardyn[curtype][i] = love.graphics.newImage(folder .. curtype .. i .. ".png")
+				local animslot = chardyn[curtype] as {any:any}
+				animslot[i] = love.graphics.newImage(folder .. curtype .. i .. ".png")
 			end
 			
 			--0 Image
 			if love.filesystem.getInfo(folder .. curtype .. "0.png") then
-				chardyn[curtype][0] = love.graphics.newImage(folder .. curtype .. "0.png")
+				(chardyn[curtype] as {any:any})[0] = love.graphics.newImage(folder .. curtype .. "0.png")
 			end
 			
 			--Dot Image
 			if love.filesystem.getInfo(folder .. curtype .. "dot.png") then
-				chardyn[curtype]["dot"] = love.graphics.newImage(folder .. curtype .. "dot.png")
+				(chardyn[curtype] as {any:any})["dot"] = love.graphics.newImage(folder .. curtype .. "dot.png")
 			end
 		else
 			if love.filesystem.getInfo(folder .. curtype .. ".png") then
-				chardyn[curtype] = love.graphics.newImage(folder .. curtype .. ".png")
+				(chardyn as {any:any})[curtype] = love.graphics.newImage(folder .. curtype .. ".png")
 			end
 		end
 	end
@@ -93,7 +95,7 @@ global function loadcharacter(...: any): any
 	char.customframe = {}
 	
 	for i = 1, quadnum do
-		local add = 0
+		local add: number = 0
 		char.idle[i] = love.graphics.newQuad(0, (i-1)*char.smallquadheight, char.smallquadwidth, char.smallquadheight, char.smallimgwidth, char.smallimgheight)
 		
 		char.run[i] = {}
@@ -139,7 +141,7 @@ global function loadcharacter(...: any): any
 	char.bigcustomframe = {}
 
 	for i = 1, quadnum do
-		local add = 0
+		local add: number = 0
 		char.bigidle[i] = love.graphics.newQuad(0, (i-1)*char.bigquadheight, char.bigquadwidth, char.bigquadheight, char.bigimgwidth, char.bigimgheight)
 		
 		char.bigrun[i] = {}

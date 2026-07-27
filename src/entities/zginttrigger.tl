@@ -71,5 +71,5 @@ function zginttrigger:draw()
 end
 
 function zginttrigger:addoutput(a, t)
-	table.insert(self.outtable, {a, t} as any)
+	table.insert(self.outtable, {a, t} as {any})
 end

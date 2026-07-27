@@ -41,7 +41,7 @@ global function checkrect(...: any): {any}
 				if statics or w.static ~= true or list ~= "all" then
 					local skip = false
 					if inobj then
-						for ii, vv in pairs(inobj) do
+						for ii, vv in pairs(inobj as {any:Entity}) do
 							if vv == w then
 								skip = true
 							end

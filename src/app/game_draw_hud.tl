@@ -16,7 +16,7 @@ global function game_draw_hud(...: any): any
 	
 	if editormode == false then -- No point in showing this in the editor
 		if not characters[mariocharacter[1]] then
-			mariocharacter[1] = "mario" as any
+			mariocharacter[1] = "mario"
 		end
 		printfunction(characters[mariocharacter[1]].name, uispace*.5 - 24*scale, 8*scale)
 		printfunction(addzeros(marioscore, 6), uispace*0.5-24*scale, 16*scale)
@@ -27,7 +27,7 @@ global function game_draw_hud(...: any): any
 		printfunction(addzeros(mariocoincount, 2), uispace*1.5-0*scale, 16*scale)
 		
 		printfunction("world", uispace*2.5 - 20*scale, 8*scale)
-		printfunction(marioworld .. "-" .. mariolevel, uispace*2.5 - 12*scale, 16*scale)
+		printfunction(tostring(marioworld) .. "-" .. tostring(mariolevel), uispace*2.5 - 12*scale, 16*scale)
 	
 		printfunction("time", uispace*3.5 - 16*scale, 8*scale)
 		
@@ -44,9 +44,9 @@ global function game_draw_hud(...: any): any
 		for i = 1, players do
 			local x = (width*16)/players/2 + (width*16)/players*(i-1)
 			if mariolivecount ~= false then
-				printfunction("p" .. i .. " * " .. mariolives[i], (x-string.len("p" .. i .. " * " .. mariolives[i])*4+4)*scale, 25*scale)
+				printfunction("p" .. i .. " * " .. tostring(mariolives[i]), (x-string.len("p" .. i .. " * " .. tostring(mariolives[i]))*4+4)*scale, 25*scale)
 				love.graphics.setColor(mariocolors[i][1] or {1, 1, 1})
-				love.graphics.rectangle("fill", (x-string.len("p" .. i .. " * " .. mariolives[i])*4-3)*scale, 25*scale, 7*scale, 7*scale)
+				love.graphics.rectangle("fill", (x-string.len("p" .. i .. " * " .. tostring(mariolives[i]))*4-3)*scale, 25*scale, 7*scale, 7*scale)
 				love.graphics.setColor(1, 1, 1, 1)
 			end
 		end
@@ -79,7 +79,8 @@ global function game_draw_player_markers(...: any): any
 			end
 			
 			if up or left or down or right then
-				local x, y
+				local x: number = 0
+				local y: number = 0
 				local angx, angy = 0, 0
 				
 				if right then
@@ -98,11 +99,11 @@ global function game_draw_player_markers(...: any): any
 					angy = 1
 				end
 				
-				if not x then
+				if not right and not left then
 					x = v.x-xscroll+v.width/2
 				end
 				
-				if not y then
+				if not up and not down then
 					y = v.y-yscroll-3/16
 				end
 				
@@ -139,7 +140,7 @@ global function game_draw_player_markers(...: any): any
 				for x = math.floor(v.x), math.floor(v.x)+3 do
 					for y = math.floor(v.y), math.floor(v.y)+3 do
 						if inmap(x, y) then
-							tilenumber = map[x][y][1]
+							tilenumber = map[x][y][1] as number
 							
 							if tilenumber ~= 0 and not tilequads[tilenumber]:getproperty("invisible", x, y) then
 								local img
@@ -207,7 +208,8 @@ global function game_draw_debug(...: any): any
 	if userectdebug then
 		love.graphics.setColor(1, 1, 1, 0.4)
 		for i, k in pairs(userects) do
-			love.graphics.rectangle("fill", (k.x-xscroll)*16*scale, (k.y-yscroll-.5)*16*scale, k.width*16*scale, k.height*16*scale)
+			local rect = k as {any:any}
+			love.graphics.rectangle("fill", ((rect.x as number)-xscroll)*16*scale, ((rect.y as number)-yscroll-.5)*16*scale, (rect.width as number)*16*scale, (rect.height as number)*16*scale)
 		end
 		love.graphics.setColor(1, 1, 1, 1)
 	end
@@ -246,14 +248,14 @@ global function game_draw_pausemenu(...: any): any
 			love.graphics.setColor(1, 1, 1, 1)
 			properprint(">", (width*8*scale)-(menuwidth/2-5)*scale, (96*scale)-60*scale+(i-1)*25*scale)
 		end
-		properprint(pausemenuoptions[i], (width*8*scale)-(menuwidth/2-15)*scale, (96*scale)-60*scale+(i-1)*25*scale)
-		properprint(pausemenuoptions2[i], (width*8*scale)-(menuwidth/2-15)*scale, (96*scale)-50*scale+(i-1)*25*scale)
+		properprint(pausemenuoptions[i as integer], (width*8*scale)-(menuwidth/2-15)*scale, (96*scale)-60*scale+(i-1)*25*scale)
+		properprint(pausemenuoptions2[i as integer], (width*8*scale)-(menuwidth/2-15)*scale, (96*scale)-50*scale+(i-1)*25*scale)
 		
-		if pausemenuoptions[i] == "music volume" or pausemenuoptions[i] == "game volume" then
+		if pausemenuoptions[i as integer] == "music volume" or pausemenuoptions[i as integer] == "game volume" then
 			drawrectangle((width*8)-42, 52+(i-1)*25, 74, 1)
 			drawrectangle((width*8)-42, 49+(i-1)*25, 1, 7)
 			drawrectangle((width*8)+32, 49+(i-1)*25, 1, 7)
-			love.graphics.draw(volumesliderimg, math.floor(((width*8)-43+74*(pausemenuoptions[i] == "music volume" and volumemusic or volumesfx))*scale),
+			love.graphics.draw(volumesliderimg, math.floor(((width*8)-43+74*(pausemenuoptions[i as integer] == "music volume" and volumemusic or volumesfx))*scale),
 								(96*scale)-47*scale+(i-1)*25*scale, 0, scale, scale)
 		end
 	end

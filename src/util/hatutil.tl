@@ -6,7 +6,7 @@ local function gethatoffset(char: Character, graphic: any, animationstate: any, 
 	local hatoffset: {number}|nil
 	local anims = char.animations
 	local nogun = char.nogunanimations
-	if graphic == anims or graphic == nogun then
+	if graphic == (anims as any) or graphic == (nogun as any) then
 		if not char.hatoffsets then
 			return nil
 		end
@@ -49,7 +49,7 @@ local function gethatoffset(char: Character, graphic: any, animationstate: any, 
 	end
 
 	if not hatoffset then
-		if graphic == anims or graphic == nogun then
+		if graphic == (anims as any) or graphic == (nogun as any) then
 			hatoffset = char.hatoffsets[animationstate as string] as {number}
 		else
 			hatoffset = char.bighatoffsets[animationstate as string] as {number}

@@ -4,11 +4,11 @@ notice = {}
 notice.red = {1, 0.5, 0.5}
 notice.white = {1, 1, 1}
 notice.notices = {}
-notice.duration = 5 as any --seconds
-notice.fadetime = 0.5 as any
+notice.duration = 5
+notice.fadetime = 0.5
 
 function notice.new(text: any, color: any, duration: any)
-	local duration = duration or notice.duration
+	local duration = (duration or notice.duration) as number
 	local text = text or ""
 	local color = color or notice.white
 	table.insert(notice.notices, {text=(text as string):lower(), color=color, life=duration, duration=duration})
@@ -16,23 +16,24 @@ end
 
 function notice.update(dt: number)
 	for i = #notice.notices, 1, -1 do
-		local v = notice.notices[i] as {string:any}
-		
-		v.life = v.life - dt
-		
-		if v.life <= 0 then
+		local v = notice.notices[i] as {any:any}
+		v["life"] = (v["life"] as number) - dt
+		if (v["life"] as number) <= 0 then
 			table.remove(notice.notices, i)
 		end
 	end
 end
 
 function notice.draw()
-	local y = 0
+	local y: number = 0
 	for i = #notice.notices, 1, -1 do
-		local v = notice.notices[i] as {string:any}
+		local v = notice.notices[i] as {any:any}
+		local text = v["text"] as string
+		local life = v["life"] as number
+		local duration = v["duration"] as number
 		
 		--get width by finding longest line
-		local split = strsplit(v.text, "|")
+		local split = strsplit(text, "|")
 		local longest = #split[1]
 		for i = 2, #split do
 			if #split[i] > longest then
@@ -42,7 +43,7 @@ function notice.draw()
 		
 		local height = #split*10+3
 		
-		actualy = notice.gety(y, v.life, height, v.duration)
+		actualy = notice.gety(y, life, height, duration)
 		
 		local targetrect = {width*16 - longest*8-5, actualy, longest*8+5, height}
 		local scissor = {(width*16 - longest*8-5)*scale, y*scale, (longest*8+5)*scale, (actualy-y+height)*scale}
@@ -55,8 +56,8 @@ function notice.draw()
 		love.graphics.setColor(1, 1, 1, 1)
 		drawrectangle(targetrect[1]+1, targetrect[2]+1, targetrect[3]-2, targetrect[4]-2)
 		
-		love.graphics.setColor(v.color)
-		properprint(v.text, (targetrect[1]+2)*scale, (actualy+3)*scale)
+		love.graphics.setColor(v["color"])
+		properprint(text, (targetrect[1]+2)*scale, (actualy+3)*scale)
 		y = actualy+height
 		love.graphics.setScissor()
 	end

@@ -12,8 +12,8 @@ function blockdebris:init(x: number, y: number, speedx, speedy)
 	updateranges()
 	self.x = x
 	self.y = y
-	self.speedx = speedx
-	self.speedy = speedy
+	self.speedx = speedx as number
+	self.speedy = speedy as number
 	
 	self.timer = 0
 	self.frame = 1

@@ -116,11 +116,11 @@ function button:update(_dt: number): any...
 	if (#colls > 0) ~= self.out then
 		self.out = not self.out
 		for i = 1, #self.outtable do
-			if self.outtable[i][1].input then
+			if (self.outtable[i] as {Entity, any})[1].input then
 				if self.out then
-					self.outtable[i][1]:input("on", self.outtable[i][2])
+					(self.outtable[i] as {Entity, any})[1]:input("on", (self.outtable[i] as {Entity, any})[2])
 				else
-					self.outtable[i][1]:input("off", self.outtable[i][2])
+					(self.outtable[i] as {Entity, any})[1]:input("off", (self.outtable[i] as {Entity, any})[2])
 				end
 			end
 		end

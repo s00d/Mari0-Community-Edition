@@ -14,7 +14,7 @@ function geldispenser:init(x: number, y: number, r)
 	self.coy = y
 	self.x = x-1
 	self.y = y-1
-	self.r = r
+	self.r = r as {any}
 	self.speedy = 0
 	self.speedx = 0
 	self.width = 2
@@ -32,17 +32,17 @@ function geldispenser:init(x: number, y: number, r)
 	self.dropping = true
 	
 	--Input list
-	self.r = {unpack(r as {any})}
+	self.r = {unpack(r as {any})} as {any}
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
 	--DIR
 	if #self.r > 0 then
-		self.dir = self.r[1]
+		self.dir = self.r[1] as string
 		table.remove(self.r, 1)
 	end
 	--ID
 	if #self.r > 0 then
-		self.id = tonumber(self.r[1])
+		self.id = tonumber(self.r[1] as string) as number
 		table.remove(self.r, 1)
 	end
 	--POWER
@@ -78,20 +78,21 @@ function geldispenser:update(dt: number): any...
 		
 		while self.timer > geldispensespeed do
 			self.timer = self.timer - geldispensespeed
+			local gels = objects["gel"] as {Entity}
 			if self.dir == "down" then
-				table.insert(objects["gel"], gel:new(self.x+1.5 + (math.random()-0.5)*1, self.y+12/16, self.id))
-				objects["gel"][#objects["gel"]].speedy = 10
+				table.insert(gels, gel:new(self.x+1.5 + (math.random()-0.5)*1, self.y+12/16, self.id))
+				gels[#gels].speedy = 10
 			elseif self.dir == "right" then
-				table.insert(objects["gel"], gel:new(self.x+14/16, self.y+1.5 + (math.random()-0.5)*1, self.id))
-				objects["gel"][#objects["gel"]].speedx = 20
-				objects["gel"][#objects["gel"]].speedy = -4
+				table.insert(gels, gel:new(self.x+14/16, self.y+1.5 + (math.random()-0.5)*1, self.id))
+				gels[#gels].speedx = 20
+				gels[#gels].speedy = -4
 			elseif self.dir == "left" then
-				table.insert(objects["gel"], gel:new(self.x+30/16, self.y+1.5 + (math.random()-0.5)*1, self.id))
-				objects["gel"][#objects["gel"]].speedx = -20
-				objects["gel"][#objects["gel"]].speedy = -4
+				table.insert(gels, gel:new(self.x+30/16, self.y+1.5 + (math.random()-0.5)*1, self.id))
+				gels[#gels].speedx = -20
+				gels[#gels].speedy = -4
 			elseif self.dir == "up" then
-				table.insert(objects["gel"], gel:new(self.x+1.5 + (math.random()-0.5)*1, self.y+12/16, self.id))
-				objects["gel"][#objects["gel"]].speedy = -30
+				table.insert(gels, gel:new(self.x+1.5 + (math.random()-0.5)*1, self.y+12/16, self.id))
+				gels[#gels].speedy = -30
 			end
 		end
 	end

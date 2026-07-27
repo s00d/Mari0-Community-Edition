@@ -299,7 +299,7 @@ function guielement:draw(a: number, offx: number, offy: number)
 		end
 		local s = self.entries[self.var as number]
 		if self.cutoff then
-			s = string.sub(s, 1, self.width)
+			s = string.sub(s as string, 1, self.width as integer)
 		end
 		
 		properprint(s, (drawx+1)*scale, (drawy+2)*scale)
@@ -315,7 +315,7 @@ function guielement:draw(a: number, offx: number, offy: number)
 			for i = 1, #self.entries do
 				local s = self.entries[i]
 				if self.cutoff then
-					s = string.sub(s as string, 1, self.width+1)
+					s = string.sub(s as string, 1, (self.width+1) as integer)
 				end
 				
 				if high ~= i then
@@ -424,14 +424,14 @@ function guielement:draw(a: number, offx: number, offy: number)
 		--format string
 		local oldstring = self.value
 		if self.height == 1 then
-			oldstring = string.sub(self.value as string, self.offset+1, self.offset+self.width)
+			oldstring = string.sub(self.value as string, (self.offset+1) as integer, (self.offset+self.width) as integer)
 		end
 		local newstring = {}
-		for i = 1, string.len(oldstring), self.width do
+		for i = 1, string.len(oldstring as string), self.width as integer do
 			if math.ceil(i/self.width) > self.height then
 				break
 			end
-			table.insert(newstring, string.sub(oldstring, i, i+self.width-1))
+			table.insert(newstring, string.sub(oldstring as string, i as integer, (i+self.width-1) as integer))
 		end
 		
 		for i = 1, #newstring do
@@ -482,7 +482,7 @@ function guielement:draw(a: number, offx: number, offy: number)
 			love.graphics.setColor(0.5, 0.5, 0.5, a)
 		end
 		
-		properprint(string.sub(self.entries[self.value], 1, self.width), (drawx+1)*scale, (drawy+2)*scale)
+		properprint(string.sub(self.entries[self.value as number] as string, 1, self.width as integer), (drawx+1)*scale, (drawy+2)*scale)
 	
 		if self.extended then
 			love.graphics.setColor(0.5, 0.5, 0.5, a)
@@ -497,10 +497,10 @@ function guielement:draw(a: number, offx: number, offy: number)
 					love.graphics.setColor(0, 0, 0, a)
 					love.graphics.rectangle("fill", (self.subx+10+self.width*8)*scale, (self.suby+1+(i-1)*10)*scale, (1+self.width2*8)*scale, 9*scale)
 					love.graphics.setColor(1, 1, 1, a)
-					properprint(string.sub(self.entries[i], 1, self.width2), (self.subx+10+self.width*8)*scale, (self.suby+2+10*(i-1))*scale)
+					properprint(string.sub(self.entries[i] as string, 1, self.width2 as integer), (self.subx+10+self.width*8)*scale, (self.suby+2+10*(i-1))*scale)
 				else
 					love.graphics.setColor(0, 0, 0, a)
-					properprint(string.sub(self.entries[i], 1, self.width2), (self.subx+10+self.width*8)*scale, (self.suby+2+10*(i-1))*scale)
+					properprint(string.sub(self.entries[i] as string, 1, self.width2 as integer), (self.subx+10+self.width*8)*scale, (self.suby+2+10*(i-1))*scale)
 				end
 			end
 			
@@ -681,7 +681,7 @@ function guielement:textinput(text: string): any
 			end
 		end
 		if not ok then return end -- Can you believe this is taken from Minecraft?
-		self.value = self.value .. text
+		self.value = (self.value as string) .. (text as string)
 		self.cursorpos = self.cursorpos + string.len(text)
 	end
 end

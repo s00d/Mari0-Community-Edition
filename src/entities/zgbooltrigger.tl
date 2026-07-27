@@ -87,5 +87,5 @@ function zgbooltrigger:draw()
 end
 
 function zgbooltrigger:addoutput(a, t)
-	table.insert(self.outtable, {a, t} as any)
+	table.insert(self.outtable, {a, t} as {any})
 end

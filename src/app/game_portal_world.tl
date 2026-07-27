@@ -427,7 +427,7 @@ global function insideportal(x: number, y: number, width: number, height: number
 			for j = 1, 2 do				
 				local portalx: number = 0
 				local portaly: number = 0
-				local portalfacing: string|boolean = false
+				local portalfacing: any = false
 				local xplus: number = 0
 				local yplus: number = 0
 				if j == 1 then
@@ -486,7 +486,7 @@ global function moveoutportal(): any... --pushes objects out of the portal i in.
 					
 					if p1 ~= false then
 						local portalent = p1 as portal
-						local portalfacing: string|boolean = false
+						local portalfacing: any = false
 						local portalx: number = 0
 						local portaly: number = 0
 						if p2 == 1 then
@@ -518,7 +518,7 @@ end
 global function traceline(sourcex: number, sourcey: number, radians: number, reportal: any): any...
 	local portalx: number = 0
 	local portaly: number = 0
-	local portalfacing: string|boolean = false
+	local portalfacing: any = false
 	local currentblock: {number} = {}
 	local x, y = sourcex, sourcey
 	currentblock[1] = math.floor(x)

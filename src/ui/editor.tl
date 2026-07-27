@@ -2973,8 +2973,8 @@ function newlevel()
 		mapnumberclick(marioworld, j)
 	elseif i ~= nil and j == nil then
 		mapnumberclick(i, ((existingmaps[i] as number) or 0)+1)
-	elseif marioworld ~= nil and existingmaps[marioworld] ~= nil then
-		mapnumberclick(marioworld, (existingmaps[marioworld] as number)+1)
+	elseif marioworld ~= nil and existingmaps[marioworld as number] ~= nil then
+		mapnumberclick(marioworld, (existingmaps[marioworld as number] as number)+1)
 	else
 		mapnumberclick(1, 1)
 	end
@@ -4026,7 +4026,7 @@ function test_level()
 	editorclose()
 	editormode = false
 	testlevel = true
-	testlevelworld = marioworld
+	testlevelworld = marioworld as number
 	testlevellevel = mariolevel
 	autoscroll = true
 	if mariosublevel ~= 0 then

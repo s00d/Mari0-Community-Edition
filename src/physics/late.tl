@@ -23,8 +23,9 @@ global function prerotatecall(a: any, b: any): any
 	return PREROTATE_SET[a as string] == true
 end
 
-global function aabb(ax: number, ay: number, awidth: number, aheight: number, bx: number, by: number, bwidth: number, bheight: number): boolean
-	return ax+awidth > bx and ax < bx+bwidth and ay+aheight > by and ay < by+bheight
+global function aabb(...: any): boolean
+	local ax, ay, awidth, aheight, bx, by, bwidth, bheight = ...
+	return (ax as number)+(awidth as number) > (bx as number) and (ax as number) < (bx as number)+(bwidth as number) and (ay as number)+(aheight as number) > (by as number) and (ay as number) < (by as number)+(bheight as number)
 end
 
 global function aabt(ax: number, ay: number, awidth: number, aheight: number, bx: number, by: number, bwidth: number, bheight: number, bdir: any): boolean

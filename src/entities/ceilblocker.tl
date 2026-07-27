@@ -9,7 +9,7 @@ function ceilblocker.new(_: ceilblocker, x: any): ceilblocker
 end
 
 function ceilblocker:init(x)
-	self.x = x-1
+	self.x = (x as number)-1
 	self.y = -1000
 	self.height = 1000
 	self.width = 1

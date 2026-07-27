@@ -12,7 +12,7 @@ function bowser:init(x: number, y: number, i)
 	--PHYSICS STUFF
 	self.x = x+4
 	self.y = y-27/16
-	self.level = (i as number) or marioworld
+	self.level = (i as number) or (marioworld as number)
 	self.startx = x+12
 	self.starty = y
 	self.speedy = 0
@@ -192,7 +192,7 @@ function bowser:firedeath(...: any)
 	addpoints(firepoints["bowser"], self.x+self.width/2, self.y)
 	
 	--image
-	if marioworld <= 7 then
+	if (marioworld as number) <= 7 then
 		self.graphic = decoysimg
 		self.quad = decoysquad[marioworld]
 	end

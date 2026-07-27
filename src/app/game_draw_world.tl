@@ -218,7 +218,7 @@ global function drawlevel(...: any): any
 	
 	--castleflag
 	if levelfinished and levelfinishtype == "flag" and not custombackground then
-		love.graphics.draw(castleflagimg, math.floor((flagx+6-xscroll)*16*scale), (flagy-7+10/16)*16*scale+(castleflagy-yscroll)*16*scale, 0, scale, scale)
+		love.graphics.draw(castleflagimg, math.floor(((flagx as number)+6-xscroll)*16*scale), (flagy-7+10/16)*16*scale+(castleflagy-yscroll)*16*scale, 0, scale, scale)
 	end
 	
 	--itemanimations
@@ -636,7 +636,7 @@ global function game_draw_objects(...: any): any
 					--SCISSOR FOR ENTRY
 					if v.customscissor and v.portalable ~= false then
 						local cs = v.customscissor as {any}
-						love.graphics.stencil(function() love.graphics.rectangle("fill", math.floor((((cs as {number})[1] as number)-xscroll)*16*scale), math.floor((((cs as {number})[2] as number)-.5-yscroll)*16*scale), cs[3]*16*scale, cs[4]*16*scale) end, "replace", 1)
+						love.graphics.stencil(function() love.graphics.rectangle("fill", math.floor((((cs as {number})[1] as number)-xscroll)*16*scale), math.floor((((cs as {number})[2] as number)-.5-yscroll)*16*scale), (cs[3] as number)*16*scale, (cs[4] as number)*16*scale) end, "replace", 1)
 						love.graphics.setStencilTest((v.invertedscissor and "equal" or "greater"), 0)
 					end
 
@@ -681,7 +681,7 @@ global function game_draw_objects(...: any): any
 
 					--HATS
 					if v.drawhat then
-						local offsets = gethatoffset(v.char, v.graphic, v.animationstate, v.runframe, v.jumpframe, v.climbframe, v.swimframe, v.underwater, v.infunnel, v.fireanimationtimer, v.ducking)
+						local offsets = (gethatoffset(v.char, v.graphic, v.animationstate, v.runframe, v.jumpframe, v.climbframe, v.swimframe, v.underwater, v.infunnel, v.fireanimationtimer, v.ducking) or {0, 0}) as {number}
 						local hats = v.hats as {any}
 						local cols = v.colors as {any}
 
@@ -767,7 +767,7 @@ global function game_draw_objects(...: any): any
 
 							--HAAAATS
 							if v.drawhat then
-								local offsets = gethatoffset(v.char, v.graphic, v.animationstate, v.runframe, v.jumpframe, v.climbframe, v.swimframe, v.underwater, v.infunnel, v.fireanimationtimer, v.ducking)
+								local offsets = (gethatoffset(v.char, v.graphic, v.animationstate, v.runframe, v.jumpframe, v.climbframe, v.swimframe, v.underwater, v.infunnel, v.fireanimationtimer, v.ducking) or {0, 0}) as {number}
 
 								if offsets and #v.hats > 0 then
 									local yadd: number = 0

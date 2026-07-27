@@ -847,7 +847,7 @@ function enemy:update(dt: number): any...
 end
 
 function enemy:addoutput(a: any, t: any): any
-	table.insert(self.outtable, {a, t})
+	table.insert(self.outtable, {a, t} as {any})
 end
 
 function enemy:shotted(dir: any, below: any, high: any, fireball: any, star: any): any
@@ -1409,7 +1409,7 @@ function enemy:output(): any
 end
 
 function enemy:addoutput(a: any, t: any): any
-	table.insert(self.outtable, {a, t})
+	table.insert(self.outtable, {a, t} as {any})
 end
 
 function enemy:portaled(): any

@@ -79,7 +79,7 @@ global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: 
 			end
 			for _ = 1, tonumber(r[2]) do
 				if coin then
-					coinmap[x as number][y as number] = true
+					coinmap[x][y] = true
 				end
 				(map[x as number][y as number] as {any})[1] = tonumber(r[1])
 				x = x + 1
@@ -92,7 +92,7 @@ global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: 
 			local r = strsplit(tostring(t[i]), layerdelimiter as string)
 			if string.sub(r[1] as string, -1) == "c" then
 				r[1] = string.sub(r[1] as string, 1, -2)
-				coinmap[x as number][y as number] = true
+				coinmap[x][y] = true
 			end
 			for li = 1, #r do
 				if tonumber(r[li]) then
@@ -193,7 +193,7 @@ global function level_serialize_maptiles(...: any): any
 end
 
 -- Parse a full level string into map/coinmap/dimensions (no LÖVE / no entities).
-global function level_parse_tiles_only(...: any): any
+global function level_parse_tiles_only(...: any): any...
 	local s = ...
 	local v, mapheight, t, s2, blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign = level_split_file_contents((s) as string)
 	mapheight = mapheight or 15
@@ -285,11 +285,11 @@ global function loadmap(...: any): any...
 			
 			for j = 1, tonumber(r[2]) do
 				if coin then
-					coinmap[x as number][y as number] = true
+					coinmap[x][y] = true
 				end
 			
 				if (tonumber(r[1]) > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) and tonumber(r[1]) <= 10000) or tonumber(r[1]) > 10000+animatedtilecount then
-					r[1] = 1
+					r[1] = "1"
 				end
 				
 				(map[x as number][y as number] as {any})[1] = tonumber(r[1])
@@ -312,11 +312,11 @@ global function loadmap(...: any): any...
 			
 			if string.sub(r[1] as string, -1) == "c" then
 				r[1] = string.sub(r[1] as string, 1, -2)
-				coinmap[x as number][y as number] = true
+				coinmap[x][y] = true
 			end
 			
 			if (tonumber(r[1]) > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) and tonumber(r[1]) <= 10000) or tonumber(r[1]) > 10000+animatedtilecount then
-				r[1] = 1
+				r[1] = "1"
 			end
 			
 			for i = 1, #r do
@@ -369,7 +369,7 @@ global function loadmap(...: any): any...
 			end
 			
 			if tilequads[r[1] ]:getproperty("coin", x, y) then
-				coinmap[x as number][y as number] = true
+				coinmap[x][y] = true
 			end
 			
 			if #r > 1 then 
@@ -407,7 +407,7 @@ global function loadmap(...: any): any...
 	end
 	
 	if flagx then
-		flagimgx = flagx+8/16
+		flagimgx = (flagx as number)+8/16
 		flagimgy = flagy-10+1/16
 	end
 	
@@ -439,11 +439,11 @@ global function loadmap(...: any): any...
 	for i = 3, #(s2 as {any}) do
 		s3 = strsplit(s2[i], equalsign)
 		if s3[1] == "backgroundr" then
-			background[1] = tonumber(s3[2]) / 255
+			background[1] = (tonumber(s3[2] as string) or 0) / 255
 		elseif s3[1] == "backgroundg" then
-			background[2] = tonumber(s3[2]) / 255
+			background[2] = (tonumber(s3[2] as string) or 0) / 255
 		elseif s3[1] == "backgroundb" then
-			background[3] = tonumber(s3[2]) / 255
+			background[3] = (tonumber(s3[2] as string) or 0) / 255
 		elseif s3[1] == "background" then
 			background = {unpack(backgroundcolor[tonumber(s3[2] as string) as integer] as {any})} as {number}
 		elseif s3[1] == "spriteset" then
@@ -600,7 +600,7 @@ global function renderpreview(...: any): any
 				local r, g, b = unpack(rgblist[id] as {any})
 				out:setPixel(x-1, y-1, (r as number) * LOVE_COLOR_MAX, (g as number) * LOVE_COLOR_MAX, (b as number) * LOVE_COLOR_MAX, LOVE_COLOR_MAX)
 			else
-				local r, g, b = unpack(background)
+				local r, g, b = unpack(background as {any})
 				out:setPixel(x-1, y-1, (r as number) * LOVE_COLOR_MAX, (g as number) * LOVE_COLOR_MAX, (b as number) * LOVE_COLOR_MAX, LOVE_COLOR_MAX)
 			end
 		end

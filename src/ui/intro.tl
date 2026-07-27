@@ -12,7 +12,7 @@ global function intro_load(...: any): any
 end
 
 global function intro_update(...: any): any
-	local dt = ...
+	local dt = ... as number
 	allowskip = true
 	if introprogress < introduration+blackafterintro then
 		introprogress = introprogress + dt
@@ -43,7 +43,7 @@ global function intro_draw(...: any): any
 	end
 	
 	if introprogress >= 0 and introprogress < introduration then
-		local a = 1
+		local a: number = 1
 		if introprogress < introfadetime then
 			a = introprogress/introfadetime
 		elseif introprogress >= introduration-introfadetime then

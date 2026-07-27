@@ -41,6 +41,6 @@ function Gamestate.draw()
 	end
 end
 
-_G.Gamestate = Gamestate
+_G.Gamestate = Gamestate as GamestateModule
 
 return Gamestate

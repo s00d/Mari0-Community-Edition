@@ -64,7 +64,7 @@ function laserdetector:draw()
 end
 
 function laserdetector:addoutput(a, t)
-	table.insert(self.outtable, {a, t} as any)
+	table.insert(self.outtable, {a, t} as {any})
 end
 
 function laserdetector:clear()

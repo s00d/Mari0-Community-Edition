@@ -16,10 +16,10 @@ global function game_draw(...: any): any
 	local ww, hh = love.window.getMode()
 	currentscissor = {0, 0, ww, hh}
 	--This is just silly
-	if earthquake > 0 and #rainbooms > 0 then
+	if earthquake > 0 and #(rainbooms as {any}) > 0 then
 		local colortable = {{242 / 255, 111 / 255, 51 / 255}, {251 / 255, 244 / 255, 174 / 255}, {95 / 255, 186 / 255, 76 / 255}, {29 / 255, 151 / 255, 212 / 255}, {101 / 255, 45 / 255, 135 / 255}, {238 / 255, 64 / 255, 68 / 255}}
 		for i = 1, backgroundstripes do
-			local r, g, b = unpack(colortable[math.fmod(i-1, 6)+1])
+			local r, g, b = unpack(colortable[(math.fmod(i-1, 6)+1) as integer])
 			local a = earthquake/rainboomearthquake
 			
 			love.graphics.setColor(r, g, b, a)

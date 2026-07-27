@@ -45,12 +45,12 @@ end
 function animationtrigger:input(t, input)
 	if input == "in" then
 		if t == "on" or t == "toggle" then
-			if not animationtriggerfuncs[self.id] then
+			if not animationtriggerfuncs[self.id as string] then
 				return
 			end
 			
-			for i = 1, #animationtriggerfuncs[self.id] do
-				animationtriggerfuncs[self.id][i]:trigger()
+			for i = 1, #animationtriggerfuncs[self.id as string] do
+				animationtriggerfuncs[self.id as string][i]:trigger()
 			end
 		end
 	end

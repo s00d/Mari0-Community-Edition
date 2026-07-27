@@ -75,17 +75,17 @@ global function game_keypressed(...: any): any
 				pausemenuselected = pausemenuselected - 1
 			end
 		elseif (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
-			if pausemenuoptions[pausemenuselected] == "resume" then
+			if pausemenuoptions[pausemenuselected as integer] == "resume" then
 				pausemenuopen = false
 				saveconfig()
 					love.audio.play(paused as any)
-			elseif pausemenuoptions[pausemenuselected] == "suspend" then
+			elseif pausemenuoptions[pausemenuselected as integer] == "suspend" then
 				suspendprompt = true
 				pausemenuselected2 = 1
-			elseif pausemenuoptions2[pausemenuselected] == "menu" then
+			elseif pausemenuoptions2[pausemenuselected as integer] == "menu" then
 				menuprompt = true
 				pausemenuselected2 = 1
-			elseif pausemenuoptions2[pausemenuselected] == "desktop" then
+			elseif pausemenuoptions2[pausemenuselected as integer] == "desktop" then
 				desktopprompt = true
 				pausemenuselected2 = 1
 			end
@@ -94,11 +94,11 @@ global function game_keypressed(...: any): any
 			saveconfig()
 				love.audio.play(paused as any)
 		elseif (key == "right" or key == "d") then
-			if pausemenuoptions[pausemenuselected] == "music volume" then
+			if pausemenuoptions[pausemenuselected as integer] == "music volume" then
 				volumemusic = math.min(1, volumemusic + 0.1)
 				love.audio.setVolume( volumesfx )
 				music:setVolume( volumemusic )
-			elseif pausemenuoptions[pausemenuselected] == "game volume" then
+			elseif pausemenuoptions[pausemenuselected as integer] == "game volume" then
 				volumesfx = math.min(1, volumesfx + 0.1)
 				love.audio.setVolume( volumesfx )
 				music:setVolume( volumemusic )
@@ -107,11 +107,11 @@ global function game_keypressed(...: any): any
 			end
 			
 		elseif (key == "left" or key == "a") then
-			if pausemenuoptions[pausemenuselected] == "music volume" then
+			if pausemenuoptions[pausemenuselected as integer] == "music volume" then
 				volumemusic = math.max(volumemusic - 0.1, 0)
 				love.audio.setVolume( volumesfx )
 				music:setVolume( volumemusic )
-			elseif pausemenuoptions[pausemenuselected] == "game volume" then
+			elseif pausemenuoptions[pausemenuselected as integer] == "game volume" then
 				volumesfx = math.max(volumesfx - 0.1, 0)
 				love.audio.setVolume( volumesfx )
 				music:setVolume( volumemusic )

@@ -159,7 +159,7 @@ global function drawplayer(...: any): any
 	
 	
 	if v.drawhat ~= false then
-		local offsets = gethatoffset(v.char, v.graphic, v.animationstate, v.runframe, v.jumpframe, v.climbframe, v.swimframe, v.underwater, v.infunnel, v.fireanimationtimer, v.ducking)
+		local offsets = (gethatoffset(v.char, v.graphic, v.animationstate, v.runframe, v.jumpframe, v.climbframe, v.swimframe, v.underwater, v.infunnel, v.fireanimationtimer, v.ducking) or {0, 0}) as {number}
 		
 		if offsets and #v.hats > 0 then
 			local yadd: number = 0

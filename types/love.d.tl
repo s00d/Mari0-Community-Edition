@@ -5,6 +5,72 @@ global record Font
 	getHeight: function(Font): number
 end
 
+-- Character config bag (assets/characters/*/config.txt + quads from characterloader).
+-- Declared before Entity so Entity.char can be Character.
+global record Character is {any}
+	name: string
+	smallquadwidth: number
+	smallquadheight: number
+	bigquadwidth: number
+	bigquadheight: number
+	smallimgwidth: number
+	smallimgheight: number
+	bigimgwidth: number
+	bigimgheight: number
+	runframes: number
+	jumpframes: number
+	customframes: number
+	customscale: number
+	smalloffsetX: number
+	smalloffsetY: number
+	bigoffsetX: number
+	bigoffsetY: number
+	smallquadcenterX: number
+	smallquadcenterY: number
+	bigquadcenterX: number
+	bigquadcenterY: number
+	shrinkquadcenterX: number
+	shrinkquadcenterY: number
+	shrinkquadcenterY2: number
+	growquadcenterX: number
+	growquadcenterY: number
+	growquadcenterY2: number
+	duckquadcenterY: number
+	duckoffsetY: number
+	rundelay: number
+	raccoon: boolean
+	nopointing: boolean
+	dbljmppls: boolean
+	nogunanimations: {any}
+	nogunbiganimations: {any}
+	animations: {any}
+	biganimations: {any}
+	flowercolor: {any}
+	defaultcolors: {integer:{{number}}}
+	defaulthat: any
+	colorables: {any}
+	hatoffsets: Dyn
+	bighatoffsets: Dyn
+	idle: {any:any}
+	run: {any:{any:any}}
+	slide: {any:any}
+	jump: {any:{any:any}}
+	die: {any:any}
+	climb: {any:{any:any}}
+	swim: {any:{any:any}}
+	grow: {any:any}
+	customframe: {any:{any:any}}
+	bigidle: {any:any}
+	bigrun: {any:{any:any}}
+	bigslide: {any:any}
+	bigjump: {any:{any:any}}
+	bigfire: {any:any}
+	bigclimb: {any:{any:any}}
+	bigswim: {any:{any:any}}
+	bigduck: {any:any}
+	bigcustomframe: {any:{any:any}}
+end
+
 -- Heterogeneous world objects. Number/boolean fields used in arithmetic or
 -- control flow are concrete; polymorphic bags/methods stay `any` so concrete
 -- `record … is Entity` may refine them. Prefer `as mario` at call sites.
@@ -18,7 +84,7 @@ global interface Entity is {any}
 	active: boolean
 	static: boolean
 	category: number
-	mask: {boolean}
+	mask: {any:boolean}
 	draw: function(Entity)
 	update: function(Entity, number): any...
 	t: any
@@ -63,7 +129,7 @@ global interface Entity is {any}
 	biggraphic: any
 	colors: {any}
 	hats: {any}
-	char: Dyn
+	char: Character
 	animationdirection: any
 	animationstate: any
 	animationtimer: number
@@ -79,7 +145,8 @@ global interface Entity is {any}
 	drawhat: boolean
 	pointingangle: number
 	controlsenabled: boolean
-	portalsavailable: {boolean}
+	portalsavailable: {any:boolean}
+	destroy: any
 	portalgundisabled: boolean
 	disableaiming: boolean
 	vine: Entity|boolean
@@ -200,7 +267,7 @@ global record love
 	_os: string
 	handlers: {string:function}
 	quit: function()
-	errhand: function(any)
+	errhand: function(...: any): any...
 
 	record conf
 		record Config
@@ -251,7 +318,10 @@ global record love
 		setStencilTest: function(...: any)
 		setLineStyle: function(style: string)
 		setLineWidth: function(width: number)
+		getLineWidth: function(): number
 		line: function(...: number)
+		polygon: function(...: any)
+		circle: function(...: any)
 		present: function()
 		newScreenshot: function(...: any): any
 	end
@@ -368,7 +438,7 @@ global record love
 	focus: function(f: any)
 	resize: function(w: number, h: number)
 	run: function(): function()|nil
-	errhand: function(msg: any)
+	errhand: function(...: any): any...
 end
 
 global record Joystick

@@ -8,7 +8,7 @@ global record actionblock is Entity
 	coy: number
 	height: number
 	mask: {boolean}
-	outtable: {{Entity, any}}
+	outtable: {{any}}
 	speedx: number
 	speedy: number
 	state: string
@@ -38,9 +38,9 @@ global record andgate is Entity
 	cox: number
 	coy: number
 	initial: boolean
-	inputstate: {number:any}
+	inputstate: {any:any}
 	outputstate: any
-	outtable: {{Entity, any}}
+	outtable: {{any}}
 	r: {any}
 	visible: boolean
 	x: number
@@ -108,10 +108,10 @@ global record animatedtiletrigger is Entity
 	category: number
 	mask: {boolean}
 	r: {any}
-	regionX: number
-	regionY: number
-	regionheight: number
-	regionwidth: number
+	regionX: any
+	regionY: any
+	regionheight: any
+	regionwidth: any
 	visible: boolean
 	x: number
 	y: number
@@ -315,7 +315,7 @@ global record box is Entity
 	mask: {boolean}
 	offsetX: number
 	offsetY: number
-	outtable: {{Entity, any}}
+	outtable: {{any}}
 	parent: Entity|nil
 	portaledframe: boolean
 	portaloverride: boolean
@@ -327,7 +327,7 @@ global record box is Entity
 	speedx: number
 	speedy: number
 	static: boolean
-	userect: Entity
+	userect: any
 	width: number
 	x: number
 	y: number
@@ -427,7 +427,7 @@ global record button is Entity
 	mask: {boolean}
 	objtable: {any}
 	out: boolean
-	outtable: {{Entity, any}}
+	outtable: {{any}}
 	pressings: {number:Entity}
 	r: {any}
 	static: boolean
@@ -470,7 +470,7 @@ global record castlefire is Entity
 	active: boolean
 	angle: number
 	category: number
-	child: number
+	child: {any:any}
 	delay: number
 	dir: string
 	drawable: boolean
@@ -603,7 +603,7 @@ end
 
 global record cubedispenser is Entity
 	active: boolean
-	box: number
+	box: any
 	boxexists: boolean
 	category: number
 	cox: number
@@ -643,9 +643,9 @@ global record delayer is Entity
 	cox: number
 	coy: number
 	delay: number
-	outtable: {{Entity, any}}
+	outtable: {{any}}
 	r: {any}
-	timers: number
+	timers: {{any:any}}
 	visible: boolean
 	x: number
 	y: number
@@ -867,7 +867,7 @@ global record enemy is Entity
 	offsetY: number
 	offsetx: number
 	offsety: number
-	outtable: {{Entity, any}}
+	outtable: {{any}}
 	pistondistx: number
 	pistondisty: number
 	pistonextendtime: number
@@ -1477,7 +1477,7 @@ global record laserdetector is Entity
 	input: function(laserdetector, any)
 	draw: function(laserdetector)
 	addoutput: function(laserdetector, any, any)
-	clear: function(laserdetector)
+	clear: function(laserdetector, ...: any): any
 	new: function(laserdetector, number, number, {any}): laserdetector
 end
 
@@ -1811,7 +1811,7 @@ global record notgate is Entity
 	coy: number
 	initial: boolean
 	input1state: any
-	outtable: {{Entity, any}}
+	outtable: {{any}}
 	power: any
 	r: {any}
 	visible: boolean
@@ -1839,9 +1839,9 @@ global record orgate is Entity
 	cox: number
 	coy: number
 	initial: boolean
-	inputstate: {number:any}
+	inputstate: {any:any}
 	outputstate: any
-	outtable: {{Entity, any}}
+	outtable: {{any}}
 	r: {any}
 	visible: boolean
 	x: number
@@ -2241,7 +2241,7 @@ global record regiontrigger is Entity
 	cox: number
 	coy: number
 	out: any
-	outtable: {{Entity, any}}
+	outtable: {{any}}
 	r: {any}
 	regionX: any
 	regionY: any
@@ -2343,7 +2343,7 @@ global record rsflipflop is Entity
 	cox: number
 	coy: number
 	output: number
-	outtable: {{Entity, any}}
+	outtable: {{any}}
 	r: {any}
 	visible: boolean
 	x: number
@@ -2550,7 +2550,7 @@ global record squarewave is Entity
 	coy: number
 	initial: boolean
 	input1state: any
-	outtable: {{Entity, any}}
+	outtable: {{any}}
 	r: {any}
 	time1: number
 	time2: number
@@ -2613,7 +2613,7 @@ global record tile is Entity
 	x: number
 	y: number
 	init: function(tile, number, number, any, any, any)
-	new: function(tile, number, number, any, any, any): tile
+	new: function(tile, ...: any): tile
 end
 
 global record vine is Entity
@@ -2675,7 +2675,7 @@ global record walltimer is Entity
 	coy: number
 	input1state: any
 	lighted: boolean
-	outtable: {{Entity, any}}
+	outtable: {{any}}
 	quad: any
 	r: {any}
 	time: number

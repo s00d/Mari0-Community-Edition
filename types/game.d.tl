@@ -113,7 +113,7 @@ global bounce_at: {any:any}
 global tilekey_xy: function(key: integer): integer, integer
 global TILEKEY_STRIDE: integer
 global inmap: function(x: number|nil, y: number|nil): boolean
-global inrange: function(i: number, a: number, b: number, include: boolean|nil): boolean
+global inrange: function(...: any): boolean
 global round: function(num: number, idp: number|nil): number
 global tablecontains: function(t: {any}, entry: any): boolean
 global getTile: function(number, number, any, any, any, any, any, any): any, any
@@ -124,7 +124,7 @@ global tilequads: {any:TileQuad}
 global enemiesdata: {any:EnemyDef}
 global enemies: {string}
 global characters: {string:Character}
-global mariocharacter: {string}
+global mariocharacter: {any:string}
 
 -- Class tables are now Teal `global record`s in src/ (see entities/*, ui/gui, world/*).
 -- Do not redeclare them here as `any` ("cannot reassign a type").
@@ -132,22 +132,22 @@ global hat: {any:HatDef}
 global bighat: {any:HatDef}
 
 -- HUD / progress
-global marioworld: number
+global marioworld: number|string
 global mariolevel: number
 global mariosublevel: number
 global mariotime: number
 global mariotimelimit: number
-global mariolives: {number}
+global mariolives: {any:number}
 global mariolivecount: any
 global mariocoincount: number
 global mariocolors: {{{number}}}
-global mariohats: {{number}}
+global mariohats: {any:{any}}
 global portalhues: {{number}}
 global portalcolor: {{{number}}}
 global portalcolor1: {number:number}
 global portalcolor2: {number:number}
 global portals: {number:portal}
-global portalsavailable: {boolean}
+global portalsavailable: {any:boolean}
 global controls: {any:{string:{any}}}
 global mouse: MouseProxy
 global mousex: number
@@ -232,8 +232,8 @@ global spriteset: integer
 global custombackground: any
 global customforeground: any
 global backgroundlevel: any
-global background: {number}
-global coinmap: {number:{number:any}}
+global background: {any:number}
+global coinmap: {any:{any:any}}
 global smbtilecount: integer
 global portaltilecount: integer
 global customtilecount: integer
@@ -298,8 +298,8 @@ global record NoticeModule is {any}
 	red: any
 	yellow: any
 	notices: {any}
-	duration: any
-	fadetime: any
+	duration: number
+	fadetime: number
 	update: function(number)
 	draw: function()
 	gety: function(number, number, number, number): number
@@ -313,7 +313,7 @@ global record AnimationDef
 	conditions: {any}
 	actions: {any}
 end
-global animations: {number:AnimationDef}
+global animations: {any:Dyn}
 global currentanimation: number
 global controlstable: {string}
 global customtilesimg: Image
@@ -368,10 +368,10 @@ global intermission: any
 global underwater: any
 global EQUALSIGN: {any:string}
 global seesawtype: {any:{any}}
-global pausemenuoptions: {number:string}
+global pausemenuoptions: {string}
 global earthquake: number
 global animatedtiles: {animatedquad}
-global backgroundcolor: {{number}}
+global backgroundcolor: {any:{any}}
 global mazestarts: {number}
 global bonusstage: any
 global record HttpLib
@@ -382,7 +382,7 @@ end
 
 global http: HttpLib
 global custombackgrounds: {any}
-global reachedworlds: {string:{boolean}}
+global reachedworlds: {string:{any:any}}
 global superfriction: number
 global animatedtilelist: any
 global toconvertmappacklist: {string}
@@ -501,7 +501,9 @@ global playerconfig: {any}
 global blockdebristable: {any:Entity}
 global portalprojectiles: {any:Entity}
 global completecanvas: any
-global userects: {any:Entity}
+global userects: {any:{any:any}}
+global adduserect: function(...: any): {any:any}
+global userect: function(...: any): {any}, any
 global menuprompt: boolean
 global itemanimations: {any:Entity}
 global scalefactor: number
@@ -521,7 +523,7 @@ global mkstation: boolean
 global SERVER: string
 global BLOCKDELIMITER: {any:string}
 global airslidefactor: number
-global mariocombo: {number}
+global mariocombo: {any}
 global mariogravity: number
 global uwmaxairwalkspeed: number
 global uwfriction: number
@@ -531,7 +533,7 @@ global portalanimationtimer: number
 global flagdescendtime: number
 global springtime: number
 global goombaattack: boolean
-global animationtriggerfuncs: {string:{any}}
+global animationtriggerfuncs: {any:any}
 global seesawimg: Image
 global mapbuttonarea: {number}
 global levelscreenbackname: any
@@ -575,7 +577,7 @@ global flyingfishtimer: number
 global bulletbillstarted: boolean
 global bulletbilltimer: number
 global flyingfishzones: {{number}}
-global bulletbillzones: {{number}}
+global bulletbillzones: {any}
 global mazesolved: {any}
 global enemiesspawned: {{number}}
 global livereplaydelay: {number}
@@ -583,7 +585,7 @@ global endpressbutton: boolean
 global id: {any}
 global keyprompt: boolean
 global levelscreens: {any}
-global playertypelist: {number:string}
+global playertypelist: {string}
 global maxrunspeed: number
 global jumpforce: number
 global bubblesspeed: number
@@ -592,7 +594,7 @@ global pushbuttontime: number
 global pipeanimationdistancedown: number
 global growframedelay: number
 global flagydistance: number
-global konamitable: {any}
+global konamitable: {string}
 global emancipationfizzletime: number
 global tooltipimages: {any:Image}
 global faithplatequad: {any}
@@ -679,7 +681,7 @@ global animationlineinset: number
 global advanceddrawtool: string|boolean
 global linktoolX: number
 global linktoolY: number
-global blackafterintro: any
+global blackafterintro: number
 global levelscreenback: any
 global huechangespeed: number
 global continueavailable: boolean
@@ -702,7 +704,7 @@ global portalbouncethreshold: number
 global firstpersonview: boolean
 global currentscissor: {number}
 global coinanimationquads: {any:{any:any}}
-global pausemenuoptions2: {number:any}
+global pausemenuoptions2: {any:any}
 global volumesliderimg: Image
 global scroll_batch_offset: function(number, number|nil): number
 global displaywarpzonetext: number|boolean
@@ -713,7 +715,7 @@ global fireworks: {any:Entity}
 global bubbles: {any:Entity}
 global emancipationfizzles: {any:Entity}
 global pedestals: {any:Entity}
-global backgroundstripes: {any}
+global backgroundstripes: number
 global animatedtimerlist: {animatedtimer}
 global animatedbooltimerlist: {animatedbooltimer}
 global firstunder100: boolean
@@ -942,7 +944,7 @@ global largestworld: number
 global line: string
 global dropdownarrowimg: Image
 global livesleft: number|boolean
-global sublevelscreen_level: number
+global sublevelscreen_level: any
 global RGBchangespeed: number
 global updatenotification: boolean
 global playerselectimg: Image
@@ -960,7 +962,7 @@ global spikeyquad: {any:{any:any}}
 global lakitoquad: {any:{any:any}}
 global koopaquad: {any:{any:any}}
 global hammerbrosquad: {any:{any:any}}
-global hammerquad: {any:any}
+global hammerquad: {any:{any:any}}
 global plantquads: {any:{any:any}}
 global versionerror: boolean
 global targetdt: number
@@ -1049,7 +1051,7 @@ global castlemintime: number
 global endtime: number
 global springhighforce: number
 global springforce: number
-global springytable: {number:number}
+global springytable: {any:number}
 global castleanimationnextlevel: number
 global castleendmusicstopdelay: number
 global endmusicstopdelay: number
@@ -1095,7 +1097,7 @@ global regiontoolX: number
 global regiontoolY: number
 global regiontoolt: any
 global checkboximg: Image
-global checkboxquad: {any:any}
+global checkboxquad: {any:{any:any}}
 global playedwilhelm: boolean
 global logo: Image
 global logoblood: Image
@@ -1115,7 +1117,7 @@ global previewimg: ImageData
 global numberglyphs: string
 global starquad: {any:any}
 global flowerquad: {any:any}
-global squidquad: {any:{any:any}}
+global squidquad: {any:any}
 global bulletbillquad: {any}
 global magicdns_validresponses: {any}
 
@@ -1179,12 +1181,12 @@ global hammerbrojumpforcedown: number
 global hammerbrojumptime: number
 global hammerbropreparetime: number
 global hammerbrospeed: number
-global hammerbrotime: number
+global hammerbrotime: {any}
 global hammergravity: number
 global hammerspeed: number
 global hammerstarty: number
 global jumpitems: {any}
-global koopacombo: number
+global koopacombo: {any}
 global laserdetectorimg: Image
 global lasersideimg: Image
 global lightbridgesideimg: Image
@@ -1263,7 +1265,7 @@ global zgbooltriggerimg: Image
 global zgbooltriggerquad: {any}
 
 -- Cross-module function stubs (implementations in src/)
-global aabb: function(number, number, number, number, number, number, number, number): boolean
+global aabb: function(...: any): boolean
 global aabt: function(number, number, number, number, number, number, number, number, any): boolean
 global add: function(...: any): any
 global addanimationaction: function(...: any): any
@@ -1411,7 +1413,7 @@ global generateanimationgui: function(...: any): any
 global generateentitylist: function(...: any): any
 global generatespritebatch: function(...: any): any
 global getAngleFrame: function(number, number): any
-global getPortal: function(...: any): any...
+global getPortal: function(number, number, any): any...
 global getSelectedTiles: function(...: any): {{any}}
 global getTiles: function(...: any): {{any}}
 global getaveragecolor: function(...: any): number, number, number
@@ -1582,7 +1584,7 @@ global togglemagic: function(...: any): any
 global toggleskiplevelscreen: function(...: any): any
 global toggleunderwater: function(...: any): any
 global togglewarpzone: function(...: any): any
-global traceline: function(...: any): any...
+global traceline: function(number, number, number, any): any...
 global trianglepassivecollision: function(Entity, Entity, any, any, any, any, number): any
 global trianglevercollision: function(Entity, Entity, any, any, any, any, number): any
 global twistdirection: function(any, any): any
@@ -1601,12 +1603,12 @@ global warpzone: function(...: any): any
 -- Typed free-function replacement for legacy string:split (see core.stringutil).
 global strsplit: function(...: any): {string}
 global addzeros: function(any, integer): string
-global loadingtexts: {any:string}
+global loadingtexts: {string}
 global skipintro: boolean
 global fontglyphs: string
 global gethatoffset: function(...: any): {number}|nil
 global getrainbowcolor: function(number): {number}
-global remove_indices_desc: function(...: any): any
+global remove_indices_desc: function(...: any)
 global addanimationtriggerbutton: guielement
 global addanimationconditionbutton: guielement
 global addanimationactionbutton: guielement
@@ -1639,12 +1641,10 @@ global menu_parse_settings_text: function(...: any): any, any, any
 global getclosestplayer: function(...: any): any
 global cameraxpan: function(...: any)
 global cameraypan: function(...: any)
-global update_and_compact: function(...: any): any
-global adduserect: function(...: any): Entity
-global userect: function(...: any): {Entity}, any
+global update_and_compact: function(...: any)
 global usebase: function(...: any): any
 global buildstartendzones: function(...: any): any
-global remove_indices_desc_multi: function(...: any): any
+global remove_indices_desc_multi: function(...: any)
 global enemy_name_ok: function(...: any): any
 global normalize_enemy_props: function(...: any): any
 global apply_enemy_defaults: function(...: any): any

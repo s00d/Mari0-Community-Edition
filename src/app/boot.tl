@@ -534,7 +534,7 @@ function Boot.load_media()
 	
 	for i, v in ipairs(soundstoload) do
 		assets:register_sound(v, "assets/sounds/" .. v .. ".ogg")
-		local src = assets:get_sound(v)
+		local src = assets:get_sound(v) as SoundSource
 		soundlist[v] = {}
 		soundlist[v].source = src
 		soundlist[v].lastplayed = 0
@@ -572,7 +572,7 @@ function Boot.run_load()
 	http.TIMEOUT = 4
 	
 	playertypei = 1
-	playertype = playertypelist[playertypei] --portal, gelcannon
+	playertype = playertypelist[playertypei as integer] --portal, gelcannon
 	
 	if volumesfx == 0 then
 		soundenabled = false

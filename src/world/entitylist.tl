@@ -123,7 +123,7 @@ entitylist = {
 
 outputs = {}
 outputsi = {}
-for i = 1, #entitylist do
+for i = 1, #(entitylist as {any}) do
 	if entitylist[i].output then
 		table.insert(outputs, entitylist[i].t)
 		table.insert(outputsi, i)
@@ -132,7 +132,7 @@ end
 
 tooltipimages = {}
 
-for i = 1, #entitylist do
+for i = 1, #(entitylist as {any}) do
 	local path = "assets/graphics/entitytooltips/" .. entitylist[i].t .. ".png"
 	if love.filesystem.getInfo(path) then
 		tooltipimages[i] = AssetStore.load_image(path) as Image

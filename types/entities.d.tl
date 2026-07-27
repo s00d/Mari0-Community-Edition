@@ -57,70 +57,7 @@ global record EnemyDef is {any}
 	drawable: boolean
 end
 
--- Character config bag (assets/characters/*/config.txt + quads from characterloader).
-global record Character is {any}
-	name: string
-	smallquadwidth: number
-	smallquadheight: number
-	bigquadwidth: number
-	bigquadheight: number
-	smallimgwidth: number
-	smallimgheight: number
-	bigimgwidth: number
-	bigimgheight: number
-	runframes: number
-	jumpframes: number
-	customframes: number
-	customscale: number
-	smalloffsetX: number
-	smalloffsetY: number
-	bigoffsetX: number
-	bigoffsetY: number
-	smallquadcenterX: number
-	smallquadcenterY: number
-	bigquadcenterX: number
-	bigquadcenterY: number
-	shrinkquadcenterX: number
-	shrinkquadcenterY: number
-	shrinkquadcenterY2: number
-	growquadcenterX: number
-	growquadcenterY: number
-	growquadcenterY2: number
-	duckquadcenterY: number
-	duckoffsetY: number
-	rundelay: number
-	raccoon: boolean
-	nopointing: boolean
-	dbljmppls: boolean
-	nogunanimations: {any}
-	nogunbiganimations: {any}
-	animations: {any}
-	biganimations: {any}
-	flowercolor: {any}
-	defaultcolors: {integer:{{number}}}
-	defaulthat: any
-	colorables: {any}
-	hatoffsets: Dyn
-	bighatoffsets: Dyn
-	idle: {any:any}
-	run: {any:{any:any}}
-	slide: {any:any}
-	jump: {any:{any:any}}
-	die: {any:any}
-	climb: {any:{any:any}}
-	swim: {any:{any:any}}
-	grow: {any:any}
-	customframe: {any:{any:any}}
-	bigidle: {any:any}
-	bigrun: {any:{any:any}}
-	bigslide: {any:any}
-	bigjump: {any:{any:any}}
-	bigfire: {any:any}
-	bigclimb: {any:{any:any}}
-	bigswim: {any:{any:any}}
-	bigduck: {any:any}
-	bigcustomframe: {any:{any:any}}
-end
+-- Character record lives in types/love.d.tl (needed before Entity.char).
 
 -- Tile atlas entry (world.quad / tilequads[i]).
 global record TileQuad is {any}
@@ -246,7 +183,7 @@ global record AssetStore is {any}
 	register_image: function(AssetStore, string, string)
 	register_sound: function(AssetStore, string, string)
 	get_image: function(AssetStore, string): any
-	get_sound: function(AssetStore, string): SoundSource
+	get_sound: function(AssetStore, string): any
 	override_image: function(AssetStore, string, string)
 	override_sound: function(AssetStore, string, string)
 	restore_image_defaults: function(AssetStore)
@@ -258,7 +195,7 @@ global record AssetStore is {any}
 end
 
 global record HatDef is {any}
-	graphic: Image
+	graphic: Image|nil
 	x: number
 	y: number
 	height: number

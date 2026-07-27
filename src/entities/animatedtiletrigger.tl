@@ -26,16 +26,16 @@ function animatedtiletrigger:init(x: number, y: number, r)
 	--REGION
 	if #self.r > 0 then
 		local s = strsplit(self.r[1], ":")
-		self.regionX, self.regionY, self.regionwidth, self.regionheight = s[2], s[3], tonumber(s[4]), tonumber(s[5])
-		if string.sub(self.regionX, 1, 1) == "m" then
-			self.regionX = -tonumber(string.sub(self.regionX, 2))
+		self.regionX, self.regionY, self.regionwidth, self.regionheight = s[2] as any, s[3] as any, tonumber(s[4] as string), tonumber(s[5] as string)
+		if string.sub(self.regionX as string, 1, 1) == "m" then
+			self.regionX = -tonumber(string.sub(self.regionX as string, 2))
 		end
-		if string.sub(self.regionY, 1, 1) == "m" then
-			self.regionY = -tonumber(string.sub(self.regionY, 2))
+		if string.sub(self.regionY as string, 1, 1) == "m" then
+			self.regionY = -tonumber(string.sub(self.regionY as string, 2))
 		end
 		
-		self.regionX = tonumber(self.regionX) + self.x - 1
-		self.regionY = tonumber(self.regionY) + self.y - 1
+		self.regionX = (tonumber(self.regionX as string) or 0) + self.x - 1
+		self.regionY = (tonumber(self.regionY as string) or 0) + self.y - 1
 		table.remove(self.r, 1)
 	end
 end
@@ -67,8 +67,8 @@ function animatedtiletrigger:draw()
 end
 
 function animatedtiletrigger:input(t, input)
-	for x = self.regionX+1, self.regionX + self.regionwidth do
-		for y = self.regionY+1, self.regionY + self.regionheight do
+	for x = (self.regionX as number)+1, (self.regionX as number) + (self.regionwidth as number) do
+		for y = (self.regionY as number)+1, (self.regionY as number) + (self.regionheight as number) do
 			if animatedtimers[x] and animatedtimers[x][y] then
 				animatedtimers[x][y]:input(t)
 			end

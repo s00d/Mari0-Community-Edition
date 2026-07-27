@@ -116,8 +116,8 @@ function box:update(dt: number): any...
 		self.rotation = parent.rotation
 	end
 	
-	self.userect.x = self.x
-	self.userect.y = self.y
+	(self.userect as Dyn)["x"] = self.x
+	(self.userect as Dyn)["y"] = self.y
 
 	--check if offscreen
 	if self.y > mapheight+2 then
@@ -253,15 +253,15 @@ function box:destroy()
 	self.destroying = true
 	
 	for i = 1, #self.outtable do
-		local out = self.outtable[i][1] as Entity
+		local out = (self.outtable[i] as {Entity, any})[1] as Entity
 		if out.input then
-			(out.input as function(Entity, any, any))(out, "toggle", self.outtable[i][2])
+			(out.input as function(Entity, any, any))(out, "toggle", (self.outtable[i] as {Entity, any})[2])
 		end
 	end
 end
 
 function box:addoutput(a: any, t: any)
-	table.insert(self.outtable, {a, t})
+	table.insert(self.outtable, {a, t} as {any})
 end
 
 function box:used(id: any)

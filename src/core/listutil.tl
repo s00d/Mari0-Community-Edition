@@ -24,8 +24,8 @@ local function remove_indices_desc_multi(lists: {{any}}, indices: {integer})
 	end
 end
 
-_G.remove_indices_desc = remove_indices_desc as any
-_G.remove_indices_desc_multi = remove_indices_desc_multi as any
+_G.remove_indices_desc = remove_indices_desc
+_G.remove_indices_desc_multi = remove_indices_desc_multi
 
 return {
 	remove_indices_desc = remove_indices_desc,

@@ -36,7 +36,7 @@ global function game_load(...: any): any
 	
 	mariolives = {}
 	for i = 1, players do
-		mariolives[i] = mariolivecount as any
+		mariolives[i] = (mariolivecount or 0) as number
 	end
 	
 	mariosizes = {}
@@ -59,7 +59,7 @@ global function game_load(...: any): any
 	if suspended == true then
 		continuegame()
 	elseif suspended then
-		marioworld = suspended as any
+		marioworld = suspended as number|string
 	end
 	
 	musicname = nil
@@ -94,7 +94,7 @@ global function loadlevel(...: any): any
 	
 	if sublevel then
 		prevsublevel = mariosublevel as number|boolean
-		mariosublevel = level as any
+		mariosublevel = level as number
 		if level ~= 0 then
 			level = tostring(marioworld) .. "-" .. tostring(mariolevel) .. "_" .. tostring(level)
 		else
@@ -103,7 +103,7 @@ global function loadlevel(...: any): any
 	else
 		local s = strsplit(level, "_")
 		if s[2] then
-			mariosublevel = tonumber(s[2] as string) as any
+			mariosublevel = (tonumber(s[2] as string) or 0) as number
 		else
 			mariosublevel = 0
 		end
@@ -112,7 +112,7 @@ global function loadlevel(...: any): any
 		
 		--check for checkpoint!
 		if checkpointsub then
-			mariosublevel = checkpointsub as any
+			mariosublevel = checkpointsub as number
 			
 			if checkpointsub ~= 0 then
 				level = tostring(marioworld) .. "-" .. tostring(mariolevel) .. "_" .. tostring(checkpointsub)
@@ -291,7 +291,7 @@ global function loadlevel(...: any): any
 	if loadmap(level, true) == false then --make one up
 		needs_to_be_saved = true
 		mapwidth = width
-		background = {unpack(backgroundcolor[1] as {number})} as any
+		background = {unpack(backgroundcolor[1] as {any})} as {any:number}
 		mapheight = 15
 		portalsavailable = {true, true}
 		musicname = "overworld.ogg"
@@ -740,14 +740,14 @@ end
 global function warpzone(...: any): any
 	local w, l = ...
 	love.audio.stop()
-	mariolevel = l as any
-	marioworld = w as any
+	mariolevel = l as number
+	marioworld = w as number|string
 	mariosublevel = 0
 	prevsublevel = false
 	
 	-- minus 1 world glitch just because I can.
 	if not displaywarpzonetext and w == 4 and l == 1 then
-		marioworld = "M" as any
+		marioworld = "M"
 	end
 	
 	levelscreen_load("next")

@@ -2,8 +2,8 @@
 
 -- Use-rect registry helpers (from game.lua). Depends on aabb at call time.
 
-local function adduserect(x: any, y: any, width: any, height: any, callback: any)
-	local t = {}
+local function adduserect(x: any, y: any, width: any, height: any, callback: any): any
+	local t: {any:any} = {}
 	t.x = x
 	t.y = y
 	t.width = width
@@ -17,14 +17,15 @@ end
 _G.adduserect = adduserect
 
 
-local function userect(x: any, y: any, width: any, height: any)
-	local outtable = {}
+local function userect(x: any, y: any, width: any, height: any): {any}, any
+	local outtable: {any} = {}
 
-	local j
+	local j: any
 
 	for i, v in pairs(userects) do
-		if aabb(x, y, width, height, v.x, v.y, v.width, v.height) then
-			table.insert(outtable, v.callback)
+		local rect = v as {any:any}
+		if aabb(x, y, width, height, rect.x, rect.y, rect.width, rect.height) then
+			table.insert(outtable, rect.callback)
 			if not j then
 				j = i
 			end

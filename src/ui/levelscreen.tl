@@ -5,7 +5,7 @@ global function levelscreen_load(...: any): any
 	--check if lives left
 	livesleft = false
 	for i = 1, players do
-		if mariolivecount == false or mariolives[i] > 0 then
+		if mariolivecount == false or (mariolives[i] as number) > 0 then
 			livesleft = true
 		end
 	end
@@ -13,11 +13,11 @@ global function levelscreen_load(...: any): any
 	if reason == "sublevel" then
 		gamestate = "sublevelscreen"
 		blacktime = sublevelscreentime
-		sublevelscreen_level = i
+		sublevelscreen_level = i as number
 	elseif reason == "vine" then
 		gamestate = "sublevelscreen"
 		blacktime = sublevelscreentime
-		sublevelscreen_level = i
+		sublevelscreen_level = i as number
 	elseif livesleft then
 		gamestate = "levelscreen"
 		blacktime = levelscreentime
@@ -28,11 +28,11 @@ global function levelscreen_load(...: any): any
 			respawnsublevel = mariosublevel or 0
 			
 			--check if next level doesn't exist
-			if mariosublevel > 0 and not love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. marioworld .. "-" .. mariolevel .. "_" .. mariosublevel .. ".txt") then
+			if mariosublevel > 0 and not love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. tostring(marioworld) .. "-" .. tostring(mariolevel) .. "_" .. mariosublevel .. ".txt") then
 				gamestate = "mappackfinished"
 				blacktime = gameovertime
 				music:play("princessmusic.ogg")
-			elseif not love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. marioworld .. "-" .. mariolevel .. ".txt") then
+			elseif not love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. tostring(marioworld) .. "-" .. tostring(mariolevel) .. ".txt") then
 				gamestate = "mappackfinished"
 				blacktime = gameovertime
 				music:play("princessmusic.ogg")
@@ -80,9 +80,9 @@ global function levelscreen_load(...: any): any
 	
 	if gamestate == "levelscreen" then
 		if respawnsublevel ~= 0 then
-			loadlevel(marioworld .. "-" .. mariolevel .. "_" .. respawnsublevel)
+			loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel) .. "_" .. respawnsublevel)
 		else
-			loadlevel(marioworld .. "-" .. mariolevel)
+			loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel))
 		end
 	elseif gamestate == "sublevelscreen" then
 		loadlevel(sublevelscreen_level)
@@ -95,7 +95,7 @@ end
 
 global function levelscreen_update(...: any): any
 	local dt = ...
-	levelscreentimer = levelscreentimer + dt
+	levelscreentimer = levelscreentimer + (dt as number)
 	if levelscreentimer > blacktime then
 		if gamestate == "levelscreen" or gamestate == "sublevelscreen" then
 			startlevel(gamestate == "levelscreen")
@@ -119,7 +119,7 @@ global function levelscreen_draw(...: any): any
 	
 	if levelscreentimer < blacktime - blacktimesub and levelscreentimer > blacktimesub then
 		if gamestate == "levelscreen" then
-			properprint("world " .. marioworld .. "-" .. mariolevel, (width/2*16)*scale-40*scale, 72*scale - (players-1)*6*scale)
+			properprint("world " .. tostring(marioworld) .. "-" .. tostring(mariolevel), (width/2*16)*scale-40*scale, 72*scale - (players-1)*6*scale)
 			
 			if not arcade and not mkstation then
 				for i = 1, players do
@@ -154,7 +154,7 @@ global function levelscreen_draw(...: any): any
 			if mappack == "smb" and marioworld == 1 and mariolevel == 1 then
 				local s = "remember that you can run with "
 				for i = 1, #controls[1]["run"] do
-					s = s .. controls[1]["run"][i]
+					s = s .. tostring(controls[1]["run"][i])
 					if i ~= #controls[1]["run"] then
 						s = s .. "-"
 					end
@@ -165,7 +165,7 @@ global function levelscreen_draw(...: any): any
 			if mappack == "portal" and marioworld == 1 and mariolevel == 1 then
 				local s = "you can remove your portals with "
 				for i = 1, #controls[1]["reload"] do
-					s = s .. controls[1]["reload"][i]
+					s = s .. tostring(controls[1]["reload"][i])
 					if i ~= #controls[1]["reload"] then
 						s = s .. "-"
 					end
@@ -174,7 +174,7 @@ global function levelscreen_draw(...: any): any
 				
 				local s = "you can grab cubes and push buttons with "
 				for i = 1, #controls[1]["use"] do
-					s = s .. controls[1]["use"][i]
+					s = s .. tostring(controls[1]["use"][i])
 					if i ~= #controls[1]["use"] then
 						s = s .. "-"
 					end

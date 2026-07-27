@@ -370,7 +370,7 @@ konamilength = 10
 konamihash = "7d0b25cc0abdcc216e9f26b078c0cb5c9032ed8c"
 konamitable = {}
 for i = 1, konamilength do
-	konamitable[i] = ""
+	konamitable[i as integer] = ""
 end
 
 earthquakespeed = 40

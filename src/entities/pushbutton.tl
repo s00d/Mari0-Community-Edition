@@ -71,7 +71,7 @@ function pushbutton:draw()
 end
 
 function pushbutton:addoutput(a, t)
-	table.insert(self.outtable, {a, t} as any)
+	table.insert(self.outtable, {a, t} as {any})
 end
 
 function pushbutton:used()
