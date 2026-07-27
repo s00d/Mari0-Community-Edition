@@ -441,7 +441,7 @@ global record button is Entity, Body
 	new: function(button, number, number, {any}): button
 end
 
-global record camera is {any}
+global record camera
 	x: number
 	y: number
 	scale: number
@@ -659,7 +659,7 @@ global record delayer is Entity, Body
 	new: function(delayer, number, number, {any}): delayer
 end
 
-global record dialogbox is {any}
+global record dialogbox
 	chardelay: number
 	chartimer: number
 	color: {number}
@@ -756,7 +756,7 @@ global record emancipationfizzle is Entity, Body
 	new: function(emancipationfizzle, number, number, any, any): emancipationfizzle
 end
 
-global record emancipationgrill is {any}
+global record emancipationgrill
 	width: number
 	height: number
 	speedx: number
@@ -1048,7 +1048,7 @@ global record entity is {any}
 	new: function(entity, any, any, any, any, any): entity
 end
 
-global record entitylistitem is {any}
+global record entitylistitem
 	i: number
 	t: string
 	x: number
@@ -1967,7 +1967,7 @@ global record platformspawner is Entity, Body
 	new: function(platformspawner, number, number, {any}): platformspawner
 end
 
-global record portal is {any}
+global record portal
 	x: number
 	y: number
 	width: number
@@ -2164,7 +2164,7 @@ global record pushbutton is Entity, Body
 	new: function(pushbutton, number, number, {any}): pushbutton
 end
 
-global record quad is {any}
+global record quad
 	breakable: number
 	bridge: number
 	coin: number
@@ -2209,7 +2209,7 @@ global record rainboom is Entity, Body
 	new: function(rainboom, number, number, any): rainboom
 end
 
-global record regiondrag is {any}
+global record regiondrag
 	grabbed: number
 	height: number
 	movestartx: number
@@ -2256,7 +2256,7 @@ global record regiontrigger is Entity, Body
 	new: function(regiontrigger, number, number, {any}): regiontrigger
 end
 
-global record RightClickVar is {any}
+global record RightClickVar
 	value: any
 	t: any
 	link: any
@@ -2452,7 +2452,7 @@ global record scrollingtext is Entity, Body
 	new: function(scrollingtext, any, any, any): scrollingtext
 end
 
-global record seesaw is {any}
+global record seesaw
 	height: number
 	speedx: number
 	speedy: number

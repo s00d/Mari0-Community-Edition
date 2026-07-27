@@ -251,7 +251,7 @@ global modcustomtiles: any
 global modcustomtilecount: {any:number}
 global music: MusicPlayer
 global musicname: string
-global record SoundSource is {any}
+global record SoundSource
 	stop: function(SoundSource)
 	seek: function(SoundSource, ...: any)
 	play: function(SoundSource)
@@ -1094,7 +1094,7 @@ global scaffoldimg: Image
 global vineimg: Image
 global portal_facing_offset: function(any): number, number
 global maxstates: number
-global prevtile: {any}
+global prevtile: entitylistitem|nil
 global objectscrollbarheight: number
 global linktoolpointerimg: Image
 global tx: number

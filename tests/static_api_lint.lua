@@ -289,7 +289,7 @@ do
 		{ pattern = "global function [%w_]+%(%.%.%.: any%)", max = 137, label = "untyped global function doors" },
 		{ pattern = "global [%w_]+: function%(%.%.%.: any%)", max = 297, label = "ambient (...: any) doors" },
 		{ pattern = " as any",                          max = 142, label = "as any" },
-		{ pattern = "is {any}",                         max = 36,  label = "is {any} records" },
+		{ pattern = "is {any}",                         max = 26,  label = "is {any} records" },
 		{ pattern = "%): any%.%.%.",                    max = 250, label = "any... returns" },
 	}
 
