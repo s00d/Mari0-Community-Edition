@@ -81,6 +81,7 @@ function Boot.require_game()
 	require "entities.animatedquad"
 	require "ui.intro"
 	require "util.menuutil"
+	require "ui.theme"
 	require "ui.menu"
 	require "ui.levelscreen"
 	require "app.game_update"
@@ -659,6 +660,7 @@ function Boot.run_load()
 	
 
 	Boot.load_media()
+	theme_init()
 	shaders:init()
 	add("Shaders init")
 	for _, v in ipairs(dlclist) do

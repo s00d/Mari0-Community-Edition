@@ -137,6 +137,27 @@ global ui_set_input_mode: function(string)
 global ui_note_mouse_move: function(number, number, number, number): boolean
 global ui_note_kbd: function()
 global menu_mousemoved: function(number, number)
+
+global record UITheme
+	GRID: number
+	PAD: number
+	GAP: number
+	LINE: number
+	SCREEN_W: number
+	SCREEN_H: number
+	COL: {string:{number}}
+	panel_img: Image|nil
+	panel_inset_img: Image|nil
+	panel_quads: {Quad}|nil
+	panel_inset_quads: {Quad}|nil
+	debug_assert: boolean
+end
+global UI: UITheme
+global theme_init: function()
+global draw_panel: function(number, number, number, number)
+global draw_panel_inset: function(number, number, number, number)
+global ui_set_color: function(string)
+
 global record DesktopSize
 	width: number
 	height: number
