@@ -79,16 +79,23 @@ local found = Match.find_local_slot({
 check("match find_local_slot", found == 2)
 check("match find missing -> 1", Match.find_local_slot({{slot = 1, id = "x"}}, "nope") == 1)
 
+-- transport empty recv is shared / zero-alloc under no datagrams
+local Transport = require("net.transport")
+local empty1 = Transport.recv_burst(nil)
+local empty2 = Transport.recv_burst({ sock = nil })
+check("recv_burst nil is empty", type(empty1) == "table" and #empty1 == 0)
+check("recv_burst no-sock is empty", type(empty2) == "table" and #empty2 == 0)
+check("recv_burst empty shared", empty1 == empty2)
+
 -- magicdns availability with stub http
 _G.http_is_stub = true
 _G.http = { request = function() return nil, 0 end }
--- Load onlinemenu functions by evaluating the built file's globals carefully:
--- magicdns_available is defined in ui.onlinemenu; require may need more globals.
 _G.guielement = _G.guielement or { new = function() return {} end }
 _G.scale = 1
 _G.mappack = "smb"
 _G.SERVER = false
 _G.CLIENT = false
+_G.usemagic = false
 _G.playerconfig = 1
 _G.mariocolors = {{{1,0,0},{1,1,1},{1,1,1}}}
 _G.mariohats = {{1}}
@@ -112,6 +119,75 @@ if ok_om and _G.magicdns_available then
 	check("magicdns_keep safe on stub", ok_keep)
 	local a, b = magicdns_make()
 	check("magicdns_make empty on stub", a == "" and b == "")
+end
+
+-- magicdns_keep must not hit http when usemagic is false (even if http works)
+local http_calls = 0
+_G.http_is_stub = false
+_G.http = {
+	request = function()
+		http_calls = http_calls + 1
+		return "KEPT/1", 200
+	end,
+}
+_G.usemagic = false
+_G.magicdns_identity = "id"
+_G.magicdns_session = "sess"
+if _G.magicdns_keep then
+	magicdns_keep()
+	check("magicdns_keep skipped when usemagic false", http_calls == 0)
+	_G.usemagic = true
+	magicdns_keep()
+	check("magicdns_keep calls http when usemagic true", http_calls >= 1)
+	_G.usemagic = false
+end
+
+-- session offline path: netplay_update is zero-alloc no-op
+_G.menu_load = _G.menu_load or function() end
+_G.lobby_load = _G.lobby_load or function() end
+_G.onlinemenu_load = _G.onlinemenu_load or function() end
+local ok_sess, err_sess = pcall(require, "net.session")
+check("session loads", ok_sess, tostring(err_sess))
+if ok_sess then
+	check("net_is_active false offline", net_is_active() == false)
+	check("net_in_match false offline", net_in_match() == false)
+	check("net status offline", net_get_status() == "offline")
+	check("SERVER false offline", SERVER == false)
+	check("CLIENT false offline", CLIENT == false)
+
+	collectgarbage("collect")
+	local before = collectgarbage("count")
+	for _ = 1, 2000 do
+		netplay_update(1 / 60)
+	end
+	local after = collectgarbage("count")
+	local grew = after - before
+	check("offline netplay_update near-zero alloc", grew < 2, string.format("%.2f KB", grew))
+
+	-- love_callbacks must gate netplay_update on SERVER/CLIENT (source check)
+	local cb = io.open(root .. "/src/app/love_callbacks.tl", "r")
+	if cb then
+		local src = cb:read("*a")
+		cb:close()
+		check(
+			"love_callbacks gates net on SERVER|CLIENT",
+			src:find("SERVER or CLIENT", 1, true) ~= nil
+				and src:find("netplay_update", 1, true) ~= nil
+		)
+	else
+		check("love_callbacks readable", false)
+	end
+
+	-- lobby must not call magicdns_keep without usemagic (source check)
+	local lob = io.open(root .. "/src/ui/lobby.tl", "r")
+	if lob then
+		local src = lob:read("*a")
+		lob:close()
+		check(
+			"lobby magicdns_keep gated by usemagic",
+			src:find("usemagic and magicdns_available", 1, true) ~= nil
+		)
+	end
 end
 
 -- strsplit used like magicdns path

@@ -104,7 +104,7 @@ function love.update(dt: any)
 			v:update(dt as number)
 		end
 		
-		if netplay_update then
+		if netplay_update and (SERVER or CLIENT) then
 			netplay_update(dt as number)
 		end
 		

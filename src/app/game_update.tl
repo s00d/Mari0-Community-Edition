@@ -3,17 +3,26 @@
 ]]
 
 local blockbounce_delete_scratch: {any} = {}
+local scores_delete_scratch: {any} = {}
+local texts_delete_scratch: {any} = {}
+local portal_delete_scratch: {any} = {}
+-- Reused list of entity tables (refs refreshed each frame; no new array alloc).
+local static_updatelists: {any} = {}
+
+local function flush_spritebatch()
+	updatespritebatch()
+end
+
+local function clear_scratch(t: {any})
+	for i = #t, 1, -1 do
+		t[i] = nil
+	end
+end
 
 global function game_update(dt: number)
 	if not objects then return end
 	gdt = dt
 
-	-- Flush coalesced spritebatch dirties on every exit (mario/editor may mark dirty
-	-- before early returns: pausemenu, everyonedead, noupdate).
-	local function flush_spritebatch()
-		updatespritebatch()
-	end
-	
 	--------
 	--GAME--
 	--------
@@ -56,7 +65,8 @@ global function game_update(dt: number)
 	coinframe = math.max(1, math.floor(coinanimation))
 	
 	--SCROLLING SCORES
-	local delete = {}
+	local delete = scores_delete_scratch
+	clear_scratch(delete)
 	
 	for i, _ in pairs(scrollingscores) do
 		if scrollingscores[i]:update(dt) == true then
@@ -68,7 +78,8 @@ global function game_update(dt: number)
 	
 	
 	--SCROLLING TEXTS
-	local delete = {}
+	delete = texts_delete_scratch
+	clear_scratch(delete)
 	
 	for i, _ in pairs(scrollingtexts as {any:Entity}) do
 		if scrollingtexts[i]:update(dt) == true then
@@ -148,7 +159,8 @@ global function game_update(dt: number)
 	end
 	
 	--remove userects
-	local delete = {}
+	local delete = scores_delete_scratch
+	clear_scratch(delete)
 	for i, v in pairs(userects) do
 		if v.delete then
 			table.insert(delete, i)
@@ -234,9 +246,24 @@ global function game_update(dt: number)
 	
 	
 	--UPDATE STUFFFFF
-	-- Fixed list of effect tables (re-read globals each frame; level load reassigns them)
-	local static_updatelists = {	pedestals, emancipationfizzles, emancipateanimations, dialogboxes, rocketlaunchers, emancipationgrills, fireworks, miniblocks, bubbles, platformspawners, seesaws, blockdebristable,
-							userects, rainbooms, coinblockanimations, itemanimations}
+	-- Fixed list of effect tables (re-read globals each frame; level load reassigns them).
+	-- Mutate module-local array — do not allocate a fresh table every step (GC hitch).
+	static_updatelists[1] = pedestals
+	static_updatelists[2] = emancipationfizzles
+	static_updatelists[3] = emancipateanimations
+	static_updatelists[4] = dialogboxes
+	static_updatelists[5] = rocketlaunchers
+	static_updatelists[6] = emancipationgrills
+	static_updatelists[7] = fireworks
+	static_updatelists[8] = miniblocks
+	static_updatelists[9] = bubbles
+	static_updatelists[10] = platformspawners
+	static_updatelists[11] = seesaws
+	static_updatelists[12] = blockdebristable
+	static_updatelists[13] = userects
+	static_updatelists[14] = rainbooms
+	static_updatelists[15] = coinblockanimations
+	static_updatelists[16] = itemanimations
 
 	for _, v in ipairs(static_updatelists as {any}) do
 		update_and_compact(v, dt)
@@ -628,7 +655,8 @@ global function game_update(dt: number)
 		end
 	end
 	
-	local delete = {}
+	local delete = portal_delete_scratch
+	clear_scratch(delete)
 	
 	for i, v in pairs(portalparticles) do
 		if (v as Entity):update(dt) == true then
@@ -639,7 +667,7 @@ global function game_update(dt: number)
 	remove_indices_desc(portalparticles, delete)
 	
 	--PORTAL PROJECTILES
-	delete = {}
+	clear_scratch(delete)
 	
 	for i, v in pairs(portalprojectiles) do
 		if (v as Entity):update(dt) == true then

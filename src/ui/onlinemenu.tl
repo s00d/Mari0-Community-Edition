@@ -299,6 +299,9 @@ global function magicdns_make(): string, string
 end
 
 global function magicdns_keep()
+	if not usemagic then
+		return
+	end
 	if not magicdns_available() then
 		return
 	end
@@ -316,6 +319,9 @@ global function magicdns_keep()
 end
 
 global function magicdns_remove()
+	if not usemagic then
+		return
+	end
 	if not magicdns_available() then
 		return
 	end

@@ -1262,6 +1262,7 @@ global netstatus: string
 global netplay_update: function(dt: number)
 global net_get_status: function(): string
 global net_in_match: function(): boolean
+global net_is_active: function(): boolean
 global net_held: {integer:{string:any}}
 global magicdns_available: function(): boolean
 global notgateimg: Image

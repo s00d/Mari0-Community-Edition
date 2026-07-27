@@ -397,6 +397,10 @@ local function sync_tick(dt: number)
 	end
 
 	if role == "host" then
+		-- Solo host (no clients): skip JSON snap / edge processing — zero net work.
+		if peer_count() == 0 then
+			return
+		end
 		(Sync.host_process_edges as function())()
 		if (Sync.should_send_snap as function(number): boolean)(dt) then
 			local snap = (Sync.pack_snapshot as function(): {string:any})()
@@ -423,6 +427,11 @@ end
 
 global function net_in_match(): boolean
 	return in_match
+end
+
+-- True only while host/client socket is live. Offline singleplayer must stay false.
+global function net_is_active(): boolean
+	return role ~= "idle" and sock ~= nil
 end
 
 global function server_load()
@@ -552,7 +561,11 @@ global function net_quit()
 end
 
 global function netplay_update(dt: number)
+	-- Offline / idle: hard no-op (no UDP poll, no JSON, no alloc).
 	if role == "idle" or not sock then
+		return
+	end
+	if not SERVER and not CLIENT then
 		return
 	end
 
@@ -576,7 +589,7 @@ global function netplay_update(dt: number)
 		heartbeat_t = 0
 		if role == "client" then
 			encode_send({t = "ping", t0 = love.timer.getTime()}, nil, nil)
-		elseif role == "host" then
+		elseif role == "host" and peer_count() > 0 then
 			local now = love.timer.getTime()
 			local drop: {string} = {}
 			for key, p in pairs(peers_by_key) do
@@ -623,4 +636,5 @@ return {
 	update = netplay_update,
 	get_status = net_get_status,
 	in_match = net_in_match,
+	is_active = net_is_active,
 }

@@ -350,6 +350,10 @@ global function game_mousereleased(x: any, y: any, button: any)
 end
 
 local function net_held_action(i: any, action: string): boolean|nil
+	-- Offline singleplayer: never consult net_held (avoids extra lookups / wrong remote gating).
+	if not (SERVER or CLIENT) then
+		return nil
+	end
 	local slot = i as integer
 	if not net_held or not net_held[slot] then
 		return nil

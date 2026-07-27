@@ -294,7 +294,11 @@ do
 		local body = f:read("*a")
 		f:close()
 		local section = body:match("portal particles(.-)PORTAL PROJECTILES")
-		ok = section ~= nil and section:find("local delete = {}") ~= nil
+		-- Scratch reuse is fine; must remain a function-local binding (not a global write).
+		ok = section ~= nil and (
+			section:find("local delete = {}", 1, true) ~= nil
+			or section:find("local delete = portal_delete_scratch", 1, true) ~= nil
+		)
 	end
 	check("game_update portal delete is local", ok)
 end

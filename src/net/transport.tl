@@ -3,6 +3,10 @@
 local MAX_RECV_PER_FRAME = 48
 local MAX_DATAGRAM = 1200
 
+-- Reused across frames to avoid empty-table alloc when the socket has no datagrams.
+local EMPTY_RECV: {{string:any}} = {}
+local recv_buf: {{string:any}} = {}
+
 local function try_socket(): any|nil, string|nil
 	local req = require as function(string): any
 	local ok, sockmod = pcall(req, "socket")
@@ -100,46 +104,66 @@ local function send(u: any, data: string, ip: string|nil, port: integer|nil): bo
 end
 
 local function recv_burst(u: any): {{string:any}}
-	local out: {{string:any}} = {}
 	if not u then
-		return out
+		return EMPTY_RECV
 	end
 	local bag = u as {string:any}
 	if not bag.sock then
-		return out
+		return EMPTY_RECV
 	end
+	-- Clear previous burst length (keep pooled slot tables when possible).
+	local prev_n = #recv_buf
 	local sock = bag.sock as {string:any}
 	local mode = bag.mode as string
+	local n = 0
 	for _ = 1, MAX_RECV_PER_FRAME do
 		if mode == "client" then
 			local data = (sock.receive as function(any): any)(bag.sock)
 			if type(data) ~= "string" then
 				break
 			end
-			table.insert(out, {
-				data = data as string,
-				ip = (bag.peer_ip as string) or "",
-				port = (bag.peer_port as integer) or 0,
-			})
+			n = n + 1
+			local slot = recv_buf[n]
+			if not slot then
+				slot = {}
+				recv_buf[n] = slot
+			end
+			slot.data = data as string
+			slot.ip = (bag.peer_ip as string) or ""
+			slot.port = (bag.peer_port as integer) or 0
 		else
-			local got: {string:any}|nil = nil
+			local got_data: string|nil = nil
+			local got_ip: string = ""
+			local got_port: integer = 0
 			local ok = pcall(function()
 				local a, b, c = (sock.receivefrom as function(any): any, any, any)(bag.sock)
 				if type(a) == "string" then
-					got = {
-						data = a as string,
-						ip = tostring(b or ""),
-						port = (tonumber(c) or 0) as integer,
-					}
+					got_data = a as string
+					got_ip = tostring(b or "")
+					got_port = (tonumber(c) or 0) as integer
 				end
 			end)
-			if not ok or not got then
+			if not ok or not got_data then
 				break
 			end
-			table.insert(out, got)
+			n = n + 1
+			local slot = recv_buf[n]
+			if not slot then
+				slot = {}
+				recv_buf[n] = slot
+			end
+			slot.data = got_data as string
+			slot.ip = got_ip
+			slot.port = got_port
 		end
 	end
-	return out
+	if n == 0 then
+		return EMPTY_RECV
+	end
+	for i = n + 1, prev_n do
+		recv_buf[i] = nil as {string:any}
+	end
+	return recv_buf
 end
 
 local function peer_key(ip: string, port: integer): string

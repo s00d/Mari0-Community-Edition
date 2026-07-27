@@ -115,6 +115,13 @@ local function is_held(slot: integer, action: string): boolean|nil
 	return h[action] == true
 end
 
+local function round3(n: number): number
+	if n >= 0 then
+		return math.floor(n * 1000 + 0.5) / 1000
+	end
+	return math.ceil(n * 1000 - 0.5) / 1000
+end
+
 local function pack_player(i: integer): {string:any}|nil
 	if not playerobjs or not playerobjs[i] then
 		return nil
@@ -122,11 +129,11 @@ local function pack_player(i: integer): {string:any}|nil
 	local p = playerobjs[i]
 	return {
 		i = i,
-		x = tonumber(string.format("%.3f", (p.x as number) or 0)),
-		y = tonumber(string.format("%.3f", (p.y as number) or 0)),
-		sx = tonumber(string.format("%.3f", (p.speedx as number) or 0)),
-		sy = tonumber(string.format("%.3f", (p.speedy as number) or 0)),
-		ang = tonumber(string.format("%.3f", (p.pointingangle as number) or 0)),
+		x = round3((p.x as number) or 0),
+		y = round3((p.y as number) or 0),
+		sx = round3((p.speedx as number) or 0),
+		sy = round3((p.speedy as number) or 0),
+		ang = round3((p.pointingangle as number) or 0),
 		sz = (p.size as number) or 1,
 		dead = p.dead == true,
 	}
@@ -253,10 +260,21 @@ local function fire_edges(slot: integer, prev: {string:any}, cur: {string:any})
 end
 
 local function host_process_edges()
+	local any = false
+	for _ in pairs(held) do
+		any = true
+		break
+	end
+	if not any then
+		return
+	end
 	for slot, cur in pairs(held) do
 		local s = slot as integer
 		if s ~= (netplayernumber as integer) then
-			local prev = held_prev[s] or empty_held()
+			local prev = held_prev[s]
+			if not prev then
+				prev = empty_held()
+			end
 			fire_edges(s, prev, cur as {string:any})
 		end
 	end
