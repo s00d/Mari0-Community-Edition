@@ -5,22 +5,24 @@
 global function checkcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: any, dt: number, passed: any): boolean, boolean --v: b1table | t: b2table | h: b2type | g: b2id | j: b1type | i: b1id
 	local hadhorcollision = false
 	local hadvercollision = false
+	local vsx = v.speedx or 0
+	local vsy = v.speedy or 0
 	
 	if h ~= "tile" or (not tilequads[map[t.cox][t.coy][1]]:getproperty("slantupleft", t.cox, t.coy) and not tilequads[map[t.cox][t.coy][1]]:getproperty("slantupright", t.cox, t.coy)) then
-		if math.abs(v.x+v.speedx*dt-t.x) < math.max(v.width, t.width)+1 and math.abs(v.y+v.speedy*dt-t.y) < math.max(v.height, t.height)+1 then
+		if math.abs(v.x+vsx*dt-t.x) < math.max(v.width, t.width)+1 and math.abs(v.y+vsy*dt-t.y) < math.max(v.height, t.height)+1 then
 			--check if it's a passive collision (Object is colliding anyway)
 			if not passed and aabb(v.x, v.y, v.width, v.height, t.x, t.y, t.width, t.height) then --passive collision! (oh noes!)
 				if passivecollision(v, t, h, g, j, i, dt) then
 					hadvercollision = true
 				end
 				
-			elseif aabb(v.x + v.speedx*dt, v.y + v.speedy*dt, v.width, v.height, t.x, t.y, t.width, t.height) then
-				if aabb(v.x + v.speedx*dt, v.y, v.width, v.height, t.x, t.y, t.width, t.height) then --Collision is horizontal!
+			elseif aabb(v.x + vsx*dt, v.y + vsy*dt, v.width, v.height, t.x, t.y, t.width, t.height) then
+				if aabb(v.x + vsx*dt, v.y, v.width, v.height, t.x, t.y, t.width, t.height) then --Collision is horizontal!
 					if horcollision(v, t, h, g, j, i, dt) then
 						hadhorcollision = true
 					end
 					
-				elseif aabb(v.x, v.y+v.speedy*dt, v.width, v.height, t.x, t.y, t.width, t.height) then --Collision is vertical!
+				elseif aabb(v.x, v.y+vsy*dt, v.width, v.height, t.x, t.y, t.width, t.height) then --Collision is vertical!
 					if vercollision(v, t, h, g, j, i, dt) then
 						hadvercollision = true
 					end
@@ -32,7 +34,7 @@ global function checkcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: 
 					if v.gravity then
 						grav = v.gravity
 					end
-					if math.abs(v.speedy-grav*dt) < math.abs(v.speedx) then
+					if math.abs(vsy-grav*dt) < math.abs(vsx) then
 						--vertical collision it is.
 						if vercollision(v, t, h, g, j, i, dt) then
 							hadvercollision = true
@@ -57,7 +59,7 @@ global function checkcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: 
 				if trianglepassivecollision(v, t, h, g, j, i, dt) then
 					hadvercollision = true
 				end
-			elseif aabt(v.x + v.speedx*dt, v.y + v.speedy*dt, v.width, v.height, t.x, t.y, t.width, t.height, slant) then
+			elseif aabt(v.x + vsx*dt, v.y + vsy*dt, v.width, v.height, t.x, t.y, t.width, t.height, slant) then
 				if trianglevercollision(v, t, h, g, j, i, dt) then
 					hadvercollision = true
 				end
