@@ -1137,7 +1137,7 @@ global LOVE_MAJOR: number
 global actionblockimg: Image
 global andgateimg: Image
 global animatedtiletriggerimg: Image
-global animationstab: function(...: any): any
+global animationstab: function(): any
 global arcadeblinkrate: number
 global arcadeexittime: number
 global arcadeleave: function(...: any): any
@@ -1202,9 +1202,9 @@ global laserdetectorimg: Image
 global lasersideimg: Image
 global lightbridgesideimg: Image
 global livereplaytimer: number
-global maintab: function(...: any): any
+global maintab: function(): any
 global mappackbackground: {any}
-global mapstab: function(...: any): any
+global mapstab: function(): any
 global markbaseimg: Image
 global markoverlayimg: Image
 global maxscrollrate: number
@@ -1216,7 +1216,7 @@ global musicentityimg: Image
 global netplayerid: string
 global netplayernumber: number
 global notgateimg: Image
-global objectstab: function(...: any): any
+global objectstab: function(): any
 global onlinemappackbackground: {any}
 global orgateimg: Image
 global panelimg: Image
@@ -1234,9 +1234,9 @@ global platformhortime: number
 global platformverdistance: number
 global platformvertime: number
 global portalbackground: {string:any}
-global powerlinestab: function(...: any): any
+global powerlinestab: function(): any
 global pushbuttonimg: Image
-global reachedx: function(...: any): any
+global reachedx: function(any)
 global realdt: any
 global rsflipflopimg: Image
 global scoredelay: number
@@ -1255,11 +1255,11 @@ global swimanimationspeed: number
 global testtimer: number
 global tilecount1: number
 global tilecount2: number
-global tilestab: function(...: any): any
+global tilestab: function(): any
 global titleimg: Image
 global toadimg: Image
 global toconvertmappackbackground: {any}
-global toolstab: function(...: any): any
+global toolstab: function(): any
 global upfireforce: number
 global upfiregravity: number
 global userectdebug: boolean
@@ -1279,9 +1279,9 @@ global zgbooltriggerquad: {any}
 global aabb: function(ax: number, ay: number, awidth: number, aheight: number, bx: number, by: number, bwidth: number, bheight: number): boolean
 global aabt: function(number, number, number, number, number, number, number, number, any): boolean|nil
 global add: function(any)
-global addanimationaction: function(...: any): any
-global addanimationcondition: function(...: any): any
-global addanimationtrigger: function(...: any): any
+global addanimationaction: function(): any
+global addanimationcondition: function(): any
+global addanimationtrigger: function(): any
 global addpoints: function(i: any, x?: any, y?: any)
 global adjustcollside: function(any, any): any
 global animationsystem_draw: function()
@@ -1289,26 +1289,26 @@ global animationsystem_load: function()
 global animationsystem_update: function(number)
 global build_blockbounce_lookup: function({any:any}, {any:any}): {any:any}
 global callcollision: function(any, Entity, any, Entity, any, any): any
-global changebackground: function(...: any): any
+global changebackground: function(any): any
 global changecharacter: function(any)
-global changeforeground: function(...: any): any
-global changelevelscreen: function(...: any): any
-global changeline: function(...: any): any
+global changeforeground: function(any): any
+global changelevelscreen: function(any): any
+global changeline: function(any, any, any): boolean|nil
 global changemapheight: function(number)
 global changemapwidth: function(number)
-global changemusic: function(...: any): any
-global changenewmapsize: function(...: any): any
-global changepastemode: function(...: any): any
-global changeportalgun: function(...: any): any
+global changemusic: function(any): any
+global changenewmapsize: function(any, any): any
+global changepastemode: function(any): any
+global changeportalgun: function(any): any
 global changescale: function(s: number, init?: boolean)
-global changespriteset: function(...: any): any
+global changespriteset: function(any): any
 global checkcollision: function(Entity, Entity, any, any, any, any, number, any): boolean, boolean
 global checkforemances: function(dt: number, v: Body, speedx?: number, speedy?: number)
 global checkkey: function(any): any
 global checkmagic: function(...: any): any
 global checkportalHOR: function(Entity, number): boolean
 global checkportalVER: function(Entity, number): boolean
-global checkportalremove: function(...: any): any...
+global checkportalremove: function(any, any)
 global checkrect: function(x: number, y: number, width: number, height: number, list: any, statics?: any): {any}
 global closerightclickmenu: function()
 global collectblock: function(...: any): any
@@ -1317,21 +1317,21 @@ global collisionscalls: function(any, Entity, any, Entity, any, any): any
 global configdecrease: function(...: any): any
 global configincrease: function(...: any): any
 global continuegame: function()
-global convertentity: function(...: any): any
+global convertentity: function(any): any
 global convertfromstandard: function(Entity, number, number): number, number
-global convertmappack: function(...: any): any
+global convertmappack: function(any)
 global converttostandard: function(Entity, number, number): number, number
 global count_spawn_handlers: function({any:any}): number
 global createdialogbox: function(any, any)
 global creategame: function(...: any): any
 global createmappack: function()
-global createnewanimation: function(...: any): any
-global decreasetimelimit: function(...: any): any
-global defaultbackground: function(...: any): any
+global createnewanimation: function(): any
+global decreasetimelimit: function(): any
+global defaultbackground: function(any): any
 global defaultconfig: function()
 global delete_mappack: function(any): any
 global deleteanimationguiline: function(string, animationguiline)
-global deleteline: function(...: any): any
+global deleteline: function(any, any): boolean|nil
 global destroyblock: function(number, number): any
 global dispatch_enemy_entity_spawn: function(t: string, x: number, y: number, r: {any}, allowenemy?: boolean): boolean
 global dispatch_map_entity_spawn: function(t: string, x: number, y: number, r: {any}, createobjects?: boolean, editormode?: boolean)
@@ -1341,63 +1341,63 @@ global downloadmappacks: function(): any
 global drawforeground: function()
 global drawlevel: function()
 global drawlevel_tiles: function(any, any)
-global drawlinkline: function(...: any): any
-global drawlinkline2: function(...: any): any
-global drawmushrooms: function(...: any): any
-global drawplayer: function(...: any): any
-global drawpowerlines: function(...: any): any
+global drawlinkline: function(any, any, any, any): any
+global drawlinkline2: function(any, any, any, any): any
+global drawmushrooms: function(): any
+global drawplayer: function(any, any, any, cscale?: any, offsetX?: any, offsetY?: any, rotation?: any, quadcenterX?: any, quadcenterY?: any, animationstate?: any, underwater?: any, ducking?: any, hats?: any, graphic?: any, quad?: any, pointingangle?: any, shot?: any, upsidedown?: any, colors?: any, lastportal?: any, portal1color?: any, portal2color?: any, runframe?: any, swimframe?: any, climbframe?: any, jumpframe?: any, biggraphic?: any, fireanimationtimer?: any, char?: any)
+global drawpowerlines: function(): any
 global drawrectangle: function(any, any, any, any): any
-global drawreplay: function(...: any): any
-global editor_draw: function(...: any): any
-global editor_draw_chrome: function(...: any): any
-global editor_draw_linking: function(...: any): any
-global editor_draw_menu: function(...: any): any
-global editor_draw_menu_animations: function(...: any): any
-global editor_draw_menu_changewidth: function(...: any): any
-global editor_draw_menu_lightdrawcustomize: function(...: any): any
-global editor_draw_menu_main: function(...: any): any
-global editor_draw_menu_maps: function(...: any): any
-global editor_draw_menu_objects: function(...: any): any
-global editor_draw_menu_tiles: function(...: any): any
-global editor_draw_menu_tools: function(...: any): any
-global editor_draw_overlay: function(...: any): any
-global editor_draw_status: function(...: any): any
-global editor_keypressed: function(...: any): any
-global editor_load: function(...: any): any
-global editor_mousepressed: function(...: any): any
-global editor_mousepressed_left: function(...: any): any
-global editor_mousepressed_right: function(...: any): any
-global editor_mousepressed_wheel_down: function(...: any): any
-global editor_mousepressed_wheel_up: function(...: any): any
-global editor_mousereleased: function(...: any): any
-global editor_start: function(...: any): any
-global editor_textinput: function(...: any): any
+global drawreplay: function(any, any)
+global editor_draw: function(): any
+global editor_draw_chrome: function(): any
+global editor_draw_linking: function(any, any): any
+global editor_draw_menu: function(any, any): any
+global editor_draw_menu_animations: function(any, any): any
+global editor_draw_menu_changewidth: function(): any
+global editor_draw_menu_lightdrawcustomize: function(): any
+global editor_draw_menu_main: function(any, any): any
+global editor_draw_menu_maps: function(): any
+global editor_draw_menu_objects: function(any, any): any
+global editor_draw_menu_tiles: function(any, any): any
+global editor_draw_menu_tools: function(): any
+global editor_draw_overlay: function(any, any): any
+global editor_draw_status: function(): any
+global editor_keypressed: function(any): any
+global editor_load: function(): any
+global editor_mousepressed: function(any, any, any): any
+global editor_mousepressed_left: function(any, any): any
+global editor_mousepressed_right: function(any, any): any
+global editor_mousepressed_wheel_down: function(any, any): any
+global editor_mousepressed_wheel_up: function(any, any): any
+global editor_mousereleased: function(any, any, any): any
+global editor_start: function(): any
+global editor_textinput: function(any): any
 global editor_update: function(number)
 global editor_update_closed: function(number)
 global editor_update_keyscroll: function(number)
 global editor_update_main: function(number)
-global editor_update_modifiers: function(...: any): any
+global editor_update_modifiers: function(): any
 global editor_update_objects: function(number)
 global editor_update_rightclick: function(number)
 global editor_update_tiles: function(number)
-global editorclose: function(...: any): any
-global editorexit: function(...: any): any
-global editoropen: function(...: any): any
-global emptySelection: function(...: any): any
+global editorclose: function(): any
+global editorexit: function(): any
+global editoropen: function(): any
+global emptySelection: function(): any
 global endgame: function()
 global enemies_load: function()
-global finishlinking: function(...: any): any
-global finishregion: function(...: any): any
-global fromanimationstab: function(...: any): any
-global fromlightdrawcustomizetab: function(...: any): any
-global frommapstab: function(...: any): any
+global finishlinking: function(any, any): any
+global finishregion: function(): any
+global fromanimationstab: function(): any
+global fromlightdrawcustomizetab: function(): any
+global frommapstab: function(): any
 
 global game_update: function(number)
 global getquadprops: function(ImageData, number, number): {string:any}
 global properprint: function(s: any, x: number, y: number, sc?: number)
 global print_r: function(any, any): any
 global openSaveFolder: function(string|nil): boolean
-global dbprint: function(...: any)
+global dbprint: function(any, y?: any)
 global keypromptenter: function(any, ...: any): any
 global loadcustombackgrounds: function()
 global loadcustommusics: function()
@@ -1411,38 +1411,38 @@ global game_draw_pausemenu: function()
 global game_draw_player_markers: function()
 global game_draw_props: function()
 global game_draw_seethrough_portals: function()
-global game_joystickaxis: function(...: any): any
-global game_joystickhat: function(...: any): any
-global game_joystickpressed: function(...: any): any
-global game_joystickreleased: function(...: any): any
+global game_joystickaxis: function(any, any, any, any, any)
+global game_joystickhat: function(any, any, any)
+global game_joystickpressed: function(any, any)
+global game_joystickreleased: function(any, any)
 global game_keypressed: function(any)
 global game_keyreleased: function(any)
 global game_load: function(suspended?: any)
-global game_mousepressed: function(...: any): any
+global game_mousepressed: function(any, any, any)
 global game_mousereleased: function(any, any, any)
 global game_textinput: function(any)
-global generateanimationgui: function(...: any): any
-global generateentitylist: function(...: any): any
+global generateanimationgui: function(): any
+global generateentitylist: function(): any
 global generatespritebatch: function()
 global getAngleFrame: function(number, number): any
-global getPortal: function(x: number, y: number, dir?: any): any...
+global getPortal: function(x: number, y: number, dir?: any): number|boolean, number|nil, any, any, any, any, any, any
 global getSelectedTiles: function(): {{any}}
-global getTiles: function(...: any): {{any}}
-global getaveragecolor: function(...: any): number, number, number
+global getTiles: function(any, any): {{any}}
+global getaveragecolor: function(any, any, any): number, number, number
 global getentityhighlight: function(any, any): entitylistitem|nil
 global getfilepath: function(any): any
-global getmaps: function(...: any): any
-global getportalposition: function(...: any): any...
+global getmaps: function(): any
+global getportalposition: function(any, any, any, any, any, mirexc?: any): number|boolean, number|nil, string|nil
 global getupdate: function(): boolean
 global givelive: function(any, Entity)
-global globintCH: function(...: any): any
-global globintSH: function(...: any): any
-global globoolSH: function(...: any): any
+global globintCH: function(any, any, any): any
+global globintSH: function(any, any, value?: any): any
+global globoolSH: function(any, any): any
 global handlegroup: function(i: any, h: any, u: {any:Body}, v: Body, j: any, dt: number, passed: any): boolean, boolean
 global hitblock: function(x: number, y: number, t: any, koopa?: any): any
 global hitrightside: function()
 global horcollision: function(Entity, Entity, any, any, any, any, number): boolean
-global increasetimelimit: function(...: any): any
+global increasetimelimit: function(): any
 global inportal: function(Entity): boolean
 global insideportal: function(number, number, number, number): any, any
 global intro_draw: function()
@@ -1466,9 +1466,9 @@ global level_split_file_contents: function(s: string): integer, number, {string}
 global levelscreen_draw: function()
 global levelscreen_load: function(reason: any, levelarg?: any)
 global levelscreen_update: function(number)
-global livesdecrease: function(...: any): any
-global livesincrease: function(...: any): any
-global loadHotKeys: function(...: any): any
+global livesdecrease: function(): any
+global livesincrease: function(): any
+global loadHotKeys: function(): any
 global loadanimatedtiles: function()
 global loadbackground: function(any): any
 global loadbackgroundsafe: function(any): any
@@ -1481,13 +1481,13 @@ global loadhat: function(string)
 global loadlevel: function(level: string|number): boolean
 global loadlevelscreens: function()
 global loadmap: function(filename: string, createobjects?: boolean): boolean
-global loadmapold: function(...: any): any
+global loadmapold: function(any): any
 global loadmappacks: function()
 global loadmodcustomtiles: function()
-global loadmtgroups: function(...: any): any
-global loadmtobjects: function(...: any): any
+global loadmtgroups: function(): any
+global loadmtobjects: function(): any
 global loadonlinemappacks: function()
-global loadstate: function(...: any): any
+global loadstate: function(s?: any): any
 global loadtoconvertmappacks: function()
 global lobby_draw: function(...: any): any
 global lobby_load: function(...: any): any
@@ -1497,10 +1497,10 @@ global magicdns_find: function(...: any): any
 global magicdns_keep: function(...: any): any
 global magicdns_make: function(...: any): any
 global magicdns_remove: function(...: any): any
-global mapnumberclick: function(...: any): any
+global mapnumberclick: function(any, any, k?: any): any
 global mappacks: function()
-global mapwidthapply: function(...: any): any
-global mapwidthcancel: function(...: any): any
+global mapwidthapply: function(): any
+global mapwidthcancel: function(): any
 global menu_draw: function()
 global menu_draw_mappackmenu: function()
 global menu_draw_options: function()
@@ -1515,98 +1515,98 @@ global menu_load: function()
 global menu_mousepressed: function(any, any, any)
 global menu_mousereleased: function(any, any, any)
 global menu_update: function(number)
-global modifyportaltiles: function(...: any): any
-global modifyportalwalls: function(...: any): any
+global modifyportaltiles: function(any, any, any, any, any, any, any)
+global modifyportalwalls: function()
 global movedownanimationguiline: function(string, animationguiline)
-global moveline: function(...: any): any
-global moveoutportal: function(...: any): any
+global moveline: function(any, any, any): boolean|nil
+global moveoutportal: function(i?: any)
 global moveupanimationguiline: function(string, animationguiline)
 global newRecoloredImage: function(string, {{number}}, {{number}}): Image|nil
-global newlevel: function(...: any): any
+global newlevel: function(): any
 global nextcharacter: function()
 global nextlevel: function()
-global objectclipboardcopy: function(...: any): any
+global objectclipboardcopy: function(any): any
 global onlinemenu_draw: function(...: any): any
 global onlinemenu_load: function(...: any): any
 global onlinemenu_update: function(...: any): any
 global onlineupdatescroll: function()
-global openchangewidth: function(...: any): any
+global openchangewidth: function(): any
 global passivecollision: function(Entity, Entity, any, any, any, any, number): boolean
 global physicsupdate: function(dt: number)
-global placetile: function(...: any): any
+global placetile: function(any, any, t?: any, ent?: any, preventMultiTile?: any): any
 global playmusic: function()
 global playsound: function(any)
 global portalcoords: function(x: number, y: number, speedx: number, speedy: number, width: number, height: number, rotation: number, animationdirection: any, entryportalX: number|boolean, entryportalY: number|boolean, entryportalfacing: any, exitportalX: number|boolean, exitportalY: number|boolean, exitportalfacing: any, self?: Entity, live?: boolean): number, number, number, number, number, any
 global prerotatecall: function(any, any): boolean
 global previouscharacter: function()
 global properprint2: function(any, number, number, ...: any)
-global properprintbackground: function(...: any): any
-global removelink: function(...: any): any
-global renameline: function(...: any): any
+global properprintbackground: function(any, any, any, include?: any, color?: any, sc?: any)
+global removelink: function(any, any, any): any
+global renameline: function(any, any, any): boolean|nil
 global renderpreview: function(): ImageData
 global reset_mappacks: function()
 global resetconfig: function()
 global respawnplayers: function()
-global reversefscrollfactor: function(...: any): any
-global reversescrollfactor: function(...: any): any
+global reversefscrollfactor: function(): number
+global reversescrollfactor: function(): number
 global rightkey: function(any): any
 global runkey: function(any): any
-global saveHotKeys: function(...: any): any
-global saveanimation: function(...: any): any
+global saveHotKeys: function(): any
+global saveanimation: function(): any
 global saveconfig: function()
 global savelevel: function()
 global savemap: function(filename: string, silent?: boolean)
-global savemtobject: function(...: any): any
-global savesettings: function(...: any): any
-global savestate: function(...: any): any
+global savemtobject: function(any, name?: any, file?: any): any
+global savesettings: function(): any
+global savestate: function()
 global scenedraw: function()
-global selectanimation: function(...: any): any
-global selectionbutton: function(...: any): any
-global selectionend: function(...: any): any
-global selectiongettiles: function(...: any): {SelectionTile}
-global selectionstart: function(...: any): any
+global selectanimation: function(any): any
+global selectionbutton: function(): any
+global selectionend: function(): any
+global selectiongettiles: function(any, any, any, any): {SelectionTile}
+global selectionstart: function(): any
 global selectworld: function()
 global sendchat: function(...: any): any
-global serializetable: function(...: any): any
-global shootportal: function(...: any): any
+global serializetable: function(any)
+global shootportal: function(any, any, any, any, any, mirrored?: any, bounces?: any)
 global spawnenemy: function(x: number, y: number)
 global startlevel: function(levelstart?: any)
-global startlinking: function(...: any): any
-global startregion: function(...: any): any
+global startlinking: function(any, any, any): any
+global startregion: function(any, any, any): any
 global stopmusic: function()
 global suspendgame: function()
-global test_level: function(...: any): any
-global tilesall: function(...: any): any
-global tilesanimated: function(...: any): any
-global tilescustom: function(...: any): any
-global tilesenemies: function(...: any): any
-global tilesentities: function(...: any): any
-global tilesportal: function(...: any): any
-global tilessmb: function(...: any): any
+global test_level: function(): any
+global tilesall: function(): any
+global tilesanimated: function(): any
+global tilescustom: function(): any
+global tilesenemies: function(): any
+global tilesentities: function(): any
+global tilesportal: function(): any
+global tilessmb: function(): any
 global toconvertupdatescroll: function()
-global toggleautoscroll: function(...: any): any
-global togglebonusstage: function(...: any): any
-global toggleclipboardenabled: function(...: any): any
-global togglecustombackground: function(...: any): any
-global togglecustomforeground: function(...: any): any
-global toggledrawalllinks: function(...: any): any
-global toggleeditordebug: function(...: any): any
-global toggleintermission: function(...: any): any
+global toggleautoscroll: function(any): any
+global togglebonusstage: function(any): any
+global toggleclipboardenabled: function(any): any
+global togglecustombackground: function(any): any
+global togglecustomforeground: function(any): any
+global toggledrawalllinks: function(any): any
+global toggleeditordebug: function(any): any
+global toggleintermission: function(any): any
 global togglemagic: function(...: any): any
-global toggleskiplevelscreen: function(...: any): any
-global toggleunderwater: function(...: any): any
-global togglewarpzone: function(...: any): any
+global toggleskiplevelscreen: function(any): any
+global toggleunderwater: function(any): any
+global togglewarpzone: function(any): any
 global traceline: function(sourcex: number, sourcey: number, radians: number, reportal?: any): number|boolean, number|boolean, string|boolean, number|boolean, number, number
 global trianglepassivecollision: function(Entity, Entity, any, any, any, any, number): any
 global trianglevercollision: function(Entity, Entity, any, any, any, any, number): any
 global twistdirection: function(any, any): any
 global unrotate: function(number, number, number): number
-global updateanimationdropdown: function(...: any): any
-global updatebackground: function(...: any): any
-global updatefscrollfactor: function(...: any): any
+global updateanimationdropdown: function(): any
+global updatebackground: function(): any
+global updatefscrollfactor: function(): any
 global updateranges: function()
 global updatescroll: function()
-global updatescrollfactor: function(...: any): any
+global updatescrollfactor: function(): any
 global updatesizes: function()
 global upkey: function(any): any
 global vercollision: function(Entity, Entity, any, any, any, any, number): boolean

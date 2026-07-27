@@ -1,6 +1,6 @@
 --[[ portal world geometry helpers ]]
 
-global function modifyportalwalls(...: any): any
+global function modifyportalwalls()
 	--Create and remove new stuff
 	for a, b in pairs(portals) do
 		local pb = b as portal
@@ -118,49 +118,42 @@ global function modifyportalwalls(...: any): any
 	end
 end
 
-global function modifyportaltiles(...: any): any
-	local args: {any} = {...}
-	local x = args[1] as number
-	local y = args[2] as number
-	local xplus = args[3] as number
-	local yplus = args[4] as number
-	local portal = args[5] as portal
-	local i = args[6]
-	local mode = args[7]
+global function modifyportaltiles(x: any, y: any, xplus: any, yplus: any, port: any, i: any, mode: any)
+	local xn = x as number
+	local yn = y as number
+	local xp = xplus as number
+	local yp = yplus as number
+	local p = port as portal
 	if not x or not y then
 		return
 	end
 	if i == 1 then
-		if portal.facing2 ~= false then
+		if p.facing2 ~= false then
 			if mode == "add" then
-				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
-				objects["tile"][tilekey(x+xplus, y+yplus)] = tile:new(x-1+xplus, y-1+yplus) as Entity
+				objects["tile"][tilekey(xn, yn)] = tile:new(xn-1, yn-1) as Entity
+				objects["tile"][tilekey(xn+xp, yn+yp)] = tile:new(xn-1+xp, yn-1+yp) as Entity
 			else
-				objects["tile"][tilekey(x, y)] = nil
-				objects["tile"][tilekey(x+xplus, y+yplus)] = nil
+				objects["tile"][tilekey(xn, yn)] = nil
+				objects["tile"][tilekey(xn+xp, yn+yp)] = nil
 			end
 		end
 	else
-		if portal.facing1 ~= false then
+		if p.facing1 ~= false then
 			if mode == "add" then
-				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
-				objects["tile"][tilekey(x+xplus, y+yplus)] = tile:new(x-1+xplus, y-1+yplus) as Entity
+				objects["tile"][tilekey(xn, yn)] = tile:new(xn-1, yn-1) as Entity
+				objects["tile"][tilekey(xn+xp, yn+yp)] = tile:new(xn-1+xp, yn-1+yp) as Entity
 			else
-				objects["tile"][tilekey(x, y)] = nil
-				objects["tile"][tilekey(x+xplus, y+yplus)] = nil
+				objects["tile"][tilekey(xn, yn)] = nil
+				objects["tile"][tilekey(xn+xp, yn+yp)] = nil
 			end
 		end
 	end
 end
 
-global function getportalposition(...: any): any...
-	local args: {any} = {...}
-	local i = args[1]
-	local x = args[2] as number
-	local y = args[3] as number
-	local side = args[4] as string
-	local tendency = args[5]
-	local mirexc = args[6]
+global function getportalposition(i: any, xin: any, yin: any, sidein: any, tendency: any, mirexc?: any): number|boolean, number|nil, string|nil
+	local x = xin as number
+	local y = yin as number
+	local side = sidein as string
 	--returns the "optimal" position according to the parsed arguments (or false if no possible position was found)
 	local xplus: number = 0
 	local yplus: number = 0
@@ -340,7 +333,7 @@ global function getTile(x: number, y: number, portalable?: any, portalcheck?: an
 	end
 end
 
-global function getPortal(x: number, y: number, dir?: any): any... --returns the block where you'd come out when you'd go in the argument's block
+global function getPortal(x: number, y: number, dir?: any): number|boolean, number|nil, any, any, any, any, any, any --returns the block where you'd come out when you'd go in the argument's block
 	for i, v in pairs(portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 			--Get the extra block of each portal
@@ -475,7 +468,7 @@ global function insideportal(x: number, y: number, width: number, height: number
 	return false
 end
 
-global function moveoutportal(...: any): any... --pushes objects out of the portal i in.
+global function moveoutportal(_i?: any) --pushes objects out of the portal i in.
 	for i, v in pairs(objects) do
 		if i ~= "tile" and i ~= "portalwall" then
 			for j, w in pairs(v) do
@@ -663,8 +656,7 @@ global function traceline(sourcex: number, sourcey: number, radians: number, rep
 	end
 end
 
-global function checkportalremove(...: any): any...
-	local x, y = ...
+global function checkportalremove(x: any, y: any)
 	for i, v in pairs(portals) do
 		--Get the extra block of each portal
 		local portal1xplus, portal1yplus, portal2xplus, portal2yplus = portal_pair_offsets(v.facing1, v.facing2)

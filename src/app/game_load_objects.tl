@@ -1,9 +1,7 @@
 --[[ game_load object helpers / audio / UI bits ]]
 
-global function drawreplay(...: any): any
-	local args = {...}
-	local j = args[1] as integer
-	local i = args[2]
+global function drawreplay(j: any, i: any)
+	local j = j as integer
 	local self = ((replaydata[j] as {string:any}).data as {any})[i as integer] as {string:any}
 	local angleframe = 1
 	
@@ -100,8 +98,7 @@ global function drawreplay(...: any): any
 	replaychar[j] = char
 end
 
-global function drawplayer(...: any): any
-	local i, x, y, cscale, offsetX, offsetY, rotation, quadcenterX, quadcenterY, animationstate, underwater, ducking, hats, graphic, quad, pointingangle, shot, upsidedown, colors, lastportal, portal1color, portal2color, runframe, swimframe, climbframe, jumpframe, biggraphic, fireanimationtimer, char = ...
+global function drawplayer(i: any, x: any, y: any, cscale?: any, offsetX?: any, offsetY?: any, rotation?: any, quadcenterX?: any, quadcenterY?: any, animationstate?: any, underwater?: any, ducking?: any, hats?: any, graphic?: any, quad?: any, pointingangle?: any, shot?: any, upsidedown?: any, colors?: any, lastportal?: any, portal1color?: any, portal2color?: any, runframe?: any, swimframe?: any, climbframe?: any, jumpframe?: any, biggraphic?: any, fireanimationtimer?: any, char?: any)
 	local px: number = (x as number)-6
 	local py: number = y as number
 
@@ -265,8 +262,8 @@ global function drawplayer(...: any): any
 	end
 end
 
-global function reachedx(...: any): any
-	local currentx = (... as number)
+global function reachedx(currentx: any)
+	local currentx = currentx as number
 	if not currentx or currentx <= (lastrepeat as number)+width then
 		return
 	end

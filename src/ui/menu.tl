@@ -2391,8 +2391,7 @@ global function changecharacter(i: any)
 	colorsetedit = 1
 end
 
-global function convertmappack(...: any): any
-	local name = ...
+global function convertmappack(name: any)
 	local oldmappackpath = "toconvert/" .. (name as string) .. "/"
 	local newmappackpath = "mappacks/" .. (name as string) .. "/"
 	mappack = name as string
@@ -2493,8 +2492,7 @@ global function convertmappack(...: any): any
 	notice.new("mappack converted successfully")
 end
 
-global function loadmapold(...: any): any
-	local path = ...
+global function loadmapold(path: any): any
 	if love.filesystem.getInfo(path as string, "file") then
 		-- start to fill important info
 		map = {}
@@ -2593,8 +2591,8 @@ end
 
 -- Converts an entity from the 1.6 system to the CE one
 -- Most cases, was enemy or multiple entities merged into one
-global function convertentity(...: any): any
-	local entin: {any} = (... as {any}) or {}
+global function convertentity(entin_in: any): any
+	local entin: {any} = (entin_in as {any}) or {}
 	local newent: {any} = {}
 	if #entin >= 1 then
 		local entid = entin[1] as number -- will never be 1 since it's no entity (and this doesn't get saved)

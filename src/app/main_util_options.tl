@@ -406,13 +406,11 @@ global function continuegame()
 	love.filesystem.remove("suspend.txt")
 end
 
-global function savestate(...: any): any
-	local i = ...
+global function savestate()
 	serializetable(_G)
 end
 
-global function serializetable(...: any): any
-	local t = ...
+global function serializetable(t: any)
 	tablestodo = {t}
 	tableindex = {}
 	repeat

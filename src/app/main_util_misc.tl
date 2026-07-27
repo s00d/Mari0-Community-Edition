@@ -179,8 +179,7 @@ global function newRecoloredImage(path: string, tablein: {{number}}, tableout: {
 	return AssetStore.load_image_data(imagedata)
 end
 
-global function getaveragecolor(...: any): number, number, number
-	local imgdata, cox, coy = ...
+global function getaveragecolor(imgdata: any, cox: any, coy: any): number, number, number
 	local idata = imgdata as ImageData
 	local cx = cox as number
 	local cy = coy as number
@@ -325,8 +324,7 @@ global function properprint(s: any, x: number, y: number, sc?: number)
 	end
 end
 
-global function properprintbackground(...: any): any
-	local s, x, y, include, color, sc = ...
+global function properprintbackground(s: any, x: any, y: any, include?: any, color?: any, sc?: any)
 	local scale = (sc or scale) as number
 	local startx = x as number
 	local xx = x as number
@@ -512,8 +510,7 @@ global function loadmodcustomtiles()
 	end
 end
 
-global function dbprint(...: any) --debugprint; set debugprints=true to enable
-	local x = ...
+global function dbprint(x: any, _y?: any) --debugprint; set debugprints=true to enable
 	if Logger then
 		Logger.debug(x)
 	elseif debugprints then

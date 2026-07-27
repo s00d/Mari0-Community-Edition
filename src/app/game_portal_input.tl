@@ -206,8 +206,7 @@ global function game_textinput(text: any)
 	end
 end
 
-global function shootportal(...: any): any
-	local plnumber, i, sourcex, sourcey, direction, mirrored, bounces = ...
+global function shootportal(plnumber: any, i: any, sourcex: any, sourcey: any, direction: any, mirrored?: any, bounces?: any)
 	if playerobjs[plnumber].portalgundisabled then
 		return
 	end
@@ -253,8 +252,7 @@ global function shootportal(...: any): any
 	table.insert(portalprojectiles, portalprojectile:new(sourcex as number, sourcey as number, x as number, y as number, color, true, {playerobjs[plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored, bounces))
 end
 
-global function game_mousepressed(...: any): any
-	local x, y, button = ...
+global function game_mousepressed(x: any, y: any, button: any)
 	if pausemenuopen then
 		return
 	end
@@ -456,8 +454,7 @@ global function checkkey(s: any): any
 	end
 end
 
-global function game_joystickpressed(...: any): any
-	local joystick, button = ...
+global function game_joystickpressed(joystick: any, button: any)
 	if pausemenuopen then
 		return
 	end
@@ -519,8 +516,7 @@ global function game_joystickpressed(...: any): any
 	end
 end
 
-global function game_joystickreleased(...: any): any
-	local joystick, button = ...
+global function game_joystickreleased(joystick: any, button: any)
 	for i = 1, players do
 		local s = controls[i]["jump"]
 		if s[1] == "joy" then
@@ -534,8 +530,7 @@ global function game_joystickreleased(...: any): any
 	end
 end
 
-global function game_joystickaxis(...: any): any
-	local joystick, axis, value, stickmoved, shouldermoved = ...
+global function game_joystickaxis(joystick: any, axis: any, value: any, stickmoved: any, shouldermoved: any)
 	if pausemenuopen then
 		return
 	end
@@ -581,8 +576,7 @@ global function game_joystickaxis(...: any): any
 	end
 end
 
-global function game_joystickhat(...: any): any
-	local joystick, hat, direction = ...
+global function game_joystickhat(joystick: any, hat: any, direction: any)
 	if pausemenuopen then
 		return
 	end

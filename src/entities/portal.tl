@@ -45,8 +45,6 @@ function portal:createportal(i: number, cox: any, coy: any, side: any, tendency:
 		end
 		
 		local newx, newy = getportalposition(i, cox as number, coy as number, side, tendency)
-		newx = newx as number|boolean|nil
-		newy = newy as number|boolean|nil
 		
 		if newx and (newx ~= oldx or newy ~= oldy or side ~= oldfacing) then
 			if i == 1 then
