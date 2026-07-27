@@ -82,6 +82,7 @@ function Boot.require_game()
 	require "app.game_update"
 	require "app.game_draw"
 	require "app.game_load"
+	require "app.game_runtime_globals"
 	require "app.game_spawn"
 	require "app.game_portal"
 	require "util.editorutil"

@@ -131,7 +131,54 @@ do
 end
 
 do
-	-- game_update portal-particle cleanup must not write undeclared global delete
+	-- game_load globals must be snapshotted before freeze (init_game_runtime_globals)
+	local root = select(1, ...) or "."
+	local function read_file(path)
+		local f = io.open(path, "r")
+		if not f then
+			return nil
+		end
+		local body = f:read("*a")
+		f:close()
+		return body
+	end
+	local function collect_global_assigns(body, stop_pattern)
+		local assigns = {}
+		local section = body
+		if stop_pattern then
+			section = body:match(stop_pattern) or ""
+		end
+		for line in (section .. "\n"):gmatch("(.-)\n") do
+			local name = line:match("^%s*([%w_]+)%s*=")
+			if name and not line:match("^%s*local ") then
+				assigns[name] = true
+			end
+		end
+		return assigns
+	end
+	local game_load_body = read_file(root .. "/src/app/game_load_level.tl") or ""
+	local game_load_fn = game_load_body:match('global function game_load%([^)]*%)(.-)\nend\n\n%-%- Draw') or ""
+	local game_load_globals = collect_global_assigns(game_load_fn)
+	local init_body = read_file(root .. "/src/app/game_runtime_globals.tl") or ""
+	local init_fn = init_body:match("global function init_game_runtime_globals%(%)(.-)\nend") or ""
+	local init_globals = collect_global_assigns(init_fn)
+	local missing_runtime = {}
+	for name in pairs(game_load_globals) do
+		if not init_globals[name] then
+			table.insert(missing_runtime, name)
+		end
+	end
+	table.sort(missing_runtime)
+	if #missing_runtime == 0 then
+		check("game_load globals initialized before freeze", true)
+	else
+		for _, name in ipairs(missing_runtime) do
+			check("game_load global pre-init: " .. name, false, "add to init_game_runtime_globals")
+		end
+	end
+end
+
+do
 	local root = select(1, ...) or "."
 	local path = root .. "/src/app/game_update.tl"
 	local f = io.open(path, "r")

@@ -75,6 +75,7 @@ global function menu_load()
 		game_load()
 	end
 
+	init_game_runtime_globals()
 	local GlobalFreeze = require("core.global_freeze")
 	if not GlobalFreeze.is_installed() then
 		GlobalFreeze.install_writes_only()
