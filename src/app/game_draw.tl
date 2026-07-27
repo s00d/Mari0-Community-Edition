@@ -93,4 +93,8 @@ global function game_draw()
 	if pausemenuopen then
 		game_draw_pausemenu()
 	end
+
+	if metroidmapopen and metroidmap_draw then
+		metroidmap_draw()
+	end
 end

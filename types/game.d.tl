@@ -2020,3 +2020,65 @@ global editor_undo_clear: function()
 global editor_capture_test_restore: function({string:any}|nil)
 global editor_apply_test_restore: function(boolean|nil)
 global test_level_from_cursor: function()
+
+global record MetroidRoom
+	id: string
+	x: number
+	y: number
+	w: number
+	h: number
+	scroll_h: boolean
+	scroll_v: boolean
+	flags: string
+	doors: {{string:any}}
+	items: {{string:any}}
+	spawns: {{string:any}}
+end
+
+global ROOMS: {MetroidRoom}
+global ROOMS_BY_ID: {string:MetroidRoom}
+global START_ROOM: string
+global currentroom: MetroidRoom|nil
+global metroidmode: boolean
+global roomtransition: number
+global metroidmapopen: boolean
+global metroid_playtime: number
+global ABILITIES: {string:{string:string}}
+global ABILITY_TEXT: {string:string}
+global DOOR_TYPES: {string:function(any, any): boolean}
+global DOOR_COLOR: {string:{number}}
+global room_at: function(number, number): MetroidRoom|nil
+global roomcam_update: function(number)
+global rooms_parse_txt: function(string): {MetroidRoom}
+global rooms_parse_json: function({string:any}): {MetroidRoom}
+global rooms_set: function({MetroidRoom})
+global rooms_clear: function()
+global room_enter: function(MetroidRoom, MetroidRoom|nil)
+global map_reveal: function(string)
+global spawn_room: function(MetroidRoom)
+global despawn_room: function(MetroidRoom)
+global metroid_try_load_mappack: function(string): boolean
+global metroid_bootstrap_from_player: function()
+global metroid_mark_killed: function(number, number)
+global metroid_load_rooms_from_strings: function(string|nil, string|nil): boolean
+global room_camera_target: function(MetroidRoom, number, number, number, number): number, number
+global has_ability: function(any, string): boolean
+global grant_ability: function(any, string)
+global has_weapon: function(any, string): boolean
+global door_can_pass: function(string, any, any): boolean
+global door_try_open: function(string, string, any, any): boolean
+global door_uid: function(number, number): string
+global door_is_open: function(string): boolean
+global door_set_open: function(string, boolean)
+global fake_player_from_abilities: function({string:boolean}): {string:any}
+global world_reachability_check: function(string|nil): {string}
+global metroidmap_toggle: function()
+global metroidmap_close: function()
+global metroidmap_draw: function()
+global metroid_save: function(integer): boolean
+global metroid_load: function(integer): {string:any}|nil
+global metroid_autosave: function()
+global metroid_use_hp: function(): boolean
+global metroid_hurt: function(any, number): boolean
+global metroid_apply_hp_to_player: function(any)
+global createdialogbox: function(any, any)

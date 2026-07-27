@@ -271,8 +271,10 @@ global function game_update(dt: number)
 	local oldxscroll = xscroll
 	local oldyscroll = yscroll
 	
+	if metroidmode and roomcam_update then
+		roomcam_update(dt)
 	-- not minimapdragging: treat nil as false (play-mode editor_load skip used to leave it nil)
-	if autoscroll and not minimapdragging then
+	elseif autoscroll and not minimapdragging then
 		--scrolling
 		local i = 1
 		while i <= players and (playerobjs[i].dead or playerobjs[i].remote) do
@@ -514,7 +516,7 @@ global function game_update(dt: number)
 	end
 	
 	--enemy spawning
-	if not editormode then
+	if not editormode and not metroidmode then
 		if round(xscroll) ~= round(oldxscroll) then
 			local xstart: number = 0
 			local xend: number = 0

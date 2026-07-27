@@ -1,0 +1,4 @@
+0,0,25,15,gate,scroll_h
+25,0,25,15,drain,scroll_h
+0,15,25,15,rift,scroll_h|scroll_v
+25,15,25,15,core,scroll_h|scroll_v|save

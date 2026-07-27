@@ -732,6 +732,31 @@ global record door is Entity, Body
 	new: function(door, number, number, {any}): door
 end
 
+global record gatedoor is Entity, Body
+	cox: number
+	coy: number
+	dir: string
+	kind: string
+	keyid: string|nil
+	open: boolean
+	timer: number
+	uid: string
+	r: {any}
+	x: number
+	y: number
+	width: number
+	height: number
+	category: number
+	mask: {boolean}
+	static: boolean
+	active: boolean
+	drawable: boolean
+	init: function(gatedoor, number, number, any)
+	update: function(gatedoor, number)
+	draw: function(gatedoor)
+	new: function(gatedoor, number, number, {any}): gatedoor
+end
+
 global record emancipateanimation is Entity, Body
 	active: boolean
 	static: boolean

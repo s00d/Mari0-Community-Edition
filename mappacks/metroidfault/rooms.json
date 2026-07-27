@@ -1,0 +1,9 @@
+{
+  "start": "gate",
+  "rooms": [
+    {"id":"gate","x":0,"y":0,"w":25,"h":15,"flags":"scroll_h","doors":[{"kind":"open","to":"drain","dx":24,"dy":7,"uid":"gate>drain"},{"kind":"morph","to":"rift","dx":12,"dy":14,"uid":"gate>rift"}],"items":[{"uid":"item_portal","ability":"portal","dx":5,"dy":10}]},
+    {"id":"drain","x":25,"y":0,"w":25,"h":15,"flags":"scroll_h","doors":[{"kind":"open","to":"gate","dx":0,"dy":7,"uid":"drain>gate"},{"kind":"blue","to":"core","dx":12,"dy":14,"uid":"drain>core"}],"items":[{"uid":"item_gel","ability":"gelcannon","dx":18,"dy":10},{"uid":"item_morph","ability":"morphball","dx":10,"dy":10}]},
+    {"id":"rift","x":0,"y":15,"w":25,"h":15,"flags":"scroll_h|scroll_v","doors":[{"kind":"open","to":"gate","dx":12,"dy":0,"uid":"rift>gate"},{"kind":"open","to":"core","dx":24,"dy":7,"uid":"rift>core"}],"items":[{"uid":"item_hook","ability":"hookshot","dx":8,"dy":8}]},
+    {"id":"core","x":25,"y":15,"w":25,"h":15,"flags":"scroll_h|scroll_v|save","doors":[{"kind":"open","to":"rift","dx":0,"dy":7,"uid":"core>rift"},{"kind":"open","to":"drain","dx":12,"dy":0,"uid":"core>drain"}],"items":[{"uid":"item_grav","ability":"gravitygun","dx":20,"dy":8}]}
+  ]
+}

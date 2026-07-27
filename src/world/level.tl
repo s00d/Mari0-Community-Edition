@@ -9,6 +9,7 @@ OBJECT_GROUP_KEYS = {
 	"box",
 	"iceblock",
 	"door",
+	"gatedoor",
 	"button",
 	"groundlight",
 	"wallindicator",

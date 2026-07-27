@@ -5,6 +5,15 @@ global function game_keypressed(key: any)
 	if key == "return" then
 		game_joystickpressed(1, 4)
 	end
+
+	if metroidmode and key == "m" then
+		if metroidmapopen then metroidmap_close() else metroidmap_toggle() end
+		return
+	end
+	if metroidmapopen then
+		if key == "escape" or key == "m" then metroidmap_close() end
+		return
+	end
 	
 	if key == "f" and debugbinds then
 		playerobjs[1]:grow()

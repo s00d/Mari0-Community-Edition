@@ -135,6 +135,13 @@ MAP_SPAWN_HANDLERS["door"] = function(x: number, y: number, r: {any})
 	table.insert(objects["door"], door:new(x, y, r) as Entity)
 end
 
+MAP_SPAWN_HANDLERS["gatedoor"] = function(x: number, y: number, r: {any})
+	if not objects["gatedoor"] then
+		objects["gatedoor"] = {}
+	end
+	table.insert(objects["gatedoor"], gatedoor:new(x, y, r) as Entity)
+end
+
 MAP_SPAWN_HANDLERS["button"] = function(x: number, y: number, r: {any})
 	table.insert(objects["button"], button:new(x, y, r) as Entity)
 end

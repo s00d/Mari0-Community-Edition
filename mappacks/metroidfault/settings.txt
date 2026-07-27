@@ -1,0 +1,6 @@
+name=METROID FAULT
+author=qa4
+description=gate-zone stub for metroid core (rooms+ability doors).
+metroid=true
+lives=0
+maxhp=0

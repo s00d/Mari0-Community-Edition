@@ -37,6 +37,7 @@ entitylist = {
 	{t="emance", category="portal elements", description="place on empty tile - emancipation grill, stops portals and objects other than mario", iconauthor="Assasin-Kiashi"},
 	{t="scaffold", category="portal elements", description="place on empty tile - platform with an input", iconauthor=""},
 	{t="door", category="portal elements", description="place on empty tile - it's a door. it opens, it closes, it doors.", iconauthor="idiot9.0"},
+	{t="gatedoor", category="portal elements", description="ability-gated door (metroid)", iconauthor=""},
 	{t="pedestal", category="portal elements", description="place on empty tile - portal gun ready for pickup", iconauthor=""},
 	{t="wallindicator", category="i/o objects", description="place anywhere - shows on or off state", iconauthor=""},
 	{t="pipespawn", category="level markers", description="place on block - spawn for when coming from a sublevel", iconauthor="TripleXero"},

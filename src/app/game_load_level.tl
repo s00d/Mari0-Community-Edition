@@ -52,8 +52,16 @@ global function game_load(suspended?: any)
 				mappackendless = true
 			elseif s2[1] == "seed" and tonumber(s2[2]) then
 				endlessseed = tonumber(s2[2]) as number
+			elseif s2[1] == "metroid" and (s2[2] == "true" or s2[2] == "1") then
+				rawset(_G, "_metroid_settings_flag", true)
+			elseif s2[1] == "maxhp" and tonumber(s2[2]) then
+				globintSH("maxhp", "set", tonumber(s2[2]))
 			end
 		end
+	end
+
+	if metroid_try_load_mappack then
+		metroid_try_load_mappack(mappack)
 	end
 	
 	if mariolivecount == 0 then
@@ -467,20 +475,27 @@ global function loadlevel(level: string|number): boolean
 	
 	--ADD ENEMIES ON START SCREEN
 	if editormode == false then
-		local xtodo = width+1
-		if mapwidth < width+1 then
-			xtodo = mapwidth
-		end
-		
-		local ytodo = height+1
-		if mapheight < height+1 then
-			ytodo = mapheight
-		end
-			
-		for x = math.floor(xscroll), math.floor(xscroll)+xtodo do
-			for y = math.floor(yscroll), math.floor(yscroll)+ytodo do
-				spawnenemy(x, y)
+		if metroidmode and metroid_bootstrap_from_player then
+			metroid_bootstrap_from_player()
+		else
+			local xtodo = width+1
+			if mapwidth < width+1 then
+				xtodo = mapwidth
 			end
+			local ytodo = height+1
+			if mapheight < height+1 then
+				ytodo = mapheight
+			end
+			for x = math.floor(xscroll), math.floor(xscroll)+xtodo do
+				for y = math.floor(yscroll), math.floor(yscroll)+ytodo do
+					spawnenemy(x, y)
+				end
+			end
+		end
+	end
+	if metroidmode and playerobjs and metroid_apply_hp_to_player then
+		for i = 1, players do
+			if playerobjs[i] then metroid_apply_hp_to_player(playerobjs[i]) end
 		end
 	end
 	
