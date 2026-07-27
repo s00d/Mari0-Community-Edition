@@ -21,7 +21,7 @@ function animatedtimer:init(x: number, y: number, tileno)
 	self.length = 0
 	for i = 1, #self.delays do
 		self.length = self.length + self.delays[i]
-		self.frametimes[i] = self.length as any
+		self.frametimes[i] = self.length
 	end
 	self.dir = 0
 	

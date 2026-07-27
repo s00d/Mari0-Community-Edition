@@ -34,7 +34,7 @@ function button:init(x: number, y: number, r)
 	table.remove(self.r, 1)
 	--DIRECTION
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.dir = self.r[1]
+		self.dir = self.r[1] as string
 		table.remove(self.r, 1)
 	end
 	
@@ -43,7 +43,7 @@ function button:init(x: number, y: number, r)
 	self.pressings = {}
 end
 
-function button:update(dt: number): any...
+function button:update(_dt: number): any...
 	local x, y, width, height
 	if self.dir == "down" then
 		x = self.x+5/16
@@ -86,7 +86,7 @@ function button:update(dt: number): any...
 	end
 	
 	
-	local delete = {}
+	local delete: {integer} = {}
 	
 	for i, v in pairs(self.pressings) do
 		local rem = true
@@ -97,13 +97,13 @@ function button:update(dt: number): any...
 		end
 		
 		if rem then
-			table.insert(delete, i)
+			table.insert(delete, i as integer)
 		end
 	end
 	
-	table.sort(delete, function(a,b) return a>b end)
+	table.sort(delete, function(a: integer, b: integer): boolean return a > b end)
 	
-	for i, v in pairs(delete) do
+	for i, v in ipairs(delete) do
 		if self.pressings[v].onbutton then
 			self.pressings[v]:onbutton(false)
 		end
@@ -142,5 +142,5 @@ function button:draw()
 end
 
 function button:addoutput(a, t)
-	table.insert(self.outtable, {a, t})
+	table.insert(self.outtable, {a as Entity, t})
 end

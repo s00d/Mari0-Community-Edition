@@ -161,19 +161,20 @@ end
 
 function portalprojectile:createportal()
 	if self.mirror then
-		local portal, i, cox, coy, side, tendency, x, y = unpack(self.payload)
-		portaldelay[portal.number] = 0
+		local portal, i, cox, coy, side, tendency, x, y = unpack(self.payload as {any})
+		local p = portal as portal
+		portaldelay[p.number] = 0
 		
 		local angle
 		if side == "up" or side == "down" then
 			angle = -math.atan2((self.endx as number)-(self.startx as number), (self.endy as number)-(self.starty as number))
 		else
-			angle = math.atan2((self.endx as number)-(self.startx as number), self.starty-self.endy)
+			angle = math.atan2((self.endx as number)-(self.startx as number), self.starty-(self.endy as number))
 		end
-		if self.bounces > 0 then
-			shootportal(portal.number, i, self.endx, self.endy, angle, true, self.bounces-1)
+		if (self.bounces as number) > 0 then
+			shootportal(p.number, i, self.endx, self.endy, angle, true, (self.bounces as number)-1)
 		end
 	else
-		portal.createportal(unpack(self.payload))
+		portal.createportal(unpack(self.payload as {any}))
 	end
 end

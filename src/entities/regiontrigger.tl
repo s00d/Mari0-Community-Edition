@@ -24,14 +24,14 @@ function regiontrigger:init(x: number, y: number, r)
 	
 	self.checktable = {}
 	
-	for a,b in pairs(self.r) do
+	for a,b in pairs(self.r as {any:any}) do
 		dbprint(a,b)
 	end
 	
 	--TRIGGER ON PLAYER?
 	if #self.r > 0 and self.r[1] ~= "link" then
 		if self.r[1] == "true" then
-			table.insert(self.checktable, "player")
+			table.insert(self.checktable as {any}, "player")
 		end			
 		table.remove(self.r, 1)
 	end
@@ -39,9 +39,9 @@ function regiontrigger:init(x: number, y: number, r)
 	--TRIGGER ON ENEMY?
 	if #self.r > 0 and self.r[1] ~= "link" then
 		if self.r[1] == "true" or self.r[1] == "all" then
-			table.insert(self.checktable, "enemy")
-		elseif tonumber(self.r[1]) then
-			table.insert(self.checktable, self.r[1])
+			table.insert(self.checktable as {any}, "enemy")
+		elseif tonumber(self.r[1] as string) then
+			table.insert(self.checktable as {any}, self.r[1])
 		end	
 	
 		table.remove(self.r, 1)
@@ -49,35 +49,35 @@ function regiontrigger:init(x: number, y: number, r)
 	
 	--REGION
 	if #self.r > 0 then
-		local s = strsplit(self.r[1], ":")
-		self.regionX, self.regionY, self.regionwidth, self.regionheight = s[2], s[3], tonumber(s[4]), tonumber(s[5])
-		if string.sub(self.regionX, 1, 1) == "m" then
-			self.regionX = -tonumber(string.sub(self.regionX, 2))
+		local s = strsplit(self.r[1] as string, ":")
+		self.regionX, self.regionY, self.regionwidth, self.regionheight = s[2], s[3], tonumber(s[4]) as number, tonumber(s[5]) as number
+		if string.sub(self.regionX as string, 1, 1) == "m" then
+			self.regionX = -tonumber(string.sub(self.regionX as string, 2))
 		end
-		if string.sub(self.regionY, 1, 1) == "m" then
-			self.regionY = -tonumber(string.sub(self.regionY, 2))
+		if string.sub(self.regionY as string, 1, 1) == "m" then
+			self.regionY = -tonumber(string.sub(self.regionY as string, 2))
 		end
 		
-		self.regionX = tonumber(self.regionX) + self.x - 1
-		self.regionY = tonumber(self.regionY) + self.y - 1
+		self.regionX = (tonumber(self.regionX) as number) + self.x - 1
+		self.regionY = (tonumber(self.regionY) as number) + self.y - 1
 		table.remove(self.r, 1)
 	end
 	
-	self.out = "off"
+	self.out = "off" as any
 end
 
 function regiontrigger:update(dt: number): any...
 	local col = checkrect(self.regionX, self.regionY, self.regionwidth, self.regionheight, self.checktable)
 	
 	if self.out == "off" and #col > 0 then
-		self.out = "on"
+		self.out = "on" as any
 		for i = 1, #self.outtable do
 			if self.outtable[i][1].input then
 				self.outtable[i][1]:input(self.out, self.outtable[i][2])
 			end
 		end
 	elseif self.out == "on" and #col == 0 then
-		self.out = "off"
+		self.out = "off" as any
 		for i = 1, #self.outtable do
 			if self.outtable[i][1].input then
 				self.outtable[i][1]:input(self.out, self.outtable[i][2])
@@ -91,5 +91,5 @@ function regiontrigger:draw()
 end
 
 function regiontrigger:addoutput(a, t)
-	table.insert(self.outtable, {a, t})
+	table.insert(self.outtable, {a as Entity, t})
 end

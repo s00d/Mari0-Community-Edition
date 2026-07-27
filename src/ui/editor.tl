@@ -1516,7 +1516,7 @@ function editor_draw_menu_tiles(emx: number, emy: number)
 		if editenemies then
 			if enemies[tile as integer] then
 				if enemiesdata[enemies[tile as integer]].description then
-					local newstring = enemies[tile as integer] .. " - " .. enemiesdata[enemies[tile as integer]].description
+					local newstring = enemies[tile as integer] .. " - " .. tostring(enemiesdata[enemies[tile as integer]].description)
 					if string.len(newstring) > 49 then
 						newstring = string.sub(newstring, 1, 49) .. "|" .. string.sub(newstring, 50, 98)
 					end
@@ -1538,7 +1538,7 @@ function editor_draw_menu_tiles(emx: number, emy: number)
 	elseif animatedtilelist then
 		if tile and animatedtiles[tile as integer] then
 			properprint("frames: " .. #(animatedtiles[tile as integer].delays as {any}), 3*scale, 205*scale)
-			local t = 0
+			local t: number = 0
 			for i = 1, #(animatedtiles[tile as integer].delays as {any}) do
 				t = t + ((animatedtiles[tile as integer].delays as {any})[i] as number)
 			end
@@ -2876,15 +2876,15 @@ end
 
 function mapnumberclick(i: number, j: number, k: any)
 	if editormode then
-		marioworld = tonumber(i)
-		mariolevel = tonumber(j)
+		marioworld = tonumber(i) as number
+		mariolevel = tonumber(j) as number
 		editorloadopen = true
 		local needs_to_be_saved = false
 		if k then
 			k = tonumber(k)
-			needs_to_be_saved = loadlevel(i .. "-" .. j .. "_" .. (k as number))
+			needs_to_be_saved = loadlevel(i .. "-" .. j .. "_" .. (k as number)) as boolean
 		else
-			needs_to_be_saved = loadlevel(i .. "-" .. j)
+			needs_to_be_saved = loadlevel(i .. "-" .. j) as boolean
 		end
 		startlevel()
 		if needs_to_be_saved then
@@ -2993,7 +2993,7 @@ function savestate()
 			(t[x] as {any})[y] = {}
 			;((t.coinmap as {any})[x] as {any})[y] = coinmap[x][y]
 			for i, v in pairs(map[x][y] as {any:any}) do
-				((t[x] as {any})[y] as {any})[i as any] = v
+				((t[x] as Dyn)[y] as Dyn)[i] = v as Dyn
 			end
 		end
 	end
@@ -3004,7 +3004,7 @@ function loadstate(s: any)
 	local si = (s or currentstate) as number
 	currentstate = si
 	
-	local v = savestates[si as integer] as {any}
+	local v = savestates[si as integer] as Dyn
 	map = {}
 	coinmap = {}
 	for x = 1, #(v as {any}) do
@@ -3013,7 +3013,7 @@ function loadstate(s: any)
 		local col = v[x] as {any}
 		for y = 1, #col do
 			map[x][y] = {} as MapCell
-			coinmap[x][y] = ((v.coinmap as {any})[x] as {any})[y] as boolean
+			coinmap[x][y] = ((v["coinmap"] as {any})[x] as {any})[y] as boolean
 			for i, w in pairs(col[y] as {any:any}) do
 				map[x][y][i as integer] = w
 			end
@@ -3258,9 +3258,9 @@ function editor_mousepressed_left(x: number, y: number)
 						allowdrag = false
 					end
 				else
-					tile = getentityhighlight(x, y) as any
-					if tile then
-						currenttile = (tile as EntityListEntry).i
+					local ent = getentityhighlight(x, y)
+					if ent then
+						currenttile = (ent as EntityListEntry).i
 						editorclose()
 						allowdrag = false
 					end
@@ -3687,10 +3687,10 @@ function editor_keypressed(key: string)
 								saveHotKeys()
 							end
 						elseif editentities then
-							tile = getentityhighlight(x, y) as any
+							local ent = getentityhighlight(x, y)
 							
-							if tile and (tile as EntityListEntry).i and (tile as EntityListEntry).i <= entitiescount then
-								changeHotKey(i,2,(tile as EntityListEntry).i)
+							if ent and (ent as EntityListEntry).i and (ent as EntityListEntry).i <= entitiescount then
+								changeHotKey(i,2,(ent as EntityListEntry).i)
 								saveHotKeys()
 							end
 						elseif not editmtobjects then
@@ -4002,7 +4002,7 @@ function changemusic(var: any)
 end
 
 function changespriteset(var: any)
-	spriteset = var
+	spriteset = var as integer
 	guielements["spritesetdropdown"].var = var
 end
 
@@ -4030,9 +4030,9 @@ function test_level()
 	testlevellevel = mariolevel
 	autoscroll = true
 	if mariosublevel ~= 0 then
-		loadlevel(marioworld .. "-" .. mariolevel .. "_" .. mariosublevel)
+		loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel) .. "_" .. tostring(mariosublevel))
 	else
-		loadlevel(marioworld .. "-" .. mariolevel)
+		loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel))
 	end
 	startlevel()
 end
@@ -4137,7 +4137,7 @@ function loadHotKeys()
 	hotkeys = {}
 	if love.filesystem.getInfo("mappacks/" .. mappack .. "/hotkeys.txt") then
 		local data = (love.filesystem.read("mappacks/" .. mappack .. "/hotkeys.txt") or "") as string
-		hotkeys = editor_hotkeys_parse(data) as any
+		hotkeys = editor_hotkeys_parse(data)
 	end
 end
 
@@ -4399,7 +4399,7 @@ function closerightclickmenu()
 			
 			for i = 1, #selectionlist do
 				local v = selectionlist[i]
-				if (map[v.x as number][v.y as number][2] == map[((rightclickm as rightclickmenu).tx as number)][((rightclickm as rightclickmenu).ty as number)][2] or (tablecontains(groundlighttable, entitylist[map[(rightclickm as rightclickmenu).tx][(rightclickm as rightclickmenu).ty][2]].t) and tablecontains(groundlighttable, entitylist[map[v.x][v.y][2]].t))) and (v.x ~= (rightclickm as rightclickmenu).tx or v.y ~= (rightclickm as rightclickmenu).ty) then
+				if (map[v.x as number][v.y as number][2] == map[((rightclickm as rightclickmenu).tx as number)][((rightclickm as rightclickmenu).ty as number)][2] or (tablecontains(groundlighttable, entitylist[map[((rightclickm as rightclickmenu).tx as number)][((rightclickm as rightclickmenu).ty as number)][2]].t) and tablecontains(groundlighttable, entitylist[map[v.x as number][v.y as number][2]].t))) and (v.x ~= (rightclickm as rightclickmenu).tx or v.y ~= (rightclickm as rightclickmenu).ty) then
 					table.insert(edittable, {x=v.x, y=v.y})
 				end
 			end

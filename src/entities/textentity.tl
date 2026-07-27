@@ -26,7 +26,7 @@ function textentity:init(x: number, y: number, r)
 	--TEXT
 	if #self.r > 0 and self.r[1] ~= "link" then
 		self.text = tostring(self.r[1])
-		self.textsplit = strsplit(self.text, " ") or {}
+		self.textsplit = (strsplit(self.text, " ") or {}) as {number:any}
 		table.remove(self.r, 1)
 		--prefixes!!
 		self.hasaprefix = false
@@ -54,9 +54,9 @@ function textentity:init(x: number, y: number, r)
 				self.glintcache[string.sub(is,4)] = {globints[string.sub(is,4)], n} 
 			elseif prefix == "bi:" then
 				print(is, "g_")
-				self.textsplit[n] = _G[string.sub(is,4)] or "typo"
+				self.textsplit[n] = rawget(_G, string.sub(is,4)) or "typo"
 				self.hasaprefix = true
-				self.builtincache[string.sub(is,4)] = {_G[string.sub(is,4)], n} 
+				self.builtincache[string.sub(is,4)] = {rawget(_G, string.sub(is,4)), n} 
 			elseif prefix == "bb:" then
 				local splitup = string.sub(is,4)
 				local parts = strsplit(splitup, "/")
@@ -76,7 +76,7 @@ function textentity:init(x: number, y: number, r)
 		end
 	end
 	if self.hasaprefix then
-	self.text = table.concat(self.textsplit, " ")
+	self.text = table.concat(self.textsplit as {string|number}, " ")
 	end
 	
 	end
@@ -106,7 +106,7 @@ end
 function textentity:link()
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w] as {any}) do
+			for i, v in pairs(objects[w] as {any:any}) do
 				local ent = v as Entity
 				if tonumber(self.r[3] as string) == ent.cox and tonumber(self.r[4] as string) == ent.coy then
 					(ent.addoutput as function(Entity, any, any): any)(ent, self, self.r[2])
@@ -139,38 +139,38 @@ function textentity:update(dt: number): any...
 	if self.hasaprefix then
 		for i, j in pairs(self.boolcache) do
 			if globoolSH(j[1], "check") ~= j[1] then
-				self.textsplit[j[2]] = globoolSH(i, "check")
-				self.boolcache[i][1] = self.textsplit[j[2]]
+				self.textsplit[j[2] as number] = globoolSH(i, "check")
+				self.boolcache[i][1] = self.textsplit[j[2] as number]
 				self.pass = false
 			end
 		end
 		for i, j in pairs(self.boolbincache) do
 			if globoolSH(i, "check") ~= j[3] then
 				if globoolSH(i, "check") then
-					self.textsplit[j[4]] = j[1]
+					self.textsplit[j[4] as number] = j[1]
 				else
-					self.textsplit[j[4]] = j[2]
+					self.textsplit[j[4] as number] = j[2]
 				end
 				self.pass = false
-				self.boolbincache[i] = {j[1], globoolSH(i, "check"), n}
+				self.boolbincache[i] = {j[1], j[2], globoolSH(i, "check"), j[4]}
 			end
 		end
 		for i, j in pairs(self.glintcache) do
 			if globints[i] ~= j[1] then
-				self.textsplit[j[2]] = globints[i]
-				self.glintcache[i][1] = self.textsplit[j[2]]
+				self.textsplit[j[2] as number] = globints[i]
+				self.glintcache[i][1] = self.textsplit[j[2] as number]
 				self.pass = false
 			end
 		end
 		for i, j in pairs(self.builtincache) do
-			if _G[i] ~= j[1] then
-				self.textsplit[j[2]] = _G[i]
-				self.builtincache[i][1] = self.textsplit[j[2]]
+			if rawget(_G, i as string) ~= j[1] then
+				self.textsplit[j[2] as number] = rawget(_G, i as string)
+				self.builtincache[i][1] = self.textsplit[j[2] as number]
 				self.pass = false
 			end
 		end
 		if not self.pass then
-		self.text = table.concat(self.textsplit, " ")
+		self.text = table.concat(self.textsplit as {string|number}, " ")
 		end
 	end
 end

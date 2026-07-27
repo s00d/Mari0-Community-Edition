@@ -1,15 +1,17 @@
 --[[ game_load object helpers / audio / UI bits ]]
 
 global function drawreplay(...: any): any
-	local j, i = ...
-	local self = ((replaydata[j] as {string:any}).data as {any})[i]
+	local args = {...}
+	local j = args[1] as integer
+	local i = args[2]
+	local self = ((replaydata[j] as {string:any}).data as {any})[i as integer] as {string:any}
 	local angleframe = 1
 	
-	if not self.drawable then
+	if not self["drawable"] then
 		return
 	end
 	
-	if self.level ~= mariolevel or self.world ~= marioworld or self.sublevel ~= mariosublevel then
+	if self["level"] ~= mariolevel or self["world"] ~= marioworld or self["sublevel"] ~= mariosublevel then
 		return
 	end
 	
@@ -22,77 +24,78 @@ global function drawreplay(...: any): any
 	if replaychar[j].nopointing then
 		angleframe = 1
 	else
-		angleframe = getAngleFrame(self.pointingangle, self.rotation) as integer
+		angleframe = getAngleFrame(self["pointingangle"] as number, self["rotation"] as number) as integer
 	end
 	
-	local animationstate = self.animationstate
-	local size = self.size
+	local animationstate = self["animationstate"]
+	local size = self["size"]
 	local quad: any = nil
 	
-	if size == 1 then
-		if self.infunnel then
-			quad = replaychar[j].jump[angleframe][self.jumpframe]
-		elseif self.underwater and (self.animationstate == "jumping" or self.animationstate == "falling") then
-			quad = replaychar[j].swim[angleframe][self.swimframe]
+	if (size as number) == 1 then
+		if self["infunnel"] then
+			quad = replaychar[j].jump[angleframe][self["jumpframe"] as integer]
+		elseif self["underwater"] and (self["animationstate"] == "jumping" or self["animationstate"] == "falling") then
+			quad = replaychar[j].swim[angleframe][self["swimframe"] as integer]
 		elseif animationstate == "running" or animationstate == "falling" then
-			quad = replaychar[j].run[angleframe][self.runframe]
+			quad = replaychar[j].run[angleframe][self["runframe"] as integer]
 		elseif animationstate == "idle" then
 			quad = replaychar[j].idle[angleframe]
 		elseif animationstate == "sliding" then
 			quad = replaychar[j].slide[angleframe]
 		elseif animationstate == "jumping" then
-			quad = replaychar[j].jump[angleframe][self.jumpframe]
+			quad = replaychar[j].jump[angleframe][self["jumpframe"] as integer]
 		elseif animationstate == "climbing" then
-			quad = replaychar[j].climb[angleframe][self.climbframe]
+			quad = replaychar[j].climb[angleframe][self["climbframe"] as integer]
 		elseif animationstate == "dead" then
 			quad = replaychar[j].die[angleframe]
 		elseif animationstate == "grow" then
 			quad = replaychar[j].grow[angleframe]
 		end
-	elseif size > 1 then
-		if self.infunnel then
-			quad = replaychar[j].bigjump[angleframe][self.jumpframe]
-		elseif self.underwater and (self.animationstate == "jumping" or self.animationstate == "falling") then
-			quad = replaychar[j].bigswim[angleframe][self.swimframe]
-		elseif self.ducking then
+	elseif (size as number) > 1 then
+		if self["infunnel"] then
+			quad = replaychar[j].bigjump[angleframe][self["jumpframe"] as integer]
+		elseif self["underwater"] and (self["animationstate"] == "jumping" or self["animationstate"] == "falling") then
+			quad = replaychar[j].bigswim[angleframe][self["swimframe"] as integer]
+		elseif self["ducking"] then
 			quad = replaychar[j].bigduck[angleframe]
-		elseif self.fireanimationtimer < fireanimationtime then
+		elseif (self["fireanimationtimer"] as number) < fireanimationtime then
 			quad = replaychar[j].bigfire[angleframe]
 		else
 			if animationstate == "running" or animationstate == "falling" then
-				quad = replaychar[j].bigrun[angleframe][self.runframe]
+				quad = replaychar[j].bigrun[angleframe][self["runframe"] as integer]
 			elseif animationstate == "idle" then
 				quad = replaychar[j].bigidle[angleframe]
 			elseif animationstate == "sliding" then
 				quad = replaychar[j].bigslide[angleframe]
 			elseif animationstate == "climbing" then
-				quad = replaychar[j].bigclimb[angleframe][self.climbframe]
+				quad = replaychar[j].bigclimb[angleframe][self["climbframe"] as integer]
 			elseif animationstate == "jumping" then
-				quad = replaychar[j].bigjump[angleframe][self.jumpframe]
+				quad = replaychar[j].bigjump[angleframe][self["jumpframe"] as integer]
 			end
 		end
 	end
 	
 	local graphic: any = nil
 	local biggraphic = replaychar[j].nogunbiganimations
-	if self.size == 1 then
+	if (self["size"] as number) == 1 then
 		graphic = replaychar[j].nogunanimations
 	else
 		graphic = replaychar[j].nogunbiganimations
 	end
 	
-	if self.customscissor then
-		love.graphics.setScissor(math.floor((self.customscissor[1]-xscroll)*16*scale), math.floor((self.customscissor[2]-.5-yscroll)*16*scale), self.customscissor[3]*16*scale, self.customscissor[4]*16*scale)
+	if self["customscissor"] then
+		local cs = self["customscissor"] as {number}
+		love.graphics.setScissor(math.floor((cs[1]-xscroll)*16*scale), math.floor((cs[2]-.5-yscroll)*16*scale), cs[3]*16*scale, cs[4]*16*scale)
 	end
 	
 	if true then
-		self.pointingangle = (-math.pi) as any
-		if self.animationdirection == "left" then
-			self.pointingangle = math.pi as any
+		self["pointingangle"] = -math.pi
+		if self["animationdirection"] == "left" then
+			self["pointingangle"] = math.pi
 		end
 	end
 	
-	drawplayer(nil, (self.x-xscroll+6/16)*16, self.y*16, scale, self.offsetX, self.offsetY, self.rotation, self.quadcenterX, self.quadcenterY, self.animationstate, self.underwater, self.ducking, self.hats, graphic, quad, self.pointingangle, self.shot, self.upsidedown, self.colors, self.lastportal, self.portal1color, self.portal2color, self.runframe, self.swimframe, self.climbframe, self.jumpframe, biggraphic, self.fireanimationtimer, replaychar[j])
+	drawplayer(nil, ((self["x"] as number)-xscroll+6/16)*16, (self["y"] as number)*16, scale, self["offsetX"], self["offsetY"], self["rotation"], self["quadcenterX"], self["quadcenterY"], self["animationstate"], self["underwater"], self["ducking"], self["hats"], graphic, quad, self["pointingangle"], self["shot"], self["upsidedown"], self["colors"], self["lastportal"], self["portal1color"], self["portal2color"], self["runframe"], self["swimframe"], self["climbframe"], self["jumpframe"], biggraphic, self["fireanimationtimer"], replaychar[j])
 	love.graphics.setScissor()
 	replaychar[j] = char
 end
@@ -171,7 +174,7 @@ global function drawplayer(...: any): any
 						love.graphics.draw(bighat[v.hats[i]].graphic, math.floor((x+v.offsetX)*scale), math.floor((y-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX - bighat[v.hats[i]].x + offsets[1], v.quadcenterY - bighat[v.hats[i]].y + offsets[2] + yadd)
 						yadd = yadd + bighat[v.hats[i]].height
 					else
-						local debugtable = {x, v.offsetX, y, v.offsetY, v.quadcenterX, hat[v.hats[i]].x, offsets[1], v.quadcenterY, hat[v.hats[i]].y, offsets[2], yadd}
+						local debugtable: {number:any} = {x, v.offsetX, y, v.offsetY, v.quadcenterX, hat[v.hats[i]].x, offsets[1], v.quadcenterY, hat[v.hats[i]].y, offsets[2], yadd}
 						--TIMETRIAL
 						for i, v in pairs(debugtable) do
 							if type(v) == "table" then
@@ -200,8 +203,8 @@ global function drawplayer(...: any): any
 end
 
 global function reachedx(...: any): any
-	local currentx = ...
-	if not currentx or currentx <= lastrepeat+width then
+	local currentx = (... as number)
+	if not currentx or currentx <= (lastrepeat as number)+width then
 		return
 	end
 	
@@ -244,15 +247,17 @@ global function reachedx(...: any): any
 			repeatX = mazestarts[mazei]
 		end
 		
-		table.insert(map, x, {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}})
-		table.insert(coinmap, x, {})
+		table.insert(map, x as integer, {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}} as {MapCell})
+		table.insert(coinmap, x as integer, {})
 		for y = 1, mapheight do
-			for j = 1, #map[repeatX][y] do
-				map[x][y][j] = map[repeatX][y][j]
-				coinmap[x][y] = coinmap[repeatX][y]
+			local cell = map[x][y] as Dyn
+			local src = map[repeatX as number][y] as Dyn
+			for j = 1, #(map[repeatX as number][y] as {any}) do
+				cell[j] = src[j]
+				coinmap[x][y] = coinmap[repeatX as number][y]
 			end
-			map[x][y]["gels"] = {}
-			map[x][y]["portaloverride"] = {}
+			cell["gels"] = {}
+			cell["portaloverride"] = {}
 			
 			for cox = mapwidth, x, -1 do
 				--move objects
@@ -263,25 +268,25 @@ global function reachedx(...: any): any
 			end
 			
 			--create object for block
-			if tilequads[map[repeatX][y][1]]:getproperty("collision", repeatX, y) then
+			if tilequads[map[repeatX as number][y][1]]:getproperty("collision", repeatX, y) then
 				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
 			end
 		end
 		mapwidth = mapwidth + 1
-		repeatX = repeatX + 1
+		repeatX = (repeatX as number) + 1
 		if flagx then
-			flagx = flagx + 1
+			flagx = (flagx as number) + 1
 			flagimgx = flagimgx + 1
 			objects["screenboundary"]["flag"].x = objects["screenboundary"]["flag"].x + 1
 		end
 		
 		if axex then
-			axex = axex + 1
+			axex = (axex as number) + 1
 			objects["screenboundary"]["axe"].x = objects["screenboundary"]["axe"].x + 1
 		end
 		
 		if firestartx then
-			firestartx = firestartx + 1
+			firestartx = (firestartx as number) + 1
 		end
 		
 		objects["screenboundary"]["right"].x = objects["screenboundary"]["right"].x + 1
@@ -356,7 +361,7 @@ global function playsound(...: any): any
 	if soundenabled then
 		if delaylist[sound as string] then
 			local currenttime = love.timer.getTime()
-			if currenttime-(soundlist[sound as string].lastplayed as number) > delaylist[sound as string] then
+			if currenttime-(soundlist[sound as string].lastplayed as number) > (delaylist[sound as string] as number) then
 				soundlist[sound].lastplayed = currenttime
 			else
 				return
@@ -370,11 +375,10 @@ global function playsound(...: any): any
 end
 
 global function drawrectangle(x: any, y: any, width: any, height: any): any
-	local x, y, width, height = ...
-	love.graphics.rectangle("fill", x*scale, y*scale, width*scale, scale)
-	love.graphics.rectangle("fill", x*scale, y*scale, scale, height*scale)
-	love.graphics.rectangle("fill", x*scale, (y+height-1)*scale, width*scale, scale)
-	love.graphics.rectangle("fill", (x+width-1)*scale, y*scale, scale, height*scale)
+	love.graphics.rectangle("fill", (x as number)*scale, (y as number)*scale, (width as number)*scale, scale)
+	love.graphics.rectangle("fill", (x as number)*scale, (y as number)*scale, scale, (height as number)*scale)
+	love.graphics.rectangle("fill", (x as number)*scale, ((y as number)+(height as number)-1)*scale, (width as number)*scale, scale)
+	love.graphics.rectangle("fill", ((x as number)+(width as number)-1)*scale, (y as number)*scale, scale, (height as number)*scale)
 end
 
 global function playmusic(...: any): any
@@ -412,13 +416,13 @@ end
 
 global function updateranges(...: any): any
 	for i, v in pairs(objects["laser"]) do
-		(v as {string:any}):updaterange()
+		(v as Entity):updaterange()
 	end
 	for i, v in pairs(objects["lightbridge"]) do
-		(v as {string:any}):updaterange()
+		(v as Entity):updaterange()
 	end
 	for i, v in pairs(objects["funnel"]) do
-		(v as {string:any}):updaterange()
+		(v as Entity):updaterange()
 	end
 end
 

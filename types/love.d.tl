@@ -22,7 +22,7 @@ global interface Entity is {any}
 	draw: function(Entity)
 	update: function(Entity, number): any...
 	t: any
-	i: number
+	i: any
 	cox: number
 	coy: number
 	dir: any
@@ -47,7 +47,7 @@ global interface Entity is {any}
 	delete: boolean
 	kill: boolean
 	open: boolean
-	mirror: boolean
+	mirror: any
 	remote: boolean
 	customscissor: any
 	invertedscissor: any
@@ -62,7 +62,7 @@ global interface Entity is {any}
 	biggraphic: any
 	colors: {any}
 	hats: {any}
-	char: any
+	char: Dyn
 	animationdirection: any
 	animationstate: any
 	animationtimer: number
@@ -91,8 +91,8 @@ global interface Entity is {any}
 	startfall: any
 	startx: number
 	starty: number
-	endx: number
-	endy: number
+	endx: any
+	endy: any
 	thickness: number
 	mazevar: number
 	size: number
@@ -120,7 +120,7 @@ global interface Entity is {any}
 	die: any
 	fall: any
 	portaled: function(Entity, any)
-	cubeemancipate: function(Entity, ...: any): any
+	cubeemancipate: any
 	-- EnemyDef-ish props accessed via Entity in mario collide paths
 	shellanimal: any
 	stompable: any
@@ -142,7 +142,7 @@ global interface Entity is {any}
 	intactoncollect: any
 	intactvalue: any
 	collectsound: any
-	hit: function(Entity, ...: any): any
+	hit: any
 	emancipate: any
 	limit: any
 	destroying: any
@@ -156,13 +156,14 @@ global interface Entity is {any}
 	animationwalk: any
 	stopanimation: any
 	setquad: any
-	pickupbox: function(Entity, ...: any): any
+	pickupbox: any
 	savereplaydata: any
-	updaterange: any
+	updaterange: function(Entity, ...: any): any
 	getTileInvolved: function(Entity, ...: any): any, any
 	updateangle: any
 	input: any
-	used: function(Entity, ...: any): any
+	used: any
+	onbutton: any
 	passivecollide: function(Entity, any, Entity, any, any): any
 	floorcollide: function(Entity, any, Entity, any, any): any
 	leftcollide: function(Entity, any, Entity, any, any): any

@@ -30,7 +30,7 @@ function lightbridge:init(x: number, y: number, r: any)
 	table.remove(self.r, 1)
 	--DIRECTION
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.dir = self.r[1]
+		self.dir = self.r[1] as string
 		table.remove(self.r, 1)
 	end
 	
@@ -77,12 +77,12 @@ function lightbridge:input(t, input)
 end
 
 function lightbridge:update(dt: number): any...
-	self.glowtimer = (self.glowtimer as number) + dt*2
+	self.glowtimer = self.glowtimer + dt*2
 	
 end
 
 function lightbridge:getglowa(offset: any): any
-	return math.sin((self.glowtimer as number)-offset*0.5)*.25+.75
+	return math.sin(self.glowtimer - (offset as number)*0.5)*.25+.75
 end
 
 function lightbridge:draw()
@@ -100,18 +100,19 @@ end
 
 function lightbridge:updaterange()
 	--save old gel values
-	local gels = {}
+	local gels: {number:Dyn} = {}
 	
 	for i, v in pairs(self.childtable) do
 		local v = v as Entity
-		if (v.gels as {any:any}).top then
-			table.insert(gels, {x=v.cox, y=v.coy, dir="top", i=(v.gels as {any:any}).top})
-		elseif (v.gels as {any:any}).left then
-			table.insert(gels, {x=v.cox, y=v.coy, dir="left", i=(v.gels as {any:any}).left})
-		elseif (v.gels as {any:any}).right then
-			table.insert(gels, {x=v.cox, y=v.coy, dir="right", i=(v.gels as {any:any}).right})
-		elseif (v.gels as {any:any}).bottom then
-			table.insert(gels, {x=v.cox, y=v.coy, dir="bottom", i=(v.gels as {any:any}).bottom})
+		local vg = v.gels as Dyn
+		if vg["top"] then
+			table.insert(gels, {x=v.cox, y=v.coy, dir="top", i=vg["top"]} as Dyn)
+		elseif vg["left"] then
+			table.insert(gels, {x=v.cox, y=v.coy, dir="left", i=vg["left"]} as Dyn)
+		elseif vg["right"] then
+			table.insert(gels, {x=v.cox, y=v.coy, dir="right", i=vg["right"]} as Dyn)
+		elseif vg["bottom"] then
+			table.insert(gels, {x=v.cox, y=v.coy, dir="bottom", i=vg["bottom"]} as Dyn)
 		end
 	end	
 	
@@ -162,8 +163,8 @@ function lightbridge:updaterange()
 		
 		local portalx, portaly, portalfacing, infacing = getPortal(x, y, opp)
 		if portalx ~= false and ((dir == "left" and infacing == "right") or (dir == "right" and infacing == "left") or (dir == "up" and infacing == "down") or (dir == "down" and infacing == "up")) then
-			x, y = portalx, portaly
-			dir = portalfacing
+			x, y = portalx as number, portaly as number
+			dir = portalfacing as string
 			
 			if dir == "right" then
 				x = x + 1
@@ -196,14 +197,15 @@ function lightbridge:updaterange()
 	--crosscheck childtable with gels to see any matching shit
 	for j, w in pairs(self.childtable) do
 		for i, v in pairs(gels) do
-			if v.x == w.cox and v.y == w.coy then
-				if v.dir == "left" or v.dir == "right" then
+			if (v["x"] as number) == w.cox and (v["y"] as number) == w.coy then
+				local d = v["dir"] as string
+				if d == "left" or d == "right" then
 					if w.dir == "ver" then
-						w.gels[v.dir] = v.i
+						(w.gels as Dyn)[d] = v["i"]
 					end
 				else
 					if w.dir == "hor" then
-						w.gels[v.dir] = v.i
+						(w.gels as Dyn)[d] = v["i"]
 					end
 				end
 			end
@@ -211,19 +213,19 @@ function lightbridge:updaterange()
 	end
 end
 
-function lightbridge:addChild(t)
+function lightbridge:addChild(t: lightbridgebody)
 	table.insert(self.childtable, t)
 end
 
 ------------------------------------
 
-function lightbridgebody.new(_: lightbridgebody, parent: any, x: any, y: any, dir: any, i: any): lightbridgebody
+function lightbridgebody.new(_: lightbridgebody, parent: lightbridge, x: number, y: number, dir: string, i: any): lightbridgebody
 	local self = setmetatable({}, { __index = lightbridgebody }) as lightbridgebody
 	self:init(parent, x, y, dir, i)
 	return self
 end
 
-function lightbridgebody:init(parent, x, y, dir, i)
+function lightbridgebody:init(parent: lightbridge, x: number, y: number, dir: string, i: any)
 	parent:addChild(self)
 	self.i = i
 	self.cox = x
@@ -318,7 +320,7 @@ function lightbridgebody:draw()
 	--gel
 	for i = 1, 4 do
 		local dir = "top"
-		local r = 0
+		local r: number = 0
 		if i == 2 then
 			dir = "right"
 			r = math.pi/2

@@ -49,8 +49,8 @@ function LoveLoad.run(arg: any)
 	versionstring = "version 1.0se"
 	debugprints = false
 
-	math.mod = math.fmod
-	math.random = love.math.random
+	rawset(math as any, "mod", math.fmod)
+	rawset(math as any, "random", love.math.random)
 
 	lastline = debug.getinfo(1).currentline
 	starttime = love.timer.getTime()
@@ -61,11 +61,12 @@ function LoveLoad.run(arg: any)
 	require("ui.notice")
 
 	local sizes = love.window.getFullscreenModes()
-	desktopsize = sizes[1] as any
+	desktopsize = sizes[1] as DesktopSize
 
 	for i = 2, #sizes do
-		if sizes[i].width > desktopsize.width or sizes[i].height > desktopsize.height then
-			desktopsize = sizes[i] as any
+		local s = sizes[i] as DesktopSize
+		if s.width > desktopsize.width or s.height > desktopsize.height then
+			desktopsize = s
 		end
 	end
 
@@ -80,9 +81,9 @@ function LoveLoad.run(arg: any)
 		magicdns_session = magicdns_session .. string.sub(magicdns_session_chars, rand, rand)
 	end
 	magicdns_identity = strsplit(love.filesystem.getSaveDirectory(), "/")
-	magicdns_identity = string.upper(magicdns_identity[#magicdns_identity])
+	magicdns_identity = string.upper((magicdns_identity as {string})[#(magicdns_identity as {string})])
 
-	shaderlist = love.filesystem.getDirectoryItems("assets/shaders/")
+	shaderlist = love.filesystem.getDirectoryItems("assets/shaders/") as {number:string}
 	local rem: integer | nil
 	for i, v in pairs(shaderlist) do
 		if v == "init.lua" then
@@ -105,9 +106,9 @@ function LoveLoad.run(arg: any)
 			key = "space"
 		end
 		if lkisScancodeDown then
-			return lkisScancodeDown(key)
+			return lkisScancodeDown(key) as boolean
 		end
-		return lkisDown(key)
+		return lkisDown(key) as boolean
 	end
 	function love.mouse.isDown(button: any): boolean
 		if button == "l" then
@@ -117,7 +118,7 @@ function LoveLoad.run(arg: any)
 		elseif button == "m" then
 			button = 3
 		end
-		return lmisDown(button)
+		return lmisDown(button) as boolean
 	end
 
 	iconimg = love.image.newImageData("assets/graphics/icon.png")
@@ -126,19 +127,15 @@ function LoveLoad.run(arg: any)
 	love.graphics.setDefaultFilter("nearest", "nearest")
 
 	axisDeadZones = {}
-	joysticks = love.joystick.getJoysticks()
+	joysticks = love.joystick.getJoysticks() as {Joystick}
 	if #joysticks > 0 then
 		for i, v in ipairs(joysticks) do
 			axisDeadZones[i] = {}
 			for j = 1, v:getAxisCount() do
-				axisDeadZones[i][j] = {}
-				axisDeadZones[i][j]["stick"] = true
-				axisDeadZones[i][j]["shoulder"] = true
+				(axisDeadZones[i] as {any:any})[j] = {stick=true, shoulder=true}
 			end
-			for _, j in pairs({ "leftx", "lefty", "rightx", "righty", "triggerleft", "triggerright" }) do
-				axisDeadZones[i][j] = {}
-				axisDeadZones[i][j]["stick"] = true
-				axisDeadZones[i][j]["shoulder"] = true
+			for _, j in pairs({ "leftx", "lefty", "rightx", "righty", "triggerleft", "triggerright" } as {number:string}) do
+				(axisDeadZones[i] as {any:any})[j] = {stick=true, shoulder=true}
 			end
 		end
 	end

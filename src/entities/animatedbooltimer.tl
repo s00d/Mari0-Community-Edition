@@ -22,7 +22,7 @@ function animatedbooltimer:init(x: number, y: number, tileno)
 	self.length = 0
 	for i = 1, #self.delays do
 		self.length = self.length + self.delays[i]
-		self.frametimes[i] = self.length as any
+		self.frametimes[i] = self.length
 	end
 	self.dir = 0
 	self.oldbool = false
@@ -41,7 +41,7 @@ function animatedbooltimer:update(dt: number): any...
 		self.dir = 0
 	end
 	
-	local newbool = globoolSH(self.boolcheck, "check")
+	local newbool = globoolSH(self.boolcheck, "check") as boolean
 	if newbool ~= self.oldbool then
 		self.oldbool = newbool
 		self:input(newbool)

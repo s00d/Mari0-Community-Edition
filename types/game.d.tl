@@ -122,7 +122,7 @@ global getMouseTile: function(x: number, y: number): number, number
 -- Tiles / enemies / characters
 global tilequads: {any:TileQuad}
 global enemiesdata: {any:EnemyDef}
-global enemies: {any}
+global enemies: {string}
 global characters: {string:Character}
 global mariocharacter: {string}
 
@@ -132,9 +132,9 @@ global hat: {any:HatDef}
 global bighat: {any:HatDef}
 
 -- HUD / progress
-global marioworld: any
-global mariolevel: any
-global mariosublevel: any
+global marioworld: number
+global mariolevel: number
+global mariosublevel: number
 global mariotime: number
 global mariotimelimit: number
 global mariolives: {number}
@@ -232,7 +232,7 @@ global spriteset: integer
 global custombackground: any
 global customforeground: any
 global backgroundlevel: any
-global background: any
+global background: {number}
 global coinmap: {number:{number:any}}
 global smbtilecount: integer
 global portaltilecount: integer
@@ -268,7 +268,7 @@ global record ShadersController is {any}
 end
 
 global shaders: ShadersController
-global shaderlist: {string}
+global shaderlist: {number:string}
 global guielements: {any:guielement}
 global volumesfx: number
 global volumemusic: number
@@ -313,7 +313,7 @@ global record AnimationDef
 	conditions: {any}
 	actions: {any}
 end
-global animations: {AnimationDef}
+global animations: {number:AnimationDef}
 global currentanimation: number
 global controlstable: {string}
 global customtilesimg: Image
@@ -371,7 +371,7 @@ global seesawtype: {any:{any}}
 global pausemenuoptions: {number:string}
 global earthquake: number
 global animatedtiles: {animatedquad}
-global backgroundcolor: {any}
+global backgroundcolor: {{number}}
 global mazestarts: {number}
 global bonusstage: any
 global record HttpLib
@@ -514,7 +514,7 @@ global scrollrate: number
 global userscrollrange: number
 global firetimer: number
 global prevsublevel: number|boolean
-global spawnrestrictions: {any}
+global spawnrestrictions: {{number}}
 global gamefinished: boolean
 global frameskip: any
 global mkstation: boolean
@@ -577,7 +577,7 @@ global bulletbilltimer: number
 global flyingfishzones: {{number}}
 global bulletbillzones: {{number}}
 global mazesolved: {any}
-global enemiesspawned: {any}
+global enemiesspawned: {{number}}
 global livereplaydelay: {number}
 global endpressbutton: boolean
 global id: {any}
@@ -785,10 +785,12 @@ global entitiesimg: Image
 global recording: boolean
 global skippedframes: number
 global recordframe: number
+global recordskip: number
+global recordtarget: any
 global touchfrominsidescaling: number
 global chatmessages: {any}
 global localnick: string
-global magicdns_identity: string
+global magicdns_identity: any
 global coinblockanimationquads: {integer:any}
 global scrollingscoreheight: number
 global portaldotsouter: number
@@ -1223,7 +1225,6 @@ global powerlinestab: function(...: any): any
 global pushbuttonimg: Image
 global reachedx: function(...: any): any
 global realdt: any
-global recordtarget: any
 global rsflipflopimg: Image
 global scoredelay: number
 global scrollsmoothrate: number
@@ -1331,7 +1332,7 @@ global drawlinkline2: function(...: any): any
 global drawmushrooms: function(...: any): any
 global drawplayer: function(...: any): any
 global drawpowerlines: function(...: any): any
-global drawrectangle: function(...: any): any
+global drawrectangle: function(any, any, any, any): any
 global drawreplay: function(...: any): any
 global editor_draw: function(...: any): any
 global editor_draw_chrome: function(...: any): any
@@ -1603,7 +1604,7 @@ global addzeros: function(any, integer): string
 global loadingtexts: {any:string}
 global skipintro: boolean
 global fontglyphs: string
-global gethatoffset: function(...: any): {number}
+global gethatoffset: function(...: any): {number}|nil
 global getrainbowcolor: function(number): {number}
 global remove_indices_desc: function(...: any): any
 global addanimationtriggerbutton: guielement
@@ -1627,7 +1628,7 @@ global editor_minimap_xscroll_from_mouse: function(number, number, number, numbe
 global editor_minimap_tile_from_click: function(number, number, number, number, number, number, number): number, number
 global editor_filter_map_files: function(...: any): any
 global editor_normalize_rect: function(number, number, number, number): number, number, number, number
-global editor_hotkeys_parse: function(...: any): any
+global editor_hotkeys_parse: function(...: any): {string:{any}}
 global editor_hotkeys_serialize: function(...: any): any
 global getmtbutton: function(...: any): any
 global getlistpos: function(...: any): any
@@ -1653,15 +1654,15 @@ global record LoveLoadModule
 	run: function(LoveLoadModule, any)
 end
 global LoveLoad: LoveLoadModule
-global magicdns_session_chars: {number:string}
+global magicdns_session_chars: string
 global lkisScancodeDown: function(...: any): any
 global lkisDown: function(...: any): any
 global lmisDown: function(...: any): any
-global joysticks: {any}
+global joysticks: {Joystick}
 global bdrawui: any
 global drawreplays: any
 global fsaa: any
-global iconimg: Image
+global iconimg: ImageData
 
 
 global submode: any

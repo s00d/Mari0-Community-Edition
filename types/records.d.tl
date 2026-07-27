@@ -8,7 +8,7 @@ global record actionblock is Entity
 	coy: number
 	height: number
 	mask: {boolean}
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	speedx: number
 	speedy: number
 	state: string
@@ -38,9 +38,9 @@ global record andgate is Entity
 	cox: number
 	coy: number
 	initial: boolean
-	inputstate: {any}
+	inputstate: {number:any}
 	outputstate: any
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	r: {any}
 	visible: boolean
 	x: number
@@ -56,14 +56,14 @@ global record andgate is Entity
 end
 
 global record animatedbooltimer is {any}
-	boolcheck: number
-	delays: any
-	dir: string
-	frametimes: any
+	boolcheck: any
+	delays: {number}
+	dir: number
+	frametimes: {number}
 	length: number
-	oldbool: number
+	oldbool: boolean
 	quadi: number
-	quadobj: Quad
+	quadobj: TileQuad
 	timer: number
 	x: number
 	y: number
@@ -124,12 +124,12 @@ global record animatedtiletrigger is Entity
 end
 
 global record animatedtimer is {any}
-	delays: any
-	dir: string
-	frametimes: any
+	delays: {number}
+	dir: number
+	frametimes: {number}
 	length: number
 	quadi: number
-	quadobj: Quad
+	quadobj: TileQuad
 	timer: number
 	x: number
 	y: number
@@ -316,7 +316,7 @@ global record box is Entity
 	mask: {boolean}
 	offsetX: number
 	offsetY: number
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	parent: Entity|nil
 	portaledframe: boolean
 	portaloverride: boolean
@@ -428,8 +428,8 @@ global record button is Entity
 	mask: {boolean}
 	objtable: {any}
 	out: boolean
-	outtable: {{any}}
-	pressings: number
+	outtable: {{Entity, any}}
+	pressings: {number:Entity}
 	r: {any}
 	static: boolean
 	width: number
@@ -644,7 +644,7 @@ global record delayer is Entity
 	cox: number
 	coy: number
 	delay: number
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	r: {any}
 	timers: number
 	visible: boolean
@@ -868,7 +868,7 @@ global record enemy is Entity
 	offsetY: number
 	offsetx: number
 	offsety: number
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	pistondistx: number
 	pistondisty: number
 	pistonextendtime: number
@@ -1439,7 +1439,7 @@ global record laser is {any}
 	framestart: number
 	input1state: any
 	lasertable: {any}
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	power: any
 	r: {any}
 	init: function(laser, number, number, any)
@@ -1470,7 +1470,7 @@ global record laserdetector is Entity
 	dir: string
 	drawable: boolean
 	out: boolean
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	prevout: number
 	r: {any}
 	init: function(laserdetector, number, number, any)
@@ -1487,21 +1487,21 @@ global record lightbridge is {any}
 	speedy: number
 	active: boolean
 	category: number
-	children: any
-	childtable: {any:any}
+	children: number
+	childtable: {number:lightbridgebody}
 	cox: number
 	coy: number
 	destroy: any
-	dir: any
-	gels: any
-	glowa: any
-	glowtimer: any
+	dir: string
+	gels: Dyn
+	glowa: number
+	glowtimer: number
 	height: number
 	i: number
 	input1state: any
 	mask: {boolean}
-	parent: any
-	power: any
+	parent: lightbridge
+	power: boolean
 	r: {any}
 	static: boolean
 	width: number
@@ -1514,7 +1514,7 @@ global record lightbridge is {any}
 	getglowa: function(lightbridge, any): any...
 	draw: function(lightbridge)
 	updaterange: function(lightbridge)
-	addChild: function(lightbridge, any)
+	addChild: function(lightbridge, lightbridgebody)
 	new: function(lightbridge, number, number, {any}): lightbridge
 end
 
@@ -1529,25 +1529,25 @@ global record lightbridgebody is Entity
 	coy: number
 	destroy: boolean
 	dir: string
-	gels: {string:number}
+	gels: Dyn
 	glowa: number
 	glowtimer: number
 	height: number
-	i: number
+	i: any
 	input1state: any
 	mask: {boolean}
-	parent: any
+	parent: lightbridge
 	power: any
 	r: {any}
 	static: boolean
 	width: number
 	x: number
 	y: number
-	init: function(lightbridgebody, number, number, any, any, any)
+	init: function(lightbridgebody, lightbridge, number, number, string, any)
 	pushstuff: function(lightbridgebody)
 	update: function(lightbridgebody, number): any...
 	draw: function(lightbridgebody)
-	new: function(lightbridgebody, any, any, any, any, any): lightbridgebody
+	new: function(lightbridgebody, lightbridge, number, number, string, any): lightbridgebody
 end
 
 global record magic is Entity
@@ -1812,7 +1812,7 @@ global record notgate is Entity
 	coy: number
 	initial: boolean
 	input1state: any
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	power: any
 	r: {any}
 	visible: boolean
@@ -1840,9 +1840,9 @@ global record orgate is Entity
 	cox: number
 	coy: number
 	initial: boolean
-	inputstate: {any}
+	inputstate: {number:any}
 	outputstate: any
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	r: {any}
 	visible: boolean
 	x: number
@@ -1874,8 +1874,8 @@ global record panel is Entity
 	dir: string
 	input1state: any
 	out: boolean
-	r: {any}
-	t: string
+	r: number
+	t: {any}
 	init: function(panel, number, number, any)
 	link: function(panel)
 	draw: function(panel)
@@ -2057,16 +2057,17 @@ global record portalprojectile is Entity
 	alpha: number
 	angle: number
 	bounces: any
-	color: any
+	color: {number}
 	endx: any
 	endy: any
 	hit: any
 	lastparticle: number
 	length: number
 	mirror: any
-	particles: {any}
+	particles: {number:Entity}
 	payload: any
 	payloaddelivered: any
+	portal: any
 	sinestart: number
 	speedx: number
 	speedy: number
@@ -2151,7 +2152,7 @@ global record pushbutton is Entity
 	coy: number
 	dir: string
 	out: boolean
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	pusheddown: number
 	r: {any}
 	timer: number
@@ -2239,11 +2240,11 @@ global record regiontrigger is Entity
 	checktable: any
 	cox: number
 	coy: number
-	out: boolean
-	outtable: {{any}}
+	out: any
+	outtable: {{Entity, any}}
 	r: {any}
-	regionX: number
-	regionY: number
+	regionX: any
+	regionY: any
 	regionheight: number
 	regionwidth: number
 	x: number
@@ -2342,7 +2343,7 @@ global record rsflipflop is Entity
 	cox: number
 	coy: number
 	output: number
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	r: {any}
 	visible: boolean
 	x: number
@@ -2547,7 +2548,7 @@ global record squarewave is Entity
 	coy: number
 	initial: boolean
 	input1state: any
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	r: {any}
 	time1: number
 	time2: number
@@ -2573,10 +2574,10 @@ global record textentity is Entity
 	category: number
 	mask: {boolean}
 	blue: number
-	boolbincache: {any:any}
-	boolcache: {any:any}
-	builtincache: {any:any}
-	glintcache: {any:any}
+	boolbincache: {any:{any}}
+	boolcache: {any:{any}}
+	builtincache: {any:{any}}
+	glintcache: {any:{any}}
 	green: number
 	hasaprefix: boolean
 	input1state: any
@@ -2585,7 +2586,7 @@ global record textentity is Entity
 	r: {any}
 	red: number
 	text: string
-	textsplit: {any}
+	textsplit: {number:any}
 	x: number
 	y: number
 	init: function(textentity, number, number, any)
@@ -2672,7 +2673,7 @@ global record walltimer is Entity
 	coy: number
 	input1state: any
 	lighted: boolean
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	quad: any
 	r: {any}
 	time: number
@@ -2705,7 +2706,7 @@ global record zgbooltrigger is Entity
 	inverted: number
 	invisible: boolean
 	out: boolean
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	r: {any}
 	x: number
 	y: number
@@ -2732,7 +2733,7 @@ global record zginttrigger is Entity
 	coy: number
 	id: number
 	out: boolean
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	r: {any}
 	value: number
 	x: number

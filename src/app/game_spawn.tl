@@ -1,7 +1,9 @@
 --[[ Teal extract from root game.lua: spawn helpers ]]
 
 global function spawnenemy(...: any): any
-	local x, y = ...
+	local args = {...}
+	local x = args[1] as number
+	local y = args[2] as number
 	if not inmap(x, y) then
 		return
 	end
@@ -31,12 +33,12 @@ global function spawnenemy(...: any): any
 		local wasenemy = false
 		if allowenemy and tablecontains(enemies, r[2]) and not editormode then
 			if not tilequads[map[x][y][1] ]:getproperty("breakable", x, y) and not tilequads[map[x][y][1] ]:getproperty("coinblock", x, y) then
-				table.insert(objects["enemy"], enemy:new(x, y, r[2], r))
+				table.insert(objects["enemy"], enemy:new(x, y, r[2] as string, r))
 				wasenemy = true
 			end
 		elseif entitylist[r[2]] then
 			local t = entitylist[r[2]].t
-			wasenemy = dispatch_enemy_entity_spawn(t, x, y, r, allowenemy)
+			wasenemy = dispatch_enemy_entity_spawn(t, x, y, r, allowenemy) as boolean
 		end
 		
 		table.insert(enemiesspawned, {x, y})
@@ -53,7 +55,9 @@ global function spawnenemy(...: any): any
 end
 
 global function givelive(...: any): any
-	local id, t = ...
+	local args = {...}
+	local id = args[1]
+	local t = args[2] as Entity
 	if mariolivecount ~= false then
 		for i = 1, players do
 			mariolives[i] = mariolives[i]+1
@@ -67,7 +71,10 @@ global function givelive(...: any): any
 end	
 
 global function addpoints(...: any): any
-	local i, x, y = ...
+	local args = {...}
+	local i = args[1] as number
+	local x = args[2]
+	local y = args[3]
 	if i > 0 then
 		marioscore = marioscore + i
 		if x and y then

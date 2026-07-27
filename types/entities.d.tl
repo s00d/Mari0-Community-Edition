@@ -99,8 +99,8 @@ global record Character is {any}
 	defaultcolors: {integer:{{number}}}
 	defaulthat: any
 	colorables: {any}
-	hatoffsets: any
-	bighatoffsets: any
+	hatoffsets: Dyn
+	bighatoffsets: Dyn
 	idle: {any:any}
 	run: {any:{any:any}}
 	slide: {any:any}
@@ -128,6 +128,10 @@ global record TileQuad is {any}
 	boolean: any
 	cache: any
 	number: any
+	boolid: any
+	delays: {number}
+	properties: {any:Dyn}
+	portalable: any
 	getproperty: function(TileQuad, ...: any): any
 	quad: function(TileQuad, ...: any): any
 end
@@ -181,7 +185,7 @@ global record Enemy
 	combo: integer
 	falling: boolean
 	shot: boolean
-	outtable: {{any}}
+	outtable: {{Entity, any}}
 	animationtype: string
 	animationtimer: number
 	animationdirection: string
