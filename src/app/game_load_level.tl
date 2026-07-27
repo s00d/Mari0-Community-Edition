@@ -752,12 +752,14 @@ global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
 		end
 	end
 
+	local view_capacity = (xtodraw as integer) * (row_count as integer)
 	local can_incremental = math.abs(scroll_dx) + math.abs(scroll_dy) == 1
 		and spritebatch_view ~= nil
 		and spritebatch_cols == xtodraw
 		and spritebatch_rows == row_count
 		and spritebatch_floor_x + scroll_dx == flooredxscroll
 		and spritebatch_floor_y + scroll_dy == flooredyscroll
+		and (spritebatch_orphan_slots or 0) < view_capacity
 
 	if can_incremental then
 		local view = spritebatch_view as {number:{number:SpriteBatchViewCell|nil}}
@@ -823,10 +825,18 @@ global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
 		spritebatch_floor_x = flooredxscroll as integer
 		spritebatch_floor_y = flooredyscroll as integer
 		sync_view_slots(view, xtodraw as integer, row_count as integer, changed_col, changed_row)
+		local scroll_hides = 0
+		if dx ~= 0 then
+			scroll_hides = row_count as integer
+		elseif dy ~= 0 then
+			scroll_hides = xtodraw as integer
+		end
+		spritebatch_orphan_slots = (spritebatch_orphan_slots or 0) + scroll_hides
 		return
 	end
 
 	clear_all_spritebatches()
+	spritebatch_orphan_slots = 0
 
 	local view: {number:{number:SpriteBatchViewCell|nil}} = {}
 	for y = 0, row_count - 1 do

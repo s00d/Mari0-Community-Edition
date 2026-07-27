@@ -523,6 +523,7 @@ global spritebatch_rows: integer
 global spritebatch_floor_x: integer
 global spritebatch_floor_y: integer
 global spritebatch_view: {number:{number:SpriteBatchViewCell|nil}}
+global spritebatch_orphan_slots: integer
 global firestartx: any
 global pipestarty: number
 global fireanimationtime: number

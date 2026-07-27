@@ -19,6 +19,7 @@ global function create_tile_spritebatches()
 	end
 	spritebatchX = {}
 	spritebatchY = {}
+	spritebatch_orphan_slots = 0
 end
 
 return create_tile_spritebatches
