@@ -241,7 +241,7 @@ global function getportalposition(...: any): any...
 	return false
 end
 
-global function getTile(x: number, y: number, portalable: any, portalcheck: any, facing: any, ignoregrates: any, dir: any, mirexc: any): any, any --returns masktable value of block (As well as the ID itself as second return parameter) also includes a portalcheck and returns false if a portal is on that spot.
+global function getTile(x: number, y: number, portalable?: any, portalcheck?: any, facing?: any, ignoregrates?: any, dir?: any, mirexc?: any): any, any --returns masktable value of block (As well as the ID itself as second return parameter) also includes a portalcheck and returns false if a portal is on that spot.
 	if portalcheck then
 		for i, v in pairs(portals) do
 			--Get the extra block of each portal
@@ -340,7 +340,7 @@ global function getTile(x: number, y: number, portalable: any, portalcheck: any,
 	end
 end
 
-global function getPortal(x: number, y: number, dir: any): any... --returns the block where you'd come out when you'd go in the argument's block
+global function getPortal(x: number, y: number, dir?: any): any... --returns the block where you'd come out when you'd go in the argument's block
 	for i, v in pairs(portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 			--Get the extra block of each portal
@@ -515,7 +515,7 @@ global function moveoutportal(...: any): any... --pushes objects out of the port
 	end
 end
 
-global function traceline(sourcex: number, sourcey: number, radians: number, reportal: any): any...
+global function traceline(sourcex: number, sourcey: number, radians: number, reportal?: any): number|boolean, number|boolean, string|boolean, number|boolean, number, number
 	local portalx: number = 0
 	local portaly: number = 0
 	local portalfacing: any = false

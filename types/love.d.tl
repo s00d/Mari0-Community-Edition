@@ -1,7 +1,7 @@
 global type Dyn = {any:Dyn}
 
 global record Font
-	getWidth: function(Font, string|nil): number
+	getWidth: function(self: Font, text?: string): number
 	getHeight: function(Font): number
 end
 
@@ -286,7 +286,7 @@ global record love
 		newQuad: function(x: number, y: number, w: number, h: number, sw: number, sh: number): Quad
 		newCanvas: function(...: any): Canvas
 		newShader: function(code: string): Shader
-		newSpriteBatch: function(image: Image, size: integer|nil, usage: string|nil): SpriteBatch
+		newSpriteBatch: function(image: Image, size?: integer, usage?: string): SpriteBatch
 		setColor: function(...: any)
 		setBackgroundColor: function(...: any)
 		getBackgroundColor: function(): number, number, number, number
@@ -302,7 +302,7 @@ global record love
 		origin: function()
 		push: function()
 		pop: function()
-		scale: function(sx: number, sy: number|nil)
+		scale: function(sx: number, sy?: number)
 		translate: function(x: number, y: number)
 		rotate: function(angle: number)
 		rectangle: function(mode: string, x: number, y: number, w: number, h: number)
@@ -335,7 +335,7 @@ global record love
 	end
 
 	record filesystem
-		getInfo: function(path: string, filter: string|nil): {string:any}|nil
+		getInfo: function(path: string, filter?: string): {string:any}|nil
 		getDirectoryItems: function(path: string): {string}
 		read: function(path: string): string|nil, string|nil
 		write: function(path: string, data: string): boolean, string|nil
@@ -390,7 +390,7 @@ global record love
 	end
 
 	record window
-		setMode: function(w: number, h: number, flags: {string:any}|nil): boolean
+		setMode: function(w: number, h: number, flags?: {string:any}): boolean
 		getMode: function(): number, number, {string:any}
 		setTitle: function(title: string)
 		setIcon: function(data: any)
@@ -406,7 +406,7 @@ global record love
 	end
 
 	record event
-		quit: function(code: number|nil)
+		quit: function(code?: number)
 		pump: function()
 		-- Love poll iterator yields event name + up to 4 payload values
 		poll: function(): function(): string, any, any, any, any
@@ -457,7 +457,7 @@ global record ImageData
 	getHeight: function(ImageData): number
 	getPixel: function(ImageData, number, number): number, number, number, number
 	setPixel: function(ImageData, number, number, number, number, number, number)
-	encode: function(ImageData, string, string|nil)
+	encode: function(self: ImageData, format: string, filename?: string)
 end
 
 global record Image
@@ -488,7 +488,7 @@ global record Source
 	stop: function(self: Source)
 	setVolume: function(self: Source, v: number)
 	setLooping: function(self: Source, loop: boolean)
-	seek: function(self: Source, position: number, unit: string|nil)
+	seek: function(self: Source, position: number, unit?: string)
 	getDuration: function(self: Source, unit: string|nil): number
 	isPlaying: function(self: Source): boolean
 end

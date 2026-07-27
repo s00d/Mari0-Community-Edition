@@ -1562,11 +1562,11 @@ global function downloadmappacks(...: any): any
 	--download all mappacks
 	for i = 1, #maplist do
 		--check if current version is equal or newer
-		local version = 0
+		local version: number = 0
 		if love.filesystem.getInfo("mappacks/" .. maplist[i] .. "/version.txt") then
 			local data = love.filesystem.read("mappacks/" .. maplist[i] .. "/version.txt")
 			if data then
-				version = tonumber(data)
+				version = tonumber(data) or 0
 			end
 		end
 		
@@ -2530,7 +2530,7 @@ global function loadmapold(...: any): any
 					musicname = musiclist[tonumber(spl[2] as string) as integer] as string
 				end
 			elseif spl[1] == "spriteset" then
-				spriteset = tonumber(spl[2])
+				spriteset = tonumber(spl[2]) as integer
 			elseif spl[1] == "scrollfactor" then
 				scrollfactor = tonumber(spl[2])
 			elseif v == "portalbackground" or v == "custombackground" then

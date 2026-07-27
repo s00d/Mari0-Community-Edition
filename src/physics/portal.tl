@@ -252,7 +252,7 @@ global function checkportalVER(self: Entity, nextX: number): boolean --handles v
 	return false
 end
 
-global function portalcoords(x: number, y: number, speedx: number, speedy: number, width: number, height: number, rotation: number, animationdirection: any, entryportalX: number|boolean, entryportalY: number|boolean, entryportalfacing: any, exitportalX: number|boolean, exitportalY: number|boolean, exitportalfacing: any, self: Entity, live: boolean|nil): number, number, number, number, number, any
+global function portalcoords(x: number, y: number, speedx: number, speedy: number, width: number, height: number, rotation: number, animationdirection: any, entryportalX: number|boolean, entryportalY: number|boolean, entryportalfacing: any, exitportalX: number|boolean, exitportalY: number|boolean, exitportalfacing: any, self?: Entity, live?: boolean): number, number, number, number, number, any
 	local eX = entryportalX as number
 	local eY = entryportalY as number
 	local xX = exitportalX as number

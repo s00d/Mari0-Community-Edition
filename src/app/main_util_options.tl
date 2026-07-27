@@ -393,7 +393,7 @@ global function continuegame(...: any): any
 		elseif split2[1] == "d" then
 			marioscore = tonumber(split2[2])
 		elseif split2[1] == "e" then
-			players = tonumber(split2[2])
+			players = tonumber(split2[2]) as integer
 		elseif split2[1] == "f" and mariolivecount ~= false then
 			mariolives[tonumber(split2[2]) as integer] = tonumber(split2[3]) as number
 		elseif split2[1] == "g" then

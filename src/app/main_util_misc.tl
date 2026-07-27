@@ -304,7 +304,7 @@ global function getupdate(...: any): any
 	return false
 end
 
-global function properprint(s: any, x: any, y: any, sc: any): any
+global function properprint(s: any, x: any, y: any, sc?: any): any
 	local scale = (sc or scale) as number
 	local startx = x as number
 	local xx = x as number

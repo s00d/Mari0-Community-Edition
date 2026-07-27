@@ -449,7 +449,7 @@ global function loadmap(...: any): any...
 		elseif s3[1] == "background" then
 			background = {unpack(backgroundcolor[tonumber(s3[2] as string) as integer] as {any})} as {number}
 		elseif s3[1] == "spriteset" then
-			spriteset = tonumber(s3[2])
+			spriteset = tonumber(s3[2]) as integer
 		elseif s3[1] == "intermission" then
 			intermission = true
 		elseif s3[1] == "haswarpzone" then

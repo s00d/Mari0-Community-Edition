@@ -1,13 +1,7 @@
 -- AABB object-list query (extracted from physics.lua).
 -- Depends at runtime on: objects, aabb.
 
-global function checkrect(...: any): {any}
-	local x = (... as number)
-	local y = (select(2, ...) as number)
-	local width = (select(3, ...) as number)
-	local height = (select(4, ...) as number)
-	local list: any = select(5, ...)
-	local statics = select(6, ...)
+global function checkrect(x: number, y: number, width: number, height: number, list: any, statics?: any): {any}
 	local unpack = table.unpack or unpack
 	local out = {} as {any}
 	

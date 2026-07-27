@@ -5,10 +5,10 @@ require("entities")
 require("records")
 
 global record MouseProxy
-	getX: function(MouseProxy): number
-	getY: function(MouseProxy): number
-	getPosition: function(MouseProxy): number, number
-	isDown: function(MouseProxy, ...: any): boolean
+	getX: function(): number
+	getY: function(): number
+	getPosition: function(): number, number
+	isDown: function(...: any): boolean
 end
 
 
@@ -44,8 +44,8 @@ end
 
 -- Runtime JSON is LuaRocks dkjson (see types/dkjson.d.tl); kept as global JSON.
 global record JSONModule
-	decode: function(string, integer|nil, any|nil): any, integer|nil
-	encode: function(any, {string:any}|nil): string
+	decode: function(s: string, pos?: integer, nullval?: any): any, integer|nil
+	encode: function(val: any, state?: {string:any}): string
 	null: any
 	version: string
 end
@@ -114,9 +114,9 @@ global tilekey_xy: function(key: integer): integer, integer
 global TILEKEY_STRIDE: integer
 global inmap: function(x: number|nil, y: number|nil): boolean
 global inrange: function(...: any): boolean
-global round: function(num: number, idp: number|nil): number
+global round: function(num: number, idp?: number): number
 global tablecontains: function(t: {any}, entry: any): boolean
-global getTile: function(number, number, any, any, any, any, any, any): any, any
+global getTile: function(x: number, y: number, portalable?: any, portalcheck?: any, facing?: any, ignoregrates?: any, dir?: any, mirexc?: any): any, any
 global getMouseTile: function(...: any): number, number
 
 -- Tiles / enemies / characters
@@ -293,7 +293,7 @@ global MAP_SPAWN_EARLY_HANDLERS: {string:function(number, number, {any}): any}
 
 -- Auto-ambient stubs for legacy globals (narrow later)
 global record NoticeModule is {any}
-	new: function(any, any, any)
+	new: function(text: any, color?: any, lifetime?: any)
 	white: any
 	red: any
 	yellow: any
@@ -501,9 +501,9 @@ global playerconfig: {any}
 global blockdebristable: {any:Entity}
 global portalprojectiles: {any:Entity}
 global completecanvas: any
-global userects: {any:{any:any}}
-global adduserect: function(...: any): {any:any}
-global userect: function(...: any): {any}, any
+global userects: {any:{string:any}}
+global adduserect: function(x: number, y: number, width: number, height: number, callback: any): {string:any}
+global userect: function(x: number, y: number, width: number, height: number): {any}, any
 global menuprompt: boolean
 global itemanimations: {any:Entity}
 global scalefactor: number
@@ -706,7 +706,7 @@ global currentscissor: {number}
 global coinanimationquads: {any:{any:any}}
 global pausemenuoptions2: {any:any}
 global volumesliderimg: Image
-global scroll_batch_offset: function(number, number|nil): number
+global scroll_batch_offset: function(scroll: number, sc?: number): number
 global displaywarpzonetext: number|boolean
 global seesaws: {any:Entity}
 global flagscore: number
@@ -1265,7 +1265,7 @@ global zgbooltriggerimg: Image
 global zgbooltriggerquad: {any}
 
 -- Cross-module function stubs (implementations in src/)
-global aabb: function(...: any): boolean
+global aabb: function(ax: number, ay: number, awidth: number, aheight: number, bx: number, by: number, bwidth: number, bheight: number): boolean
 global aabt: function(number, number, number, number, number, number, number, number, any): boolean|nil
 global add: function(...: any): any
 global addanimationaction: function(...: any): any
@@ -1292,16 +1292,16 @@ global changeportalgun: function(...: any): any
 global changescale: function(...: any): any
 global changespriteset: function(...: any): any
 global checkcollision: function(Entity, Entity, any, any, any, any, number, any): boolean, boolean
-global checkforemances: function(...: any): any
+global checkforemances: function(dt: number, v: Entity, speedx?: number, speedy?: number)
 global checkkey: function(...: any): any
 global checkmagic: function(...: any): any
 global checkportalHOR: function(Entity, number): boolean
 global checkportalVER: function(Entity, number): boolean
 global checkportalremove: function(...: any): any...
-global checkrect: function(...: any): {any}
+global checkrect: function(x: number, y: number, width: number, height: number, list: any, statics?: any): {any}
 global closerightclickmenu: function(...: any): any
 global collectblock: function(...: any): any
-global collectcoin: function(number, number, any): any
+global collectcoin: function(x: number, y: number, i?: any): any
 global collisionscalls: function(any, Entity, any, Entity, any, any): any
 global configdecrease: function(...: any): any
 global configincrease: function(...: any): any
@@ -1383,7 +1383,7 @@ global frommapstab: function(...: any): any
 
 global game_update: function(...: any): any
 global getquadprops: function(ImageData, number, number): {string:any}
-global properprint: function(any, any, any, any): any
+global properprint: function(s: any, x: any, y: any, sc?: any): any
 global print_r: function(any, any): any
 global openSaveFolder: function(any): any
 global dbprint: function(...: any): any
@@ -1414,7 +1414,7 @@ global generateanimationgui: function(...: any): any
 global generateentitylist: function(...: any): any
 global generatespritebatch: function(...: any): any
 global getAngleFrame: function(number, number): any
-global getPortal: function(number, number, any): any...
+global getPortal: function(x: number, y: number, dir?: any): any...
 global getSelectedTiles: function(...: any): {{any}}
 global getTiles: function(...: any): {{any}}
 global getaveragecolor: function(...: any): number, number, number
@@ -1427,8 +1427,8 @@ global givelive: function(...: any): any
 global globintCH: function(...: any): any
 global globintSH: function(...: any): any
 global globoolSH: function(...: any): any
-global handlegroup: function(...: any): any, any
-global hitblock: function(number, number, any, any): any
+global handlegroup: function(i: any, h: any, u: {any:Entity}, v: Entity, j: any, dt: number, passed: any): boolean, boolean
+global hitblock: function(x: number, y: number, t: any, koopa?: any): any
 global hitrightside: function(...: any): any
 global horcollision: function(Entity, Entity, any, any, any, any, number): boolean
 global increasetimelimit: function(...: any): any
@@ -1521,12 +1521,12 @@ global onlinemenu_update: function(...: any): any
 global onlineupdatescroll: function(...: any): any
 global openchangewidth: function(...: any): any
 global passivecollision: function(Entity, Entity, any, any, any, any, number): boolean
-global physicsupdate: function(...: any): any
+global physicsupdate: function(dt: number)
 global placetile: function(...: any): any
 global playmusic: function(...: any): any
 global playsound: function(...: any): any
-global portalcoords: function(number, number, number, number, number, number, number, any, number|boolean, number|boolean, any, number|boolean, number|boolean, any, Entity, boolean|nil): number, number, number, number, number, any
-global prerotatecall: function(any, any): any
+global portalcoords: function(x: number, y: number, speedx: number, speedy: number, width: number, height: number, rotation: number, animationdirection: any, entryportalX: number|boolean, entryportalY: number|boolean, entryportalfacing: any, exitportalX: number|boolean, exitportalY: number|boolean, exitportalfacing: any, self?: Entity, live?: boolean): number, number, number, number, number, any
+global prerotatecall: function(any, any): boolean
 global previouscharacter: function(...: any): any
 global properprint2: function(...: any): any
 global properprintbackground: function(...: any): any
@@ -1585,7 +1585,7 @@ global togglemagic: function(...: any): any
 global toggleskiplevelscreen: function(...: any): any
 global toggleunderwater: function(...: any): any
 global togglewarpzone: function(...: any): any
-global traceline: function(number, number, number, any): any...
+global traceline: function(sourcex: number, sourcey: number, radians: number, reportal?: any): number|boolean, number|boolean, string|boolean, number|boolean, number, number
 global trianglepassivecollision: function(Entity, Entity, any, any, any, any, number): any
 global trianglevercollision: function(Entity, Entity, any, any, any, any, number): any
 global twistdirection: function(any, any): any

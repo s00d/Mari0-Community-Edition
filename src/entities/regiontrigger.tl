@@ -50,16 +50,24 @@ function regiontrigger:init(x: number, y: number, r)
 	--REGION
 	if #self.r > 0 then
 		local s = strsplit(self.r[1] as string, ":")
-		self.regionX, self.regionY, self.regionwidth, self.regionheight = s[2], s[3], tonumber(s[4]) as number, tonumber(s[5]) as number
-		if string.sub(self.regionX as string, 1, 1) == "m" then
-			self.regionX = -tonumber(string.sub(self.regionX as string, 2))
+		local rx = s[2]
+		local ry = s[3]
+		self.regionwidth = tonumber(s[4]) as number
+		self.regionheight = tonumber(s[5]) as number
+		local regionx: number
+		local regiony: number
+		if string.sub(rx, 1, 1) == "m" then
+			regionx = -(tonumber(string.sub(rx, 2)) or 0)
+		else
+			regionx = tonumber(rx) or 0
 		end
-		if string.sub(self.regionY as string, 1, 1) == "m" then
-			self.regionY = -tonumber(string.sub(self.regionY as string, 2))
+		if string.sub(ry, 1, 1) == "m" then
+			regiony = -(tonumber(string.sub(ry, 2)) or 0)
+		else
+			regiony = tonumber(ry) or 0
 		end
-		
-		self.regionX = (tonumber(self.regionX) as number) + self.x - 1
-		self.regionY = (tonumber(self.regionY) as number) + self.y - 1
+		self.regionX = regionx + self.x - 1
+		self.regionY = regiony + self.y - 1
 		table.remove(self.r, 1)
 	end
 	

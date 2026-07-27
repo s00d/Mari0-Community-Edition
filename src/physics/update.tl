@@ -2,8 +2,7 @@
 -- Depends at runtime on: objects, PHYSICS_LATE_*, convert*, checkportal*,
 -- handlegroup, checkcollision, inmap, tilequads, map, tilekey, checkforemances, inportal.
 
-global function physicsupdate(...: any): any
-	local dt = (... as number)
+global function physicsupdate(dt: number)
 	local lobjects = objects
 	
 	for j, w in pairs(lobjects) do

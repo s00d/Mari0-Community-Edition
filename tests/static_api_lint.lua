@@ -283,6 +283,49 @@ if media_hits == 0 then
 	check("newImage/newSource confined to assets+boot+load", true)
 end
 
+-- Progress ratchets: FAIL if counts go UP; suggest lower max when count drops.
+do
+	local RATCHET = {
+		{ pattern = "global function [%w_]+%(%.%.%.: any%)", max = 164, label = "untyped global function doors" },
+		{ pattern = "global [%w_]+: function%(%.%.%.: any%)", max = 326, label = "ambient (...: any) doors" },
+		{ pattern = " as any",                          max = 175, label = "as any" },
+		{ pattern = "is {any}",                         max = 36,  label = "is {any} records" },
+		{ pattern = "%): any%.%.%.",                    max = 253, label = "any... returns" },
+	}
+
+	local bodies = {}
+	for _, path in ipairs(list_files(root .. "/src", {"tl"})) do
+		local f = io.open(path, "r")
+		if f then
+			bodies[#bodies + 1] = f:read("*a") or ""
+			f:close()
+		end
+	end
+	for _, path in ipairs(list_files(root .. "/types", {"tl"})) do
+		local f = io.open(path, "r")
+		if f then
+			bodies[#bodies + 1] = f:read("*a") or ""
+			f:close()
+		end
+	end
+	local corpus = table.concat(bodies, "\n")
+
+	for _, r in ipairs(RATCHET) do
+		local count = 0
+		for _ in corpus:gmatch(r.pattern) do
+			count = count + 1
+		end
+		if count > r.max then
+			check("ratchet " .. r.label, false, "count=" .. count .. " max=" .. r.max)
+		else
+			check("ratchet " .. r.label .. " <=" .. r.max, true)
+			if count < r.max then
+				print("NOTE ratchet " .. r.label .. ": count=" .. count .. " — lower max to " .. count)
+			end
+		end
+	end
+end
+
 if select("#", ...) > 0 then
 	return failed
 end

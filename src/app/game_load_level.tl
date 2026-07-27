@@ -364,12 +364,13 @@ global function loadlevel(...: any): any
 	if #mazestarts == #mazeends then
 		mazegates = {}
 		for i = 1, #mazestarts do
-			local maxgate = 1
+			local maxgate: number = 1
 			for x = mazestarts[i], mazeends[i] do
 				for y = 1, mapheight do
 					if map[x][y][2] and entitylist[map[x][y][2]] and entitylist[map[x][y][2]].t == "mazegate" then
-						if tonumber(map[x][y][3]) > maxgate then
-							maxgate = tonumber(map[x][y][3])
+						local gate = tonumber(map[x][y][3]) or 0
+						if gate > maxgate then
+							maxgate = gate
 						end
 					end
 				end

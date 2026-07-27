@@ -2921,7 +2921,7 @@ function mario:grabvine(b: Entity): any
 	end
 end
 
-global function hitblock(x: number, y: number, t: any, koopa: any): any
+global function hitblock(x: number, y: number, t: any, koopa?: any): any
 	for i, v in pairs(portals) do
 		if v.x1 and v.x2 and v.y1 and v.y2 then
 			local x1 = v.x1 as number
@@ -3789,7 +3789,7 @@ function mario:fireballcallback()
 	self.fireballcount = self.fireballcount - 1
 end
 
-global function collectcoin(x: number, y: number, i: any): any
+global function collectcoin(x: number, y: number, i?: any): any
 	if x and y then
 		coinmap[x][y] = false
 	end

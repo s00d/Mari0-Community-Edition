@@ -2,13 +2,13 @@
 
 rawset(_G, "platform", rawget(_G, "platform") or {})
 
-function platform.new(_: platform, x: number, y: number, r: {any}, diroverride: any): platform
+function platform.new(_: platform, x: number, y: number, r: {any}, diroverride?: any): platform
 	local self = setmetatable({}, { __index = platform }) as platform
 	self:init(x, y, r, diroverride)
 	return self
 end
 
-function platform:init(x: number, y: number, r, diroverride)
+function platform:init(x: number, y: number, r, diroverride?: any)
 	self.size = 2
 	self.dir = (diroverride as string) or "normal" --(normal, Justup, Justdown, justright(bonus stage), fall)
 	self.speed = platformjustspeed

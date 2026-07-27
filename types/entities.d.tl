@@ -209,8 +209,8 @@ global record MusicPlayer is {any}
 	list: {string}
 	list_fast: {string}
 	load: function(MusicPlayer, any): boolean
-	play: function(MusicPlayer, any, any)
-	stop: function(MusicPlayer, any, any)
+	play: function(self: MusicPlayer, name: any, fade?: any)
+	stop: function(self: MusicPlayer, name: any, fade?: any)
 	update: function(MusicPlayer)
 	setVolume: function(MusicPlayer, any)
 end

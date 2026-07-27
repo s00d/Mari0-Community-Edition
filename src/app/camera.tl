@@ -30,13 +30,13 @@ THE SOFTWARE.
 
 local cos, sin = math.cos, math.sin
 
-function camera.new(_: camera, x: number|nil, y: number|nil, zoom: number|nil, rot: number|nil): camera
+function camera.new(_: camera, x?: number, y?: number, zoom?: number, rot?: number): camera
 	local self = setmetatable({}, { __index = camera }) as camera
 	self:init(x, y, zoom, rot)
 	return self
 end
 
-function camera:init(x: number|nil, y: number|nil, zoom: number|nil, rot: number|nil)
+function camera:init(x?: number, y?: number, zoom?: number, rot?: number)
 	x, y = x or love.graphics.getWidth()/2, y or love.graphics.getHeight()/2
 	zoom = zoom or 1
 	rot = rot or 0
