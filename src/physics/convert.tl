@@ -1,15 +1,17 @@
 -- Gravity-direction speed / rotation helpers (from physics.lua).
--- Uses math.fmod and portalrotationalignmentspeed for unrotate.
+-- Sim path uses core.dmath (deterministic); math.fmod kept for unrotate.
 
-local atan2 = math.atan2 or math.atan -- LuaJIT/5.1: atan2; Lua 5.3+: atan(y, x)
+require("core.dmath")
+
+local atan2 = datan2
 
 global function converttostandard(obj: Entity, speedx: number, speedy: number): number, number
 	--Convert speedx and speedy to horizontal values
 	local speed = math.sqrt(speedx^2+speedy^2)
 	local speeddir = atan2(speedy, speedx)
 
-	local sx = math.cos(speeddir-obj.gravitydirection+math.pi/2)*speed
-	local sy = math.sin(speeddir-obj.gravitydirection+math.pi/2)*speed
+	local sx = dcos(speeddir-obj.gravitydirection+math.pi/2)*speed
+	local sy = dsin(speeddir-obj.gravitydirection+math.pi/2)*speed
 
 	if math.abs(sy) < 0.00001 then
 		sy = 0
@@ -26,8 +28,8 @@ global function convertfromstandard(obj: Entity, speedx: number, speedy: number)
 	local speed = math.sqrt(speedx^2+speedy^2)
 	local speeddir = atan2(speedy, speedx)
 
-	local sx = math.cos(speeddir+obj.gravitydirection-math.pi/2)*speed
-	local sy = math.sin(speeddir+obj.gravitydirection-math.pi/2)*speed
+	local sx = dcos(speeddir+obj.gravitydirection-math.pi/2)*speed
+	local sy = dsin(speeddir+obj.gravitydirection-math.pi/2)*speed
 
 	if math.abs(sy) < 0.00001 then
 		sy = 0

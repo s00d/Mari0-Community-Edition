@@ -8,6 +8,7 @@ function Boot.setup_core_helpers()
 	require("core.stringutil")
 	require("core.mathutil")
 	require("core.tableutil")
+	require("core.dmath")
 end
 
 function Boot.setup_services(debugprints: any, music_type: any): LoggerModule, AssetStore, GamestateModule, World, AssetStore, World

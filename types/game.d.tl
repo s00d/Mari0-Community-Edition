@@ -211,6 +211,10 @@ global TILEKEY_STRIDE: integer
 global inmap: function(x: number|nil, y: number|nil): boolean
 global inrange: function(i: any, a: any, b: any, include?: boolean): boolean
 global round: function(num: number, idp?: number): number
+global dsin: function(a: number): number
+global dcos: function(a: number): number
+global datan2: function(y: number, x: number): number
+global datan: function(y: number, x?: number): number
 global tablecontains: function(t: {any}, entry: any): boolean
 global getTile: function(x: number, y: number, portalable?: any, portalcheck?: any, facing?: any, ignoregrates?: any, dir?: any, mirexc?: any): any, any
 global getMouseTile: function(any, any): number, number
