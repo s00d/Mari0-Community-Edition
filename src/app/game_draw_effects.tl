@@ -302,9 +302,9 @@ global function game_draw_seethrough_portals()
 	
 	local pl = playerobjs[1]
 	(scenecanvas as Canvas):clear()
-	love.graphics.setCanvas{scenecanvas as Canvas, stencil=true}
+	love.graphics.setCanvas{scenecanvas as Canvas, depthstencil=true}
 	scenedraw()
-	love.graphics.setCanvas{completecanvas as Canvas, stencil=true}
+	love.graphics.setCanvas{completecanvas as Canvas, depthstencil=true}
 	love.graphics.draw(scenecanvas as Canvas, 0, 0)
 	
 	if firstpersonview and firstpersonrotate then
@@ -431,23 +431,16 @@ global function game_draw_seethrough_portals()
 						a = a - math.pi
 					end
 					
-					love.graphics.stencil(function()
-						love.graphics.polygon("fill", p1x*16*scale, p1y*16*scale, p2x*16*scale, p2y*16*scale, p4x*16*scale, p4y*16*scale, p3x*16*scale, p3y*16*scale)
-					end, "replace", 1) --feels like javascript
-					love.graphics.setStencilTest("greater", 0)
-					
-					love.graphics.setColor(unpack(background as {number}))
-					love.graphics.rectangle("fill", 0, 0, width*16*scale, height*16*scale)
-					
-					
-					love.graphics.setColor(1, 1, 1)
-					love.graphics.draw(scenecanvas as Canvas, (offx+ox)*16*scale, (offy+oy)*16*scale, a, xscale, yscale, ox*16*scale, oy*16*scale)
-					
 					local r, g, b = unpack(pv["portal" .. i .. "color"] as {number})
-					--love.graphics.setColor(r, g, b, 0.6)
-					--love.graphics.rectangle("fill", 0, 0, width*16*scale, height*16*scale)
-				
-						love.graphics.setStencilTest()
+					with_mask(function()
+						love.graphics.polygon("fill", p1x*16*scale, p1y*16*scale, p2x*16*scale, p2y*16*scale, p4x*16*scale, p4y*16*scale, p3x*16*scale, p3y*16*scale)
+					end, function()
+						love.graphics.setColor(unpack(background as {number}))
+						love.graphics.rectangle("fill", 0, 0, width*16*scale, height*16*scale)
+
+						love.graphics.setColor(1, 1, 1)
+						love.graphics.draw(scenecanvas as Canvas, (offx+ox)*16*scale, (offy+oy)*16*scale, a, xscale, yscale, ox*16*scale, oy*16*scale)
+					end)
 
 					love.graphics.setColor(r, g, b)
 					love.graphics.line(p1x*16*scale, p1y*16*scale, p3x*16*scale, p3y*16*scale)

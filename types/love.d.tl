@@ -325,6 +325,10 @@ global record love
 		rotate: function(angle: number)
 		rectangle: function(mode: string, x: number, y: number, w: number, h: number)
 		stencil: function(...: any)
+		setStencilMode: function(...: any)
+		getStencilMode: function(): string, number
+		setStencilState: function(...: any)
+		getStencilState: function(): string, string, number, number, number
 		isSupported: function(feature: string): boolean
 		isCreated: function(): boolean
 		reset: function()

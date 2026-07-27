@@ -965,10 +965,9 @@ function editor_draw_overlay(emx: number, emy: number)
 							love.graphics.setColor(1, 1, 1, 0.8)
 						end
 						
-						love.graphics.stencil(function() love.graphics.rectangle("fill", (math.fmod((i-1), 22)-offx)*17*scale+cox*16*scale+scale, (math.floor((i-1)/22)-offy)*17*scale+coy*16*scale-8*scale, 16*scale, 16*scale) end, "replace", 1)
-						love.graphics.setStencilTest("greater", 0)
-						love.graphics.draw(v.graphic, v.quad, (math.fmod((i-1), 22)-offx)*17*scale+cox*16*scale+scale, (math.floor((i-1)/22)-offy)*17*scale+coy*16*scale-8*scale, 0, scale, scale)
-						love.graphics.setStencilTest()
+						with_mask(function() love.graphics.rectangle("fill", (math.fmod((i-1), 22)-offx)*17*scale+cox*16*scale+scale, (math.floor((i-1)/22)-offy)*17*scale+coy*16*scale-8*scale, 16*scale, 16*scale) end, function()
+							love.graphics.draw(v.graphic, v.quad, (math.fmod((i-1), 22)-offx)*17*scale+cox*16*scale+scale, (math.floor((i-1)/22)-offy)*17*scale+coy*16*scale-8*scale, 0, scale, scale)
+						end)
 						
 						if i == currenttile then
 							love.graphics.setColor(1, 0, 0, 0.6)
@@ -1397,10 +1396,9 @@ function editor_draw_menu_tiles(_: number, _: number)
 			for i = 1, #enemies do
 				local v = enemiesdata[enemies[i]]
 				
-				love.graphics.stencil(function() love.graphics.rectangle("fill", math.fmod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 16*scale, 16*scale) end, "replace", 1)
-				love.graphics.setStencilTest("greater", 0)
-				love.graphics.draw(v.graphic, v.quad, math.fmod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
-				love.graphics.setStencilTest()
+				with_mask(function() love.graphics.rectangle("fill", math.fmod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 16*scale, 16*scale) end, function()
+					love.graphics.draw(v.graphic, v.quad, math.fmod((i-1), 22)*17*scale+5*scale, math.floor((i-1)/22)*17*scale+38*scale-tilesoffset, 0, scale, scale)
+				end)
 				local hotkey = hasHotkey(3, i)
 				if hotkey then
 					love.graphics.setColor(1, 0, 0, .5)

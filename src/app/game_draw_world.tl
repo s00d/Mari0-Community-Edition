@@ -574,8 +574,7 @@ global function game_draw_objects()
 					--SCISSOR FOR ENTRY
 					if v.customscissor and v.portalable ~= false then
 						local cs = v.customscissor as {any}
-						love.graphics.stencil(function() love.graphics.rectangle("fill", math.floor((((cs as {number})[1] as number)-xscroll)*16*scale), math.floor((((cs as {number})[2] as number)-.5-yscroll)*16*scale), (cs[3] as number)*16*scale, (cs[4] as number)*16*scale) end, "replace", 1)
-						love.graphics.setStencilTest((v.invertedscissor and "equal" or "greater"), 0)
+						begin_mask(function() love.graphics.rectangle("fill", math.floor((((cs as {number})[1] as number)-xscroll)*16*scale), math.floor((((cs as {number})[2] as number)-.5-yscroll)*16*scale), (cs[3] as number)*16*scale, (cs[4] as number)*16*scale) end, v.invertedscissor as boolean)
 					end
 
 					if v.static == false and v.portalable ~= false then
@@ -659,8 +658,7 @@ global function game_draw_objects()
 
 					--portal duplication
 					if v.customscissor and v.portalable ~= false then
-						love.graphics.stencil(function() love.graphics.rectangle("fill", math.floor(((v.customscissor as {number})[1]-xscroll)*16*scale), math.floor(((v.customscissor as {number})[2]-.5-yscroll)*16*scale), (v.customscissor as {number})[3]*16*scale, (v.customscissor as {number})[4]*16*scale) end, "replace", 1)
-						love.graphics.setStencilTest((v.invertedscissor and "equal" or "greater"), 0)
+						begin_mask(function() love.graphics.rectangle("fill", math.floor(((v.customscissor as {number})[1]-xscroll)*16*scale), math.floor(((v.customscissor as {number})[2]-.5-yscroll)*16*scale), (v.customscissor as {number})[3]*16*scale, (v.customscissor as {number})[4]*16*scale) end, v.invertedscissor as boolean)
 					end
 
 					if v.static == false and (v.active or v.portaloverride) and v.portalable ~= false then
@@ -741,7 +739,7 @@ global function game_draw_objects()
 						end
 					end
 					love.graphics.setScissor((currentscissor as {number})[1], (currentscissor as {number})[2], (currentscissor as {number})[3], (currentscissor as {number})[4])
-						love.graphics.setStencilTest()
+					end_mask()
 				end
 			end
 		end

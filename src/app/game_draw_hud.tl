@@ -130,9 +130,7 @@ global function game_draw_player_markers()
 				
 				love.graphics.setColor(1, 1, 1)
 				
-				love.graphics.stencil(function() love.graphics.circle("fill", math.floor((x*16+xadd)*scale), math.floor((y*16+yadd-.5)*scale), 13.5*scale) end, "replace", 1)
-				
-					love.graphics.setStencilTest("greater", 0)
+				with_mask(function() love.graphics.circle("fill", math.floor((x*16+xadd)*scale), math.floor((y*16+yadd-.5)*scale), 13.5*scale) end, function()
 				
 				local playerx, playery = x*16+xadd, y*16+yadd+3
 				
@@ -167,7 +165,7 @@ global function game_draw_player_markers()
 				end
 				
 				drawplayer(i, playerx, playery)
-					love.graphics.setStencilTest()
+				end)
 				
 				love.graphics.setColor(v.colors[1] or {1, 1, 1})
 				love.graphics.draw(markoverlayimg, math.floor(x*16*scale), math.floor(y*16*scale), r, scale, scale, 0, 15)

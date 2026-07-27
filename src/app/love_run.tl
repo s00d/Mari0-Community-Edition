@@ -44,10 +44,10 @@ function love.run(): function()|nil
 		love.graphics.origin()
 		--Fullscreen hack (Love 11 canvas + stencil)
 		if not mkstation and fullscreen and gamestate ~= "intro" then
-			love.graphics.setCanvas{completecanvas, stencil=true}
+			love.graphics.setCanvas{completecanvas, depthstencil=true}
 			love.graphics.clear()
 			love.graphics.setScissor()
-			love.graphics.setCanvas{completecanvas, stencil=true}
+			love.graphics.setCanvas{completecanvas, depthstencil=true}
 			love.draw()
 			love.graphics.setCanvas()
 
