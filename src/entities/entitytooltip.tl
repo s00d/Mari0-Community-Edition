@@ -14,7 +14,7 @@ local descwidth = 0
 twidth = twidth + descwidth*8
 
 function entitytooltip:init(ent)
-	self.ent = ent
+	self.ent = ent as EntityListEntry
 end
 
 function entitytooltip:update(dt: number): any...

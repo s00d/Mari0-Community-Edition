@@ -313,8 +313,8 @@ global record AnimationDef
 	conditions: {any}
 	actions: {any}
 end
-global animations: {any:Dyn}
-global currentanimation: number
+global animations: {animation}
+global currentanimation: integer
 global controlstable: {string}
 global customtilesimg: Image
 global yacceleration: number
@@ -371,7 +371,7 @@ global seesawtype: {any:{any}}
 global pausemenuoptions: {string}
 global earthquake: number
 global animatedtiles: {animatedquad}
-global backgroundcolor: {any:{any}}
+global backgroundcolor: {{number}}
 global mazestarts: {number}
 global bonusstage: any
 global record HttpLib
@@ -463,12 +463,12 @@ global animationlist: {any:any}
 global minimapheight: number
 global mtclipboard: {{any}}
 global lightdrawY: number
-global groundlighttable: {number:string}
+global groundlighttable: {string}
 global runanimationframe: number
 global usemagic: boolean
 global modcustomspritebatch: {number:any}
 global blockbouncex: {any:any}
-global blockbouncey: {any:any}
+global blockbouncey: {any:number}
 global fscrollfactor: number
 global infinitetime: boolean
 global portaldelay: {number:number}
@@ -533,7 +533,7 @@ global portalanimationtimer: number
 global flagdescendtime: number
 global springtime: number
 global goombaattack: boolean
-global animationtriggerfuncs: {any:any}
+global animationtriggerfuncs: {string:{animation}}
 global seesawimg: Image
 global mapbuttonarea: {number}
 global levelscreenbackname: any
@@ -576,8 +576,8 @@ global flyingfishstarted: boolean
 global flyingfishtimer: number
 global bulletbillstarted: boolean
 global bulletbilltimer: number
-global flyingfishzones: {{number}}
-global bulletbillzones: {any}
+global flyingfishzones: {{number|boolean}}
+global bulletbillzones: {{number|boolean}}
 global mazesolved: {any}
 global enemiesspawned: {{number}}
 global livereplaydelay: {number}
@@ -738,7 +738,7 @@ global fontquads: {string:any}
 global delaylist: {string:any}
 global imagelist: {string}
 global marioversion: number
-global tablestodo: {any:any}
+global tablestodo: {any}
 global mariostarrunout: number
 global runanimationspeed: number
 global portalprojectileparticledelay: number
@@ -936,8 +936,8 @@ global panelquad: {any}
 global platformbonusimg: Image
 global portalglowimg: Image
 global portalimg: Image
-global rainboomquad: {any}
-global walltimerquad: {any}
+global rainboomquad: {integer:any}
+global walltimerquad: {integer:any}
 global secretcheckboxtext: {string}
 global editorloadopen: boolean
 global largestworld: number
@@ -1266,7 +1266,7 @@ global zgbooltriggerquad: {any}
 
 -- Cross-module function stubs (implementations in src/)
 global aabb: function(...: any): boolean
-global aabt: function(number, number, number, number, number, number, number, number, any): boolean
+global aabt: function(number, number, number, number, number, number, number, number, any): boolean|nil
 global add: function(...: any): any
 global addanimationaction: function(...: any): any
 global addanimationcondition: function(...: any): any
@@ -1300,6 +1300,7 @@ global checkportalVER: function(Entity, number): boolean
 global checkportalremove: function(...: any): any...
 global checkrect: function(...: any): {any}
 global closerightclickmenu: function(...: any): any
+global collectblock: function(...: any): any
 global collectcoin: function(number, number, any): any
 global collisionscalls: function(any, Entity, any, Entity, any, any): any
 global configdecrease: function(...: any): any
@@ -1507,7 +1508,7 @@ global modifyportaltiles: function(...: any): any
 global modifyportalwalls: function(...: any): any
 global movedownanimationguiline: function(string, animationguiline)
 global moveline: function(...: any): any
-global moveoutportal: function(): any
+global moveoutportal: function(...: any): any
 global moveupanimationguiline: function(string, animationguiline)
 global newRecoloredImage: function(...: any): any
 global newlevel: function(...: any): any
@@ -1643,7 +1644,7 @@ global cameraxpan: function(...: any)
 global cameraypan: function(...: any)
 global update_and_compact: function(...: any)
 global usebase: function(...: any): any
-global buildstartendzones: function(...: any): any
+global buildstartendzones: function(...: any): {{number|boolean}}
 global remove_indices_desc_multi: function(...: any)
 global enemy_name_ok: function(...: any): any
 global normalize_enemy_props: function(...: any): any

@@ -143,7 +143,7 @@ global function game_draw_player_markers(...: any): any
 							tilenumber = map[x][y][1] as number
 							
 							if tilenumber ~= 0 and not tilequads[tilenumber]:getproperty("invisible", x, y) then
-								local img
+								local img: Image|nil = nil
 								
 								if tilenumber <= smbtilecount then
 									img = smbtilesimg

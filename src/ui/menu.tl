@@ -2500,7 +2500,7 @@ global function loadmapold(...: any): any
 		map = {}
 		coinmap = {}
 		mariotimelimit = 400
-		background = backgroundcolor[1]
+		background = {unpack(backgroundcolor[1])} as {any:number}
 		musicname = "overworld.ogg"
 		spriteset = 1
 		custombackground = false
@@ -2521,7 +2521,7 @@ global function loadmapold(...: any): any
 			if spl[1] == "timelimit" then
 				mariotimelimit = tonumber(spl[2])
 			elseif spl[1] == "background" then
-				background = backgroundcolor[tonumber(spl[2])]
+				background = {unpack(backgroundcolor[tonumber(spl[2]) as integer])} as {any:number}
 			elseif spl[1] == "music" then
 				local musici = tonumber(spl[2])
 				if musici == 7 then
@@ -2568,7 +2568,7 @@ global function loadmapold(...: any): any
 					local entextra: {any} = {}
 					if #spl2 >= 2 then
 						for subent = 2, #spl2 do
-							table.insert(entextra, tonumber(spl2[subent]) or spl2[subent])
+							local n = tonumber(spl2[subent] as string); table.insert(entextra, n or (spl2[subent] as any))
 						end
 					end
 					entextra = convertentity(entextra) as {any}

@@ -9,7 +9,7 @@ function gel.new(_: gel, x: number, y: number, id: any): gel
 end
 
 function gel:init(x: number, y: number, id)
-	self.id = id
+	self.id = id as number
 	
 	--PHYSICS STUFF
 	self.x = x-14/16
@@ -75,7 +75,7 @@ function gel:update(dt: number): any...
 	return self.destroy
 end
 
-function gel:leftcollide(a: any, b: Entity)
+function gel:leftcollide(a: any, b: Entity): boolean|nil
 	if self:globalcollide(a, b) then
 		return false
 	end
@@ -84,7 +84,7 @@ function gel:leftcollide(a: any, b: Entity)
 		local x, y = b.cox, b.coy
 		
 		if (inmap(x+1, y) and tilequads[map[x+1][y][1]]:getproperty("collision", x+1, y)) or (inmap(x, y) and tilequads[map[x][y][1]]:getproperty("collision", x, y) == false) then
-			return
+			return nil
 		end
 		
 		--see if adjsajcjet tile is a better fit
@@ -98,9 +98,10 @@ function gel:leftcollide(a: any, b: Entity)
 	elseif a == "lightbridgebody" and b.dir == "ver" then
 		b.gels.right = self.id
 	end
+	return nil
 end
 
-function gel:rightcollide(a: any, b: Entity)
+function gel:rightcollide(a: any, b: Entity): boolean|nil
 	if self:globalcollide(a, b) then
 		return false
 	end
@@ -109,7 +110,7 @@ function gel:rightcollide(a: any, b: Entity)
 		local x, y = b.cox, b.coy
 		
 		if (inmap(x-1, y) and tilequads[map[x-1][y][1]]:getproperty("collision", x-1, y)) or (inmap(x, y) and tilequads[map[x][y][1]]:getproperty("collision", x, y) == false) then
-			return
+			return nil
 		end
 		
 		--see if adjsajcjet tile is a better fit
@@ -123,9 +124,10 @@ function gel:rightcollide(a: any, b: Entity)
 	elseif a == "lightbridgebody" and b.dir == "ver" then
 		b.gels.left = self.id
 	end
+	return nil
 end
 
-function gel:floorcollide(a: any, b: Entity)
+function gel:floorcollide(a: any, b: Entity): boolean|nil
 	if self:globalcollide(a, b) then
 		return false
 	end
@@ -134,7 +136,7 @@ function gel:floorcollide(a: any, b: Entity)
 		local x, y = b.cox, b.coy
 		
 		if (inmap(x, y-1) and tilequads[map[x][y-1][1]]:getproperty("collision", x, y-1)) or (inmap(x, y) and tilequads[map[x][y][1]]:getproperty("collision", x, y) == false) then
-			return
+			return nil
 		end
 		
 		--see if adjsajcjet tile is a better fit
@@ -176,9 +178,10 @@ function gel:floorcollide(a: any, b: Entity)
 	elseif a == "lightbridgebody" and b.dir == "hor" then
 		b.gels.top = self.id
 	end
+	return nil
 end
 
-function gel:ceilcollide(a: any, b: Entity)
+function gel:ceilcollide(a: any, b: Entity): boolean|nil
 	if self:globalcollide(a, b) then
 		return false
 	end
@@ -193,15 +196,17 @@ function gel:ceilcollide(a: any, b: Entity)
 	elseif a == "lightbridgebody" and b.dir == "hor" then
 		b.gels.bottom = self.id
 	end
+	return nil
 end
 
-function gel:globalcollide(a: any, b: Entity)
+function gel:globalcollide(a: any, b: Entity): boolean|nil
 	if a == "tile" then
 		local x, y = b.cox, b.coy
 		if tilequads[map[x][y][1]]:getproperty("invisible", x, y) or tilequads[map[x][y][1]]:getproperty("grate", x, y) then
 			return true
 		end
 	end
+	return nil
 end
 
 function gel:enteredfunnel(inside)

@@ -180,7 +180,7 @@ global function newRecoloredImage(...: any): any
 		end
 	end
 	
-	return love.graphics.newImage(imagedata)
+	return AssetStore.load_image_data(imagedata)
 end
 
 global function getaveragecolor(...: any): number, number, number

@@ -16,7 +16,7 @@ function scaffold:init(x: number, y: number, r)
 	
 	--DIRECTION
 	if #self.r > 0 then
-		self.dir = self.r[1]
+		self.dir = self.r[1] as string
 		table.remove(self.r, 1)
 	end
 	
@@ -154,10 +154,10 @@ function scaffold:update(dt: number): any...
 		end
 	elseif self.state == "movingforth" or self.state == "movingback" then
 		--moving part!
-		local checktable = {"player", "enemy", "box"}
+		local checktable: {string} = {"player", "enemy", "box"}
 		local nextx, nexty = self.x + self.speedx*dt, self.y + self.speedy*dt
 
-		for i, v in pairs(checktable) do
+		for i, v in ipairs(checktable) do
 			for j, w in pairs(objects[v]) do
 				if inrange(w.x, self.x-w.width, self.x+self.width) and inrange(w.y + w.height, self.y - 0.1, self.y + 0.1) then
 					local newx = w.x + self.speedx*dt
@@ -249,25 +249,25 @@ function scaffold:draw()
 	end
 end
 
-function scaffold:rightcollide(a: any, b: Entity)
+function scaffold:rightcollide(a: any, b: Entity): boolean
 	return false
 end
 
-function scaffold:leftcollide(a: any, b: Entity)
+function scaffold:leftcollide(a: any, b: Entity): boolean
 	return false
 end
 
-function scaffold:ceilcollide(a: any, b: Entity)
+function scaffold:ceilcollide(a: any, b: Entity): boolean
 	if self.dir == "justright" then
 		self.speedx = platformbonusspeed
 	end
 	return false
 end
 
-function scaffold:floorcollide(a: any, b: Entity)
+function scaffold:floorcollide(a: any, b: Entity): boolean
 	return false
 end
 
-function scaffold:passivecollide(a: any, b: Entity)
+function scaffold:passivecollide(a: any, b: Entity): boolean
 	return false
 end

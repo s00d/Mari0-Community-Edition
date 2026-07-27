@@ -58,7 +58,7 @@ function pushbutton:draw()
 		horscale = -scale
 	end
 	
-	local r = 0
+	local r: number = 0
 	if self.base == "left" then
 		r = math.pi/2
 	elseif self.base == "up" then

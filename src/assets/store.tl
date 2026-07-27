@@ -123,6 +123,11 @@ function AssetStore.load_image(path: string): Image|nil
 	return love.graphics.newImage(path)
 end
 
+function AssetStore.load_image_data(imagedata: ImageData): Image|nil
+	ensure_love()
+	return love.graphics.newImage(imagedata)
+end
+
 function AssetStore.load_sound(path: string, source_type: string): Source|nil
 	ensure_love()
 	return love.audio.newSource(path, source_type)

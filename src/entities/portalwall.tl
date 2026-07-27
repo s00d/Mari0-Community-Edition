@@ -11,8 +11,8 @@ end
 function portalwall:init(x: number, y: number, width, height, _ignore: any)
 	self.x = x
 	self.y = y	
-	self.width = width
-	self.height = height
+	self.width = width as number
+	self.height = height as number
 	self.static = true
 	self.active = true
 	self.category = 12

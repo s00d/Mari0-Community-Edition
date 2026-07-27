@@ -186,7 +186,7 @@ function love.keypressed(key: any, scancode: any, isrepeat: any)
 	end
 	
 	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" then
-		table.insert(konamitable, key)
+		table.insert(konamitable, key as string)
 		table.remove(konamitable, 1)
 		local s = ""
 		for i = 1, #konamitable do

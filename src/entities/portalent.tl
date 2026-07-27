@@ -15,7 +15,7 @@ function portalent:init(x: number, y: number, i, r)
 	self.y = y
 	
 	self.dir = "up"
-	self.portal = i
+	self.portal = i as number
 	self.id = 1
 	self.power = false
 
@@ -27,13 +27,13 @@ function portalent:init(x: number, y: number, i, r)
 	
 	--DIRECTION
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.dir = self.r[1]
+		self.dir = self.r[1] as string
 		table.remove(self.r, 1)
 	end
 	
 	--ID
 	if #self.r > 0 then
-		self.id = tonumber(self.r[1])
+		self.id = tonumber(self.r[1] as string) as number
 		table.remove(self.r, 1)
 	end
 	
@@ -98,12 +98,14 @@ function portalent:input(t, input)
 end
 
 function portalent:trigger()
-	portals[self.id]:createportal(self.portal, self.x, self.y, self.dir, -1)
+	portals[self.id]:createportal(self.portal as number, self.x, self.y, self.dir, -1)
 end
 
 function portalent:rem()
-	if portals[self.id]["x" .. self.portal] == self.x and portals[self.id]["y" .. self.portal] == self.y and portals[self.id]["facing" .. self.portal] == self.dir then
-		portals[self.id]:removeportal(self.portal)
+	local p = self.portal as number
+	local port = portals[self.id] as {string:any}
+	if port["x" .. p] == self.x and port["y" .. p] == self.y and port["facing" .. p] == self.dir then
+		portals[self.id]:removeportal(p)
 	else
 		print("Portal wasn't removed because it isn't at this position")
 	end

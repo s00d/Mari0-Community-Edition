@@ -273,9 +273,10 @@ global function loadmap(...: any): any...
 	end
 	
 	local x, y = 1, 1
-	for i = 1, #(t as {any}) do
-		if string.find(t[i] as string, multipledelimiter as string) then --new stuff!
-			local r = strsplit(tostring(t[i]), multipledelimiter as string)
+	local tiles = t as {any}
+	for i = 1, #tiles do
+		if string.find(tiles[i] as string, multipledelimiter as string) then --new stuff!
+			local r = strsplit(tostring(tiles[i]), multipledelimiter as string)
 			
 			local coin = false
 			if string.sub(r[1] as string, -1) == "c" then
@@ -308,7 +309,7 @@ global function loadmap(...: any): any...
 			end
 			
 		else --Old stuff.
-			local r = strsplit(tostring(t[i]), layerdelimiter as string)
+			local r = strsplit(tostring(tiles[i]), layerdelimiter as string)
 			
 			if string.sub(r[1] as string, -1) == "c" then
 				r[1] = string.sub(r[1] as string, 1, -2)
@@ -382,7 +383,7 @@ global function loadmap(...: any): any...
 	end
 	
 	-- Pair start/end markers into zones (supports multiple fish/bullet zones per level)
-	flyingfishzones = buildstartendzones(flyingfishstarts, flyingfishends) as {{number}}
+	flyingfishzones = buildstartendzones(flyingfishstarts, flyingfishends)
 	bulletbillzones = buildstartendzones(bulletbillstarts, bulletbillends)
 	
 	if createobjects then
@@ -390,7 +391,7 @@ global function loadmap(...: any): any...
 		for i, v in pairs(objects) do
 			for j, w in pairs(v) do
 				if w.link then
-					(w as {string:any}):link()
+					w:link()
 				end
 			end
 		end
@@ -436,8 +437,9 @@ global function loadmap(...: any): any...
 	levelscreenbackname = nil
 	
 	--MORE STUFF
-	for i = 3, #(s2 as {any}) do
-		s3 = strsplit(s2[i], equalsign)
+	local cats = s2 as {any}
+	for i = 3, #cats do
+		s3 = strsplit(cats[i] as string, equalsign)
 		if s3[1] == "backgroundr" then
 			background[1] = (tonumber(s3[2] as string) or 0) / 255
 		elseif s3[1] == "backgroundg" then
@@ -504,7 +506,7 @@ end
 global function savemap(...: any): any
 	local filename, silent = ...
 	local v = 1
-	local s = mapheight .. tostring(CATEGORYDELIMITER[v as any]) .. level_serialize_maptiles(map, coinmap, mapwidth, mapheight, v)
+	local s = mapheight .. tostring(CATEGORYDELIMITER[v as any]) .. tostring(level_serialize_maptiles(map, coinmap, mapwidth, mapheight, v))
 	
 	--options
 	s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "backgroundr" .. tostring(EQUALSIGN[v as any]) ..  background[1] * 255

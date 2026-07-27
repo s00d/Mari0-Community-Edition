@@ -470,7 +470,7 @@ global record castlefire is Entity
 	active: boolean
 	angle: number
 	category: number
-	child: {any:any}
+	child: {Entity}
 	delay: number
 	dir: string
 	drawable: boolean
@@ -603,7 +603,7 @@ end
 
 global record cubedispenser is Entity
 	active: boolean
-	box: any
+	box: Entity
 	boxexists: boolean
 	category: number
 	cox: number
@@ -645,7 +645,7 @@ global record delayer is Entity
 	delay: number
 	outtable: {{any}}
 	r: {any}
-	timers: {{any:any}}
+	timers: {{string:any}}
 	visible: boolean
 	x: number
 	y: number
@@ -743,7 +743,7 @@ global record emancipationfizzle is Entity
 	static: boolean
 	category: number
 	mask: {boolean}
-	r: any
+	r: number
 	rotspeed: number
 	speedx: number
 	speedy: number
@@ -1011,7 +1011,7 @@ global record enemy is Entity
 	enteredfunnel: function(enemy, any): any...
 	getspawnedenemies: function(enemy): any...
 	onscreen: function(enemy): any...
-	new: function(enemy, number, number, any, any): enemy
+	new: function(enemy, number, number, string, any): enemy
 end
 
 global record enemyspawner is Entity
@@ -1027,7 +1027,7 @@ global record enemyspawner is Entity
 	update: function(enemyspawner, number): any...
 	cox: number
 	coy: number
-	enemytospawn: number
+	enemytospawn: string
 	r: {any}
 	x: number
 	xspeed: number
@@ -1059,7 +1059,7 @@ global record entitylistitem is {any}
 end
 
 global record entitytooltip is {any}
-	ent: any
+	ent: EntityListEntry
 	x: number
 	y: number
 	init: function(entitytooltip, any)
@@ -1127,7 +1127,7 @@ global record fire is Entity
 	leftcollide: function(fire, any, Entity): any...
 	rightcollide: function(fire, any, Entity): any...
 	floorcollide: function(fire, any, Entity): any...
-	ceilcollide: function(fire, any, Entity): any...
+	ceilcollide: function(fire, any, Entity): boolean
 	new: function(fire, number, number): fire
 end
 
@@ -1253,11 +1253,11 @@ global record gel is Entity
 	y: number
 	init: function(gel, number, number, any)
 	update: function(gel, number): any...
-	leftcollide: function(gel, any, Entity): any...
-	rightcollide: function(gel, any, Entity): any...
-	floorcollide: function(gel, any, Entity): any...
-	ceilcollide: function(gel, any, Entity): any...
-	globalcollide: function(gel, any, Entity): any...
+	leftcollide: function(gel, any, Entity): boolean|nil
+	rightcollide: function(gel, any, Entity): boolean|nil
+	floorcollide: function(gel, any, Entity): boolean|nil
+	ceilcollide: function(gel, any, Entity): boolean|nil
+	globalcollide: function(gel, any, Entity): boolean|nil
 	enteredfunnel: function(gel, any)
 	new: function(gel, number, number, any): gel
 end
@@ -1298,7 +1298,7 @@ global record groundlight is Entity
 	static: boolean
 	category: number
 	mask: {boolean}
-	dir: any
+	dir: number
 	input1state: any
 	lighted: boolean
 	r: {any}
@@ -1333,7 +1333,7 @@ global record guielement is {any}
 	entries: {number:any}
 	extended: boolean
 	fillcolor: {number}
-	func: any
+	func: function(...: any): any|nil
 	gui: guielement
 	height: number
 	hidden: boolean
@@ -1477,7 +1477,7 @@ global record laserdetector is Entity
 	input: function(laserdetector, any)
 	draw: function(laserdetector)
 	addoutput: function(laserdetector, any, any)
-	clear: function(laserdetector, ...: any): any
+	clear: function(laserdetector)
 	new: function(laserdetector, number, number, {any}): laserdetector
 end
 
@@ -1560,7 +1560,7 @@ global record magic is Entity
 	mask: {boolean}
 	color: {number}
 	lifetime: number
-	t: any
+	t: number
 	x: number
 	y: number
 	init: function(magic)
@@ -1784,7 +1784,7 @@ global record musicentity is Entity
 	update: function(musicentity, number): any...
 	cox: number
 	coy: number
-	musicname: any
+	musicname: string
 	r: {any}
 	single: any
 	triggered: boolean
@@ -2012,7 +2012,7 @@ global record portalent is Entity
 	dir: string
 	id: number
 	input1state: any
-	portal: any
+	portal: number
 	power: any
 	r: {any}
 	x: number
@@ -2342,7 +2342,7 @@ global record rsflipflop is Entity
 	update: function(rsflipflop, number): any...
 	cox: number
 	coy: number
-	output: number
+	output: boolean
 	outtable: {{any}}
 	r: {any}
 	visible: boolean
@@ -2389,11 +2389,11 @@ global record scaffold is Entity
 	input: function(scaffold, any, any)
 	update: function(scaffold, number): any...
 	draw: function(scaffold)
-	rightcollide: function(scaffold, any, Entity): any...
-	leftcollide: function(scaffold, any, Entity): any...
-	ceilcollide: function(scaffold, any, Entity): any...
-	floorcollide: function(scaffold, any, Entity): any...
-	passivecollide: function(scaffold, any, Entity): any...
+	rightcollide: function(scaffold, any, Entity): boolean
+	leftcollide: function(scaffold, any, Entity): boolean
+	ceilcollide: function(scaffold, any, Entity): boolean
+	floorcollide: function(scaffold, any, Entity): boolean
+	passivecollide: function(scaffold, any, Entity): boolean
 	new: function(scaffold, number, number, {any}): scaffold
 end
 
@@ -2442,7 +2442,7 @@ global record scrollingtext is Entity
 	static: boolean
 	category: number
 	mask: {boolean}
-	s: number
+	s: any
 	timer: number
 	x: number
 	y: number
@@ -2612,7 +2612,7 @@ global record tile is Entity
 	width: number
 	x: number
 	y: number
-	init: function(tile, number, number, any, any, any)
+	init: function(tile, number, number, any)
 	new: function(tile, ...: any): tile
 end
 
@@ -2676,7 +2676,7 @@ global record walltimer is Entity
 	input1state: any
 	lighted: boolean
 	outtable: {{any}}
-	quad: any
+	quad: number
 	r: {any}
 	time: number
 	timer: number

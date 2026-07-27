@@ -34,7 +34,7 @@ function musicentity:init(x: number, y: number, r)
 	
 	--MUSIC SOURCE
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.musicname = self.r[1]
+		self.musicname = self.r[1] as string
 		table.remove(self.r, 1)
 	end
 end

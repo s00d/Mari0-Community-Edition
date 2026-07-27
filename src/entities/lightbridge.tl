@@ -333,7 +333,7 @@ function lightbridgebody:draw()
 		end
 		
 		for i = 1, 4 do
-			if self.gels[dir] == i then
+			if (self.gels as {string:any})[dir] == i then
 				if i == 1 then
 					img = gel1groundimg
 				elseif i == 2 then

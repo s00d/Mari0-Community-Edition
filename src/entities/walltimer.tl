@@ -17,7 +17,7 @@ function walltimer:init(x: number, y: number, r)
 	self.outtable = {}
 	self.lighted = false
 	self.time = 1
-	self.quad = 1 as any
+	self.quad = 1
 	
 	self.input1state = "off"
 	
@@ -56,15 +56,15 @@ end
 
 function walltimer:update(dt: number): any...
 	if self.lighted then
-		self.quad = 2 as any
+		self.quad = 2
 	elseif self.timer == self.time then
-		self.quad = 1 as any
+		self.quad = 1
 	else
 		self.timer = self.timer + dt
 		local div = self.time/10
 		for i = 1, 9 do
 			if i == math.floor(self.timer*(1/div)) then
-				self.quad = i+1 as any
+				self.quad = i+1
 			end
 		end
 		
@@ -78,7 +78,7 @@ end
 function walltimer:draw()
 	love.graphics.setColor(1, 1, 1)
 	
-	love.graphics.draw(walltimerimg, walltimerquad[self.quad], math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
+	love.graphics.draw(walltimerimg, walltimerquad[self.quad as integer], math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
 end
 
 function walltimer:out(t)
@@ -95,13 +95,13 @@ function walltimer:input(t, input)
 			self:out("on")
 			self.timer = self.time
 			self.lighted = true
-			self.quad = 2 as any
+			self.quad = 2
 		elseif t == "off" and self.input1state == "on" then
 			self.lighted = false
 			self.timer = 0
 		elseif t == "toggle" then
 			self.timer = 0
-			self.quad = 2 as any
+			self.quad = 2
 			self.lighted = false
 			self:out("on")
 		end

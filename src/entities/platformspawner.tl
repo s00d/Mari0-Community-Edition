@@ -23,7 +23,7 @@ function platformspawner:init(x: number, y: number, r)
 	table.remove(self.r, 1)
 	--DIRECTION
 	if #self.r > 0 then
-		self.dir = self.r[1]
+		self.dir = self.r[1] as string
 		table.remove(self.r, 1)
 	end
 	
@@ -35,7 +35,7 @@ function platformspawner:init(x: number, y: number, r)
 	
 	--SPEED
 	if #self.r > 0 then
-		self.speed = self.r[1]
+		self.speed = self.r[1] as number
 		table.remove(self.r, 1)
 	end
 	

@@ -11,7 +11,7 @@ end
 function vine:init(x: number, y: number, t)
 	self.cox = x
 	self.coy = y
-	self.t = t
+	self.t = t as string
 	
 	if self.t == "start" then
 		self.limit = mapheight-5-15/16

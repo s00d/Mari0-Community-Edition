@@ -31,10 +31,11 @@ local function normalize_enemy_props(t: Dyn): Dyn
 		elseif a == "quadcentery" then
 			t["quadcenterY"] = v
 		else
+			local bag = t as {string:any}
 			if type(v) == "string" then
-				t[a] = (v as string):lower()
+				bag[a] = (v as string):lower()
 			else
-				t[a] = v
+				bag[a] = v
 			end
 		end
 	end
@@ -62,8 +63,8 @@ local function usebase(t: Dyn): Dyn
 
 	for i, v in pairs(t) do
 		local check = true
-		for j in pairs(skip) do
-			if i == v then
+		for j in ipairs(skip) do
+			if i == skip[j] then
 				check = false
 				break
 			end

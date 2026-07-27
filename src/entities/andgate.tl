@@ -84,7 +84,7 @@ function andgate:input(t, input)
 		end
 		
 		local pass = "on"
-		for i, v in ipairs(self.inputstate) do
+		for i, v in pairs(self.inputstate) do
 			if v ~= "on" then
 				pass = "off"
 			end

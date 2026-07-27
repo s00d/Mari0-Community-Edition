@@ -98,6 +98,6 @@ function fire:floorcollide(a: any, b: Entity): any...
 	return false
 end
 
-function fire:ceilcollide(a: any, b: Entity)
+function fire:ceilcollide(a: any, b: Entity): boolean
 	return false
 end

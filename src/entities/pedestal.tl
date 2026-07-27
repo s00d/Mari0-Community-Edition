@@ -22,9 +22,9 @@ function pedestal:init(x: number, y: number, r)
 	
 	self.r = {unpack(r as {any})}
 	
-	if #r >= 4 then
-		self.blue = r[3] == "true"
-		self.orange = r[4] == "true"
+	if #self.r >= 4 then
+		self.blue = self.r[3] == "true"
+		self.orange = self.r[4] == "true"
 	end
 end
 

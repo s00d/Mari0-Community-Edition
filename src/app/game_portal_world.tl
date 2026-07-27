@@ -475,7 +475,7 @@ global function insideportal(x: number, y: number, width: number, height: number
 	return false
 end
 
-global function moveoutportal(): any... --pushes objects out of the portal i in.
+global function moveoutportal(...: any): any... --pushes objects out of the portal i in.
 	for i, v in pairs(objects) do
 		if i ~= "tile" and i ~= "portalwall" then
 			for j, w in pairs(v) do

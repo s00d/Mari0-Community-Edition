@@ -9,8 +9,8 @@ function fireworkboom.new(_: fireworkboom, x: any, yoffset: any): fireworkboom
 end
 
 function fireworkboom:init(x: any, yoffset: any)
-	self.x = x+(math.random(9)-5)
-	self.y = math.random(5)+2+yoffset
+	self.x = (x as number)+(math.random(9)-5)
+	self.y = math.random(5)+2+(yoffset as number)
 	self.timer = 0
 	marioscore = marioscore + 200
 end

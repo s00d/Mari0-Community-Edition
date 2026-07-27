@@ -1156,7 +1156,7 @@ function animationguiline:init(tabl: any, t2: any): any
 					local starti = 1
 					for j, k in pairs(args as {any:any}) do
 						if self.t[tid] == k then
-							starti = j
+							starti = j as integer
 						end
 					end
 					

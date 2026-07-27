@@ -27,7 +27,7 @@ function zginttrigger:init(x: number, y: number, r)
 	self.conditions = {"greater","less","equal"}
 	--TRIGGER ON PLAYER?
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.condition = self.conditions[self.r[1]]
+		self.condition = (self.conditions as {any:any})[self.r[1]]
 		table.remove(self.r, 1)
 	end
 	

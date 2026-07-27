@@ -90,14 +90,14 @@ function castlefire:updatepos()
 		local xadd = math.cos(math.rad(self.angle))*(i-1)*0.5
 		local yadd = math.sin(math.rad(self.angle))*(i-1)*0.5
 		
-		self.child[i].x = x+xadd-0.25
-		self.child[i].y = y+yadd-0.25
+		self.child[i as integer].x = x+xadd-0.25
+		self.child[i as integer].y = y+yadd-0.25
 	end
 end
 
 function castlefire:updatequad()	
 	for i = 1, self.length do
-		self.child[i].quad = fireballquad[self.quadi]
+		self.child[i as integer].quad = fireballquad[self.quadi]
 	end
 end
 

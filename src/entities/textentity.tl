@@ -54,9 +54,10 @@ function textentity:init(x: number, y: number, r)
 				self.glintcache[string.sub(is,4)] = {globints[string.sub(is,4)], n} 
 			elseif prefix == "bi:" then
 				print(is, "g_")
-				self.textsplit[n] = rawget(_G, string.sub(is,4)) or "typo"
+				local gbag = _G as {string:any}
+				self.textsplit[n] = gbag[string.sub(is,4)] or "typo"
 				self.hasaprefix = true
-				self.builtincache[string.sub(is,4)] = {rawget(_G, string.sub(is,4)), n} 
+				self.builtincache[string.sub(is,4)] = {gbag[string.sub(is,4)], n} 
 			elseif prefix == "bb:" then
 				local splitup = string.sub(is,4)
 				local parts = strsplit(splitup, "/")
@@ -163,8 +164,9 @@ function textentity:update(dt: number): any...
 			end
 		end
 		for i, j in pairs(self.builtincache) do
-			if rawget(_G, i as string) ~= j[1] then
-				self.textsplit[j[2] as number] = rawget(_G, i as string)
+			local gbag = _G as {string:any}
+			if gbag[i as string] ~= j[1] then
+				self.textsplit[j[2] as number] = gbag[i as string]
 				self.builtincache[i][1] = self.textsplit[j[2] as number]
 				self.pass = false
 			end

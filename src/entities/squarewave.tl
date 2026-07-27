@@ -13,7 +13,7 @@ function squarewave:init(x: number, y: number, r)
 	self.y = y
 	self.cox = x
 	self.coy = y
-	self.r = r
+	self.r = r as {any}
 	
 	self.outtable = {}
 	
@@ -30,17 +30,17 @@ function squarewave:init(x: number, y: number, r)
 	table.remove(self.r, 1)
 	--TIME1
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.time1 = self.r[1]
+		self.time1 = self.r[1] as number
 		table.remove(self.r, 1)
 	end
 	--TIME2
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.time2 = self.r[1]
+		self.time2 = self.r[1] as number
 		table.remove(self.r, 1)
 	end
 	--START
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.timer = self.r[1]*(self.time1+self.time2)
+		self.timer = (self.r[1] as number)*(self.time1+self.time2)
 		table.remove(self.r, 1)
 	end
 	--VISIBLE

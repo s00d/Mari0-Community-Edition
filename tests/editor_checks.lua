@@ -105,12 +105,12 @@ do
 	f:close()
 
 	local function extract_top(name)
-		local a, b = src:find("function " .. name .. "%b()\n")
+		local a, b = src:find("function " .. name .. "%b()")
 		if not a then
 			return nil
 		end
-		local rest = src:sub(b + 1)
-		return rest:match("^(.-)\nfunction ")
+		local rest = src:sub(b + 1):gsub("^:[^\n]*", "", 1)
+		return rest:match("^\n?(.-)\nglobal function ") or rest:match("^\n?(.-)\nfunction ")
 	end
 
 	check("editor_draw exists", src:find("function editor_draw%(") ~= nil)
@@ -140,7 +140,7 @@ do
 
 	local lk = extract_top("editor_draw_linking")
 	check("linking has drawalllinks", lk and lk:find("drawalllinks") ~= nil)
-	check("linking has rightclickm:draw", lk and lk:find("rightclickm:draw") ~= nil)
+	check("linking has rightclickm:draw", lk and (lk:find("rightclickm:draw") ~= nil or lk:find("rightclickm as rightclickmenu):draw") ~= nil))
 	check("linking uses link_screen_pos", lk and lk:find("editor_link_screen_pos%(") ~= nil)
 
 	local st = extract_top("editor_draw_status")

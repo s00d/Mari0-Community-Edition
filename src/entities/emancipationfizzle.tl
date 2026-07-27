@@ -13,8 +13,8 @@ function emancipationfizzle:init(x: number, y: number, speedx, speedy)
 	self.y = y
 	self.r = math.random()*math.pi*2
 	self.rotspeed = (math.random()-.5)*2
-	self.speedx = speedx+(math.random()-.5)*1
-	self.speedy = speedy+(math.random()-.5)*1
+	self.speedx = (speedx as number)+(math.random()-.5)*1
+	self.speedy = (speedy as number)+(math.random()-.5)*1
 	
 	self.timer = 0
 end
@@ -23,7 +23,7 @@ function emancipationfizzle:update(dt: number): any...
 	self.x = self.x + self.speedx*dt
 	self.y = self.y + self.speedy*dt
 	
-	self.r = self.r + self.rotspeed*dt
+	self.r = (self.r as number) + self.rotspeed*dt
 	
 	self.timer = self.timer + dt
 	if self.timer > emancipationfizzletime then

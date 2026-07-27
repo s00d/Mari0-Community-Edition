@@ -226,7 +226,7 @@ rightclickmenues.musicentity = {
 	{t="checkbox", text="visible", default="true"},
 	{t="checkbox", text="single use", default="true"},
 	{},
-	{t="submenu", entries=function(): {any} local t = {} as {any} for i, v in pairs(musiclist as {any}) do table.insert(t, v) end return t end, actualvalue=true, default=1, width=15},
+	{t="submenu", entries=function(): {any} local t = {} as {any} for i, v in pairs(musiclist as {any:any}) do table.insert(t, v) end return t end, actualvalue=true, default=1, width=15},
 	{},
 	{t="linkbutton", value="link trigger", link="trigger"}
 }
@@ -568,7 +568,7 @@ function entity:init(img, x, y, width, height)
 end
 
 function entity:sett(i)
-	for j = 1, #entitylist do
+	for j = 1, #(entitylist as {EntityListEntry}) do
 		if i == j then
 			self.t = entitylist[j].t
 		end

@@ -60,9 +60,9 @@ function delayer:update(dt: number): any...
 	local delete = {}
 	
 	for i = 1, #self.timers do
-		local v = self.timers[i]
-		v.timeleft = v.timeleft - dt
-		if v.timeleft <= 0 then
+		local v = self.timers[i] as {string:any}
+		v.timeleft = (v.timeleft as number) - dt
+		if (v.timeleft as number) <= 0 then
 			self:out(v.t)
 		
 			table.insert(delete, i)

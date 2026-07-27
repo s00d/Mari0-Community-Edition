@@ -22,26 +22,28 @@ function enemyspawner:init(x: number, y: number, r)
 	
 	--ENEMY NAME
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.enemytospawn = self.r[1]
+		self.enemytospawn = self.r[1] as string
 		table.remove(self.r, 1)
 	end
 	
 	--Xspeed
 	if #self.r > 0 then
-		if string.sub(self.r[1], 1, 1) == "m" then
-			self.xspeed = -tonumber(string.sub(self.r[1], 2))
+		local xs = self.r[1] as string
+		if string.sub(xs, 1, 1) == "m" then
+			self.xspeed = -tonumber(string.sub(xs, 2))
 		else
-			self.xspeed = tonumber(self.r[1])
+			self.xspeed = tonumber(xs)
 		end
 		table.remove(self.r, 1)
 	end
 	
 	--Yspeed
 	if #self.r > 0 then
-		if string.sub(self.r[1], 1, 1) == "m" then
-			self.yspeed = -tonumber(string.sub(self.r[1], 2))
+		local ys = self.r[1] as string
+		if string.sub(ys, 1, 1) == "m" then
+			self.yspeed = -tonumber(string.sub(ys, 2))
 		else
-			self.yspeed = tonumber(self.r[1])
+			self.yspeed = tonumber(ys)
 		end
 		table.remove(self.r, 1)
 	end

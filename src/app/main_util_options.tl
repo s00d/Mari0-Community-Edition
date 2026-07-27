@@ -6,14 +6,14 @@ global function saveconfig(...: any): any
 	end
 	
 	local s = ""
-	for i = 1, #controls do
+	for i = 1, #(controls as {any}) do
 		s = s .. "playercontrols:" .. i .. ":"
 		local count = 0
 		for j, k in pairs(controls[i]) do
 			local c = ""
-			for l = 1, #controls[i][j] do
+			for l = 1, #(controls[i][j] as {any}) do
 				c = c .. tostring(controls[i][j][l])
-				if l ~= #controls[i][j] then
+				if l ~= #(controls[i][j] as {any}) then
 					c = c ..  "-"
 				end
 			end
@@ -45,7 +45,7 @@ global function saveconfig(...: any): any
 		end
 	end
 	
-	for i = 1, #mariocharacter do
+	for i = 1, #(mariocharacter as {any}) do
 		s = s .. "mariocharacter:" .. i .. ":"
 		s = s .. mariocharacter[i]
 		s = s .. ";"
@@ -56,12 +56,12 @@ global function saveconfig(...: any): any
 		s = s .. round(portalhues[i][1], 4) .. "," .. round(portalhues[i][2], 4) .. ";"
 	end
 	
-	for i = 1, #mariohats do
+	for i = 1, #(mariohats as {any}) do
 		s = s .. "mariohats:" .. i
-		if #mariohats[i] > 0 then
+		if #(mariohats[i] as {any}) > 0 then
 			s = s .. ":"
 		end
-		for j = 1, #mariohats[i] do
+		for j = 1, #(mariohats[i] as {any}) do
 			s = s .. tostring(mariohats[i][j])
 			if j == #mariohats[i] then
 				s = s .. ";"
@@ -435,7 +435,7 @@ global function serializetable(...: any): any
 			end
 		end
 		tablestodo = nexttablestodo
-	until #tablestodo == 0
+	until #(tablestodo as {any}) == 0
 end
 
 mouse = {}

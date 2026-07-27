@@ -20,11 +20,11 @@ end
 function itemanimation:update(dt: number): any...
 	self.timer = self.timer + dt
 	if enemiesdata[self.i]["directfromblock"] then
-		table.insert(objects["enemy"], enemy:new(self.x, self.y, self.i, map[self.x][self.y]))
+		table.insert(objects["enemy"], enemy:new(self.x, self.y, self.i as string, map[self.x][self.y]))
 		return true
 	end
 	if self.timer >= mushroomtime then
-		table.insert(objects["enemy"], enemy:new(self.x, self.y-1, self.i, map[self.x][self.y]))
+		table.insert(objects["enemy"], enemy:new(self.x, self.y-1, self.i as string, map[self.x][self.y]))
 		return true
 	end
 end

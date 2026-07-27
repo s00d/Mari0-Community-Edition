@@ -3,9 +3,10 @@
 global function build_blockbounce_lookup(...: any): any
 	local blockbouncex, blockbouncey = ...
 	local t = {}
+	local by = blockbouncey as {any:any}
 	for i, x in pairs(blockbouncex as {any:any}) do
-		if x and blockbouncey[i] then
-			t[tilekey(x, blockbouncey[i])] = i
+		if x and by[i] then
+			t[tilekey(x, by[i])] = i
 		end
 	end
 	return t

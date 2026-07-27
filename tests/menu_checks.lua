@@ -51,10 +51,11 @@ do
 	check("menu_draw_options exists", src:find("function menu_draw_options%(") ~= nil)
 	check("menu_load kept", src:find("function menu_load%(") ~= nil)
 
-	local a, b = src:find("function menu_draw%b()\n")
+	local a, b = src:find("function menu_draw%b()")
 	check("menu_draw find", a ~= nil)
 	if a then
-		local body = src:sub(b + 1):match("^(.-)\nfunction ")
+		local rest = src:sub(b + 1):gsub("^:[^\n]*", "", 1)
+		local body = rest:match("^\n?(.-)\nglobal function ") or rest:match("^\n?(.-)\nfunction ")
 		local nlines = select(2, (body or ""):gsub("\n", "\n")) + 1
 		check("menu_draw thin (<=50 lines)", nlines <= 50, tostring(nlines))
 		check("md calls title", (body or ""):find("menu_draw_title%(") ~= nil)

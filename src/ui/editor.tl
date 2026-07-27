@@ -310,8 +310,8 @@ function editor_load()
 	addanimationactionbutton.textcolor = {0, 0.8, 0}
 	
 	local args = {}
-	for i, v in pairs(animations) do
-		table.insert(args, string.sub(v.name, 1, -6))
+	for i, v in ipairs(animations) do
+		table.insert(args, string.sub(v.name as string, 1, -6))
 	end
 	guielements["animationselectdrop"] = guielement:new("dropdown", 15, 20, 15, selectanimation, 1, unpack(args))
 	guielements["animationnewbutton"] = guielement:new("button", 3, 20, "+", createnewanimation, nil)
@@ -2277,8 +2277,8 @@ end
 
 function updateanimationdropdown()	
 	local args = {}
-	for i, v in pairs(animations) do
-		table.insert(args, string.sub(v.name, 1, -6))
+	for i, v in ipairs(animations) do
+		table.insert(args, string.sub(v.name as string, 1, -6))
 	end
 	
 	guielements["animationselectdrop"] = guielement:new("dropdown", 15, 20, 15, selectanimation, currentanimation, unpack(args))
@@ -2317,7 +2317,7 @@ end
 function selectanimation(i: number)
 	guielements["animationselectdrop"].var = i
 	saveanimation()
-	currentanimation = i
+	currentanimation = i as integer
 	generateanimationgui()
 end
 
@@ -2354,15 +2354,15 @@ function saveanimation()
 		end
 	end
 	
-	animations[currentanimation].triggers = out.triggers as {any}
-	animations[currentanimation].conditions = out.conditions as {any}
-	animations[currentanimation].actions = out.actions as {any}
+	animations[currentanimation].triggers = out.triggers as {{any}}
+	animations[currentanimation].conditions = out.conditions as {{any}}
+	animations[currentanimation].actions = out.actions as {{any}}
 	
 	local json = JSON.encode(out, { indent = true })
 	
-	local ok, err = pcall(love.filesystem.write, animations[currentanimation].filepath, json)
+	local ok, err = pcall(love.filesystem.write, animations[currentanimation].filepath as string, json as string)
 	if not ok then
-		print(tostring(err) .. " - File: " .. animations[currentanimation].filepath)
+		print(tostring(err) .. " - File: " .. (animations[currentanimation].filepath as string))
 	end
 end
 
@@ -3304,13 +3304,14 @@ function editor_mousepressed_left(x: number, y: number)
 						guielements["renamebar"].value = (multitileobjectnames as {any})[((tile as number)+1) as integer]
 						guielements["renamebar"].tile = tile as number
 						guielements["renamebar"].y = objectsguiarea[2]+1-multitilesoffset/scale + ((tile as number)*17)
-						guielements["renamebar"].func = function()
+						guielements["renamebar"].func = function(): any
 							if guielements["renamebar"].value ~= "" then
 								guielements["renamebar"].value = string.gsub((guielements["renamebar"].value as string), "=", " ")
 								renameline("mappacks/" .. mappack .. "/objects.txt",(tile as number)+1,guielements["renamebar"].value)
 							end
 							guielements["renamebar"].active = false
 							loadmtobjects()
+							return nil
 						end
 					elseif mtbutton == 2 then
 						moveline("mappacks/" .. mappack .. "/objects.txt",(tile as number)+1,"up")

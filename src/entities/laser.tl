@@ -45,7 +45,7 @@ end
 
 function laser:link()
 	while #self.r > 3 do
-		for j, w in pairs(outputs as {any}) do
+		for j, w in pairs(outputs as {any:any}) do
 			for i, v in pairs(objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
@@ -132,7 +132,7 @@ function laser:update(dt: number): any...
 				end
 				obj = (objects[rectcol[smallesti as integer] as any] as {any:Entity})[rectcol[(smallesti+1) as integer] as any]
 			else
-				local biggestx = -1
+				local biggestx: number = -1
 				local biggesti: number = 0
 			
 				for j = 1, #rectcol, 2 do

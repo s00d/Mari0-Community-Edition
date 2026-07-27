@@ -114,7 +114,7 @@ global function loadenemy(...: any): any
 						if enemiesdata[s].nospritesets then
 							realy = 0
 						end
-						(qb[y] as Dyn)[x] = love.graphics.newQuad((x-1)*quadwidth, realy, quadwidth, quadheight, imgwidth, imgheight)
+						(qb[y] as {any:any})[x] = love.graphics.newQuad((x-1)*quadwidth, realy, quadwidth, quadheight, imgwidth, imgheight)
 					end
 				end
 			end

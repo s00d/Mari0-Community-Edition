@@ -172,7 +172,7 @@ global interface Entity is {any}
 	gels: {string:any}
 	slant: string
 	callback: any
-	link: any
+	link: function(Entity, ...: any): any|nil
 	backwards: boolean
 	notkilledfromblocksbelow: boolean
 	jumpsfromblocksbelow: boolean
@@ -188,7 +188,7 @@ global interface Entity is {any}
 	die: any
 	fall: any
 	portaled: function(Entity, any)
-	cubeemancipate: any
+	cubeemancipate: function(Entity, ...: any): any
 	-- EnemyDef-ish props accessed via Entity in mario collide paths
 	shellanimal: any
 	stompable: any
@@ -210,8 +210,8 @@ global interface Entity is {any}
 	intactoncollect: any
 	intactvalue: any
 	collectsound: any
-	hit: any
-	emancipate: any
+	hit: function(Entity, ...: any): any
+	emancipate: function(Entity, ...: any): any
 	limit: any
 	destroying: any
 	dropped: any
@@ -229,9 +229,9 @@ global interface Entity is {any}
 	updaterange: function(Entity, ...: any): any
 	getTileInvolved: function(Entity, ...: any): any, any
 	updateangle: any
-	input: any
-	used: any
-	onbutton: any
+	input: function(Entity, ...: any): any
+	used: function(Entity, ...: any): any
+	onbutton: function(Entity, ...: any): any
 	passivecollide: function(Entity, any, Entity, any, any): any
 	floorcollide: function(Entity, any, Entity, any, any): any
 	leftcollide: function(Entity, any, Entity, any, any): any
@@ -249,6 +249,7 @@ global interface Entity is {any}
 	firepoints: any
 	autodelete: boolean
 	autodeleted: any
+	trigger: function(Entity, ...: any): any
 end
 
 -- Minimal LÖVE 11 API surface for Teal (expand as modules need more).
@@ -267,7 +268,6 @@ global record love
 	_os: string
 	handlers: {string:function}
 	quit: function()
-	errhand: function(...: any): any...
 
 	record conf
 		record Config
@@ -438,7 +438,7 @@ global record love
 	focus: function(f: any)
 	resize: function(w: number, h: number)
 	run: function(): function()|nil
-	errhand: function(...: any): any...
+	errhand: function(...: any)
 end
 
 global record Joystick

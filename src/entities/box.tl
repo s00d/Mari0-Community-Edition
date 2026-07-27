@@ -116,8 +116,8 @@ function box:update(dt: number): any...
 		self.rotation = parent.rotation
 	end
 	
-	(self.userect as Dyn)["x"] = self.x
-	(self.userect as Dyn)["y"] = self.y
+	(self.userect as {string:any})["x"] = self.x
+	(self.userect as {string:any})["y"] = self.y
 
 	--check if offscreen
 	if self.y > mapheight+2 then

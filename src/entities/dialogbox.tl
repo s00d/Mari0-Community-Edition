@@ -112,7 +112,7 @@ function dialogbox:draw()
 		
 		if y <= charsy then
 			love.graphics.setColor((self.textcolors as {any:any})[i])
-			properprint(string.sub(self.text, i, i), ((7+(x-1)*8)*scale) as integer, ((height*16-boxheight-margin+4+(y-1)*lineheight)*scale) as integer)
+			properprint(string.sub(self.text, i as integer, i as integer), math.floor((7+(x-1)*8)*scale), math.floor((height*16-boxheight-margin+4+(y-1)*lineheight)*scale), nil)
 		else
 			--abort!
 			self.curchar = #self.text

@@ -561,7 +561,7 @@ end
 function Boot.run_load()
 	Boot.require_game()
 	
-	http = (require("socket.http") as any) as HttpLib
+	http = ((require as function(string): any)("socket.http")) as HttpLib
 	http.PORT = 55555
 	http.TIMEOUT = 1
 	

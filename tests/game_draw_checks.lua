@@ -37,17 +37,21 @@ local update_src = read(root .. "/src/app/game_update.tl")
 local facade = read(root .. "/src/app/game_draw.tl")
 
 local function extract_top(name)
-	local a, b = src:find("function " .. name .. "%b()\n")
+	-- Match "function name(...)" even with Teal return types after ")".
+	local a, b = src:find("function " .. name .. "%b()")
 	if not a then
 		return nil
 	end
-	local rest = src:sub(b + 1)
-	local body = rest:match("^(.-)\nfunction ")
+	local rest = src:sub(b + 1):gsub("^:[^\n]*", "", 1)
+	local body = rest:match("^\n?(.-)\nglobal function ")
 	if not body then
-		body = rest:match("^(.-)\ndrawui = ")
+		body = rest:match("^\n?(.-)\nfunction ")
 	end
 	if not body then
-		body = rest:match("^(.-)\nend\n")
+		body = rest:match("^\n?(.-)\ndrawui = ")
+	end
+	if not body then
+		body = rest:match("^\n?(.-)\nend\n")
 	end
 	return body
 end
@@ -77,7 +81,7 @@ check("no nested scenedraw", src:find("\tfunction scenedraw()") == nil)
 check("boot requires game_draw", boot_src:find('require%s+"app%.game_draw"') ~= nil)
 check("boot requires game_update", boot_src:find('require%s+"app%.game_update"') ~= nil)
 check("no root game.lua", io.open(root .. "/game.lua", "r") == nil)
-check("game_update exists in teal", update_src:find("function game_update%(dt%)") ~= nil)
+check("game_update exists in teal", update_src:find("function game_update%(") ~= nil)
 check("boot.tl exists", io.open(root .. "/src/app/boot.tl", "r") ~= nil)
 check("facade requires world", facade:find('require%s+"app%.game_draw_world"') ~= nil)
 check("facade requires hud", facade:find('require%s+"app%.game_draw_hud"') ~= nil)
@@ -118,7 +122,7 @@ check("drawlevel keeps xtodraw", dl and dl:find("local xtodraw") ~= nil)
 local tiles = extract_top("drawlevel_tiles")
 check("tiles uses scrollutil", tiles and tiles:find("scroll_batch_offset") ~= nil)
 check("tiles uses bounceutil", tiles and tiles:find("build_blockbounce_lookup") ~= nil)
-check("tiles takes xtodraw arg", src:find("function drawlevel_tiles%(xtodraw, ytodraw%)") ~= nil)
+check("tiles takes xtodraw arg", tiles and tiles:find("local xtodraw, ytodraw") ~= nil)
 check("tiles editormode branch", tiles and tiles:find("editormode") ~= nil)
 
 local objs = extract_top("game_draw_objects")

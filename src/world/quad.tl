@@ -37,7 +37,7 @@ function quad:init(img: any, imgdata: any, x: any, y: any, width: any, height: a
 end
 
 function quad:getproperty(s: any): any
-	return self.props[s]
+	return (self.props as {any:any})[s]
 end
 
 function quad:quad(): Quad

@@ -11,7 +11,7 @@ end
 function miniblock:init(x: number, y: number, i)
 	self.x = x+math.random()*0.8-0.4
 	self.y = y
-	self.i = i
+	self.i = i as number
 	self.speedy = -10
 	
 	self.timer = math.pi*1.5

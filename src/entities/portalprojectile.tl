@@ -175,6 +175,7 @@ function portalprojectile:createportal()
 			shootportal(p.number, i, self.endx, self.endy, angle, true, (self.bounces as number)-1)
 		end
 	else
-		(rawget(_G, "portal") as portal).createportal(unpack(self.payload as {any}))
+		local args = self.payload as {any}
+		(args[1] as portal):createportal(args[2] as number, args[3], args[4], args[5], args[6])
 	end
 end

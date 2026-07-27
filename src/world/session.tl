@@ -24,8 +24,8 @@ function World.new(): World
 end
 
 function World:bind_globals()
-	self.map = (rawget(_G, "map") as any) or {}
-	self.objects = (rawget(_G, "objects") as any) or {}
+	self.map = (rawget(_G, "map") as {number:{number:{any}}}) or {}
+	self.objects = (rawget(_G, "objects") as {string:{number:Entity}}) or {}
 	self.mapwidth = (rawget(_G, "mapwidth") as integer) or 0
 	self.mapheight = (rawget(_G, "mapheight") as integer) or 0
 	self.xscroll = (rawget(_G, "xscroll") as number) or 0

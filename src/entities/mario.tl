@@ -1113,7 +1113,7 @@ function mario:update_zones(dt: number)
 		flyingfishstarted = false
 		for i = 1, #flyingfishzones do
 			local z = flyingfishzones[i]
-			if self.x >= z[1] - 1 and (not z[2] or self.x < z[2] - 1) then
+			if self.x >= (z[1] as number) - 1 and (not z[2] or self.x < (z[2] as number) - 1) then
 				flyingfishstarted = true
 				break
 			end
@@ -1132,7 +1132,7 @@ function mario:update_zones(dt: number)
 		bulletbillstarted = false
 		for i = 1, #bulletbillzones do
 			local z = bulletbillzones[i]
-			if self.x >= z[1] - 1 and (not z[2] or self.x < z[2] - 1) then
+			if self.x >= (z[1] as number) - 1 and (not z[2] or self.x < (z[2] as number) - 1) then
 				bulletbillstarted = true
 				break
 			end
@@ -3425,7 +3425,7 @@ function mario:use(xcenter: number, ycenter: number): any
 	
 	local col, i = userect(xcenter-usesquaresize/2, ycenter-usesquaresize/2, usesquaresize, usesquaresize)
 	if #col > 0 then
-		col[1]:used(self.playernumber)
+		(col[1] as Entity):used(self.playernumber)
 	end
 end
 

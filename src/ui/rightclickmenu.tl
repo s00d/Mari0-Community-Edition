@@ -170,7 +170,7 @@ end
 
 function rightclickmenu:update(dt: number): any...
 	for i = 1, #self.t do
-		local entry = self.t[i] as Dyn
+		local entry = (self.t as {any:any})[i] as Dyn
 		if type(entry[1]) == "table" then
 			local arr = entry as {guielement}
 			for j = 1, #arr do
@@ -188,7 +188,7 @@ function rightclickmenu:draw()
 	love.graphics.rectangle("fill", self.x*scale, self.y*scale, rightclickwidth*scale, ((rightclickcellheight+rightclickcellspacing)*#self.elements+1)*scale)
 	
 	for i, v in pairs(self.t as {any:any}) do
-		local entry = self.t[i] as Dyn
+		local entry = v as Dyn
 		if type(entry[1]) == "table" then
 			local arr = entry as {guielement}
 			for j = 1, #arr do

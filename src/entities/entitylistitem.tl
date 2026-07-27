@@ -10,8 +10,8 @@ end
 
 function entitylistitem:init(t, i)
 	-- Original uses ambient globals x/y; layout overwrites these in generateentitylist.
-	self.x = (rawget(_G, "x") as number) or 0
-	self.y = (rawget(_G, "y") as number) or 0
+	self.x = ((_G as {string:any})["x"] as number) or 0
+	self.y = ((_G as {string:any})["y"] as number) or 0
 	self.t = t as string
 	self.i = i as number
 end

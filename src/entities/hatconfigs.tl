@@ -1,6 +1,6 @@
 --[[ Teal port of root hatconfigs.lua ]]
 
-local i
+local i: integer = 0
 hat = {}
 
 i = 1

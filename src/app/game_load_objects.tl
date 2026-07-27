@@ -102,20 +102,81 @@ end
 
 global function drawplayer(...: any): any
 	local i, x, y, cscale, offsetX, offsetY, rotation, quadcenterX, quadcenterY, animationstate, underwater, ducking, hats, graphic, quad, pointingangle, shot, upsidedown, colors, lastportal, portal1color, portal2color, runframe, swimframe, climbframe, jumpframe, biggraphic, fireanimationtimer, char = ...
-	x = (x as number)-6
+	local px: number = (x as number)-6
+	local py: number = y as number
 
 	local scale = scale
 	if cscale then
 		scale = cscale as number
 	end
+
+	local record PlayerDrawBag
+		offsetX: number
+		offsetY: number
+		rotation: number
+		quadcenterX: number
+		quadcenterY: number
+		animationstate: any
+		underwater: any
+		ducking: any
+		hats: {any}
+		graphic: any
+		quad: any
+		pointingangle: number
+		shot: any
+		upsidedown: any
+		colors: {any}
+		lastportal: any
+		portal1color: any
+		portal2color: any
+		runframe: any
+		swimframe: any
+		climbframe: any
+		jumpframe: any
+		biggraphic: any
+		fireanimationtimer: any
+		char: any
+		size: number
+		drawhat: any
+		infunnel: any
+	end
 	
-	local v
+	local v: PlayerDrawBag
 	
 	if not offsetX then
-		v = playerobjs[i]
+		v = playerobjs[i] as PlayerDrawBag
 	else
-		v = {offsetX=offsetX, offsetY=offsetY, rotation=rotation, quadcenterX=quadcenterX, quadcenterY=quadcenterY, animationstate=animationstate, underwater=underwater, ducking=ducking, hats=hats, graphic=graphic, quad=quad, pointingangle=pointingangle, shot=shot, upsidedown=upsidedown, colors=colors, lastportal=lastportal, portal1color=portal1color, portal2color=portal2color, runframe=runframe, swimframe=swimframe, climbframe=climbframe, jumpframe=jumpframe, biggraphic=biggraphic, fireanimationtimer=fireanimationtimer, char=char}
-		if v.char and v.graphic == v.char.biggraphic then
+		v = {
+			offsetX = offsetX as number,
+			offsetY = offsetY as number,
+			rotation = rotation as number,
+			quadcenterX = quadcenterX as number,
+			quadcenterY = quadcenterY as number,
+			animationstate = animationstate,
+			underwater = underwater,
+			ducking = ducking,
+			hats = hats as {any},
+			graphic = graphic,
+			quad = quad,
+			pointingangle = pointingangle as number,
+			shot = shot,
+			upsidedown = upsidedown,
+			colors = colors as {any},
+			lastportal = lastportal,
+			portal1color = portal1color,
+			portal2color = portal2color,
+			runframe = runframe,
+			swimframe = swimframe,
+			climbframe = climbframe,
+			jumpframe = jumpframe,
+			biggraphic = biggraphic,
+			fireanimationtimer = fireanimationtimer,
+			char = char,
+			size = 1,
+			drawhat = nil,
+			infunnel = nil,
+		}
+		if v.char and v.graphic == (v.char as {string:any}).biggraphic then
 			v.size = 2
 		else
 			v.size = 1
@@ -142,18 +203,19 @@ global function drawplayer(...: any): any
 	end
 	
 	if type(v.graphic) == "table" then
-		for k = 1, #v.graphic do
-			if v.colors[k] then
-				love.graphics.setColor(v.colors[k])
+		local graphics = v.graphic as {any}
+		for k = 1, #graphics do
+			if v.colors[k as integer] then
+				love.graphics.setColor(v.colors[k as integer])
 			else
 				love.graphics.setColor(1, 1, 1)
 			end
-			love.graphics.draw(v.graphic[k], v.quad, math.floor((x+v.offsetX)*scale), math.floor((y-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+			love.graphics.draw(graphics[k as integer], v.quad, math.floor((px+v.offsetX)*scale), math.floor((py-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
 		end
 	else
 		if v.graphic and v.quad then
 			love.graphics.setColor(1, 1, 1)
-			love.graphics.draw(v.graphic, v.quad, math.floor((x+v.offsetX)*scale), math.floor((y-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+			love.graphics.draw(v.graphic, v.quad, math.floor((px+v.offsetX)*scale), math.floor((py-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
 		end	
 	end
 	
@@ -164,26 +226,26 @@ global function drawplayer(...: any): any
 		if offsets and #v.hats > 0 then
 			local yadd: number = 0
 			for i = 1, #v.hats do
-				if v.hats[i] ~= 0 then
-					if v.hats[i] == 1 then
+				if v.hats[i as integer] ~= 0 then
+					if v.hats[i as integer] == 1 then
 						love.graphics.setColor(v.colors[1])
 					else
 						love.graphics.setColor(1, 1, 1)
 					end
 					if v.graphic == v.biggraphic or v.animationstate == "grow" then
-						love.graphics.draw(bighat[v.hats[i]].graphic, math.floor((x+v.offsetX)*scale), math.floor((y-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX - bighat[v.hats[i]].x + offsets[1], v.quadcenterY - bighat[v.hats[i]].y + offsets[2] + yadd)
-						yadd = yadd + bighat[v.hats[i]].height
+						love.graphics.draw(bighat[v.hats[i as integer]].graphic, math.floor((px+v.offsetX)*scale), math.floor((py-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX - bighat[v.hats[i as integer]].x + offsets[1], v.quadcenterY - bighat[v.hats[i as integer]].y + offsets[2] + yadd)
+						yadd = yadd + bighat[v.hats[i as integer]].height
 					else
-						local debugtable: {number:any} = {x, v.offsetX, y, v.offsetY, v.quadcenterX, hat[v.hats[i]].x, offsets[1], v.quadcenterY, hat[v.hats[i]].y, offsets[2], yadd}
+						local debugtable: {any} = {px, v.offsetX, py, v.offsetY, v.quadcenterX, hat[v.hats[i as integer]].x, offsets[1], v.quadcenterY, hat[v.hats[i as integer]].y, offsets[2], yadd}
 						--TIMETRIAL
-						for i, v in pairs(debugtable) do
-							if type(v) == "table" then
+						for _, dv in ipairs(debugtable) do
+							if type(dv) == "table" then
 								return
 							end
 						end
 						
-						love.graphics.draw(hat[v.hats[i]].graphic, math.floor((x+v.offsetX)*scale), math.floor((y-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX - hat[v.hats[i]].x + offsets[1], v.quadcenterY - hat[v.hats[i]].y + offsets[2] + yadd)
-						yadd = yadd + hat[v.hats[i]].height
+						love.graphics.draw(hat[v.hats[i as integer]].graphic, math.floor((px+v.offsetX)*scale), math.floor((py-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX - hat[v.hats[i as integer]].x + offsets[1], v.quadcenterY - hat[v.hats[i as integer]].y + offsets[2] + yadd)
+						yadd = yadd + hat[v.hats[i as integer]].height
 					end
 				end
 			end
@@ -191,13 +253,14 @@ global function drawplayer(...: any): any
 	end
 	
 	if type(v.graphic) == "table" then
-		if v.graphic[0] then
+		local graphics = v.graphic as {any:any}
+		if graphics[0] then
 			love.graphics.setColor(1, 1, 1)
-			love.graphics.draw(v.graphic[0], v.quad, math.floor((x+v.offsetX)*scale), math.floor((y-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+			love.graphics.draw(graphics[0], v.quad, math.floor((px+v.offsetX)*scale), math.floor((py-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
 		end
-		if v.graphic.dot then
-			love.graphics.setColor(unpack(v["portal" .. v.lastportal .. "color"]))
-			love.graphics.draw(v.graphic["dot"], v.quad, math.floor((x+v.offsetX)*scale), math.floor((y-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
+		if graphics.dot then
+			love.graphics.setColor(unpack((v as {string:any})["portal" .. tostring(v.lastportal) .. "color"] as {any}))
+			love.graphics.draw(graphics["dot"], v.quad, math.floor((px+v.offsetX)*scale), math.floor((py-v.offsetY)*scale), v.rotation, dirscale, horscale, v.quadcenterX, v.quadcenterY)
 		end	
 	end
 end
@@ -247,7 +310,7 @@ global function reachedx(...: any): any
 			repeatX = mazestarts[mazei]
 		end
 		
-		table.insert(map, x as integer, {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}} as {MapCell})
+		(map as {integer:{MapCell}})[x as integer] = {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}} as {MapCell}
 		table.insert(coinmap, x as integer, {})
 		for y = 1, mapheight do
 			local cell = map[x][y] as Dyn

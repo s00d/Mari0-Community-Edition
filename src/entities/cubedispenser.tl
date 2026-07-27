@@ -93,13 +93,13 @@ function cubedispenser:update(dt: number): any...
 		self.timer = self.timer + dt
 		
 		if self.timer > 0.6 and self.boxexists == false then
-			local temp
+			local temp: Entity|nil = nil
 			if self.t == "box" then
 				temp = box:new(self.cox+.5, self.coy)
 				temp:addoutput(self, "drop")
 				table.insert(objects["box"], temp)
 			elseif tablecontains(enemies, self.t) then
-				temp = enemy:new(self.cox, self.coy+2-enemiesdata[self.t].height, self.t)
+				temp = enemy:new(self.cox, self.coy+2-enemiesdata[self.t].height, self.t as string)
 				
 				if self.spawnondestroy then
 					temp:addoutput(self, "drop_enemy_triggered")

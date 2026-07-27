@@ -238,7 +238,10 @@ global function shootportal(...: any): any
 	if not mirrored then
 		playerobjs[plnumber].lastportal = i as number
 	end
-	local cox, coy, side, tendency, x, y = traceline(sourcex, sourcey, direction)
+	local sxn: number = sourcex as number
+	local syn: number = sourcey as number
+	local dirn: number = direction as number
+	local cox, coy, side, tendency, x, y = traceline(sxn, syn, dirn, nil)
 	
 	local mirror = false
 	if cox and tilequads[map[cox as number][coy as number][1]] and tilequads[map[cox as number][coy as number][1]]:getproperty("mirror", cox as number, coy as number) then

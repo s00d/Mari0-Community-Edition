@@ -9,7 +9,7 @@ function screenboundary.new(_: screenboundary, x: any): screenboundary
 end
 
 function screenboundary:init(x)
-	self.x = x
+	self.x = x as number
 	self.y = -1000	
 	self.width = 0
 	self.height = 1000+mapheight

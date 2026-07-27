@@ -52,7 +52,7 @@ function laserdetector:input(t)
 end
 
 function laserdetector:draw()
-	local rot = 0
+	local rot: number = 0
 	if self.dir == "down" then
 		rot = math.pi/2
 	elseif self.dir == "left" then

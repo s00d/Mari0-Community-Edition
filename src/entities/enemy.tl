@@ -831,7 +831,7 @@ function enemy:update(dt: number): any...
 		self.customtimertimer = self.customtimertimer + dt
 		while self.customtimertimer > (((self.customtimer as {any})[self.currentcustomtimerstage as integer] as {any})[1] as number) do
 			local ct = self.customtimer as {{any}}
-			local stage = ct[self.currentcustomtimerstage]
+			local stage = ct[self.currentcustomtimerstage as integer]
 			self.customtimertimer = self.customtimertimer - stage[1] as number
 			if stage[2] and stage[3] then
 				self:customtimeraction(stage[2], stage[3])
@@ -927,7 +927,7 @@ function enemy:decodearg(arg: any): any
 		if not (a[1] and a[2]) then return end
 		
 		if a[1] == "global" then
-			return _G[a[2] as string] or false
+			return (_G as {string:any})[a[2] as string] or false
 		elseif a[1] == "self" then
 			return (self as {string:any})[a[2] as string]
 		elseif a[1] == "concat" then
@@ -1402,8 +1402,8 @@ end
 function enemy:output(): any
 	for i = 1, #self.outtable do
 		local ot = self.outtable[i as integer] as {any}
-		if (ot[1] as {string:any}).input then
-			(ot[1] as {string:any}):input("toggle", ot[2])
+		if (ot[1] as Entity).input then
+			(ot[1] as Entity):input("toggle", ot[2])
 		end
 	end
 end

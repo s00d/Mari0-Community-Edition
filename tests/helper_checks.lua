@@ -389,11 +389,13 @@ end
 -- playerutil
 do
 	players = 3
-	objects = {player = {{x = 10}, {x = 2}, {x = 8}}}
+	playerobjs = {{x = 10}, {x = 2}, {x = 8}}
+	objects = {player = playerobjs}
 	check("closest player index", getclosestplayer(3) == 2)
 	check("closest sets global", closestplayer == 2)
 	players = 1
-	objects = {player = {{x = 0}}}
+	playerobjs = {{x = 0}}
+	objects = {player = playerobjs}
 	check("closest single", getclosestplayer(99) == 1)
 end
 

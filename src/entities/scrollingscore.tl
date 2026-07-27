@@ -9,8 +9,8 @@ function scrollingscore.new(_: scrollingscore, i: any, x: any, y: any): scrollin
 end
 
 function scrollingscore:init(i: any, x: any, y: any)
-	self.x = x-xscroll
-	self.y = y-yscroll
+	self.x = (x as number)-xscroll
+	self.y = (y as number)-yscroll
 	self.i = i
 	self.timer = 0
 end

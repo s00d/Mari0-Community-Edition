@@ -2,9 +2,10 @@
 
 rawset(_G, "tile", rawget(_G, "tile") or {})
 
-function tile.new(_: tile, x: number, y: number, slant: any): tile
+function tile.new(_: tile, ...: any): tile
+	local x, y, slant = ...
 	local self = setmetatable({}, { __index = tile }) as tile
-	self:init(x, y, slant)
+	self:init(x as number, y as number, slant)
 	return self
 end
 

@@ -16,7 +16,7 @@ function guielement:init(...: any)
 		self.type = arg[1] as string
 		self.x = arg[2] as number
 		self.y = arg[3] as number
-		self.func = arg[4]
+		self.func = arg[4] as function(...: any): any|nil
 		if not arg[5] or arg[5] == false then
 			self.var = false
 		else
@@ -29,7 +29,7 @@ function guielement:init(...: any)
 		self.y = arg[3] as number
 		self.starty = self.y
 		self.width = arg[4] as number
-		self.func = arg[5]
+		self.func = arg[5] as function(...: any): any|nil
 		self.var = arg[6] or 1
 		self.entries = {}
 		for i = 7, #arg do
@@ -42,7 +42,7 @@ function guielement:init(...: any)
 		self.x = arg[2] as number
 		self.y = arg[3] as number
 		self.width = arg[4] as number
-		self.func = arg[5]
+		self.func = arg[5] as function(...: any): any|nil
 		self.var = arg[6] or nil
 		self.entries = {}
 		for i = 7, #arg do
@@ -60,7 +60,7 @@ function guielement:init(...: any)
 		self.x = arg[2] as number
 		self.y = arg[3] as number
 		self.text = arg[4] as string
-		self.func = arg[5]
+		self.func = arg[5] as function(...: any): any|nil
 		self.space = (arg[6] or 0) as number
 		if type(arg[7]) ~= "table" then
 			self.arguments = {}
@@ -126,7 +126,7 @@ function guielement:init(...: any)
 		self.x = arg[2] as number
 		self.y = arg[3] as number
 		self.width = arg[4] as number
-		self.func = arg[5] or (function() self.inputting = false end)
+		self.func = (arg[5] or (function() self.inputting = false end)) as function(...: any): any|nil
 		self.value = (arg[6] or "") as string
 		self.maxlength = (arg[7] or 0) as number
 		self.height = (arg[8] or 1) as number

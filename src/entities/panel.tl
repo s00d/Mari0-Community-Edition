@@ -17,12 +17,12 @@ function panel:init(x: number, y: number, t)
 	self.input1state = "off"
 	
 	--Input list
-	self.t = {unpack(t)}
+	self.t = {unpack(t as {any})}
 	table.remove(self.t, 1)
 	table.remove(self.t, 1)
 	--Dir
 	if #self.t > 0 then
-		self.dir = self.t[1]
+		self.dir = self.t[1] as string
 		table.remove(self.t, 1)
 	end
 	--Start white
@@ -54,7 +54,7 @@ end
 function panel:link()
 	while #self.t > 3 do
 		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w] as {Entity}) do
+			for i, v in pairs(objects[w] as {any:Entity}) do
 				if tonumber(self.t[3]) == v.cox and tonumber(self.t[4]) == v.coy then
 					v:addoutput(self, self.t[2])
 				end

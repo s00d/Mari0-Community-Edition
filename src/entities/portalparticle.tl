@@ -12,8 +12,8 @@ function portalparticle:init(x: number, y: number, color, direction)
 	self.x = x or 0
 	self.y = y or 0
 	self.timer = 0
-	self.color = color or {1, 1, 1, 0}
-	self.direction = direction
+	self.color = (color or {1, 1, 1, 0}) as {number}
+	self.direction = direction as string
 	
 	self.speedx, self.speedy = 0, 0
 	if self.direction == "left" then

@@ -4,8 +4,8 @@ local function buildstartendzones(starts: {number}|nil, ends: {number}|nil): {{n
 		return zones
 	end
 	local unpack_fn = table.unpack or (unpack as function)
-	local s = { unpack_fn(starts) }
-	local e = { unpack_fn(ends or {}) }
+	local s = { unpack_fn(starts) } as {number}
+	local e = { unpack_fn(ends or {}) } as {number}
 	table.sort(s)
 	table.sort(e)
 	local ei = 1
@@ -19,7 +19,7 @@ local function buildstartendzones(starts: {number}|nil, ends: {number}|nil): {{n
 			ex = e[ei]
 			ei = ei + 1
 		end
-		table.insert(zones, { sx, ex })
+		table.insert(zones, { sx, ex } as {number|boolean})
 	end
 	return zones
 end

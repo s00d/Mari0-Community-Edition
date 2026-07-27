@@ -11,7 +11,7 @@ end
 function groundlight:init(x: number, y: number, dir, r)
 	self.x = x
 	self.y = y
-	self.dir = dir
+	self.dir = dir as number
 	
 	self.timer = 0
 	

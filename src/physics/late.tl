@@ -28,7 +28,7 @@ global function aabb(...: any): boolean
 	return (ax as number)+(awidth as number) > (bx as number) and (ax as number) < (bx as number)+(bwidth as number) and (ay as number)+(aheight as number) > (by as number) and (ay as number) < (by as number)+(bheight as number)
 end
 
-global function aabt(ax: number, ay: number, awidth: number, aheight: number, bx: number, by: number, bwidth: number, bheight: number, bdir: any): boolean
+global function aabt(ax: number, ay: number, awidth: number, aheight: number, bx: number, by: number, bwidth: number, bheight: number, bdir: any): boolean|nil
 	if bdir == "ur" then
 		return ax+awidth > bx and ax < bx+bwidth and ay+aheight > by and ay < by+bheight and ay + aheight - by > ax - bx
 	elseif bdir == "ul" then
@@ -38,5 +38,5 @@ global function aabt(ax: number, ay: number, awidth: number, aheight: number, bx
 	elseif bdir == "dr" then
 		return ax+awidth > bx and ax < bx+bwidth and ay+aheight > by and ay < by+bheight and ay - by < bwidth- ax + bx
 	end
-	return false
+	return nil
 end

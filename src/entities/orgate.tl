@@ -84,7 +84,7 @@ function orgate:input(t, input)
 		end
 		
 		local pass = "off"
-		for i, v in ipairs(self.inputstate) do
+		for i, v in pairs(self.inputstate) do
 			if v == "on" then
 				pass = "on"
 			end

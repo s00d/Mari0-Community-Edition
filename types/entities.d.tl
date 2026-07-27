@@ -191,6 +191,7 @@ global record AssetStore is {any}
 	restore_defaults: function(AssetStore)
 	export_image_globals: function(AssetStore, {string})
 	load_image: function(string): Image|nil
+	load_image_data: function(ImageData): Image|nil
 	load_sound: function(string, string): Source|nil
 end
 

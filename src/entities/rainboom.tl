@@ -12,7 +12,7 @@ end
 function rainboom:init(x: number, y: number, dir)
 	self.x = x
 	self.y = y
-	self.dir = dir
+	self.dir = dir as string
 	self.timer = 0
 	self.frame = 1
 	
@@ -41,5 +41,5 @@ function rainboom:update(dt: number): any...
 end
 
 function rainboom:draw()
-	love.graphics.draw(rainboomimg, rainboomquad[self.frame], (self.x-xscroll)*16*scale, (self.y-yscroll-0.5)*16*scale, self.r, scale, scale, 29, 92)
+	love.graphics.draw(rainboomimg, rainboomquad[self.frame as integer], (self.x-xscroll)*16*scale, (self.y-yscroll-0.5)*16*scale, self.r, scale, scale, 29, 92)
 end

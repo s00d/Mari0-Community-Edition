@@ -24,7 +24,7 @@ function door:init(x: number, y: number, r)
 	table.remove(self.r, 1)
 	--DIRECTION
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.dir = self.r[1]
+		self.dir = self.r[1] as string
 		table.remove(self.r, 1)
 	end
 	--POWER
@@ -111,7 +111,7 @@ function door:update(dt: number): any...
 end
 
 function door:draw()
-	local ymod = 0
+	local ymod: number = 0
 	local rot = math.pi/2
 	if self.timer > 0.5 then
 		ymod = (self.timer - 0.5) * 2
@@ -168,7 +168,7 @@ end
 
 function door:closeopen(open)
 	local prev = self.open
-	self.open = open
+	self.open = open as boolean
 	
 	if self.open then
 		if self.timer == 1 then

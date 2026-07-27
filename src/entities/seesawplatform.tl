@@ -40,7 +40,7 @@ function seesawplatform:update(dt: number): any...
 	local previousX = self.x
 	local previousY = self.y
 	
-	local checktable = {}
+	local checktable: {string} = {}
 	for i, v in ipairs(enemies) do
 		if objects[v] then
 			table.insert(checktable, v)
@@ -50,7 +50,7 @@ function seesawplatform:update(dt: number): any...
 	
 	local numberofobjects = 0
 	
-	for i, v in pairs(checktable) do
+	for i, v in ipairs(checktable) do
 		for j, w in pairs(objects[v]) do
 			if not w.jumping and inrange(w.x, self.x-w.width, self.x+self.width) then
 				if inrange(w.y, self.y - w.height - 0.1, self.y - w.height + 0.1) then

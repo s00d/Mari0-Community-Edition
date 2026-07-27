@@ -67,7 +67,7 @@ function rocketlauncher:fire(): any...
 end
 
 function rocketlauncher:randomtime()
-	local rand = math.random(bulletbilltimemin*10, bulletbilltimemax*10)/10
+	local rand = math.random(math.floor(bulletbilltimemin*10) as integer, math.floor(bulletbilltimemax*10) as integer)/10
 	self.time = rand
 end
 

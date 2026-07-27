@@ -21,7 +21,8 @@ local src = f:read("*a")
 f:close()
 
 local function extract_fn(name)
-	local pat = "function mario:" .. name .. "%(dt%)\n(.-)\nfunction mario:"
+	-- Allow Teal typed params: (dt) or (dt: number) / (dt: number): ret
+	local pat = "function mario:" .. name .. "%(dt[^)]*%)[^\n]*\n(.-)\nfunction mario:"
 	local body = src:match(pat)
 	return body
 end
@@ -45,12 +46,12 @@ local phase_methods = {
 }
 
 for _, name in ipairs(phase_methods) do
-	check("mario:" .. name .. " exists", src:find("function mario:" .. name .. "%(dt%)", 1, false) ~= nil)
+	check("mario:" .. name .. " exists", src:find("function mario:" .. name .. "(dt", 1, true) ~= nil)
 	check("update calls " .. name, update_body and update_body:find("self:" .. name .. "%(dt%)", 1, false) ~= nil)
 end
 
 -- zones are gated by controlsenabled: called from controls, not update
-check("mario:update_zones exists", src:find("function mario:update_zones%(dt%)", 1, false) ~= nil)
+check("mario:update_zones exists", src:find("function mario:update_zones(dt", 1, true) ~= nil)
 check("update does not call zones directly", update_body and not update_body:find("self:update_zones%(dt%)", 1, false))
 
 local controls = extract_fn("update_controls")

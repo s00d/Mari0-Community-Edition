@@ -37,10 +37,10 @@ function portal:createportal(i: number, cox: any, coy: any, side: any, tendency:
 		local oldy: number|boolean
 		local oldfacing: any
 		if i == 1 then
-			oldx, oldy, oldfacing = self.x1, self.y1, self.facing1
+			oldx, oldy, oldfacing = self.x1 as number|boolean, self.y1 as number|boolean, self.facing1
 			self.x1, self.y1 = false, false
 		else
-			oldx, oldy, oldfacing = self.x2, self.y2, self.facing2
+			oldx, oldy, oldfacing = self.x2 as number|boolean, self.y2 as number|boolean, self.facing2
 			self.x2, self.y2 = false, false
 		end
 		
