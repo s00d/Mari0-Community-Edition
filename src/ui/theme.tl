@@ -50,36 +50,25 @@ local function panel_quads(img: Image): {Quad}
 	return q
 end
 
-local function make_panel_imagedata(): ImageData
-	local edge = UI.COL.panel_edge
-	local fill = UI.COL.panel
-	local id = love.image.newImageData(24, 24)
-	for y = 0, 23 do
-		for x = 0, 23 do
-			if x == 0 or y == 0 or x == 23 or y == 23 then
-				id:setPixel(x, y, edge[1], edge[2], edge[3], edge[4] or 1)
-			else
-				id:setPixel(x, y, fill[1], fill[2], fill[3], fill[4] or 1)
-			end
+-- Loads panels via AssetStore (no love.graphics.newImage here — static_api_lint).
+global function theme_init()
+	if assets then
+		if love.filesystem.getInfo("assets/ui/panel.png") then
+			assets:register_image("ui_panel", "assets/ui/panel.png")
+			UI.panel_img = assets:get_image("ui_panel")
+		end
+		if love.filesystem.getInfo("assets/ui/panel_inset.png") then
+			assets:register_image("ui_panel_inset", "assets/ui/panel_inset.png")
+			UI.panel_inset_img = assets:get_image("ui_panel_inset")
 		end
 	end
-	return id
-end
-
-global function theme_init()
-	if love.filesystem.getInfo("assets/ui/panel.png") then
-		UI.panel_img = love.graphics.newImage("assets/ui/panel.png")
-	else
-		UI.panel_img = love.graphics.newImage(make_panel_imagedata())
+	if UI.panel_img then
+		(UI.panel_img as Image):setFilter("nearest", "nearest")
+		UI.panel_quads = panel_quads(UI.panel_img as Image)
 	end
-	(UI.panel_img as Image):setFilter("nearest", "nearest")
-	UI.panel_quads = panel_quads(UI.panel_img as Image)
-
-	if love.filesystem.getInfo("assets/ui/panel_inset.png") then
-		local inset = love.graphics.newImage("assets/ui/panel_inset.png")
-		inset:setFilter("nearest", "nearest")
-		UI.panel_inset_img = inset
-		UI.panel_inset_quads = panel_quads(inset)
+	if UI.panel_inset_img then
+		(UI.panel_inset_img as Image):setFilter("nearest", "nearest")
+		UI.panel_inset_quads = panel_quads(UI.panel_inset_img as Image)
 	end
 
 	UI.debug_assert = false

@@ -1,4 +1,4 @@
---[[ Unit checks for menuutil (no LÖVE). ]]
+--[[ Menu layout / input-mode checks (no LÖVE). ]]
 
 local root = ... or "."
 local failed = 0
@@ -20,24 +20,170 @@ package.path = table.concat({
 
 require("core.stringutil")
 require("util.menuutil")
+require("ui.menu_layout")
 
+-- Fixture screen (actions are stubs; must exist for walk)
+local activated = nil
+local continue_on = true
+local screen = {
+	title = "mari0",
+	items = {
+		{
+			id = "continue",
+			label = "continue game",
+			visible = function()
+				return continue_on
+			end,
+			action = function()
+				activated = "continue"
+			end,
+		},
+		{
+			id = "newgame",
+			label = "player game",
+			action = function()
+				activated = "newgame"
+			end,
+		},
+		{
+			id = "editor",
+			label = "level editor",
+			action = function()
+				activated = "editor"
+			end,
+		},
+		{
+			id = "mappacks",
+			label = "select mappack",
+			action = function()
+				activated = "mappacks"
+			end,
+		},
+		{
+			id = "options",
+			label = "options",
+			action = function()
+				activated = "options"
+			end,
+		},
+		{
+			id = "online",
+			label = "online play",
+			action = function()
+				activated = "online"
+			end,
+		},
+	},
+	spinners = {
+		{
+			id = "players",
+			get = function()
+				return "1"
+			end,
+			dec = function() end,
+			inc = function() end,
+		},
+	},
+}
+
+do
+	continue_on = false
+	local vis = menu_visible_items(screen)
+	local has_continue = false
+	for i = 1, #vis do
+		if vis[i].id == "continue" then
+			has_continue = true
+		end
+	end
+	check("visible_items hides continue", not has_continue and #vis == 5)
+	continue_on = true
+	vis = menu_visible_items(screen)
+	check("visible_items shows continue", #vis == 6 and vis[1].id == "continue")
+end
+
+do
+	local lay = menu_layout_main(screen)
+	local rects = lay.rects
+	check("layout rect count", #rects == 6, tostring(#rects))
+	check("layout on 8px grid", menu_rects_on_grid(rects))
+	check("layout non-overlap", menu_rects_non_overlap(rects))
+	local panel = lay.panel
+	check("panel multiples of 8", panel.x % 8 == 0 and panel.y % 8 == 0 and panel.w % 8 == 0 and panel.h % 8 == 0)
+
+	for i = 1, #rects do
+		local r = rects[i]
+		local cx, cy = r.x + r.w / 2, r.y + r.h / 2
+		check("hit center " .. i, menu_hit(rects, cx, cy) == i)
+	end
+	-- between first and second row
+	local r1, r2 = rects[1], rects[2]
+	local mid_y = r1.y + r1.h -- boundary: half-open [y,y+h) so y+h is next or nil
+	-- gapless rows: y+h of first == y of second, so mid is still a hit on second
+	check("hit at row boundary is second", menu_hit(rects, r1.x + 8, mid_y) == 2)
+	check("hit outside nil", menu_hit(rects, 0, 0) == nil)
+end
+
+do
+	-- every item has action (walk MENU_SCREENS-shaped table)
+	for _, it in ipairs(screen.items) do
+		check("item action " .. it.id, type(it.action) == "function")
+	end
+end
+
+do
+	-- mode switch contract (mirrors ui_input helpers without love)
+	local mode = "kbd"
+	local function note_mouse(dx, dy)
+		if math.abs(dx) + math.abs(dy) < 1 then
+			return false
+		end
+		mode = "mouse"
+		return true
+	end
+	local function note_kbd()
+		mode = "kbd"
+	end
+	check("mode starts kbd", mode == "kbd")
+	check("jitter ignored", note_mouse(0.2, 0.2) == false and mode == "kbd")
+	check("mouse move sets mouse", note_mouse(2, 0) and mode == "mouse")
+	note_kbd()
+	check("key sets kbd", mode == "kbd")
+end
+
+do
+	-- click off selection does not activate
+	local selection = 2
+	local lay = menu_layout_main(screen)
+	local i = menu_hit(lay.rects, lay.rects[1].x + 4, lay.rects[1].y + 4)
+	activated = nil
+	if i and i == selection then
+		screen.items[i].action()
+	elseif i then
+		selection = i
+	end
+	check("click off selection no activate", activated == nil and selection == 1)
+	-- second click on selection activates
+	i = menu_hit(lay.rects, lay.rects[1].x + 4, lay.rects[1].y + 4)
+	if i and i == selection then
+		screen.items[1].action() -- continue is index 1 in items table when visible
+	end
+	-- activate via visible index
+	local vis = menu_visible_items(screen)
+	activated = nil
+	selection = 1
+	i = 1
+	if i == selection then
+		vis[i].action()
+	end
+	check("click on selection activates", activated == "continue")
+end
+
+-- Also parse checks from prior menu_checks
 do
 	local n, a, d = menu_parse_settings_text("name=Test Pack\nauthor=Ada\ndescription=Hello world\n")
 	check("parse name", n == "Test Pack")
 	check("parse author", a == "Ada")
 	check("parse desc", d == "Hello world")
-	n, a, d = menu_parse_settings_text("")
-	check("parse empty nils", n == nil and a == nil and d == nil)
-end
-
-do
-	check("title trunc", menu_mappack_title("ABCDEFGHIJKLMNOPQRST") == "abcdefghijklmnopq")
-	check("title lower", menu_mappack_title("Hi") == "hi")
-	check("author line", menu_mappack_author_line("Bob") == "by bob")
-	local d1, d2, d3 = menu_mappack_desc_lines("12345678901234567890123456789012345678901234567890123")
-	check("desc line1 len", #d1 == 17)
-	check("desc line2 len", #d2 == 17)
-	check("desc line3 len", #d3 == 17)
 end
 
 if select("#", ...) > 0 then

@@ -195,6 +195,7 @@ global interface Entity is {any}
 	gg_pulling: any
 	beamed: any
 	grabbable: boolean
+	gelreactive: boolean
 	punttimer: number
 	gels: {string:any}
 	slant: string
@@ -358,8 +359,7 @@ global record love
 		polygon: function(...: any)
 		circle: function(...: any)
 		present: function()
-		captureScreenshot: function(...: any)
-		newScreenshot: function(...: any): any
+		captureScreenshot: function(...: any) -- LÖVE 11+; replaces removed newScreenshot
 	end
 
 	record audio

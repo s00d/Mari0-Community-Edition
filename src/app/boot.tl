@@ -83,6 +83,8 @@ function Boot.require_game()
 	require "ui.intro"
 	require "util.menuutil"
 	require "ui.theme"
+	require "ui.menu_layout"
+	require "ui.menu_defs"
 	require "ui.menu"
 	require "ui.levelscreen"
 	require "app.game_update"

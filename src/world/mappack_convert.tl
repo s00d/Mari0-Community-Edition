@@ -51,10 +51,11 @@ local function link_types_for(ce_id: any): {string}|nil
 end
 
 local function append_links(newent: {any}, entin: {any})
-	local types = link_types_for(newent[1])
-	if not types then
+	local types_opt = link_types_for(newent[1])
+	if not types_opt then
 		return
 	end
+	local types = types_opt as {string}
 	local linkcount = 0
 	for i = 1, #entin do
 		if entin[i] == "link" then
@@ -115,9 +116,9 @@ end
 -- Converts an entity from the 1.6 system to the CE one.
 -- opts.strict: unknown ids error (string return via second value) instead of pass-through.
 -- opts.on_unknown(id): optional callback; return false to leave empty.
-global function convertentity(entin_in: any, opts?: {string:any}): {any}, string|nil
+global function convertentity(entin_in: any, opts: {string:any}|nil): {any}, string|nil
 	local entin: {any} = (entin_in as {any}) or {}
-	local o = opts or {}
+	local o = (opts or {}) as {string:any}
 	local newent: {any} = {}
 	if #entin < 1 then
 		return newent, nil
@@ -142,11 +143,11 @@ global function convertentity(entin_in: any, opts?: {string:any}): {any}, string
 		if o.strict then
 			return {}, string.format("unknown 1.6 entity id %s", tostring(entid))
 		end
-		if type(on_unknown) == "function" and on_unknown(entid) == false then
-			return {}, nil
-		end
 		if type(on_unknown) == "function" then
-			on_unknown(entid)
+			local cb = on_unknown as function(number): any
+			if cb(entid) == false then
+				return {}, nil
+			end
 		end
 		local i = 1
 		while entin[i] ~= "link" and i <= #entin do
@@ -180,15 +181,16 @@ end
    opts:
      strict (bool), is_coin(tileid)->bool, musiclist, backgroundcolor,
      mapheight_multiple (default 15), on_unknown(id) ]]
-global function convert_level_text(raw: string, opts?: {string:any}): string|nil, string|nil
-	local o: {string:any} = opts or {}
+global function convert_level_text(raw: string, opts: {string:any}|nil): string|nil, string|nil
+	local o = (opts or {}) as {string:any}
 	local height_mod = tonumber(o.mapheight_multiple) or 15
-	local musiclist: any = o.musiclist or rawget(_G, "musiclist") or DEFAULT_MUSICLIST
-	local bgcolors: any = o.backgroundcolor or rawget(_G, "backgroundcolor") or DEFAULT_BG
+	local musiclist = (o.musiclist or rawget(_G, "musiclist") or DEFAULT_MUSICLIST) as {any}
+	local bgcolors = (o.backgroundcolor or rawget(_G, "backgroundcolor") or DEFAULT_BG) as {{number}}
 	local is_coin: any = o.is_coin
 
 	local mariotimelimit: number = 400
-	local background: {number} = {unpack(bgcolors[1])}
+	local bg0 = bgcolors[1]
+	local background: {number} = { bg0[1], bg0[2], bg0[3], bg0[4] or 1 }
 	local musicname: string = "overworld.ogg"
 	local spriteset: integer = 1
 	local custombackground: any = false
@@ -197,7 +199,7 @@ global function convert_level_text(raw: string, opts?: {string:any}): string|nil
 	local haswarpzone = false
 	local underwater = false
 	local scrollfactor: number = 0
-	local fscrollfactor: number = 0
+	local fscroll_factor: number = 0
 	local mapwidth = 25
 	local mapheight = height_mod
 	local map: {number:{number:MapCell}} = {}
@@ -210,15 +212,16 @@ global function convert_level_text(raw: string, opts?: {string:any}): string|nil
 			mariotimelimit = tonumber(spl[2]) or mariotimelimit
 		elseif spl[1] == "background" then
 			local bi = tonumber(spl[2]) as integer
-			if bgcolors[bi] then
-				background = {unpack(bgcolors[bi])}
+			local bg = bgcolors[bi]
+			if bg then
+				background = { bg[1], bg[2], bg[3], bg[4] or 1 }
 			end
 		elseif spl[1] == "music" then
 			local musici = tonumber(spl[2])
 			if musici == 7 then
 				musicname = "custom.ext"
 			elseif musici and musiclist[musici as integer] then
-				musicname = musiclist[musici as integer]
+				musicname = tostring(musiclist[musici as integer])
 			end
 		elseif spl[1] == "spriteset" then
 			spriteset = (tonumber(spl[2]) or 1) as integer
@@ -237,7 +240,7 @@ global function convert_level_text(raw: string, opts?: {string:any}): string|nil
 		elseif i == 1 then
 			local mapsplit = strsplit(v, ",")
 			if #mapsplit % height_mod ~= 0 then
-				return nil, string.format("Level height not multiple of %d (cells=%d)", height_mod, #mapsplit)
+				return nil, string.format("Level height not multiple of %d (cells=%d)", height_mod as integer, (#mapsplit) as integer)
 			end
 			mapwidth = math.floor(#mapsplit / height_mod)
 			mapheight = height_mod
@@ -262,7 +265,7 @@ global function convert_level_text(raw: string, opts?: {string:any}): string|nil
 				end
 
 				local shouldbecoin = false
-				if type(is_coin) == "function" and is_coin(tileid) then
+				if type(is_coin) == "function" and (is_coin as function(number): boolean)(tileid) then
 					shouldbecoin = true
 					tileid = 1
 				end
@@ -319,7 +322,7 @@ global function convert_level_text(raw: string, opts?: {string:any}): string|nil
 	end
 	s = s .. cd .. "timelimit" .. eq .. tostring(mariotimelimit)
 	s = s .. cd .. "scrollfactor" .. eq .. tostring(scrollfactor)
-	s = s .. cd .. "fscrollfactor" .. eq .. tostring(fscrollfactor)
+	s = s .. cd .. "fscrollfactor" .. eq .. tostring(fscroll_factor)
 	return s, nil
 end
 
@@ -331,13 +334,13 @@ end
 --[[ Copy a 1.6 pack from source_dir → dest_dir without version.txt.
    fs: { list, read, write, mkdir, exists, is_file?, copy? }
    Returns stats table or nil, err. ]]
-global function convert_mappack_fs(source_dir: string, dest_dir: string, fs: {string:any}, opts?: {string:any}): {string:any}|nil, string|nil
-	local o: {string:any} = opts or {}
-	local list: any = fs.list
-	local read: any = fs.read
-	local write: any = fs.write
-	local mkdir: any = fs.mkdir
-	local exists: any = fs.exists
+global function convert_mappack_fs(source_dir: string, dest_dir: string, fs: {string:any}, opts: {string:any}|nil): {string:any}|nil, string|nil
+	local o = (opts or {}) as {string:any}
+	local list = fs.list as function(string): {string}
+	local read = fs.read as function(string): string|nil
+	local write = fs.write as function(string, string)
+	local mkdir = fs.mkdir as function(string)
+	local exists = fs.exists as function(string): boolean
 
 	mkdir(dest_dir)
 	for _, sub in ipairs({"animated/", "animations/", "backgrounds/", "assets/enemies/", "assets/graphics/", "levelscreens/", "music/"} as {string}) do
@@ -392,7 +395,7 @@ global function convert_mappack_fs(source_dir: string, dest_dir: string, fs: {st
 			unknowns[id] = (unknowns[id] or 0) + 1
 			local cb: any = o.on_unknown
 			if type(cb) == "function" then
-				return cb(id)
+				return (cb as function(number): boolean)(id)
 			end
 			return true
 		end,
@@ -409,9 +412,10 @@ global function convert_mappack_fs(source_dir: string, dest_dir: string, fs: {st
 						return nil, errors[1]
 					end
 				else
+					local text = out as string
 					if custommusicname ~= "" then
-						out = out:gsub("music¨custom%.ext", "music¨" .. custommusicname)
-						out = out:gsub("music=custom%.ext", "music=" .. custommusicname)
+						text = text:gsub("music¨custom%.ext", "music¨" .. custommusicname)
+						text = text:gsub("music=custom%.ext", "music=" .. custommusicname)
 					end
 					-- custombackground name from per-level backgrounds
 					local base = v:sub(1, -5)
@@ -423,15 +427,15 @@ global function convert_mappack_fs(source_dir: string, dest_dir: string, fs: {st
 						had_bg = true
 						bgi = bgi + 1
 					end
-					if had_bg and out:find("custombackground", 1, true) and not out:find("custombackground¨", 1, true) and not out:find("custombackground=", 1, true) then
-						out = out:gsub("custombackground", "custombackground¨" .. base, 1)
-					elseif defbg and out:find("custombackground", 1, true) and not out:find("custombackground¨", 1, true) then
-						out = out:gsub("custombackground", "custombackground¨default", 1)
+					if had_bg and text:find("custombackground", 1, true) and not text:find("custombackground¨", 1, true) and not text:find("custombackground=", 1, true) then
+						text = text:gsub("custombackground", "custombackground¨" .. base, 1)
+					elseif defbg and text:find("custombackground", 1, true) and not text:find("custombackground¨", 1, true) then
+						text = text:gsub("custombackground", "custombackground¨default", 1)
 					end
-					write(dest_dir .. "/" .. v, out)
+					write(dest_dir .. "/" .. v, text)
 					levels = levels + 1
 					if o.after_level then
-						(o.after_level as function(string, string))(v, out)
+						(o.after_level as function(string, string))(v, text)
 					end
 				end
 			end
@@ -544,8 +548,14 @@ global function convertmappack(name: any)
 		notice.new("convert failed: " .. tostring(err), notice.red)
 		return
 	end
-	if stats and #(stats.errors as {string}) > 0 then
-		notice.new("converted with " .. tostring(#(stats.errors as {string})) .. " level errors", notice.red)
+	if stats then
+		local st = stats as {string:any}
+		local errs = (st.errors or {}) as {string}
+		if #errs > 0 then
+			notice.new("converted with " .. tostring(#errs) .. " level errors", notice.red)
+		else
+			notice.new("mappack converted successfully")
+		end
 	else
 		notice.new("mappack converted successfully")
 	end
@@ -573,10 +583,11 @@ global function loadmapold(path: any): any
 		print(perr or "parse failed")
 		return false
 	end
-	map = parsed.map
-	coinmap = parsed.coinmap
-	mapwidth = parsed.mapwidth
-	mapheight = parsed.mapheight
+	local ptiles = parsed as LevelTilesParse
+	map = ptiles.map
+	coinmap = ptiles.coinmap
+	mapwidth = ptiles.mapwidth
+	mapheight = ptiles.mapheight
 	mariotimelimit = 400
 	background = {unpack(backgroundcolor[1])} as {any:number}
 	musicname = "overworld.ogg"
@@ -592,7 +603,7 @@ global function loadmapold(path: any): any
 	portalsavailable = {true, true}
 	levelscreenbackname = false
 	-- Re-apply options from converted text
-	local v = level_detect_format_version(out)
+	level_detect_format_version(out)
 	local _, _, _, sections, _, _, _, _, equalsign = level_split_file_contents(out)
 	for i = 2, #sections do
 		local spl = strsplit(sections[i], equalsign)

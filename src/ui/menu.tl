@@ -2,11 +2,120 @@
 
 require "assets.spritebatch_util"
 
+-- Optional polish (max 3 anims): cursor Y lerp 60ms, hover fade 40ms
+local menu_cursor_y: number = 0
+local menu_cursor_ready: boolean = false
+local menu_hover_a: number = 0
+local menu_hover_i: integer|nil = nil
+local mappack_skipped_count: number = 0
+
+local function main_layout(): {string:any}
+	if not MENU_SCREENS.main then
+		menu_defs_bind()
+	end
+	return menu_layout_main(MENU_SCREENS.main)
+end
+
+local function main_activate(index: integer)
+	local lay = main_layout()
+	local items = lay.items as {any}
+	local raw = items[index]
+	if not raw then
+		return
+	end
+	local it = raw as {string:any}
+	local act = it.action as function()|nil
+	if act ~= nil then
+		(act as function())()
+	end
+end
+
+local function main_players_spinner(): {string:any}|nil
+	local screen = MENU_SCREENS.main
+	if not screen then
+		return nil
+	end
+	local sp_raw = screen.spinners
+	if not sp_raw then
+		return nil
+	end
+	local sp = sp_raw as {any}
+	local first = sp[1]
+	if not first then
+		return nil
+	end
+	return first as {string:any}
+end
+
+local function spin_call(which: string)
+	local spin = main_players_spinner()
+	if not spin then
+		return
+	end
+	local s = spin as {string:any}
+	local fn = s[which] as function()|nil
+	if fn ~= nil then
+		(fn as function())()
+	end
+end
+
+local function draw_menu_item(r: {string:any}, state: string, hover_a: number)
+	local s = scale
+	if state == "hover" or (state == "selected" and hover_a > 0 and menu_hover_i == (r.index as integer)) then
+		local ha = (state == "hover") and math.max(hover_a, 0.5) or hover_a
+		local c = UI.COL.hover
+		love.graphics.setColor(c[1], c[2], c[3], (c[4] or 0.1) * ha)
+		love.graphics.rectangle("fill", (r.x as number) * s, (r.y as number) * s, (r.w as number) * s, (r.h as number) * s)
+	end
+	if state == "selected" then
+		local c = UI.COL.sel
+		love.graphics.setColor(c[1], c[2], c[3], c[4] or 0.18)
+		love.graphics.rectangle("fill", (r.x as number) * s, (r.y as number) * s, (r.w as number) * s, (r.h as number) * s)
+		ui_set_color("text_accent")
+		properprint("_dir5", ((r.x as number) + 2) * s, ((r.y as number) + 4) * s)
+	end
+	if state == "selected" then
+		ui_set_color("text_accent")
+	elseif r.disabled then
+		ui_set_color("text_dim")
+	else
+		ui_set_color("text")
+	end
+	local label = r.label as string
+	local text_x = (r.x as number) + UI.PAD + 8
+	if (r.id as string) == "newgame" then
+		local spin = main_players_spinner()
+		local nstr = tostring(players)
+		if spin then
+			local getter = (spin as {string:any}).get as function(): string|nil
+			if getter ~= nil then
+				nstr = (getter as function(): string)()
+			end
+		end
+		if players > 1 then
+			properprint("_dir3", ((r.x as number) + UI.PAD) * s, ((r.y as number) + 4) * s)
+		end
+		properprint(nstr, ((r.x as number) + UI.PAD + 16) * s, ((r.y as number) + 4) * s)
+		if players < 4 then
+			properprint("_dir5", ((r.x as number) + UI.PAD + 32) * s, ((r.y as number) + 4) * s)
+		end
+		properprint(label, ((r.x as number) + UI.PAD + 56) * s, ((r.y as number) + 4) * s)
+	else
+		properprint(label, text_x * s, ((r.y as number) + 4) * s)
+	end
+	love.graphics.setColor(1, 1, 1, 1)
+end
+
 global function menu_load()
 	loadconfig()
 	love.audio.stop()
 	editormode = false
 	gamestate = "menu"
+	menu_defs_bind()
+	menu_cursor_ready = false
+	menu_hover_a = 0
+	menu_hover_i = nil
+	ui_set_input_mode("kbd")
 	
 	for _, v in pairs(guielements) do
 		v.active = false
@@ -53,7 +162,17 @@ global function menu_load()
 	if love.filesystem.getInfo("suspend.txt") then
 		continueavailable = true
 	end
-	
+	-- selection is 1-based into visible items; default highlight stays on newgame
+	local lay = main_layout()
+	local items = lay.items as {any}
+	selection = 1
+	for i = 1, #items do
+		if ((items[i] as {string:any}).id as string) == "newgame" then
+			selection = i
+			break
+		end
+	end
+
 	mariolevel = 1
 	marioworld = 1
 	mariosublevel = 0
@@ -83,6 +202,25 @@ global function menu_load()
 end
 
 global function menu_update(dt: number)
+	if gamestate == "menu" and not selectworldopen then
+		local lay = main_layout()
+		local rects = lay.rects as {any}
+		local sel = math.max(1, math.min(selection as integer, #rects))
+		selection = sel
+		local target_y = ((rects[sel] as {string:any}).y as number)
+		if not menu_cursor_ready then
+			menu_cursor_y = target_y
+			menu_cursor_ready = true
+		else
+			local k = math.min(1, dt / 0.06)
+			menu_cursor_y = menu_cursor_y + (target_y - menu_cursor_y) * k
+		end
+		local want_hover = (ui_input_mode == "mouse") and menu_hover_i ~= nil
+		local hover_target = want_hover and 1 or 0
+		local hk = math.min(1, dt / 0.04)
+		menu_hover_a = menu_hover_a + (hover_target - menu_hover_a) * hk
+	end
+
 		--coinanimation
 	coinanimation = coinanimation + dt*6.75
 	while coinanimation >= 6 do
@@ -281,62 +419,36 @@ global function menu_draw_title()
 		properprint("version outdated!|go to stabyourself.net|to download latest", 220*scale, 90*scale)
 		love.graphics.setColor(1, 1, 1, 1)
 	end
-	
-	if selection == 0 then
-		love.graphics.draw(menuselectimg, 73*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
-	elseif selection == 1 then
-		love.graphics.draw(menuselectimg, 73*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
-	elseif selection == 2 then
-		love.graphics.draw(menuselectimg, 81*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
-	elseif selection == 3 then
-		love.graphics.draw(menuselectimg, 73*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
-	elseif selection == 4 then
-		love.graphics.draw(menuselectimg, 98*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
-	elseif selection == 5 then
-		love.graphics.draw(menuselectimg, 87*scale, (137+(selection-1)*16)*scale, 0, scale, scale)
-	end
-	
-	if custombackground then
-		if continueavailable then
-			properprintbackground("continue game", 87*scale, 122*scale, true)
-		end
-		
-		properprintbackground("player game", 103*scale, 138*scale, true)
-		
-		properprintbackground("level editor", 95*scale, 154*scale, true)
-		
-		properprintbackground("select mappack", 83*scale, 170*scale, true)
-		
-		properprintbackground("options", 111*scale, 186*scale, true)
 
-		properprintbackground("online play", 95*scale, 202*scale, true)
-	
-		properprintbackground(players, 87*scale, 138*scale, true)
-	else
-		if continueavailable then
-			properprint("continue game", 87*scale, 122*scale)
-		end
-		
-		properprint("player game", 103*scale, 138*scale)
-		
-		properprint("level editor", 95*scale, 154*scale)
-		
-		properprint("select mappack", 83*scale, 170*scale)
-		
-		properprint("options", 111*scale, 186*scale)
+	local lay = main_layout()
+	local panel = lay.panel as {string:any}
+	draw_panel(panel.x as number, panel.y as number, panel.w as number, panel.h as number)
 
-		properprint("online play", 95*scale, 202*scale)
-	
-		properprint(players, 87*scale, 138*scale)
+	local rects = lay.rects as {any}
+	for i = 1, #rects do
+		local r = rects[i] as {string:any}
+		local state = "normal"
+		if i == (selection as integer) then
+			state = "selected"
+		elseif ui_input_mode == "mouse" and menu_hover_i == i and menu_hover_a > 0.05 then
+			state = "hover"
+		end
+		-- use lerped cursor Y only for selected marker fill alignment
+		if state == "selected" and menu_cursor_ready then
+			local rr = {
+				x = r.x, y = menu_cursor_y, w = r.w, h = r.h,
+				item = r.item, label = r.label, id = r.id, index = r.index, disabled = r.disabled,
+			}
+			draw_menu_item(rr, state, menu_hover_a)
+		else
+			draw_menu_item(r, state, menu_hover_a)
+		end
 	end
-	
-	if players > 1 then
-		love.graphics.draw(playerselectimg, 82*scale, 138*scale, 0, scale, scale)
-	end
-	
-	if players < 4 then
-		love.graphics.draw(playerselectimg, 102*scale, 138*scale, 0, -scale, scale)
-	end
+
+	local footer = lay.footer as {string:any}
+	ui_set_color("text_dim")
+	properprint(footer.text as string, (footer.x as number) * scale, (footer.y as number) * scale)
+	love.graphics.setColor(1, 1, 1, 1)
 	
 	if selectworldopen then
 		love.graphics.setColor(0, 0, 0)
@@ -393,7 +505,11 @@ global function menu_draw_mappackmenu()
 			love.graphics.rectangle("fill", 240*scale, 81*scale, 115*scale, 61*scale)
 			love.graphics.setColor(1, 1, 1)
 			if not savefolderfailed then
-				properprint("press right to|access the dlc||press m to|open your|mappack folder", 241*scale, 83*scale)
+				local skipmsg = ""
+				if mappack_skipped_count > 0 then
+					skipmsg = "||" .. tostring(mappack_skipped_count) .. " packs skipped|(no settings/|has version.txt)"
+				end
+				properprint("press right to|access the dlc||press m to|open your|mappack folder" .. skipmsg, 241*scale, 83*scale)
 			else
 				properprint("press right to|access the dlc||could not|open your|mappack folder", 241*scale, 83*scale)
 			end
@@ -573,6 +689,10 @@ global function menu_draw_mappackmenu()
 			love.graphics.setScissor(21*scale, 16*scale, 218*scale, 200*scale)
 			love.graphics.setColor(1,1,1)
 			love.graphics.translate(0, -round(toconvertmappackscrollsmooth*60*scale))
+
+			if #toconvertmappacklist == 0 then
+				properprint("toconvert folder empty||put 1.6 mappacks in|toconvert/ then reopen", 40*scale, 80*scale)
+			end
 			
 			for i = 1, #toconvertmappacklist do
 				--back
@@ -1361,6 +1481,7 @@ global function loadmappacks()
 			table.insert(delete, i)
 		end
 	end
+	mappack_skipped_count = #delete
 	
 	remove_indices_desc(mappacklist, delete)
 	
@@ -1667,7 +1788,7 @@ end
 
 global function menu_keypressed(key: any)
 	
-	if gamestate == "menu" then --PLEASE don't use this menu system as an example. It's fucking awful. But you knew that.
+	if gamestate == "menu" then -- data-driven main (see menu_defs); other screens still legacy
 		if selectworldopen then
 			if (key == "right" or key == "d") then
 				local target = selectworldcursor+1
@@ -1693,48 +1814,29 @@ global function menu_keypressed(key: any)
 			end
 			return
 		end
+		local lay = main_layout()
+		local n = #(lay.items as {any})
 		if (key == "up" or key == "w") then
-			if continueavailable then
-				if selection > 0 then
-					selection = selection - 1
-				end
-			else
-				if selection > 1 then
-					selection = selection - 1
-				end
+			if selection > 1 then
+				selection = selection - 1
 			end
 		elseif (key == "down" or key == "s") then
-			if selection < 5 then
+			if selection < n then
 				selection = selection + 1
 			end
 		elseif (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
-			if selection == 0 then
-				game_load(true)
-			elseif selection == 1 then
-				selectworld()
-			elseif selection == 2 then
-				editormode = true
-				players = 1
-				game_load()
-			elseif selection == 3 then
-				gamestate = "mappackmenu"
-				mappacks()
-			elseif selection == 4 then
-				gamestate = "options"
-			elseif selection == 5 then
-				onlinemenu_load()
-			end
+			main_activate(selection as integer)
 		elseif key == "escape" then
-			love.event.quit()
+			local back = (MENU_SCREENS.main as {string:any}).back as function()|nil
+			if back ~= nil then
+				(back as function())()
+			else
+				love.event.quit()
+			end
 		elseif (key == "left" or key == "a") then
-			if players > 1 then
-				players = players - 1
-			end
+			spin_call("dec")
 		elseif (key == "right" or key == "d") then
-			players = players + 1
-			if players > 4 then
-				players = 4
-			end
+			spin_call("inc")
 		end
 	elseif gamestate == "mappackmenu" then
 		if (key == "up" or key == "w") then
@@ -2130,14 +2232,96 @@ global function menu_keyreleased(_: any)
 
 end
 
-global function menu_mousepressed(_: any, _: any, _: any)
-	
-
+global function menu_mousepressed(x: any, y: any, button: any)
+	if button ~= "l" then
+		return
+	end
+	local ux = (x as number) / scale
+	local uy = (y as number) / scale
+	if gamestate == "menu" then
+		if selectworldopen then
+			return
+		end
+		local lay = main_layout()
+		local spin_kind = menu_hit_spinner(lay.spinner as {string:any}|nil, ux, uy)
+		if spin_kind then
+			if spin_kind == "cycle" and players >= 4 then
+				players = 1
+			elseif spin_kind == "cycle" then
+				spin_call("inc")
+			else
+				spin_call(spin_kind)
+			end
+			-- also select newgame row
+			local rects = lay.rects as {any}
+			for i = 1, #rects do
+				if (((rects[i] as {string:any}).id as string) == "newgame") then
+					selection = i
+					break
+				end
+			end
+			return
+		end
+		local i = menu_hit(lay.rects as {any}, ux, uy)
+		-- click activates only if hit == current selection
+		if i and i == (selection as integer) then
+			main_activate(i)
+		elseif i then
+			selection = i
+		end
+	elseif gamestate == "mappackmenu" then
+		-- list rows: legacy 60px spacing at x 25..243, y 20+(i-1)*60
+		if mappacktype == "local" and mappacklist then
+			local list_x, list_w = 21, 218
+			if ux >= list_x and ux < list_x + list_w then
+				local rel = uy - 20 + (mappackscrollsmooth or 0) * 60
+				local i = math.floor(rel / 60) + 1
+				if i >= 1 and i <= #mappacklist then
+					if i == mappackselection then
+						-- confirm
+						gamestate = "menu"
+						saveconfig()
+						if mappack == "custom_mappack" then
+							createmappack()
+						end
+						loadbackgroundsafe("1-1.txt")
+					else
+						mappackselection = i
+						mappack = mappacklist[i]
+						updatescroll()
+					end
+				end
+			end
+		end
+	elseif gamestate == "options" then
+		-- guielement already handles widgets via love.mousepressed loop
+	end
 end
 
-global function menu_mousemoved(_: number, _: number)
-	
-
+global function menu_mousemoved(x: number, y: number)
+	if ui_input_mode ~= "mouse" then
+		return
+	end
+	local ux = x / scale
+	local uy = y / scale
+	if gamestate == "menu" and not selectworldopen then
+		local lay = main_layout()
+		local i = menu_hit(lay.rects as {any}, ux, uy)
+		menu_hover_i = i
+		if i then
+			selection = i
+		end
+	elseif gamestate == "mappackmenu" and mappacktype == "local" and mappacklist then
+		local list_x, list_w = 21, 218
+		if ux >= list_x and ux < list_x + list_w then
+			local rel = uy - 20 + (mappackscrollsmooth or 0) * 60
+			local i = math.floor(rel / 60) + 1
+			if i >= 1 and i <= #mappacklist then
+				mappackselection = i
+				mappack = mappacklist[i]
+			end
+		end
+	end
 end
 
 global function menu_mousereleased(_: any, _: any, _: any)
@@ -2145,9 +2329,14 @@ global function menu_mousereleased(_: any, _: any, _: any)
 
 end
 
-global function menu_joystickpressed(_: any, _: any)
-	
-
+-- Map dpad / face buttons onto the same key paths (mode already set to kbd by love_callbacks)
+global function menu_joystickpressed(_: any, button: any)
+	local b = button as number
+	if b == 1 or b == 0 then
+		menu_keypressed("return")
+	elseif b == 2 then
+		menu_keypressed("escape")
+	end
 end
 
 global function menu_joystickreleased(_: any, _: any)
@@ -2155,14 +2344,26 @@ global function menu_joystickreleased(_: any, _: any)
 
 end
 
-global function menu_joystickaxis(_: any, _: any, _: any, _: any, _: any)
-	
-
+global function menu_joystickaxis(_: any, _: any, value: any, _: any, _: any)
+	-- treated as stick; love_callbacks already set kbd mode on press — axis uses thresholds
+	local v = value as number
+	if math.abs(v) < 0.5 then
+		return
+	end
 end
 
-global function menu_joystickhat(_: any, _: any, _: any)
-	
-
+global function menu_joystickhat(_: any, _: any, direction: any)
+	ui_note_kbd()
+	local d = direction as string
+	if d == "u" then
+		menu_keypressed("up")
+	elseif d == "d" then
+		menu_keypressed("down")
+	elseif d == "l" then
+		menu_keypressed("left")
+	elseif d == "r" then
+		menu_keypressed("right")
+	end
 end
 
 global function keypromptenter(t: any, ...: any): any

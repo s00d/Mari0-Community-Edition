@@ -404,6 +404,12 @@ local function hash_tick()
 end
 
 local function start_match_from_msg(msg: {string:any})
+	(Sync.clear_held as function())()
+	local slot = (Match.begin_match as function({string:any}, string): integer|nil)(msg, local_id)
+	if not slot then
+		-- begin_match already noticed; keep lobby / pre-match state.
+		return
+	end
 	in_match = true
 	match_frame = 0
 	last_local_hash = 0
@@ -411,8 +417,6 @@ local function start_match_from_msg(msg: {string:any})
 	for k in pairs(peer_hashes) do
 		peer_hashes[k] = nil
 	end
-	(Sync.clear_held as function())()
-	local slot = (Match.begin_match as function({string:any}, string): integer)(msg, local_id)
 	rawset(_G, "netplayernumber", slot)
 	set_status(role == "host" and "in game (host)" or "in game")
 	notice.new("starting game")

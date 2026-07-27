@@ -137,6 +137,14 @@ global ui_set_input_mode: function(string)
 global ui_note_mouse_move: function(number, number, number, number): boolean
 global ui_note_kbd: function()
 global menu_mousemoved: function(number, number)
+global MENU_SCREENS: {string:{string:any}}
+global menu_defs_bind: function()
+global menu_visible_items: function({string:any}): {any}
+global menu_layout_main: function({string:any}): {string:any}
+global menu_hit: function({any}, number, number): integer|nil
+global menu_hit_spinner: function({string:any}|nil, number, number): string|nil
+global menu_rects_on_grid: function({any}): boolean
+global menu_rects_non_overlap: function({any}): boolean
 
 global record UITheme
 	GRID: number
@@ -878,6 +886,16 @@ global endanimationtextsecondline: number
 global rainboomspeed: number
 global emancipatefadeouttime: number
 global pedestaltime: number
+global flyinguptime: number
+global flytime: number
+global maxspeedfly: number
+global maxspeeds: {number}
+global flyingascension: number
+global flyacceleration: number
+global frictionflysmall: number
+global frictionflybig: number
+global frictionskidfly: number
+global floatascension: number
 global raccoonstarttime: number
 global blockdebrisquads: {any:{any:any}}
 global boxquad: {any:any}
@@ -1144,6 +1162,7 @@ global gelmaxrunspeed: number
 global gelmaxwalkspeed: number
 global gelrunacceleration: number
 global gelwalkacceleration: number
+global gelspeedmul: number
 global uwgelmaxrunspeed: number
 global uwgelmaxwalkspeed: number
 global uwgelrunacceleration: number
@@ -1430,6 +1449,8 @@ global GEL_ADHERE: integer
 global GEL_MAX_ID: integer
 global GEL_POOL_MAX: integer
 global gel_has: function(number|nil, string): boolean
+global gel_react_floor: function({string:any}, number|nil): boolean
+global gel_react_side: function({string:any}, number|nil, integer): boolean
 global gel_clamp_id: function(any): integer
 global gel_pool_prepare: function()
 global callcollision: function(any, Entity, any, Entity, any, any): any

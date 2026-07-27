@@ -461,13 +461,32 @@ arcadeexittime = 2
 arcadeblinkrate = 1.7
 arcadetimeout = 15
 
-raccoonstarttime = 1
-raccoontime = 4
-raccoonascendspeed = 8
-raccoonbuttondelay = 0.25
-raccoondescendspeed = 4
+-- SMB3 flight (mari0-2 components/smb3/flying.lua + floating.lua).
+-- mari0-2 uses NES-derived px/s; CE uses blocks/s → divide by 16.
+-- Source px/s: FLYINGUPTIME=16/60, FLYTIME=4.25, MAXSPEEDFLY=86.25,
+-- MAXSPEEDS={90,150,210}, FLYINGASCENSION=-90, ACCELERATION=196.875,
+-- FRICTIONFLYSMALL=56.25, FRICTIONFLYBIG=225, FRICTIONSKIDFLY=675,
+-- FLOATASCENSION=60 (floating.lua descend).
+flyinguptime = 16 / 60
+flytime = 4.25
+maxspeedfly = 86.25 / 16 -- 5.390625
+maxspeeds = {90 / 16, 150 / 16, 210 / 16} -- {5.625, 9.375, 13.125}
+flyingascension = 90 / 16 -- 5.625; CE applies as -raccoonascendspeed
+flyacceleration = 196.875 / 16 -- 12.3046875
+frictionflysmall = 56.25 / 16 -- 3.515625
+frictionflybig = 225 / 16 -- 14.0625
+frictionskidfly = 675 / 16 -- 42.1875
+floatascension = 60 / 16 -- 3.75
+
+-- CE raccoon aliases ← converted NES values (was 1 / 4 / 8 / 4).
+raccoonstarttime = flyinguptime -- charge-to-fly unlock (crude until pMeter)
+raccoontime = flytime
+raccoonascendspeed = flyingascension
+raccoonbuttondelay = flyinguptime -- fly-up pulse duration
+raccoondescendspeed = floatascension
 raccoontailwagdelay = 0.08
 raccoonspindelay = 0.1
+-- TODO: port mari0-2 pMeter (pMeterTicks=7, PMETERTIMEUP/DOWN/MARGIN) — raccoonstarttimer is a stub.
 
 scrollingstart = width/2 --when the scrolling begins to set in (Both of these take the player who is the farthest on the left)
 scrollingcomplete = width/2-width/10 --when the scrolling will be as fast as mario can run

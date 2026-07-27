@@ -195,12 +195,12 @@ end
    Returns list of problem strings (empty = ok). ]]
 global function validate_remap(opts: {string:any}|nil): {string}
 	local problems: {string} = {}
-	local o: {string:any} = opts or {}
-	local enemy_exists: any = o["enemy_json_exists"]
-	local ce_types: any = o["ce_entity_types"] or CE_ENTITY_TYPES
+	local o = (opts or {}) as {string:any}
+	local enemy_exists_raw: any = o["enemy_json_exists"]
+	local ce_types = (o["ce_entity_types"] or CE_ENTITY_TYPES) as {any:any}
 
 	for id, name in pairs(ENEMY_REMAP) do
-		if type(enemy_exists) == "function" and not enemy_exists(name) then
+		if type(enemy_exists_raw) == "function" and not (enemy_exists_raw as function(string): boolean)(name) then
 			table.insert(problems, string.format("ENEMY_REMAP[%s]=%s missing assets/enemies/%s.json", tostring(id), name, name))
 		end
 	end

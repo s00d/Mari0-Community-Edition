@@ -223,6 +223,26 @@ local start_msg = Match.build_start_msg("hid", {
 }, "smb", 1, 2, 0)
 check("match start players", start_msg.players == 2 and start_msg.t == "start")
 check("match start slots", #start_msg.slots == 2 and start_msg.slots[2].id == "cid")
+check("match start sanitized level", start_msg.level == 2 and start_msg.sub == 0)
+
+-- Mappack / level path validation
+check("mappack safe smb", Match.mappack_name_safe("smb") == true)
+check("mappack reject ..", Match.mappack_name_safe("..") == false)
+check("mappack reject slash", Match.mappack_name_safe("a/b") == false)
+check("mappack reject backslash", Match.mappack_name_safe("a\\b") == false)
+check("mappack reject traversal", Match.mappack_name_safe("../etc") == false)
+check("validate_mappack smb", Match.validate_mappack("smb") == "smb")
+check("validate_mappack reject ..", Match.validate_mappack("../x") == nil)
+_G.mappacklist = {"smb", "portal"}
+check("validate_mappack allowlist ok", Match.validate_mappack("portal") == "portal")
+check("validate_mappack allowlist reject", Match.validate_mappack("evil") == nil)
+_G.mappacklist = nil
+check("sanitize_world M", Match.sanitize_world("M") == "M")
+check("sanitize_world clamp", Match.sanitize_world(0) == 1 and Match.sanitize_world(999) == 1)
+check("sanitize_level clamp", Match.sanitize_level(-3) == 1)
+check("sanitize_sub clamp", Match.sanitize_sub(-1) == 0 and Match.sanitize_sub(3) == 3)
+local bad_msg = Match.build_start_msg("hid", {}, "../evil", 1, 1, 0)
+check("build_start_msg rejects traversal pack", bad_msg.mappack == "smb")
 
 --------------------------------------------------------------------------
 -- Transport empty recv shared / zero-alloc

@@ -172,6 +172,7 @@ function LoveLoad.run(arg: any)
 		players = 1
 		defaultconfig()
 		print("== FAILED TO LOAD CONFIG ==")
+		notice.new("failed to load config — using defaults", notice.red)
 	end
 
 	physicsdebug = false

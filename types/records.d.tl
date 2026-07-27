@@ -306,6 +306,7 @@ global record box is Entity, Body
 	emancipatecheck: boolean
 	falling: boolean
 	funnel: boolean
+	gelreactive: boolean
 	graphic: any
 	gravity: number
 	gravitydirection: number
@@ -1198,11 +1199,13 @@ end
 global record gravityball is Body
 	active: boolean
 	autodelete: boolean
+	bounces_left: number
 	category: number
 	drawable: boolean
 	emancipatecheck: boolean
 	frame: number
 	frametimer: number
+	gelreactive: boolean
 	graphic: any
 	gravity: number
 	gravitydirection: number
@@ -1233,7 +1236,7 @@ global record gravityball is Body
 	floorcollide: function(gravityball, any, Entity): boolean
 	ceilcollide: function(gravityball, any, Entity): boolean
 	passivecollide: function(gravityball, any, Entity): boolean
-	hitstuff: function(gravityball, any, Entity)
+	hitstuff: function(gravityball, any, Entity, string|nil)
 	explode: function(gravityball)
 	emancipate: function(gravityball): any
 	new: function(gravityball, number, number, number, number, any): gravityball

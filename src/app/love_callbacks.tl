@@ -243,14 +243,36 @@ function love.keyreleased(key: any, scancode: any)
 	end
 end
 
-function love.textinput(text: any)
-	local g = _G as {string:any}
-	local name = (gamestate as string) .. "_textinput"
-	if g[name] and type(g[name]) == "function" then
-		local ok = pcall(function() (g[name] as function(any): any)(text) end) -- I don't wanna cause a crash
-		if not ok then end
+-- Explicit dispatch — no _G[gamestate .. "_textinput"] name construction.
+-- Handlers resolve lazily: this file loads before game modules in main.lua.
+local TEXTINPUT_HANDLERS: {string: function(any)} = {}
+
+local function resolve_textinput_handler(state: string): function(any)|nil
+	local cached = TEXTINPUT_HANDLERS[state]
+	if cached then
+		return cached
 	end
-	
+	if state == "game" and type(game_textinput) == "function" then
+		TEXTINPUT_HANDLERS[state] = game_textinput
+		return game_textinput
+	end
+	return nil
+end
+
+function love.textinput(text: any)
+	local handler = resolve_textinput_handler(gamestate as string)
+	if handler then
+		local h = handler as function(...: any): any
+		local results = { pcall(h, text) }
+		if not results[1] then
+			local err = tostring(results[2])
+			print("textinput error [" .. tostring(gamestate) .. "]: " .. err)
+			if Logger and Logger.error then
+				(Logger.error as function(...: any))("textinput", tostring(gamestate), err)
+			end
+		end
+	end
+
 	if guielements then
 		for _, v in pairs(guielements) do
 			v:textinput(text as string)

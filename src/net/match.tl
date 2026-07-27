@@ -1,6 +1,99 @@
 --[[ Match start: assign slots, apply cosmetics, load shared level. ]]
 
 local MAX_PLAYERS = 4
+local MAX_WORLD_LEVEL = 99
+local MAX_SUBLEVEL = 99
+
+local function mappack_name_safe(name: string): boolean
+	if name == "" then
+		return false
+	end
+	-- Path traversal / separators — never allow into mappack_path().
+	if name:find("..", 1, true) or name:find("/", 1, true) or name:find("\\", 1, true) then
+		return false
+	end
+	-- Allowlist characters used by shipped / custom pack folder names.
+	if not name:match("^[%w%._%-]+$") then
+		return false
+	end
+	return true
+end
+
+local function mappack_in_list(name: string): boolean
+	local list = rawget(_G, "mappacklist") as {string}|nil
+	if type(list) == "table" and #list > 0 then
+		return tablecontains(list, name)
+	end
+	local online = rawget(_G, "onlinemappacklist") as {string}|nil
+	if type(online) == "table" and #online > 0 then
+		return tablecontains(online, name)
+	end
+	return false
+end
+
+local function mappack_exists_on_disk(name: string): boolean
+	local fs = love and love.filesystem
+	if not fs or not fs.getInfo then
+		return false
+	end
+	local path_fn = rawget(_G, "mappack_path")
+	local base: string
+	if type(path_fn) == "function" then
+		base = (path_fn as function(string): string)(name)
+	else
+		base = "mappacks/" .. name
+	end
+	return fs.getInfo(base .. "/settings.txt") ~= nil
+end
+
+-- True if name is a known/installed pack and not a path traversal attempt.
+local function validate_mappack(name: any): string|nil
+	local s = tostring(name or "")
+	if not mappack_name_safe(s) then
+		return nil
+	end
+	if mappack_in_list(s) then
+		return s
+	end
+	-- List may be empty early (tests / pre-menu); fall back to on-disk settings.
+	if mappack_exists_on_disk(s) then
+		return s
+	end
+	-- Offline unit tests without filesystem: allow current / default smb only.
+	local current = tostring(rawget(_G, "mappack") or "")
+	if s == "smb" or s == current then
+		return s
+	end
+	return nil
+end
+
+-- Sanitize world/level/sub for level_filename (N-M / N-M_S / M-N).
+local function sanitize_world(v: any): number|string
+	if tostring(v) == "M" then
+		return "M"
+	end
+	local n = tonumber(v)
+	if not n or n ~= math.floor(n) or n < 1 or n > MAX_WORLD_LEVEL then
+		return 1
+	end
+	return n as integer
+end
+
+local function sanitize_level(v: any): number
+	local n = tonumber(v)
+	if not n or n ~= math.floor(n) or n < 1 or n > MAX_WORLD_LEVEL then
+		return 1
+	end
+	return n as integer
+end
+
+local function sanitize_sub(v: any): number
+	local n = tonumber(v)
+	if not n or n ~= math.floor(n) or n < 0 or n > MAX_SUBLEVEL then
+		return 0
+	end
+	return n as integer
+end
 
 local function ensure_player_tables(n: integer)
 	rawset(_G, "players", n)
@@ -96,13 +189,14 @@ local function build_start_msg(local_id: string, peers_by_key: {string:any}, map
 		})
 		slot = slot + 1
 	end
+	local pack = validate_mappack(mappack_name or mappack or "smb") or "smb"
 	return {
 		t = "start",
 		players = #slots,
-		mappack = mappack_name or mappack or "smb",
-		world = world or marioworld or 1,
-		level = level or mariolevel or 1,
-		sub = sub or mariosublevel or 0,
+		mappack = pack,
+		world = sanitize_world(world or marioworld or 1),
+		level = sanitize_level(level or mariolevel or 1),
+		sub = sanitize_sub(sub or mariosublevel or 0),
 		slots = slots,
 	}
 end
@@ -116,7 +210,14 @@ local function find_local_slot(slots: {{string:any}}, my_id: string): integer
 	return 1
 end
 
-local function begin_match(msg: {string:any}, my_id: string): integer
+-- Returns local slot, or nil if start payload is rejected (bad mappack).
+local function begin_match(msg: {string:any}, my_id: string): integer|nil
+	local pack = validate_mappack(msg.mappack or mappack or "smb")
+	if not pack then
+		notice.new("rejected unknown mappack", notice.red)
+		return nil
+	end
+
 	local n = math.max(1, math.min(MAX_PLAYERS, (tonumber(msg.players) or 1) as integer))
 	local slots = (msg.slots as {{string:any}}) or {}
 	local my_slot = find_local_slot(slots, my_id)
@@ -131,10 +232,10 @@ local function begin_match(msg: {string:any}, my_id: string): integer
 		apply_cosmetics(slot, s.colors, s.hats)
 	end
 
-	rawset(_G, "mappack", tostring(msg.mappack or mappack or "smb"))
-	rawset(_G, "marioworld", tonumber(msg.world) or 1)
-	rawset(_G, "mariolevel", tonumber(msg.level) or 1)
-	rawset(_G, "mariosublevel", tonumber(msg.sub) or 0)
+	rawset(_G, "mappack", pack)
+	rawset(_G, "marioworld", sanitize_world(msg.world))
+	rawset(_G, "mariolevel", sanitize_level(msg.level))
+	rawset(_G, "mariosublevel", sanitize_sub(msg.sub))
 
 	-- Clear lobby UI elements before level screen.
 	rawset(_G, "guielements", {})
@@ -156,4 +257,9 @@ return {
 	begin_match = begin_match,
 	find_local_slot = find_local_slot,
 	apply_cosmetics = apply_cosmetics,
+	validate_mappack = validate_mappack,
+	mappack_name_safe = mappack_name_safe,
+	sanitize_world = sanitize_world,
+	sanitize_level = sanitize_level,
+	sanitize_sub = sanitize_sub,
 }
