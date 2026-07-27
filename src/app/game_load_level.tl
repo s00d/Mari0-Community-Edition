@@ -2,6 +2,7 @@
 
 require "world.level"
 require "assets.spritebatch_util"
+require "world.paths"
 
 global function game_load(suspended?: any)
 	
@@ -22,8 +23,9 @@ global function game_load(suspended?: any)
 	firstunder100 = true
 	--get mariolives
 	mariolivecount = 3
-	if love.filesystem.getInfo("mappacks/" .. mappack .. "/settings.txt") then
-		local s = love.filesystem.read( "mappacks/" .. mappack .. "/settings.txt" )
+	local settings_path = mappack_path(mappack) .. "/settings.txt"
+	if love.filesystem.getInfo(settings_path) then
+		local s = love.filesystem.read(settings_path)
 		local s1 = strsplit(s, "\n")
 		for j = 1, #s1 do
 			local s2 = strsplit(s1[j], "=")
@@ -667,7 +669,7 @@ global function nextlevel()
 	love.audio.stop()
 	
 	mariolevel = (mariolevel as number) + 1
-	if not love.filesystem.getInfo("mappacks/" .. (mappack as string) .. "/" .. tostring(marioworld) .. "-" .. tostring(mariolevel) .. ".txt") then
+	if not love.filesystem.getInfo(mappack_level_path(mappack as string, marioworld, mariolevel)) then
 		mariolevel = 1
 		marioworld = (marioworld as number) + 1
 	end

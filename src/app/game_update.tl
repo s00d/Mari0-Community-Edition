@@ -2,6 +2,8 @@
      Loaded via require("app.game_update"); defines global game_update.
 ]]
 
+local ReplayHarness = require("core.replay_harness")
+
 global function game_update(dt: number)
 	if not objects then return end
 	gdt = dt
@@ -70,15 +72,7 @@ global function game_update(dt: number)
 	remove_indices_desc(scrollingtexts, delete)
 	
 	if replaysystem then
-		for j = 1, #replaydata do
-			if replaydata[j].data then
-				replaytimer[j] = replaytimer[j] + dt
-				local rdata = replaydata[j].data as {any}
-				while ((((rdata as {number:any})[(replayi[j] as number)] as {string:any}).time) as number) < (replaytimer[j] as number) and (replayi[j] as number) < #(rdata as {any}) do
-					replayi[j] = replayi[j] + 1
-				end
-			end
-		end
+		ReplayHarness.advance_replay_indices(replaydata, replaytimer, replayi, dt)
 	end
 	
 	--If everyone's dead, just update the players and coinblock timer.
@@ -437,13 +431,13 @@ global function game_update(dt: number)
 			love.timer.sleep(0.1)
 			if mariosublevel == 0 then
 				print(marioworld .. "-" .. mariolevel .. ".txt")
-				if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. marioworld .. "-" .. mariolevel .. ".txt", "file") then
+				if love.filesystem.getInfo(mappack_level_path(mappack, marioworld, mariolevel), "file") then
 					startlevel(marioworld .. "-" .. mariolevel)
 					break
 				end
 			else
 				print(marioworld .. "-" .. mariolevel .. "_" .. mariosublevel .. ".txt")
-				if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. marioworld .. "-" .. mariolevel .. "_" .. mariosublevel .. ".txt", "file") then
+				if love.filesystem.getInfo(mappack_level_path(mappack, marioworld, mariolevel, mariosublevel), "file") then
 					startlevel(marioworld .. "-" .. mariolevel .. "_" .. mariosublevel)
 					break
 				end

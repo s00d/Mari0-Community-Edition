@@ -1,5 +1,7 @@
 --[[ Menu UI (Teal port of root menu.lua). ]]
 
+require "assets.spritebatch_util"
+
 global function menu_load()
 	loadconfig()
 	love.audio.stop()
@@ -1234,10 +1236,7 @@ global function loadbackgroundsafe(background: any): any
 		xscroll = 0
 		yscroll = 0
 		
-		smbspritebatch = love.graphics.newSpriteBatch( smbtilesimg, 10000 )
-		smbspritebatchfront = love.graphics.newSpriteBatch( smbtilesimg, 10000 )
-		portalspritebatch = love.graphics.newSpriteBatch( portaltilesimg, 10000 )
-		portalspritebatchfront = love.graphics.newSpriteBatch( portaltilesimg, 10000 )
+		create_tile_spritebatches()
 	end
 	
 	generatespritebatch()
@@ -2465,8 +2464,7 @@ global function convertmappack(name: any)
 			end
 		end
 		customtilecount = width*height
-		customspritebatch = love.graphics.newSpriteBatch( customtilesimg, 10000 )
-		customspritebatchfront = love.graphics.newSpriteBatch( customtilesimg, 10000 )
+		create_tile_spritebatches()
 	else
 		customtiles = false
 		customtilesimg = nil

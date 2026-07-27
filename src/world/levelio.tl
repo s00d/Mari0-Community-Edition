@@ -215,12 +215,13 @@ end
 
 global function loadmap(filename: string, createobjects?: boolean): boolean
 	print("**************************" .. string.rep("*", #((mappack as string) .. filename)))
-	print("* Loading mappacks/" .. tostring(mappack) .. "/" .. tostring(filename) .. ".txt *")
-	if not love.filesystem.getInfo("mappacks/" .. (mappack as string) .. "/" .. filename .. ".txt") then
-		print("mappacks/" .. (mappack as string) .. "/" .. filename .. ".txt not found!")
+	local level_path = mappack_path(mappack as string) .. "/" .. filename .. ".txt"
+	print("* Loading " .. level_path .. " *")
+	if not love.filesystem.getInfo(level_path) then
+		print(level_path .. " not found!")
 		return false
 	end
-	local s = love.filesystem.read( "mappacks/" .. (mappack as string) .. "/" .. filename .. ".txt" )
+	local s = love.filesystem.read(level_path)
 	
 	local _, parsed_height, t, s2, _, layerdelimiter, _, multipledelimiter, equalsign = level_split_file_contents(s as string)
 	mapheight = parsed_height
@@ -468,10 +469,11 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 				portalsavailable = {false, true}
 			end
 		elseif s3[1] == "levelscreenback" then
-			if love.filesystem.getInfo("mappacks/" .. mappack .. "/levelscreens/" .. s3[2] .. ".png") then
+			local screen_path = mappack_path(mappack) .. "/levelscreens/" .. s3[2] .. ".png"
+			if love.filesystem.getInfo(screen_path) then
 				levelscreenbackname = s3[2]
 				levelscreenback = {}
-				levelscreenback = AssetStore.load_image("mappacks/" .. mappack .. "/levelscreens/" .. (s3[2] as string) .. ".png")
+				levelscreenback = AssetStore.load_image(screen_path)
 			end
 		end
 	end
@@ -540,17 +542,18 @@ global function savemap(filename: string, silent?: boolean)
 	--tileset
 	
 	love.filesystem.createDirectory( "mappacks" )
-	love.filesystem.createDirectory( "mappacks/" .. mappack )
+	love.filesystem.createDirectory( mappack_path(mappack) )
 	
-	love.filesystem.write("mappacks/" .. (mappack as string) .. "/" .. filename .. ".txt", s)
+	local level_path = mappack_path(mappack as string) .. "/" .. filename .. ".txt"
+	love.filesystem.write(level_path, s)
 	
 	--preview
 	
 	previewimg = renderpreview()
-	previewimg:encode("png", "mappacks/" .. (mappack as string) .. "/" .. filename .. ".png")
+	previewimg:encode("png", mappack_path(mappack as string) .. "/" .. filename .. ".png")
 	
 	if not silent then
-		print("Map saved as " .. "mappacks/" .. tostring(filename) .. ".txt")
+		print("Map saved as " .. level_path)
 		notice.new("Map saved!", notice.white, 2)
 	end
 end
