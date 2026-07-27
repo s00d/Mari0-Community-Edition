@@ -142,12 +142,10 @@ function LoveLoad.run(arg: any)
 
 	add("Variables, shaderlist")
 
-	local suc, err = pcall(loadconfig)
-	if not suc then
+	if not pcall(loadconfig) then
 		players = 1
 		defaultconfig()
 		print("== FAILED TO LOAD CONFIG ==")
-		print(err)
 	end
 
 	physicsdebug = false

@@ -1304,19 +1304,19 @@ global changescale: function(s: number, init?: boolean)
 global changespriteset: function(...: any): any
 global checkcollision: function(Entity, Entity, any, any, any, any, number, any): boolean, boolean
 global checkforemances: function(dt: number, v: Body, speedx?: number, speedy?: number)
-global checkkey: function(...: any): any
+global checkkey: function(any): any
 global checkmagic: function(...: any): any
 global checkportalHOR: function(Entity, number): boolean
 global checkportalVER: function(Entity, number): boolean
 global checkportalremove: function(...: any): any...
 global checkrect: function(x: number, y: number, width: number, height: number, list: any, statics?: any): {any}
-global closerightclickmenu: function(...: any): any
+global closerightclickmenu: function()
 global collectblock: function(...: any): any
 global collectcoin: function(x: number, y: number, i?: any): any
 global collisionscalls: function(any, Entity, any, Entity, any, any): any
 global configdecrease: function(...: any): any
 global configincrease: function(...: any): any
-global continuegame: function(...: any): any
+global continuegame: function()
 global convertentity: function(...: any): any
 global convertfromstandard: function(Entity, number, number): number, number
 global convertmappack: function(...: any): any
@@ -1328,19 +1328,19 @@ global createmappack: function(...: any): any
 global createnewanimation: function(...: any): any
 global decreasetimelimit: function(...: any): any
 global defaultbackground: function(...: any): any
-global defaultconfig: function(...: any): any
+global defaultconfig: function()
 global delete_mappack: function(...: any): any
 global deleteanimationguiline: function(string, animationguiline)
 global deleteline: function(...: any): any
 global destroyblock: function(number, number): any
 global dispatch_enemy_entity_spawn: function(t: string, x: number, y: number, r: {any}, allowenemy?: boolean): boolean
 global dispatch_map_entity_spawn: function(t: string, x: number, y: number, r: {any}, createobjects?: boolean, editormode?: boolean)
-global downkey: function(...: any): any
+global downkey: function(any): any
 global downloadfile: function(...: any): any
 global downloadmappacks: function(...: any): any
-global drawforeground: function(...: any): any
-global drawlevel: function(...: any): any
-global drawlevel_tiles: function(...: any): any
+global drawforeground: function()
+global drawlevel: function()
+global drawlevel_tiles: function(any, any)
 global drawlinkline: function(...: any): any
 global drawlinkline2: function(...: any): any
 global drawmushrooms: function(...: any): any
@@ -1402,25 +1402,25 @@ global keypromptenter: function(any, ...: any): any
 global loadcustombackgrounds: function()
 global loadcustommusics: function()
 global loadcustomtiles: function()
-global game_draw: function(...: any): any
-global game_draw_debug: function(...: any): any
-global game_draw_fx: function(...: any): any
-global game_draw_hud: function(...: any): any
-global game_draw_objects: function(...: any): any
-global game_draw_pausemenu: function(...: any): any
-global game_draw_player_markers: function(...: any): any
-global game_draw_props: function(...: any): any
-global game_draw_seethrough_portals: function(...: any): any
+global game_draw: function()
+global game_draw_debug: function()
+global game_draw_fx: function()
+global game_draw_hud: function(hidetime?: any): any
+global game_draw_objects: function()
+global game_draw_pausemenu: function()
+global game_draw_player_markers: function()
+global game_draw_props: function()
+global game_draw_seethrough_portals: function()
 global game_joystickaxis: function(...: any): any
 global game_joystickhat: function(...: any): any
 global game_joystickpressed: function(...: any): any
 global game_joystickreleased: function(...: any): any
-global game_keypressed: function(...: any): any
-global game_keyreleased: function(...: any): any
-global game_load: function(...: any): any
+global game_keypressed: function(any)
+global game_keyreleased: function(any)
+global game_load: function(suspended?: any)
 global game_mousepressed: function(...: any): any
-global game_mousereleased: function(...: any): any
-global game_textinput: function(...: any): any
+global game_mousereleased: function(any, any, any)
+global game_textinput: function(any)
 global generateanimationgui: function(...: any): any
 global generateentitylist: function(...: any): any
 global generatespritebatch: function()
@@ -1454,7 +1454,7 @@ global item: function(i: any, x: number, y: number, size?: any)
 global joingame: function(...: any): any
 global keyprompt_update: function()
 global keypromptstart: function(...: any): any
-global leftkey: function(...: any): any
+global leftkey: function(any): any
 global level_count_tile_entries: function(t: {any}, multipledelimiter: string): number
 global level_decode_tile_tokens: function(t: {any}, mapwidth: number, mapheight: number, layerdelimiter: string, multipledelimiter: string): {number:{number:MapCell}}, {number:{number:boolean}}
 global level_delimiters: function(v: integer): string, string, string, string, string
@@ -1473,7 +1473,7 @@ global loadanimatedtiles: function()
 global loadbackground: function(...: any): any
 global loadbackgroundsafe: function(...: any): any
 global loadcharacter: function(string): Character|boolean
-global loadconfig: function(...: any): any
+global loadconfig: function()
 global loadcustomimages: function(string)
 global loadcustomsounds: function(string)
 global loadenemy: function(string)
@@ -1549,17 +1549,17 @@ global resetconfig: function(...: any): any
 global respawnplayers: function()
 global reversefscrollfactor: function(...: any): any
 global reversescrollfactor: function(...: any): any
-global rightkey: function(...: any): any
-global runkey: function(...: any): any
+global rightkey: function(any): any
+global runkey: function(any): any
 global saveHotKeys: function(...: any): any
 global saveanimation: function(...: any): any
-global saveconfig: function(...: any): any
+global saveconfig: function()
 global savelevel: function()
 global savemap: function(filename: string, silent?: boolean)
 global savemtobject: function(...: any): any
 global savesettings: function(...: any): any
 global savestate: function(...: any): any
-global scenedraw: function(...: any): any
+global scenedraw: function()
 global selectanimation: function(...: any): any
 global selectionbutton: function(...: any): any
 global selectionend: function(...: any): any
@@ -1574,7 +1574,7 @@ global startlevel: function(levelstart?: any)
 global startlinking: function(...: any): any
 global startregion: function(...: any): any
 global stopmusic: function()
-global suspendgame: function(...: any): any
+global suspendgame: function()
 global test_level: function(...: any): any
 global tilesall: function(...: any): any
 global tilesanimated: function(...: any): any
@@ -1608,7 +1608,7 @@ global updateranges: function()
 global updatescroll: function(...: any): any
 global updatescrollfactor: function(...: any): any
 global updatesizes: function()
-global upkey: function(...: any): any
+global upkey: function(any): any
 global vercollision: function(Entity, Entity, any, any, any, any, number): boolean
 global warpzone: function(any, any)
 

@@ -1,6 +1,6 @@
 --[[ game_draw FX / seethrough portals ]]
 
-global function game_draw_fx(...: any): any
+global function game_draw_fx()
 	love.graphics.setColor(1, 1, 1)
 
 	--bowser
@@ -292,7 +292,7 @@ global function game_draw_fx(...: any): any
 
 end
 
-global function game_draw_seethrough_portals(...: any): any
+global function game_draw_seethrough_portals()
 	if not scenecanvas then
 		scenecanvas = love.graphics.newCanvas()
 	end

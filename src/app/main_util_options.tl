@@ -1,6 +1,6 @@
 --[[ config / save / suspend ]]
 
-global function saveconfig(...: any): any
+global function saveconfig()
 	if CLIENT or SERVER then
 		return
 	end
@@ -118,7 +118,7 @@ global function saveconfig(...: any): any
 	love.filesystem.write("options.txt", s)
 end
 
-global function loadconfig(...: any): any
+global function loadconfig()
 	players = 1
 	defaultconfig()
 	
@@ -234,7 +234,7 @@ global function loadconfig(...: any): any
 	players = 1
 end
 
-global function defaultconfig(...: any): any
+global function defaultconfig()
 	--------------
 	-- CONTORLS --
 	--------------
@@ -342,7 +342,7 @@ global function defaultconfig(...: any): any
 	reachedworlds = {}
 end
 
-global function suspendgame(...: any): any
+global function suspendgame()
 	local s = ""
 	if marioworld == "M" then
 		marioworld = 1
@@ -371,7 +371,7 @@ global function suspendgame(...: any): any
 	menu_load()
 end
 
-global function continuegame(...: any): any
+global function continuegame()
 	if not love.filesystem.getInfo("suspend.txt") then
 		return
 	end

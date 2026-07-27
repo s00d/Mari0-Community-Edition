@@ -1,7 +1,7 @@
 --[[ game_draw world/scene phases ]]
 
-global function drawlevel_tiles(...: any): any
-	local xtodraw, ytodraw = ...
+global function drawlevel_tiles(xtodraw: any, ytodraw: any)
+	
 	--TILES
 	local xscrollfrac = math.fmod(xscroll, 1)
 	local yscrollfrac = math.fmod(yscroll, 1)
@@ -152,7 +152,7 @@ global function drawlevel_tiles(...: any): any
 	
 end
 
-global function drawlevel(...: any): any
+global function drawlevel()
 	if incognito then
 		return
 	end
@@ -235,7 +235,7 @@ global function drawlevel(...: any): any
 	end
 end
 
-global function drawforeground(...: any): any
+global function drawforeground()
 	--TILES FOREGROUND
 	local batchx, batchy = scroll_batch_offset(xscroll), scroll_batch_offset(yscroll)
 	love.graphics.draw(smbspritebatchfront, batchx, batchy)
@@ -375,7 +375,7 @@ global function drawforeground(...: any): any
 	end
 end
 
-global function game_draw_props(...: any): any
+global function game_draw_props()
 	love.graphics.setColor(1, 1, 1)
 	--vines
 	for j, w in pairs(objects["vine"]) do
@@ -568,7 +568,7 @@ global function game_draw_props(...: any): any
 
 end
 
-global function game_draw_objects(...: any): any
+global function game_draw_objects()
 	love.graphics.setColor(1, 1, 1)
 
 	--OBJECTS
@@ -811,7 +811,7 @@ global function game_draw_objects(...: any): any
 
 end
 
-global function scenedraw(...: any): any
+global function scenedraw()
 	drawlevel()
 
 	if bdrawui then

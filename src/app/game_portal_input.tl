@@ -1,7 +1,7 @@
 --[[ portal / game input handlers ]]
 
-global function game_keypressed(...: any): any
-	local key = ...
+global function game_keypressed(key: any)
+	
 	if key == "return" then
 		game_joystickpressed(1, 4)
 	end
@@ -190,8 +190,8 @@ global function game_keypressed(...: any): any
 	end
 end
 
-global function game_keyreleased(...: any): any
-	local key = ...
+global function game_keyreleased(key: any)
+	
 	for i = 1, players do
 		if controls[i]["jump"][1] == key then
 			playerobjs[i]:stopjump()
@@ -199,8 +199,8 @@ global function game_keyreleased(...: any): any
 	end
 end
 
-global function game_textinput(...: any): any
-	local text = ...
+global function game_textinput(text: any)
+	
 	if editormode and not testlevel then
 		editor_textinput(text)
 	end
@@ -339,21 +339,21 @@ global function game_mousepressed(...: any): any
 	end
 end
 
-global function game_mousereleased(...: any): any
-	local x, y, button = ...
+global function game_mousereleased(x: any, y: any, button: any)
+	
 	if editormode then
 		editor_mousereleased(x, y, button)
 	end
 end
 
-global function runkey(...: any): any
-	local i = ...
+global function runkey(i: any): any
+	
 	local s = controls[i]["run"]
 	return checkkey(s)
 end
 
-global function rightkey(...: any): any
-	local i = ...
+global function rightkey(i: any): any
+	
 	local s: any = nil
 	if playerobjs[i].gravitydirection > math.pi/4*1 and playerobjs[i].gravitydirection <= math.pi/4*3 then
 		s = controls[i]["right"]
@@ -367,8 +367,8 @@ global function rightkey(...: any): any
 	return checkkey(s)
 end
 
-global function leftkey(...: any): any
-	local i = ...
+global function leftkey(i: any): any
+	
 	local s: any = nil
 	if playerobjs[i].gravitydirection > math.pi/4*1 and playerobjs[i].gravitydirection <= math.pi/4*3 then
 		s = controls[i]["left"]
@@ -382,8 +382,8 @@ global function leftkey(...: any): any
 	return checkkey(s)
 end
 
-global function downkey(...: any): any
-	local i = ...
+global function downkey(i: any): any
+	
 	local s: any = nil
 	if playerobjs[i].gravitydirection > math.pi/4*1 and playerobjs[i].gravitydirection <= math.pi/4*3 then
 		s = controls[i]["down"]
@@ -397,8 +397,8 @@ global function downkey(...: any): any
 	return checkkey(s)
 end
 
-global function upkey(...: any): any
-	local i = ...
+global function upkey(i: any): any
+	
 	local s: any = nil
 	if playerobjs[i].gravitydirection > math.pi/4*1 and playerobjs[i].gravitydirection <= math.pi/4*3 then
 		s = controls[i]["up"]
@@ -412,43 +412,43 @@ global function upkey(...: any): any
 	return checkkey(s)
 end
 
-global function checkkey(...: any): any
-	local s = (... as {any})
-	if s[1] == "joy" then
-		local j = love.joystick.getJoysticks()[s[2] as integer]
+global function checkkey(s: any): any
+	local ctrl = (s as {any})
+	if ctrl[1] == "joy" then
+		local j = love.joystick.getJoysticks()[ctrl[2] as integer]
 		if not j then
 			return false
 		end
 		
-		if s[3] == "hat" then
-			if string.match(j:getHat(s[4] as number), s[5] as string) then
+		if ctrl[3] == "hat" then
+			if string.match(j:getHat(ctrl[4] as number), ctrl[5] as string) then
 				return true
 			else
 				return false
 			end
-		elseif s[3] == "but" then
-			if ((j as {string:any}).isDown as function(any, any): boolean)(j, s[4]) then
+		elseif ctrl[3] == "but" then
+			if ((j as {string:any}).isDown as function(any, any): boolean)(j, ctrl[4]) then
 				return true
 			else
 				return false
 			end
-		elseif s[3] == "axe" then
-			if s[5] == "pos" then
-				if j:getAxis(s[4] as number) > joystickdeadzone then
+		elseif ctrl[3] == "axe" then
+			if ctrl[5] == "pos" then
+				if j:getAxis(ctrl[4] as number) > joystickdeadzone then
 					return true
 				else
 					return false
 				end
 			else
-				if j:getAxis(s[4] as number) < -joystickdeadzone then
+				if j:getAxis(ctrl[4] as number) < -joystickdeadzone then
 					return true
 				else
 					return false
 				end
 			end
 		end
-	elseif s[1] then
-		if love.keyboard.isDown(s[1] as string) then
+	elseif ctrl[1] then
+		if love.keyboard.isDown(ctrl[1] as string) then
 			return true
 		else 
 			return false

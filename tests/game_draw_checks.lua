@@ -122,7 +122,7 @@ check("drawlevel keeps xtodraw", dl and dl:find("local xtodraw") ~= nil)
 local tiles = extract_top("drawlevel_tiles")
 check("tiles uses scrollutil", tiles and tiles:find("scroll_batch_offset") ~= nil)
 check("tiles uses bounceutil", tiles and tiles:find("build_blockbounce_lookup") ~= nil)
-check("tiles takes xtodraw arg", tiles and tiles:find("local xtodraw, ytodraw") ~= nil)
+check("tiles takes xtodraw arg", src:find("function drawlevel_tiles%(xtodraw") ~= nil)
 check("tiles editormode branch", tiles and tiles:find("editormode") ~= nil)
 
 local objs = extract_top("game_draw_objects")

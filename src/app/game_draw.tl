@@ -3,7 +3,7 @@ require "app.game_draw_hud"
 require "app.game_draw_effects"
 require "app.game_draw_world"
 
-global function game_draw(...: any): any
+global function game_draw()
 	if not objects then return end
 	if firstpersonview and firstpersonrotate then
 		local xtranslate = width/2*16*scale

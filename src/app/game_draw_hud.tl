@@ -1,7 +1,7 @@
 --[[ game_draw HUD / markers / pause / debug ]]
 
-global function game_draw_hud(...: any): any
-	local hidetime = ...
+global function game_draw_hud(hidetime?: any): any
+	
 	local printfunction = properprint
 	if custombackground then
 		printfunction = properprintbackground
@@ -55,7 +55,7 @@ end
 
 drawui = game_draw_hud
 
-global function game_draw_player_markers(...: any): any
+global function game_draw_player_markers()
 	--Player markers
 	for i = 1, players do
 		local v = playerobjs[i]
@@ -178,7 +178,7 @@ global function game_draw_player_markers(...: any): any
 	
 end
 
-global function game_draw_debug(...: any): any
+global function game_draw_debug()
 	--Physics debug
 	if physicsdebug or incognito then
 		local lw = love.graphics.getLineWidth()
@@ -230,7 +230,7 @@ global function game_draw_debug(...: any): any
 	
 end
 
-global function game_draw_pausemenu(...: any): any
+global function game_draw_pausemenu()
 	love.graphics.setColor(0, 0, 0, 0.4)
 	love.graphics.rectangle("fill", 0, 0, width*16*scale, height*16*scale)
 	

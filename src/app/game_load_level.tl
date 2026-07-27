@@ -1,7 +1,7 @@
 --[[ game_load level / map lifecycle ]]
 
-global function game_load(...: any): any
-	local suspended = ...
+global function game_load(suspended?: any)
+	
 	checkpointx = {}
 	checkpointy = {}
 	checkpointsub = false
