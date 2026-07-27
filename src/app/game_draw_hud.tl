@@ -26,8 +26,13 @@ global function game_draw_hud(hidetime?: any): any
 		love.graphics.draw(coinanimationimg, coinanimationquads[spriteset][coinframe], uispace*1.5-16*scale, 16*scale, 0, scale, scale)
 		printfunction(addzeros(mariocoincount, 2), uispace*1.5-0*scale, 16*scale)
 		
-		printfunction("world", uispace*2.5 - 20*scale, 8*scale)
-		printfunction(tostring(marioworld) .. "-" .. tostring(mariolevel), uispace*2.5 - 12*scale, 16*scale)
+		if mappackendless and endlessseed and endlessseed ~= 0 then
+			printfunction("seed", uispace*2.5 - 16*scale, 8*scale)
+			printfunction(tostring(endlessseed), uispace*2.5 - 20*scale, 16*scale)
+		else
+			printfunction("world", uispace*2.5 - 20*scale, 8*scale)
+			printfunction(tostring(marioworld) .. "-" .. tostring(mariolevel), uispace*2.5 - 12*scale, 16*scale)
+		end
 	
 		printfunction("time", uispace*3.5 - 16*scale, 8*scale)
 		

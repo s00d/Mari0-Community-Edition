@@ -141,6 +141,8 @@ global function init_game_runtime_globals()
 	portalsavailable = {true, true}
 	levelweapons = {} as {string}
 	background = {}
+	mappackendless = false
+	endlessseed = 0
 
 	-- levelscreen / spawn / levelio
 	blacktime = 0

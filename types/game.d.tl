@@ -134,6 +134,21 @@ global record DesktopSize
 end
 global desktopsize: DesktopSize
 global mappack: string
+global mappackendless: boolean
+global endlessseed: number
+global endless_generate_for_mappack: function(string, number|nil): {any:any}
+global endless_parse_room_name: function(string): string, {string:boolean}, string
+global endless_copy_cell: function(MapCell): MapCell
+global endless_generate: function(number, {{any:any}}, {any:any}|nil): {any:any}
+global endless_path_connected: function({{number}}): boolean
+global endless_no_deadlock: function({{number}}, integer): boolean
+global endless_get_templates: function(string): {{any:any}}
+global endless_room_from_text: function(string, string): {any:any}|nil
+global endless_load_templates_from_dir: function(string, function(string): (string|nil), {string}|nil): {{any:any}}
+global endless_load_templates: function(string, function(string): (string|nil), {string}): {{any:any}}
+global endless_stitch: function({{{any:any}}}, integer, integer, {any:any}|nil): {number:{number:MapCell}}, {number:{number:boolean}}, number, number
+global endless_new_rng: function(number): {any:any}
+global endless_assign_rooms: function({{{any:any}}}, {{any:any}}, {number}, {number}, {any:any})
 global currentlevel: string|number|{any:any}
 
 -- Typed session / services (World / AssetStore records are already globals)

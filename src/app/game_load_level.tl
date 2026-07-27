@@ -38,6 +38,8 @@ global function game_load(suspended?: any)
 	firstunder100 = true
 	--get mariolives
 	mariolivecount = 3
+	mappackendless = false
+	endlessseed = 0
 	local settings_path = mappack_path(mappack) .. "/settings.txt"
 	if love.filesystem.getInfo(settings_path) then
 		local s = love.filesystem.read(settings_path)
@@ -46,6 +48,10 @@ global function game_load(suspended?: any)
 			local s2 = strsplit(s1[j], "=")
 			if s2[1] == "lives" then
 				mariolivecount = tonumber(s2[2])
+			elseif s2[1] == "endless" and (s2[2] == "true" or s2[2] == "1") then
+				mappackendless = true
+			elseif s2[1] == "seed" and tonumber(s2[2]) then
+				endlessseed = tonumber(s2[2]) as number
 			end
 		end
 	end

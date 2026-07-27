@@ -226,14 +226,27 @@ end
 
 global function loadmap(filename: string, createobjects?: boolean): boolean
 	print("**************************" .. string.rep("*", #((mappack as string) .. filename)))
-	local level_path = mappack_path(mappack as string) .. "/" .. filename .. ".txt"
-	print("* Loading " .. level_path .. " *")
-	if not love.filesystem.getInfo(level_path) then
-		print(level_path .. " not found!")
-		return false
+	local s: string|nil = nil
+	if mappackendless then
+		-- Fixed arena stitch; seed shown in console / endlessseed.
+		local seed = endlessseed
+		if not seed or seed == 0 then
+			seed = math.floor((os.time() % 1000000) + (os.clock() * 1000))
+		end
+		local gen = endless_generate_for_mappack(mappack as string, seed as number)
+		endlessseed = gen["seed"] as number
+		s = gen["level_text"] as string
+		print("* Endless seed " .. tostring(gen["seed"]) .. "  arena " .. tostring(gen["mapwidth"]) .. "x" .. tostring(gen["mapheight"]) .. " *")
+	else
+		local level_path = mappack_path(mappack as string) .. "/" .. filename .. ".txt"
+		print("* Loading " .. level_path .. " *")
+		if not love.filesystem.getInfo(level_path) then
+			print(level_path .. " not found!")
+			return false
+		end
+		s = love.filesystem.read(level_path)
 	end
-	local s = love.filesystem.read(level_path)
-	
+
 	local _, parsed_height, t, s2, _, layerdelimiter, _, multipledelimiter, equalsign = level_split_file_contents(s as string)
 	mapheight = parsed_height
 	
