@@ -15,7 +15,7 @@ function fireworkboom:init(x: any, yoffset: any)
 	marioscore = marioscore + 200
 end
 
-function fireworkboom:update(dt: number): any...
+function fireworkboom:update(dt: number): boolean
 	self.timer = self.timer + dt
 	
 	if self.timer >= fireworksoundtime and self.timer-dt < fireworksoundtime then

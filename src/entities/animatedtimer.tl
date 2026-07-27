@@ -29,7 +29,7 @@ function animatedtimer:init(x: number, y: number, tileno)
 	table.insert(animatedtimerlist, self)
 end
 
-function animatedtimer:update(dt: number): any...
+function animatedtimer:update(dt: number)
 	
 	
 	local oldi = self:geti()

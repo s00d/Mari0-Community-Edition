@@ -46,7 +46,7 @@ function groundlight:link(): any|nil
 	return nil
 end
 
-function groundlight:update(dt: number): any...
+function groundlight:update(dt: number)
 	if self.timer > 0 then
 		self.timer = self.timer - dt
 		if self.timer <= 0 then

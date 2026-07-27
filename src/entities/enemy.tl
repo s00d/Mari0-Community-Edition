@@ -190,7 +190,7 @@ function enemy:init(x: number, y: number, t: string, a: any)
 	self.outtable = {}
 end
 
-function enemy:update(dt: number): any...
+function enemy:update(dt: number): boolean
 	--Funnels and fuck
 	if self.funnel and not self.infunnel then
 		self:enteredfunnel(true)

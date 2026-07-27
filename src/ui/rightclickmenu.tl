@@ -168,7 +168,7 @@ function rightclickmenu:init(x: number, y: number, elements: any, tx: any, ty: a
 	end
 end
 
-function rightclickmenu:update(dt: number): any...
+function rightclickmenu:update(dt: number)
 	for i = 1, #self.t do
 		local entry = (self.t as {any:any})[i] as Dyn
 		if type(entry[1]) == "table" then

@@ -97,7 +97,7 @@ function animatedquad:updateproperties(): any
 	end
 end
 
-function animatedquad:update(dt: number): any...
+function animatedquad:update(dt: number)
 	self.timer = (self.timer as number) + dt
 	local qi = self.quadi as integer
 	while (self.timer as number) > (self.delays[qi] as number) do

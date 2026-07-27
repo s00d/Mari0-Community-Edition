@@ -19,7 +19,7 @@ function blockdebris:init(x: number, y: number, speedx, speedy)
 	self.frame = 1
 end
 
-function blockdebris:update(dt: number): any...
+function blockdebris:update(dt: number): boolean
 	self.timer = self.timer + dt
 	while self.timer > blockdebrisanimationtime do
 		self.timer = self.timer - blockdebrisanimationtime

@@ -43,7 +43,7 @@ function button:init(x: number, y: number, r)
 	self.pressings = {}
 end
 
-function button:update(_dt: number): any...
+function button:update(_dt: number)
 	local x: number = 0
 	local y: number = 0
 	local width: number = 0

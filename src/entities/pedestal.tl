@@ -28,7 +28,7 @@ function pedestal:init(x: number, y: number, r)
 	end
 end
 
-function pedestal:update(dt: number): any...
+function pedestal:update(dt: number)
 	if not self.pickedup then
 		local col = checkrect(self.x, self.y, 8/16, 8/16, {"player"})
 		

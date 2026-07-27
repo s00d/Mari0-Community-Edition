@@ -119,7 +119,7 @@ function scaffold:input(t, input): any
 	return nil
 end
 
-function scaffold:update(dt: number): any...
+function scaffold:update(dt: number): boolean
 	if not self.power then
 		return false
 	end

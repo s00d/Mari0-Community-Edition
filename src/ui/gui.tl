@@ -192,7 +192,7 @@ function guielement:init(...: any)
 	end
 end
 
-function guielement:update(dt: number): any...
+function guielement:update(dt: number)
 	if self.active then
 		if self.type == "scrollbar" then
 			if self.dragging then

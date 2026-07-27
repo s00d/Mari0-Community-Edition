@@ -57,7 +57,7 @@ function delayer:addoutput(a, t)
 	table.insert(self.outtable, {a, t} as {any})
 end
 
-function delayer:update(dt: number): any...
+function delayer:update(dt: number)
 	local delete = {}
 	
 	for i = 1, #self.timers do

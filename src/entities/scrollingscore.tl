@@ -15,7 +15,7 @@ function scrollingscore:init(i: any, x: any, y: any)
 	self.timer = 0
 end
 
-function scrollingscore:update(dt: number): any...
+function scrollingscore:update(dt: number): boolean
 	self.timer = self.timer + dt
 	if self.timer > scrollingscoretime then
 		return true

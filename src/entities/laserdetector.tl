@@ -30,7 +30,7 @@ function laserdetector:init(x: number, y: number, r)
 	self.out = "off"
 end
 
-function laserdetector:update(dt: number): any...
+function laserdetector:update(dt: number)
 	self.allowclear = true
 	
 	if self.out ~= self.prevout then

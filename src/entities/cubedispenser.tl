@@ -90,7 +90,7 @@ function cubedispenser:link(): any|nil
 	return nil
 end
 
-function cubedispenser:update(dt: number): any...
+function cubedispenser:update(dt: number): boolean
 	if self.timer < cubedispensertime then
 		self.timer = self.timer + dt
 		

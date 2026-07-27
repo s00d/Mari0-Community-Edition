@@ -137,7 +137,7 @@ function textentity:input(t, input): any
 	return nil
 end
 
-function textentity:update(dt: number): any...
+function textentity:update(dt: number)
 	self.pass = true
 	if self.hasaprefix then
 		for i, j in pairs(self.boolcache) do

@@ -19,7 +19,7 @@ global record actionblock is Entity, Body
 	y: number
 	init: function(actionblock, number, number)
 	addoutput: function(actionblock, any, any)
-	update: function(actionblock, number): any...
+	update: function(actionblock, number)
 	draw: function(actionblock)
 	floorcollide: function(actionblock, any, Entity, any, any): any...
 	out: function(actionblock, any)
@@ -48,7 +48,7 @@ global record andgate is Entity, Body
 	init: function(andgate, number, number, any)
 	link: function(andgate): any|nil
 	addoutput: function(andgate, any, any)
-	update: function(andgate, number): any...
+	update: function(andgate, number)
 	draw: function(andgate)
 	out: function(andgate, any)
 	input: function(andgate, any, any): any
@@ -68,7 +68,7 @@ global record animatedbooltimer
 	x: number
 	y: number
 	init: function(animatedbooltimer, number, number, any)
-	update: function(animatedbooltimer, number): any...
+	update: function(animatedbooltimer, number)
 	input: function(animatedbooltimer, any)
 	geti: function(animatedbooltimer): any...
 	new: function(animatedbooltimer, number, number, any): animatedbooltimer
@@ -92,7 +92,7 @@ global record animatedquad
 	triggered: any
 	init: function(animatedquad, any, any, any): any...
 	updateproperties: function(animatedquad): any...
-	update: function(animatedquad, number): any...
+	update: function(animatedquad, number)
 	quad: function(animatedquad, any, any): any...
 	getproperty: function(animatedquad, any, any, any): any...
 	new: function(animatedquad, any, any, any): animatedquad
@@ -117,7 +117,7 @@ global record animatedtiletrigger is Entity, Body
 	y: number
 	init: function(animatedtiletrigger, number, number, any)
 	link: function(animatedtiletrigger): any|nil
-	update: function(animatedtiletrigger): any...
+	update: function(animatedtiletrigger)
 	draw: function(animatedtiletrigger)
 	input: function(animatedtiletrigger, any, any): any
 	new: function(animatedtiletrigger, number, number, {any}): animatedtiletrigger
@@ -134,7 +134,7 @@ global record animatedtimer
 	x: number
 	y: number
 	init: function(animatedtimer, number, number, any)
-	update: function(animatedtimer, number): any...
+	update: function(animatedtimer, number)
 	input: function(animatedtimer, any)
 	geti: function(animatedtimer): any...
 	new: function(animatedtimer, number, number, any): animatedtimer
@@ -158,7 +158,7 @@ global record animation
 	addtrigger: function(animation, {any})
 	addcondition: function(animation, {any})
 	addaction: function(animation, {any})
-	update: function(animation, number): any...
+	update: function(animation, number)
 	trigger: function(animation)
 	draw: function(animation)
 	decodenuminput: function(animation, any): number
@@ -183,7 +183,7 @@ global record animationguiline
 	type: string
 	upbutton: guielement
 	init: function(animationguiline, any, any): any...
-	update: function(animationguiline, number): any...
+	update: function(animationguiline, number)
 	draw: function(animationguiline, number, number)
 	click: function(animationguiline, number, number, any): any
 	unclick: function(animationguiline, number, number, any): any
@@ -235,7 +235,7 @@ global record blockdebris is Entity, Body
 	x: number
 	y: number
 	init: function(blockdebris, number, number, any, any)
-	update: function(blockdebris, number): any...
+	update: function(blockdebris, number): boolean
 	draw: function(blockdebris)
 	new: function(blockdebris, number, number, any, any): blockdebris
 end
@@ -281,7 +281,7 @@ global record bowser is Entity, Body
 	x: number
 	y: number
 	init: function(bowser, number, number, any)
-	update: function(bowser, number): any...
+	update: function(bowser, number): boolean
 	draw: function(bowser)
 	newtargetx: function(bowser, any)
 	shotted: function(bowser, ...: any): any
@@ -332,7 +332,7 @@ global record box is Entity, Body
 	x: number
 	y: number
 	init: function(box, number, number)
-	update: function(box, number): any...
+	update: function(box, number): boolean
 	globalcollide: function(box, any, Entity, any, any, any): boolean
 	ceilcollide: function(box, any, Entity, any, any): boolean
 	leftcollide: function(box, any, Entity, any, any): boolean
@@ -364,7 +364,7 @@ global record bubble is Entity, Body
 	x: number
 	y: number
 	init: function(bubble, number, number)
-	update: function(bubble, number): any...
+	update: function(bubble, number): boolean
 	draw: function(bubble)
 	new: function(bubble, number, number): bubble
 end
@@ -401,7 +401,7 @@ global record bulletbill is Entity, Body
 	x: number
 	y: number
 	init: function(bulletbill, number, number, any)
-	update: function(bulletbill, number): any...
+	update: function(bulletbill, number): boolean
 	stomp: function(Entity, ...: any): any...
 	shotted: function(Entity, ...: any): any...
 	rightcollide: function(bulletbill, any, Entity): any...
@@ -435,7 +435,7 @@ global record button is Entity, Body
 	x: number
 	y: number
 	init: function(button, number, number, any)
-	update: function(button, number): any...
+	update: function(button, number)
 	draw: function(button)
 	addoutput: function(button, any, any)
 	new: function(button, number, number, {any}): button
@@ -493,7 +493,7 @@ global record castlefire is Entity, Body
 	x: number
 	y: number
 	init: function(castlefire, number, number, any)
-	update: function(castlefire, number): any...
+	update: function(castlefire, number)
 	updatepos: function(castlefire)
 	updatequad: function(castlefire)
 	new: function(castlefire, number, number, {any}): castlefire
@@ -575,7 +575,7 @@ global record checkpoint is Entity, Body
 	x: number
 	y: number
 	init: function(checkpoint, number, number, any)
-	update: function(checkpoint): any...
+	update: function(checkpoint)
 	link: function(checkpoint): any|nil
 	input: function(checkpoint, any, any): any
 	trigger: function(checkpoint): any
@@ -597,7 +597,7 @@ global record coinblockanimation is Entity, Body
 	x: number
 	y: number
 	init: function(coinblockanimation, number, number)
-	update: function(coinblockanimation, number): any...
+	update: function(coinblockanimation, number): boolean
 	new: function(coinblockanimation, number, number): coinblockanimation
 end
 
@@ -625,7 +625,7 @@ global record cubedispenser is Entity, Body
 	init: function(cubedispenser, number, number, any)
 	input: function(cubedispenser, any, any): any
 	link: function(cubedispenser): any|nil
-	update: function(cubedispenser, number): any...
+	update: function(cubedispenser, number): boolean
 	draw: function(cubedispenser)
 	removebox: function(cubedispenser)
 	new: function(cubedispenser, number, number, {any}): cubedispenser
@@ -652,7 +652,7 @@ global record delayer is Entity, Body
 	init: function(delayer, number, number, any)
 	link: function(delayer): any|nil
 	addoutput: function(delayer, any, any)
-	update: function(delayer, number): any...
+	update: function(delayer, number)
 	draw: function(delayer)
 	out: function(delayer, any)
 	input: function(delayer, any, any): any
@@ -672,7 +672,7 @@ global record dialogbox
 	textsplit: {any}
 	timer: number
 	init: function(dialogbox, any, any)
-	update: function(dialogbox, number): any...
+	update: function(dialogbox, number): boolean
 	draw: function(dialogbox)
 	new: function(dialogbox, any, any): dialogbox
 end
@@ -701,7 +701,7 @@ global record door is Entity, Body
 	y: number
 	init: function(door, number, number, any)
 	link: function(door): any|nil
-	update: function(door, number): any...
+	update: function(door, number)
 	draw: function(door)
 	pushstuff: function(door)
 	input: function(door, any, any): any
@@ -731,7 +731,7 @@ global record emancipateanimation is Entity, Body
 	x: number
 	y: number
 	init: function(emancipateanimation, number, number, any, any, any, any, any, any, any, any, any, any, any)
-	update: function(emancipateanimation, number): any...
+	update: function(emancipateanimation, number): boolean
 	draw: function(emancipateanimation)
 	new: function(emancipateanimation, number, number, any, any, any, any, any, any, any, any, any, any, any): emancipateanimation
 end
@@ -751,7 +751,7 @@ global record emancipationfizzle is Entity, Body
 	x: number
 	y: number
 	init: function(emancipationfizzle, number, number, any, any)
-	update: function(emancipationfizzle, number): any...
+	update: function(emancipationfizzle, number): boolean
 	draw: function(emancipationfizzle)
 	new: function(emancipationfizzle, number, number, any, any): emancipationfizzle
 end
@@ -781,7 +781,7 @@ global record emancipationgrill
 	y: number
 	init: function(emancipationgrill, number, number, any)
 	link: function(emancipationgrill)
-	update: function(emancipationgrill, number): any...
+	update: function(emancipationgrill, number): boolean
 	draw: function(emancipationgrill)
 	getTileInvolved: function(emancipationgrill, any, any): any, any
 	input: function(emancipationgrill, any, any)
@@ -987,7 +987,7 @@ global record enemy is Entity, Body
 	x: number
 	y: number
 	init: function(self: enemy, x: number, y: number, t: string, extra?: any)
-	update: function(enemy, number): any...
+	update: function(enemy, number): boolean
 	addoutput: function(enemy, any, any): any...
 	shotted: function(self: enemy, a?: any, b?: any, c?: any, d?: any, e?: any): any...
 	decodearg: function(enemy, any): any...
@@ -1063,7 +1063,7 @@ global record entitytooltip
 	x: number
 	y: number
 	init: function(entitytooltip, any)
-	update: function(entitytooltip, number): any...
+	update: function(entitytooltip, number)
 	draw: function(entitytooltip, any)
 	new: function(entitytooltip, any): entitytooltip
 end
@@ -1092,7 +1092,7 @@ global record faithplate is Entity, Body
 	init: function(faithplate, number, number, any)
 	input: function(faithplate, any, any): any
 	link: function(faithplate): any|nil
-	update: function(faithplate, number): any...
+	update: function(faithplate, number)
 	draw: function(faithplate)
 	new: function(faithplate, number, number, {any}): faithplate
 end
@@ -1123,7 +1123,7 @@ global record fire is Entity, Body
 	x: number
 	y: number
 	init: function(fire, number, number)
-	update: function(fire, number): any...
+	update: function(fire, number)
 	leftcollide: function(fire, any, Entity): any...
 	rightcollide: function(fire, any, Entity): any...
 	floorcollide: function(fire, any, Entity): any...
@@ -1161,7 +1161,7 @@ global record fireball is Entity, Body
 	x: number
 	y: number
 	init: function(fireball, number, number, any, any)
-	update: function(fireball, number): any...
+	update: function(fireball, number): boolean
 	leftcollide: function(fireball, any, Entity): any
 	rightcollide: function(fireball, any, Entity): any
 	floorcollide: function(fireball, any, Entity): any
@@ -1186,7 +1186,7 @@ global record fireworkboom is Entity, Body
 	x: number
 	y: number
 	init: function(fireworkboom, any, any)
-	update: function(fireworkboom, number): any...
+	update: function(fireworkboom, number): boolean
 	draw: function(fireworkboom)
 	new: function(fireworkboom, any, any): fireworkboom
 end
@@ -1218,7 +1218,7 @@ global record funnel
 	init: function(funnel, number, number, any)
 	link: function(funnel)
 	input: function(funnel, any, any)
-	update: function(funnel, number): any...
+	update: function(funnel, number)
 	draw: function(funnel)
 	updaterange: function(funnel)
 	new: function(funnel, number, number, {any}): funnel
@@ -1283,7 +1283,7 @@ global record geldispenser is Entity, Body
 	y: number
 	init: function(geldispenser, number, number, any)
 	link: function(geldispenser): any|nil
-	update: function(geldispenser, number): any...
+	update: function(geldispenser, number): boolean
 	draw: function(geldispenser)
 	input: function(geldispenser, any, any): any
 	new: function(geldispenser, number, number, {any}): geldispenser
@@ -1307,7 +1307,7 @@ global record groundlight is Entity, Body
 	y: number
 	init: function(groundlight, number, number, any, any)
 	link: function(groundlight): any|nil
-	update: function(groundlight, number): any...
+	update: function(groundlight, number)
 	draw: function(groundlight)
 	input: function(groundlight, t: any, input?: any): any
 	new: function(groundlight, number, number, any, any): groundlight
@@ -1388,7 +1388,7 @@ global record guielement
 	keypressed: any
 	elements: {any}
 	init: function(guielement, ...: any)
-	update: function(guielement, number): any...
+	update: function(guielement, number)
 	draw: function(self: guielement, a?: number, b?: number, c?: number)
 	getheight: function(guielement): number
 	click: function(guielement, number, number, any): any...
@@ -1415,7 +1415,7 @@ global record itemanimation is Entity, Body
 	x: number
 	y: number
 	init: function(itemanimation, number, number, any)
-	update: function(itemanimation, number): any...
+	update: function(itemanimation, number): boolean
 	draw: function(itemanimation)
 	new: function(itemanimation, number, number, any): itemanimation
 end
@@ -1444,7 +1444,7 @@ global record laser
 	init: function(laser, number, number, any)
 	link: function(laser)
 	input: function(laser, any, any)
-	update: function(self: laser, dt?: number): any...
+	update: function(self: laser, dt?: number)
 	updateoutputs: function(laser)
 	checktile: function(laser, any, any, any)
 	draw: function(laser)
@@ -1473,7 +1473,7 @@ global record laserdetector is Entity, Body
 	prevout: any
 	r: {any}
 	init: function(laserdetector, number, number, any)
-	update: function(laserdetector, number): any...
+	update: function(laserdetector, number)
 	input: function(laserdetector, any): any
 	draw: function(laserdetector)
 	addoutput: function(laserdetector, any, any)
@@ -1509,7 +1509,7 @@ global record lightbridge
 	init: function(lightbridge, number, number, any)
 	link: function(lightbridge)
 	input: function(lightbridge, any, any)
-	update: function(lightbridge, number): any...
+	update: function(lightbridge, number)
 	getglowa: function(lightbridge, any): any...
 	draw: function(lightbridge)
 	updaterange: function(lightbridge)
@@ -1544,7 +1544,7 @@ global record lightbridgebody is Entity, Body
 	y: number
 	init: function(lightbridgebody, lightbridge, number, number, string, any)
 	pushstuff: function(lightbridgebody)
-	update: function(lightbridgebody, number): any...
+	update: function(lightbridgebody, number): boolean
 	draw: function(lightbridgebody)
 	new: function(lightbridgebody, lightbridge, number, number, string, any): lightbridgebody
 end
@@ -1564,7 +1564,7 @@ global record magic is Entity, Body
 	x: number
 	y: number
 	init: function(magic)
-	update: function(magic, number): any...
+	update: function(magic, number): boolean
 	draw: function(magic)
 	new: function(magic): magic
 end
@@ -1683,7 +1683,7 @@ global record mario is Entity, Body
 	y: number
 	init: function(mario, number, number, any, any, any, any)
 	adddata: function(mario)
-	update: function(mario, number): any...
+	update: function(mario, number)
 	update_raccoon_effects: function(mario, number)
 	update_star: function(mario, number)
 	update_animation: function(mario, number): any...
@@ -1767,7 +1767,7 @@ global record miniblock is Entity, Body
 	x: number
 	y: number
 	init: function(miniblock, number, number, any)
-	update: function(miniblock, number): any...
+	update: function(miniblock, number): boolean
 	draw: function(miniblock)
 	new: function(miniblock, number, number, any): miniblock
 end
@@ -1820,7 +1820,7 @@ global record notgate is Entity, Body
 	init: function(notgate, number, number, any)
 	link: function(notgate): any|nil
 	addoutput: function(notgate, any, any)
-	update: function(notgate, number): any...
+	update: function(notgate, number)
 	draw: function(notgate)
 	out: function(notgate, any)
 	input: function(notgate, any, any): any
@@ -1849,7 +1849,7 @@ global record orgate is Entity, Body
 	init: function(orgate, number, number, any)
 	link: function(orgate): any|nil
 	addoutput: function(orgate, any, any)
-	update: function(orgate, number): any...
+	update: function(orgate, number)
 	draw: function(orgate)
 	out: function(orgate, any)
 	input: function(orgate, any, any): any
@@ -1903,7 +1903,7 @@ global record pedestal is Entity, Body
 	x: number
 	y: number
 	init: function(pedestal, number, number, any)
-	update: function(pedestal, number): any...
+	update: function(pedestal, number)
 	draw: function(pedestal)
 	new: function(pedestal, number, number, {any}): pedestal
 end
@@ -1934,7 +1934,7 @@ global record platform is Entity, Body
 	ydistance: number
 	init: function(self: platform, x: number, y: number, r: any, diroverride?: any)
 	func: function(platform, number): number
-	update: function(platform, number): any...
+	update: function(platform, number): boolean
 	draw: function(platform)
 	rightcollide: function(platform, any, Entity): any
 	leftcollide: function(platform, any, Entity): any
@@ -1963,7 +1963,7 @@ global record platformspawner is Entity, Body
 	x: number
 	y: number
 	init: function(platformspawner, number, number, any)
-	update: function(platformspawner, number): any...
+	update: function(platformspawner, number): boolean
 	new: function(platformspawner, number, number, {any}): platformspawner
 end
 
@@ -1993,7 +1993,7 @@ global record portal
 	init: function(portal, any, any, any)
 	createportal: function(portal, number, any, any, any, any)
 	removeportal: function(portal, number)
-	update: function(portal, number): any...
+	update: function(portal, number)
 	draw: function(portal)
 	new: function(self: portal, id: any, a?: any, b?: any): portal
 end
@@ -2019,7 +2019,7 @@ global record portalent is Entity, Body
 	y: number
 	init: function(portalent, number, number, any, any)
 	link: function(portalent): any|nil
-	update: function(portalent, number): any...
+	update: function(portalent, number)
 	draw: function(portalent)
 	input: function(portalent, any, any): any
 	trigger: function(portalent): any
@@ -2042,7 +2042,7 @@ global record portalparticle is Entity, Body
 	x: number
 	y: number
 	init: function(portalparticle, number, number, any, any)
-	update: function(portalparticle, number): any...
+	update: function(portalparticle, number): boolean
 	draw: function(portalparticle)
 	new: function(portalparticle, number, number, any, any): portalparticle
 end
@@ -2078,7 +2078,7 @@ global record portalprojectile is Entity, Body
 	x: number
 	y: number
 	init: function(portalprojectile, number, number, any, any, any, any, any, any, any, any)
-	update: function(portalprojectile, number): any...
+	update: function(portalprojectile, number): boolean
 	draw: function(portalprojectile)
 	createportal: function(portalprojectile)
 	new: function(portalprojectile, number, number, any, any, any, any, any, any, any, any): portalprojectile
@@ -2114,7 +2114,7 @@ global record portalprojectileparticle is Entity, Body
 	x: number
 	y: number
 	init: function(portalprojectileparticle, number, number, any, any, any, any)
-	update: function(portalprojectileparticle, number): any...
+	update: function(portalprojectileparticle, number): boolean
 	draw: function(portalprojectileparticle)
 	new: function(self: portalprojectileparticle, x: number, y: number, color: any, a?: any, b?: any, c?: any): portalprojectileparticle
 end
@@ -2157,7 +2157,7 @@ global record pushbutton is Entity, Body
 	r: {any}
 	timer: number
 	init: function(pushbutton, number, number, any)
-	update: function(pushbutton, number): any...
+	update: function(pushbutton, number)
 	draw: function(pushbutton)
 	addoutput: function(pushbutton, any, any)
 	used: function(pushbutton): any
@@ -2204,7 +2204,7 @@ global record rainboom is Entity, Body
 	x: number
 	y: number
 	init: function(rainboom, number, number, any)
-	update: function(rainboom, number): any...
+	update: function(rainboom, number): boolean
 	draw: function(rainboom)
 	new: function(rainboom, number, number, any): rainboom
 end
@@ -2220,7 +2220,7 @@ global record regiondrag
 	x: number
 	y: number
 	init: function(regiondrag, number, number, any, any)
-	update: function(regiondrag, number): any...
+	update: function(regiondrag, number)
 	draw: function(regiondrag)
 	mousepressed: function(regiondrag, any, any, any): any
 	mousereleased: function(regiondrag, any, any, any)
@@ -2250,7 +2250,7 @@ global record regiontrigger is Entity, Body
 	x: number
 	y: number
 	init: function(regiontrigger, number, number, any)
-	update: function(regiontrigger, number): any...
+	update: function(regiontrigger, number)
 	draw: function(regiontrigger)
 	addoutput: function(regiontrigger, any, any)
 	new: function(regiontrigger, number, number, {any}): regiontrigger
@@ -2280,7 +2280,7 @@ global record rightclickmenu
 	x: number
 	y: number
 	init: function(rightclickmenu, number, number, any, any, any)
-	update: function(rightclickmenu, number): any...
+	update: function(rightclickmenu, number)
 	draw: function(rightclickmenu)
 	mousepressed: function(rightclickmenu, any, any, any): boolean
 	mousereleased: function(rightclickmenu, any, any, any)
@@ -2324,7 +2324,7 @@ global record rocketlauncher is Entity, Body
 	x: number
 	y: number
 	init: function(rocketlauncher, number, number)
-	update: function(rocketlauncher, number): any...
+	update: function(rocketlauncher, number): boolean
 	fire: function(rocketlauncher): any...
 	randomtime: function(rocketlauncher)
 	new: function(rocketlauncher, number, number): rocketlauncher
@@ -2387,7 +2387,7 @@ global record scaffold is Entity, Body
 	init: function(scaffold, number, number, any)
 	link: function(scaffold): any|nil
 	input: function(scaffold, any, any): any
-	update: function(scaffold, number): any...
+	update: function(scaffold, number): boolean
 	draw: function(scaffold)
 	rightcollide: function(scaffold, any, Entity): boolean
 	leftcollide: function(scaffold, any, Entity): boolean
@@ -2429,7 +2429,7 @@ global record scrollingscore is Entity, Body
 	x: number
 	y: number
 	init: function(scrollingscore, any, any, any)
-	update: function(scrollingscore, number): any...
+	update: function(scrollingscore, number): boolean
 	new: function(scrollingscore, any, any, any): scrollingscore
 end
 
@@ -2447,7 +2447,7 @@ global record scrollingtext is Entity, Body
 	x: number
 	y: number
 	init: function(scrollingtext, any, any, any)
-	update: function(scrollingtext, number): any...
+	update: function(scrollingtext, number): boolean
 	draw: function(scrollingtext)
 	new: function(scrollingtext, any, any, any): scrollingtext
 end
@@ -2474,7 +2474,7 @@ global record seesaw
 	x: number
 	y: number
 	init: function(seesaw, number, number, any)
-	update: function(seesaw, number): any...
+	update: function(seesaw, number)
 	fallingoff: function(seesaw, any)
 	draw: function(seesaw)
 	callbackleft: function(seesaw, any)
@@ -2503,7 +2503,7 @@ global record seesawplatform is Body
 	x: number
 	y: number
 	init: function(seesawplatform, number, number, any, any, any)
-	update: function(seesawplatform, number): any...
+	update: function(seesawplatform, number): boolean
 	draw: function(seesawplatform)
 	rightcollide: function(seesawplatform, any, Entity): any
 	leftcollide: function(seesawplatform, any, Entity): any
@@ -2531,7 +2531,7 @@ global record spring is Entity, Body
 	x: number
 	y: number
 	init: function(spring, number, number)
-	update: function(spring, number): any...
+	update: function(spring, number)
 	draw: function(spring)
 	hit: function(spring)
 	new: function(spring, number, number): spring
@@ -2560,7 +2560,7 @@ global record squarewave is Entity, Body
 	y: number
 	init: function(squarewave, number, number, any)
 	addoutput: function(squarewave, any, any)
-	update: function(squarewave, number): any...
+	update: function(squarewave, number)
 	draw: function(squarewave)
 	out: function(squarewave, any)
 	new: function(squarewave, number, number, {any}): squarewave
@@ -2594,7 +2594,7 @@ global record textentity is Entity, Body
 	init: function(textentity, number, number, any)
 	link: function(textentity): any|nil
 	input: function(textentity, any, any): any
-	update: function(textentity, number): any...
+	update: function(textentity, number)
 	draw: function(textentity)
 	new: function(textentity, number, number, {any}): textentity
 end
@@ -2635,7 +2635,7 @@ global record vine is Entity, Body
 	x: number
 	y: number
 	init: function(vine, number, number, any)
-	update: function(vine, number): any...
+	update: function(vine, number)
 	draw: function(vine)
 	new: function(self: vine, x: number, y: number, a?: any): vine
 end
@@ -2656,7 +2656,7 @@ global record wallindicator is Entity, Body
 	y: number
 	init: function(wallindicator, number, number, any)
 	link: function(wallindicator): any|nil
-	update: function(wallindicator): any...
+	update: function(wallindicator)
 	draw: function(wallindicator)
 	input: function(wallindicator, any, any): any
 	new: function(wallindicator, number, number, {any}): wallindicator
@@ -2685,7 +2685,7 @@ global record walltimer is Entity, Body
 	init: function(walltimer, number, number, any)
 	link: function(walltimer): any|nil
 	addoutput: function(walltimer, any, any)
-	update: function(walltimer, number): any...
+	update: function(walltimer, number)
 	draw: function(walltimer)
 	out: function(walltimer, any)
 	input: function(walltimer, any, any): any
@@ -2713,7 +2713,7 @@ global record zgbooltrigger is Entity, Body
 	x: number
 	y: number
 	init: function(zgbooltrigger, number, number, any)
-	update: function(zgbooltrigger, number): any...
+	update: function(zgbooltrigger, number)
 	draw: function(zgbooltrigger)
 	addoutput: function(zgbooltrigger, any, any)
 	new: function(zgbooltrigger, number, number, {any}): zgbooltrigger
@@ -2741,7 +2741,7 @@ global record zginttrigger is Entity, Body
 	x: number
 	y: number
 	init: function(zginttrigger, number, number, any)
-	update: function(zginttrigger, number): any...
+	update: function(zginttrigger, number)
 	draw: function(zginttrigger)
 	addoutput: function(zginttrigger, any, any)
 	new: function(zginttrigger, number, number, {any}): zginttrigger

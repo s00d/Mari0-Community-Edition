@@ -157,7 +157,7 @@ function portal:removeportal(i: number)
 	end
 end
 
-function portal:update(dt: number): any...
+function portal:update(dt: number)
 	self.animationtimer = self.animationtimer + dt
 	while self.animationtimer > portalanimationdelay do
 		self.animationtimer = 0

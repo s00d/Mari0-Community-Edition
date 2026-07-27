@@ -69,7 +69,7 @@ function portalent:link(): any|nil
 	return nil
 end
 
-function portalent:update(dt: number): any...
+function portalent:update(dt: number)
 	
 end
 

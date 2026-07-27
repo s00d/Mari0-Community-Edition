@@ -76,7 +76,7 @@ function lightbridge:input(t, input)
 	end
 end
 
-function lightbridge:update(dt: number): any...
+function lightbridge:update(dt: number)
 	self.glowtimer = self.glowtimer + dt*2
 	
 end
@@ -292,7 +292,7 @@ function lightbridgebody:pushstuff()
 	end
 end
 
-function lightbridgebody:update(dt: number): any...
+function lightbridgebody:update(dt: number): boolean
 	if self.destroy then
 		return true
 	else

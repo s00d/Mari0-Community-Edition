@@ -77,7 +77,7 @@ function checkpoint:init(x: number, y: number, r)
 	self.input1state = "off"
 end
 
-function checkpoint:update(): any...
+function checkpoint:update()
 	local col = checkrect(self.regionX, self.regionY, self.regionwidth, self.regionheight, {"player"})
 	
 	if #col > 0 then

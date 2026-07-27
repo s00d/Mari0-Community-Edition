@@ -50,7 +50,7 @@ function zgbooltrigger:init(x: number, y: number, r)
 	self.out = "off"
 end
 
-function zgbooltrigger:update(dt: number): any...
+function zgbooltrigger:update(dt: number)
 	local col = globoolSH(self.id, "check") 
 	
 	if self.inverted then

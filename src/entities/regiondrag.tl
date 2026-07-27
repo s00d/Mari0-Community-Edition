@@ -19,7 +19,7 @@ function regiondrag:init(x: number, y: number, width, height)
 	self.grabbed = 0
 end
 
-function regiondrag:update(dt: number): any...
+function regiondrag:update(dt: number)
 	if self.grabbed ~= 0 then
 		local mx, my = mouse.getPosition()
 		local oldx, oldy, oldwidth, oldheight, oldgrabbed = self.x, self.y, self.width, self.height, self.grabbed

@@ -1170,7 +1170,7 @@ function animationguiline:init(tabl: any, t2: any): any
 	end
 end
 
-function animationguiline:update(dt: number): any...
+function animationguiline:update(dt: number)
 	for i = 1, #self.elements do
 		if self.elements[i].gui then
 			self.elements[i].gui:update(dt)

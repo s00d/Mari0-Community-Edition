@@ -19,7 +19,7 @@ function emancipationfizzle:init(x: number, y: number, speedx, speedy)
 	self.timer = 0
 end
 
-function emancipationfizzle:update(dt: number): any...
+function emancipationfizzle:update(dt: number): boolean
 	self.x = self.x + self.speedx*dt
 	self.y = self.y + self.speedy*dt
 	

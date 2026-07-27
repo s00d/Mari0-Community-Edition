@@ -26,7 +26,7 @@ function rainboom:init(x: number, y: number, dir)
 	end
 end
 
-function rainboom:update(dt: number): any...
+function rainboom:update(dt: number): boolean
 	self.timer = self.timer + dt
 	while self.timer > rainboomdelay do
 		self.frame = self.frame + 1

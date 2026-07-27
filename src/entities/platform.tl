@@ -92,7 +92,7 @@ function platform:func(i: number): number --0-1 in please
 	return (-math.cos(i*math.pi*2)+1)/2
 end
 
-function platform:update(dt: number): any...
+function platform:update(dt: number): boolean
 	if dt > 0 then --Debug fix when dividing by dt
 		if self.dir == "normal" then
 			self.timer = self.timer + dt

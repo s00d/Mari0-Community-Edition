@@ -50,7 +50,7 @@ function vine:init(x: number, y: number, t)
 	self.drawable = false
 end
 
-function vine:update(dt: number): any...
+function vine:update(dt: number)
 	if self.y > self.limit then
 		self.y = self.y - vinespeed*dt
 		if self.y <= self.limit then

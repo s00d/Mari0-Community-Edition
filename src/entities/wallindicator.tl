@@ -43,7 +43,7 @@ function wallindicator:link(): any|nil
 	return nil
 end
 
-function wallindicator:update(): any...
+function wallindicator:update()
 
 end
 

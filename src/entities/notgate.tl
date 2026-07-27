@@ -50,7 +50,7 @@ function notgate:addoutput(a, t)
 	table.insert(self.outtable, {a, t} as {any})
 end
 
-function notgate:update(dt: number): any...
+function notgate:update(dt: number)
 	if self.initial then
 		self.initial = false
 		self:input("off", "in")

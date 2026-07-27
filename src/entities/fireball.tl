@@ -56,7 +56,7 @@ function fireball:init(x: number, y: number, dir, v)
 	self.emancipatecheck = true
 end
 
-function fireball:update(dt: number): any...
+function fireball:update(dt: number): boolean
 	--rotate back to 0 (portals)
 	self.rotation = 0
 	

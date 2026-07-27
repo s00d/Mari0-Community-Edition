@@ -73,7 +73,7 @@ function geldispenser:link(): any|nil
 	return nil
 end
 
-function geldispenser:update(dt: number): any...
+function geldispenser:update(dt: number): boolean
 	if self.dropping then
 		self.timer = self.timer + dt
 		

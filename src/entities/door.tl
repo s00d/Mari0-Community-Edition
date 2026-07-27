@@ -81,7 +81,7 @@ function door:link(): any|nil
 	return nil
 end
 
-function door:update(dt: number): any...	
+function door:update(dt: number)	
 	if self.targetopen ~= self.open then
 		if self.forceclose then
 			self:closeopen(self.targetopen)

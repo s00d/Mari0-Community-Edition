@@ -29,7 +29,7 @@ function animatedbooltimer:init(x: number, y: number, tileno)
 	table.insert(animatedbooltimerlist, self)
 end
 
-function animatedbooltimer:update(dt: number): any...
+function animatedbooltimer:update(dt: number)
 	local oldi = self:geti()
 	self.timer = self.timer + dt*self.dir
 	

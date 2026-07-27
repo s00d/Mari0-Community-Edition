@@ -46,7 +46,7 @@ function zginttrigger:init(x: number, y: number, r)
 	self.out = "off"
 end
 
-function zginttrigger:update(dt: number): any...
+function zginttrigger:update(dt: number)
 	local col = globintCH(self.id, self.condition, self.value) 
 	
 	if self.out == "off" and col then

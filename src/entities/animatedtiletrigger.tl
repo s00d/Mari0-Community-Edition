@@ -57,7 +57,7 @@ function animatedtiletrigger:link(): any|nil
 	return nil
 end
 
-function animatedtiletrigger:update(): any...
+function animatedtiletrigger:update()
 
 end
 

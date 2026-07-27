@@ -57,7 +57,7 @@ function fire:init(x: number, y: number)
 	playsound("fire")
 end
 
-function fire:update(dt: number): any...
+function fire:update(dt: number)
 	--animate
 	self.timer = self.timer + dt
 	while self.timer > fireanimationdelay do

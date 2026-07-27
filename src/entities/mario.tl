@@ -302,7 +302,7 @@ function mario:adddata()
 	end
 end
 
-function mario:update(dt: number): any...
+function mario:update(dt: number)
 	self:update_replay(dt)
 	
 	self.passivemoved = false

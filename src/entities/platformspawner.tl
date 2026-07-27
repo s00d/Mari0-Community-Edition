@@ -46,7 +46,7 @@ function platformspawner:init(x: number, y: number, r)
 	end
 end
 
-function platformspawner:update(dt: number): any...
+function platformspawner:update(dt: number): boolean
 	self.timer = self.timer + dt
 	if self.timer > self.spawndelay then
 		if self.dir == "up" then
