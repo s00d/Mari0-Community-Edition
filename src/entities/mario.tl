@@ -2059,7 +2059,14 @@ function mario:jump(force: any)
 					local mrs = char_num(self.char, "maxrunspeed", maxrunspeed)
 					local force = -jf - (math.abs(self.speedx) / mrs)*jfa
 					force = math.max(-jf - jfa, force)
-					
+					do
+						local hj = (self as Dyn).metroid_highjump as number|nil
+						if hj and hj > 0 and not self.morphed then
+							force = force * hj
+						elseif has_ability and has_ability(self, "highjump") and not self.morphed then
+							force = force * 1.35
+						end
+					end
 					self.speedy = force
 					
 					self.jumping = true

@@ -1075,6 +1075,12 @@ end
 
 function enemy:autodeleted()
 	self.dead = true
+	do
+		local e = self as Dyn
+		if metroidmode and (e.persistkill or e.boss) and e.cox and e.coy and metroid_mark_killed then
+			metroid_mark_killed(e.cox as number, e.coy as number)
+		end
+	end
 	self:output()
 end
 
