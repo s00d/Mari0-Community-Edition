@@ -20,6 +20,7 @@ global function create_tile_spritebatches()
 	spritebatchX = {}
 	spritebatchY = {}
 	spritebatch_orphan_slots = 0
+	spritebatch_portal_catchup = false
 end
 
 return create_tile_spritebatches

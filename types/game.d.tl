@@ -524,6 +524,8 @@ global spritebatch_floor_x: integer
 global spritebatch_floor_y: integer
 global spritebatch_view: {number:{number:SpriteBatchViewCell|nil}}
 global spritebatch_orphan_slots: integer
+global spritebatch_portal_catchup: boolean
+global invalidate_spritebatch_after_portal_teleport: function()
 global firestartx: any
 global pipestarty: number
 global fireanimationtime: number

@@ -114,6 +114,7 @@ global function init_game_runtime_globals()
 	blockbouncey = {}
 	blockbouncecontent = {}
 	blockbouncecontent2 = {}
+	spritebatch_portal_catchup = false
 	warpzonenumbers = {}
 	portals = {}
 	map = {}

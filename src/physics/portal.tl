@@ -2,6 +2,12 @@
 -- Depends at runtime on: portals, inrange, checkrect, yacceleration, gdt.
 -- Globals newx/newy are intentionally assigned (legacy portalcoords contract).
 
+local function portal_spritebatch_after_teleport(self: Entity)
+	if (self as {string:any}).playernumber ~= nil and invalidate_spritebatch_after_portal_teleport then
+		invalidate_spritebatch_after_portal_teleport()
+	end
+end
+
 global function inportal(self: Entity): boolean
 	if self.mask[2] then
 		return
@@ -28,6 +34,7 @@ global function inportal(self: Entity): boolean
 				local exitportalfacing = v.facing2
 				
 				self.x, self.y, self.speedx, self.speedy, self.rotation = portalcoords(self.x, self.y, self.speedx, self.speedy, self.width, self.height, self.rotation, self.animationdirection, entryportalX, entryportalY, entryportalfacing, exitportalX, exitportalY, exitportalfacing, self, true)
+				portal_spritebatch_after_teleport(self)
 
 			elseif (x == portal2X or x == portal2X + portal2xplus) and (y == portal2Y or y == portal2Y + portal2yplus) then
 				local entryportalX = v.x2 as number
@@ -39,6 +46,7 @@ global function inportal(self: Entity): boolean
 				local exitportalfacing = v.facing1
 				
 				self.x, self.y, self.speedx, self.speedy, self.rotation = portalcoords(self.x, self.y, self.speedx, self.speedy, self.width, self.height, self.rotation, self.animationdirection, entryportalX, entryportalY, entryportalfacing, exitportalX, exitportalY, exitportalfacing, self)
+				portal_spritebatch_after_teleport(self)
 
 			end
 		end
@@ -127,6 +135,7 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 			
 				if #checkrect(testx, testy, self.width, self.height, {"exclude", self}, false) == 0 then --Check if exit position is free
 					self.x, self.y, self.speedx, self.speedy, self.rotation = testx, testy, testspeedx, testspeedy, testrotation
+					portal_spritebatch_after_teleport(self)
 				else
 					self.speedy = -self.speedy*0.95
 					if math.abs(self.speedy) < 2 then
@@ -234,6 +243,7 @@ global function checkportalVER(self: Entity, nextX: number): boolean --handles v
 			
 				if #checkrect(testx, testy, self.width, self.height, {"exclude", self}, false) == 0 then
 					self.x, self.y, self.speedx, self.speedy, self.rotation = testx, testy, testspeedx, testspeedy, testrotation
+					portal_spritebatch_after_teleport(self)
 				else
 					self.speedx = -self.speedx
 				end

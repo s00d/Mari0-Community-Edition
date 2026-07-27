@@ -449,6 +449,7 @@ global function loadlevel(level: string|number): boolean
 	
 	updateranges()
 	
+	spritebatch_portal_catchup = false
 	generatespritebatch(0, 0)
 	if session then session:sync_session_from_globals() end
 	return needs_to_be_saved
@@ -541,6 +542,13 @@ global function changemapheight(height: number)
 	end
 	
 	generatespritebatch(0, 0)
+end
+
+global function invalidate_spritebatch_after_portal_teleport()
+	clear_spritebatch_free_pools()
+	spritebatch_view = nil
+	spritebatch_orphan_slots = 0
+	spritebatch_portal_catchup = true
 end
 
 global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
@@ -815,7 +823,8 @@ global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
 	end
 
 	local view_capacity = (xtodraw as integer) * (row_count as integer)
-	local can_incremental = math.abs(scroll_dx) + math.abs(scroll_dy) == 1
+	local can_incremental = not spritebatch_portal_catchup
+		and math.abs(scroll_dx) + math.abs(scroll_dy) == 1
 		and spritebatch_view ~= nil
 		and spritebatch_cols == xtodraw
 		and spritebatch_rows == row_count

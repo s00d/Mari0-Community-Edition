@@ -528,26 +528,46 @@ global function game_update(dt: number)
 	--SPRITEBATCH UPDATE and CASTLEREPEATS
 	local new_sbx = math.floor(xscroll)
 	local new_sby = math.floor(yscroll)
-	if new_sbx ~= spritebatchX[1] then
-		if not editormode then
+	local sb_dx = 0
+	local sb_dy = 0
+	if spritebatchX[1] ~= nil then
+		sb_dx = new_sbx - (spritebatchX[1] as integer)
+	end
+	if spritebatchY[1] ~= nil then
+		sb_dy = new_sby - (spritebatchY[1] as integer)
+	end
+
+	if sb_dx ~= 0 or sb_dy ~= 0 then
+		if sb_dx ~= 0 and not editormode then
 			for currentx = lastrepeat+1+width, new_sbx+1+width do
 				reachedx(currentx)
 			end
 		end
-		
-		if spritebatchX[1] ~= nil then
-			generatespritebatch(new_sbx - (spritebatchX[1] as integer), 0)
-		else
+
+		if spritebatch_portal_catchup or spritebatchX[1] == nil or spritebatchY[1] == nil then
 			generatespritebatch(0, 0)
+		else
+			generatespritebatch(sb_dx, sb_dy)
 		end
 		spritebatchX[1] = new_sbx
-	elseif new_sby ~= spritebatchY[1] then
-		if spritebatchY[1] ~= nil then
-			generatespritebatch(0, new_sby - (spritebatchY[1] as integer))
-		else
-			generatespritebatch(0, 0)
-		end
 		spritebatchY[1] = new_sby
+	end
+
+	if spritebatch_portal_catchup and not editormode then
+		local i = 1
+		while i <= players and (playerobjs[i].dead or playerobjs[i].remote) do
+			i = i + 1
+		end
+		local fp = playerobjs[i]
+		if fp then
+			local x_ok = fp.x >= xscroll + scrollingleftcomplete - 1/16
+				and fp.x <= xscroll + width - scrollingcomplete + 1/16
+			local y_ok = fp.y - yscroll >= upscrollborder - 1/16
+				and fp.y - yscroll <= height - downscrollborder + 1/16
+			if x_ok and y_ok then
+				spritebatch_portal_catchup = false
+			end
+		end
 	end
 	
 	--portal update
