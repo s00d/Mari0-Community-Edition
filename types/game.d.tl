@@ -1743,6 +1743,9 @@ global profzones_toggle: function(): boolean
 global profzones_report: function(integer|nil): string
 global profzones_reset: function()
 global frametime_record: function(number)
+global gcpace_configure: function()
+global gcpace_step: function()
+global gcpace_after_load: function()
 global frametime_percentiles: function(): number, number, number
 global frametime_reset: function()
 global record LoveLoadModule

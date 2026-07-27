@@ -102,7 +102,8 @@ require "app.game_update"
 require "app.game_draw"
 
 global function loadlevel(level: string|number): boolean
-	collectgarbage("collect")
+	-- Do NOT full-collect here: that sets a low GC threshold, then map/entity
+	-- alloc balloons debt → multi-second pause ~5s into gameplay. Collect after load.
 	love.audio.stop()
 	animationsystem_load()
 	
@@ -461,6 +462,12 @@ global function loadlevel(level: string|number): boolean
 	generatespritebatch(0, 0)
 	updatespritebatch()
 	if session then session:sync_session_from_globals() end
+	-- Sweep load temporaries now that the live set is stable, then pace GC.
+	if gcpace_after_load then
+		gcpace_after_load()
+	else
+		collectgarbage("collect")
+	end
 	return needs_to_be_saved
 end
 

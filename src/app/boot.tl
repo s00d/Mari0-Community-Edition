@@ -47,8 +47,10 @@ function Boot.require_game()
 	require "world.bounceutil"
 	require "core.listutil"
 	require "core.frametime"
+	require "core.gcpace"
 	require "core.profzones"
 	require "core.framedebug"
+	gcpace_configure()
 	require "util.updateutil"
 	require "physics.late"
 	require "physics.convert"

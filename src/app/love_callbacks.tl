@@ -117,6 +117,10 @@ function love.update(dt: any)
 	if steps >= max_physics_steps and LoveFrame.has_pending_step(targetdt) then
 		LoveFrame.clear_debt()
 	end
+	-- Pace LuaJIT GC once per rendered frame (not per physics substep).
+	if gcpace_step then
+		gcpace_step()
+	end
 end
 
 function love.draw()
