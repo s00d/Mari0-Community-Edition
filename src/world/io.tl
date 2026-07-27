@@ -1,7 +1,5 @@
 --[[ Level serialization facade (Stage 2.4). ]]
 
-require "world.levelio"
-
 local Io = {}
 
 function Io.parse_tiles(raw: string): LevelTilesParse|nil, string|nil

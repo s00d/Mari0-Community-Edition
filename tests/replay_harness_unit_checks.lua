@@ -1,4 +1,7 @@
---[[ Golden-replay determinism (no LÖVE): fixed seed, scripted inputs, state hash. ]]
+--[[ ReplayHarness unit checks (no LÖVE).
+     Tests core.replay_harness helpers in isolation — NOT full gameplay golden replay.
+     game_update.tl delegates replay index advancement to ReplayHarness.advance_replay_indices.
+]]
 
 local root = ... or "."
 local failed = 0
@@ -58,7 +61,7 @@ do
 	os.getenv = saved_getenv
 end
 
--- Replay index advancement (game_update hook)
+-- Replay index advancement (same helper as game_update)
 do
 	local replaydata = {
 		{ data = {
@@ -79,7 +82,7 @@ do
 	check("replay fingerprint", fp == "3", fp)
 end
 
--- Scripted 60-frame sim at 1/60 — golden hash locks integrator + input script
+-- Scripted 60-frame sim at 1/60 — locks harness integrator + input script
 do
 	local dt = 1 / 60
 	local player = {
@@ -95,8 +98,16 @@ do
 	end
 	local fp = ReplayHarness.fingerprint_players({ player })
 	local hash = sha1(fp)
-	check("golden player fingerprint", fp == "1:2.566667,0.000000,1.333333,0.000000", fp)
-	check("golden player sha1", hash == "3213435650a7321caa5d68d6624ab491da1e1b01", hash)
+	check("harness player fingerprint", fp == "1:2.566667,0.000000,1.333333,0.000000", fp)
+	check("harness player sha1", hash == "3213435650a7321caa5d68d6624ab491da1e1b01", hash)
+end
+
+-- game_update wiring smoke (compiled output, no LÖVE)
+do
+	local f = io.open(root .. "/build/app/game_update.lua", "r")
+	local src = f and f:read("*a") or ""
+	if f then f:close() end
+	check("game_update uses ReplayHarness", src:find("ReplayHarness.advance_replay_indices", 1, true) ~= nil)
 end
 
 return failed

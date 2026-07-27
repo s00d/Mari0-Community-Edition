@@ -4,6 +4,7 @@
 
 require "assets.spritebatch_util"
 
+local Io = require("world.io")
 
 local unpack = rawget(_G, "unpack") or table.unpack
 local math_mod = math.fmod
@@ -485,7 +486,7 @@ end
 
 global function savemap(filename: string, silent?: boolean)
 	local v = 1
-	local s = mapheight .. CATEGORYDELIMITER[v] .. level_serialize_maptiles(map, coinmap, mapwidth, mapheight, v)
+	local s = mapheight .. CATEGORYDELIMITER[v] .. Io.serialize_tiles(map, coinmap, mapwidth, mapheight, v)
 	
 	--options
 	s = s .. CATEGORYDELIMITER[v] .. "backgroundr" .. EQUALSIGN[v] ..  background[1] * 255

@@ -1,5 +1,7 @@
 --[[ portal / game input handlers ]]
 
+local Input = require("util.input")
+
 global function game_keypressed(key: any)
 	
 	if key == "return" then
@@ -343,69 +345,63 @@ global function game_mousereleased(x: any, y: any, button: any)
 end
 
 global function runkey(i: any): any
-	
-	local s = controls[i]["run"]
-	return checkkey(s)
+	return Input.pressed(i as integer, "run")
 end
 
 global function rightkey(i: any): any
-	
-	local s: any = nil
+	local action = "right"
 	if playerobjs[i].gravitydirection > math.pi/4*1 and playerobjs[i].gravitydirection <= math.pi/4*3 then
-		s = controls[i]["right"]
+		action = "right"
 	elseif playerobjs[i].gravitydirection > math.pi/4*3 and playerobjs[i].gravitydirection <= math.pi/4*5 then
-		s = controls[i]["down"]
+		action = "down"
 	elseif playerobjs[i].gravitydirection > math.pi/4*5 and playerobjs[i].gravitydirection <= math.pi/4*7 then
-		s = controls[i]["left"]
+		action = "left"
 	else
-		s = controls[i]["up"]
+		action = "up"
 	end
-	return checkkey(s)
+	return Input.pressed(i as integer, action)
 end
 
 global function leftkey(i: any): any
-	
-	local s: any = nil
+	local action = "left"
 	if playerobjs[i].gravitydirection > math.pi/4*1 and playerobjs[i].gravitydirection <= math.pi/4*3 then
-		s = controls[i]["left"]
+		action = "left"
 	elseif playerobjs[i].gravitydirection > math.pi/4*3 and playerobjs[i].gravitydirection <= math.pi/4*5 then
-		s = controls[i]["up"]
+		action = "up"
 	elseif playerobjs[i].gravitydirection > math.pi/4*5 and playerobjs[i].gravitydirection <= math.pi/4*7 then
-		s = controls[i]["right"]
+		action = "right"
 	else
-		s = controls[i]["down"]
+		action = "down"
 	end
-	return checkkey(s)
+	return Input.pressed(i as integer, action)
 end
 
 global function downkey(i: any): any
-	
-	local s: any = nil
+	local action = "down"
 	if playerobjs[i].gravitydirection > math.pi/4*1 and playerobjs[i].gravitydirection <= math.pi/4*3 then
-		s = controls[i]["down"]
+		action = "down"
 	elseif playerobjs[i].gravitydirection > math.pi/4*3 and playerobjs[i].gravitydirection <= math.pi/4*5 then
-		s = controls[i]["left"]
+		action = "left"
 	elseif playerobjs[i].gravitydirection > math.pi/4*5 and playerobjs[i].gravitydirection <= math.pi/4*7 then
-		s = controls[i]["up"]
+		action = "up"
 	else
-		s = controls[i]["right"]
+		action = "right"
 	end
-	return checkkey(s)
+	return Input.pressed(i as integer, action)
 end
 
 global function upkey(i: any): any
-	
-	local s: any = nil
+	local action = "up"
 	if playerobjs[i].gravitydirection > math.pi/4*1 and playerobjs[i].gravitydirection <= math.pi/4*3 then
-		s = controls[i]["up"]
+		action = "up"
 	elseif playerobjs[i].gravitydirection > math.pi/4*3 and playerobjs[i].gravitydirection <= math.pi/4*5 then
-		s = controls[i]["right"]
+		action = "right"
 	elseif playerobjs[i].gravitydirection > math.pi/4*5 and playerobjs[i].gravitydirection <= math.pi/4*7 then
-		s = controls[i]["down"]
+		action = "down"
 	else
-		s = controls[i]["left"]
+		action = "left"
 	end
-	return checkkey(s)
+	return Input.pressed(i as integer, action)
 end
 
 global function checkkey(s: any): any
