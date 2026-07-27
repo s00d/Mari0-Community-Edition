@@ -442,9 +442,19 @@ do
 	local hor, ver = handlegroup(1, "enemy", u, v, "player", 0.016, false)
 	check("handlegroup hor", hor == true)
 	check("handlegroup skips inactive", calls == 1)
+	-- approaching (no current AABB overlap) must still call checkcollision
+	calls = 0
+	v = {mask = {}, category = 3, x = 0, y = 0, width = 1, height = 1, speedx = 0, speedy = 2}
+	u = {
+		a = {active = true, category = 2, mask = {}, x = 0, y = 1.5, width = 1, height = 0},
+	}
+	check("handlegroup approach no current aabb", aabb(v.x, v.y, v.width, v.height, u.a.x, u.a.y, u.a.width, u.a.height) == false)
+	hor, ver = handlegroup(1, "portalwall", u, v, "player", 0.016, false)
+	check("handlegroup approach still checks", calls == 1 and hor == true)
 	-- same object skipped
 	calls = 0
 	u = { [5] = {active = true, category = 2, mask = {}, x = 0, y = 0, width = 1, height = 1} }
+	v = {mask = {}, category = 3, x = 0, y = 0, width = 1, height = 1}
 	hor, ver = handlegroup(5, "player", u, v, "player", 0.016, false)
 	check("handlegroup skip self", calls == 0 and hor == false)
 	checkcollision = real_checkcollision

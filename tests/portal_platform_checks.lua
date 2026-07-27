@@ -204,4 +204,23 @@ do
 	check("C inportal ignores horizontal", self.y == ybefore and self.x == 5.2)
 end
 
+-- Scenario D: standing ON TOP of a platform with a down portal underneath must
+-- not be an inportal entry (physical support is portalwall; see collision_checks).
+-- Falling downward into a down portal also must not teleport.
+do
+	portals = {
+		{ x1 = 2, y1 = 12, facing1 = "up", x2 = 5, y2 = 7, facing2 = "down" },
+	}
+	-- Feet on top of tile/portalwall at y=6 → mario.y = 6 - H
+	local self = mario(4.2, 6 - H, 2)
+	local ybefore = self.y
+	inportal(self)
+	check("D stand on platform no inportal", self.y == ybefore, "y=" .. self.y)
+	-- Falling through the hole toward the down portal plane still needs rising velocity.
+	self = mario(4.2, 6.5, 6)
+	ybefore = self.y
+	inportal(self)
+	check("D fall into down portal no inportal", self.y == ybefore, "y=" .. self.y)
+end
+
 return failed

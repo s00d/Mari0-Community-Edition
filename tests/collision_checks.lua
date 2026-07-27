@@ -19,6 +19,7 @@ require("physics.late")
 require("core.maputil")
 require("physics.convert")
 require("physics.collision")
+require("physics.handlegroup")
 
 -- collisionexists: gravity remaps which callback is checked
 do
@@ -216,6 +217,42 @@ do
 	local blocked = horcollision(v, t, "tile", 1, "player", 1, 0.016)
 	check("hor cancel by callback", blocked == false)
 	check("hor cancel keeps speed", v.speedx == 2)
+end
+
+-- Regression: down-portal top floor is height=0 portalwall. Mario above it
+-- (no current AABB overlap) must still collide via handlegroup→checkcollision.
+-- Current-position AABB broadphase wrongly skipped this and Mario fell through.
+do
+	yacceleration = 40
+	local W, H = 12 / 16, 12 / 16
+	-- Portal at map (5,7) facing down → top walls at y=6 (newy-1), width 1.
+	local wall = {
+		active = true,
+		category = 12,
+		mask = { true },
+		x = 3,
+		y = 6,
+		width = 1,
+		height = 0,
+	}
+	local mario = {
+		mask = {},
+		category = 3,
+		x = 3.2,
+		y = 6 - H - 0.05, -- just above the wall, not overlapping yet
+		width = W,
+		height = H,
+		speedx = 0,
+		speedy = 4,
+	}
+	check(
+		"portalwall top: current aabb miss",
+		aabb(mario.x, mario.y, mario.width, mario.height, wall.x, wall.y, wall.width, wall.height) == false
+	)
+	local hor, ver = handlegroup(1, "portalwall", { top = wall }, mario, "player", 1 / 60, false)
+	check("portalwall top: handlegroup catches fall", hor == false and ver == true, "hor=" .. tostring(hor) .. " ver=" .. tostring(ver))
+	check("portalwall top: stands on wall", math.abs(mario.y - (wall.y - H)) < 1e-9, "y=" .. mario.y)
+	check("portalwall top: stops falling", mario.speedy == 0, "speedy=" .. tostring(mario.speedy))
 end
 
 if select("#", ...) > 0 then
