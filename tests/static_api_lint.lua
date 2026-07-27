@@ -287,7 +287,7 @@ end
 do
 	local RATCHET = {
 		{ pattern = "global function [%w_]+%(%.%.%.: any%)", max = 18, label = "untyped global function doors" },
-		{ pattern = "global [%w_]+: function%(%.%.%.: any%)", max = 56, label = "ambient (...: any) doors" },
+		{ pattern = "global [%w_]+: function%(%.%.%.: any%)", max = 21, label = "ambient (...: any) doors" },
 		{ pattern = " as any",                          max = 140, label = "as any" },
 		{ pattern = "is {any}",                         max = 2,   label = "is {any} records" },
 		{ pattern = "%): any%.%.%.",                    max = 243, label = "any... returns" },

@@ -961,9 +961,9 @@ global updatenotification: boolean
 global playerselectimg: Image
 global selectworldexists: {boolean}
 global loadingonlinemappacks: boolean
-global menu_mappack_title: function(...: any): any
-global menu_mappack_author_line: function(...: any): any
-global menu_mappack_desc_lines: function(...: any): string, string, string
+global menu_mappack_title: function(any): string
+global menu_mappack_author_line: function(any): string
+global menu_mappack_desc_lines: function(any): string, string, string
 global huebarimg: Image
 global huebarmarkerimg: Image
 global DEBUG: boolean
@@ -1140,7 +1140,7 @@ global animatedtiletriggerimg: Image
 global animationstab: function(): any
 global arcadeblinkrate: number
 global arcadeexittime: number
-global arcadeleave: function(...: any): any
+global arcadeleave: function(any): any
 global arcadeplaying: {number:boolean}
 global arcadetimeout: number
 global axeimg: Image
@@ -1311,7 +1311,7 @@ global checkportalVER: function(Entity, number): boolean
 global checkportalremove: function(any, any)
 global checkrect: function(x: number, y: number, width: number, height: number, list: any, statics?: any): {any}
 global closerightclickmenu: function()
-global collectblock: function(...: any): any
+global collectblock: function(any): any
 global collectcoin: function(x: number, y: number, i?: any): any
 global collisionscalls: function(any, Entity, any, Entity, any, any): any
 global configdecrease: function(...: any): any
@@ -1613,24 +1613,24 @@ global vercollision: function(Entity, Entity, any, any, any, any, number): boole
 global warpzone: function(any, any)
 
 -- Typed free-function replacement for legacy string:split (see core.stringutil).
-global strsplit: function(...: any): {string}
+global strsplit: function(any, any): {string}
 global addzeros: function(any, integer): string
 global loadingtexts: {string}
 global skipintro: boolean
 global fontglyphs: string
-global gethatoffset: function(...: any): {number}|nil
+global gethatoffset: function(any, any, any, any, any, any, any, any, any, any, any): {number}|nil
 global getrainbowcolor: function(number): {number}
-global remove_indices_desc: function(...: any)
+global remove_indices_desc: function(any, any)
 global addanimationtriggerbutton: guielement
 global addanimationconditionbutton: guielement
 global addanimationactionbutton: guielement
 global allowenemy: boolean
 global subtractscore: any
-global editor_link_screen_pos: function(...: any): number, number
+global editor_link_screen_pos: function(any, any): number, number
 global gettilelistpos: function(number, number): number|boolean
-global changeHotKey: function(...: any): any
+global changeHotKey: function(any, any, any): any
 global closestplayer: any
-global drawui: function(...: any): any
+global drawui: function(hidetime?: any): any
 global drawtools: number
 global newx: number
 global newy: number
@@ -1640,36 +1640,36 @@ global editorcoinstart: any
 global mapsymissing: number
 global editor_minimap_xscroll_from_mouse: function(number, number, number, number): number
 global editor_minimap_tile_from_click: function(number, number, number, number, number, number, number): number, number
-global editor_filter_map_files: function(...: any): any
+global editor_filter_map_files: function(any): any
 global editor_normalize_rect: function(number, number, number, number): number, number, number, number
-global editor_hotkeys_parse: function(...: any): {string:{any}}
-global editor_hotkeys_serialize: function(...: any): any
-global getmtbutton: function(...: any): any
-global getlistpos: function(...: any): any
-global formatscrollnumber: function(...: any): any
-global mapsort: function(...: any): any
+global editor_hotkeys_parse: function(any): {string:{any}}
+global editor_hotkeys_serialize: function(any): any
+global getmtbutton: function(any): number
+global getlistpos: function(any, any): number|boolean
+global formatscrollnumber: function(any): string
+global mapsort: function(any, any): boolean
 global gradient: function({number}, {number}, number): {number}
-global menu_parse_settings_text: function(...: any): any, any, any
-global getclosestplayer: function(...: any): any
-global cameraxpan: function(...: any)
-global cameraypan: function(...: any)
-global update_and_compact: function(...: any)
-global usebase: function(...: any): any
-global buildstartendzones: function(...: any): {{number|boolean}}
-global remove_indices_desc_multi: function(...: any)
-global enemy_name_ok: function(...: any): any
-global normalize_enemy_props: function(...: any): any
-global apply_enemy_defaults: function(...: any): any
-global enemy_onscreen: function(...: any): any
+global menu_parse_settings_text: function(any): any, any, any
+global getclosestplayer: function(any): any
+global cameraxpan: function(any, any)
+global cameraypan: function(any, any)
+global update_and_compact: function(any, any)
+global usebase: function(any): Dyn
+global buildstartendzones: function(any, any): {{number|boolean}}
+global remove_indices_desc_multi: function(any, any)
+global enemy_name_ok: function(any): boolean
+global normalize_enemy_props: function(any): Dyn
+global apply_enemy_defaults: function(any, any): Dyn
+global enemy_onscreen: function(any, any, any, any): boolean
 global record LoveLoadModule
 	install_mouse: function(LoveLoadModule)
 	run: function(LoveLoadModule, any)
 end
 global LoveLoad: LoveLoadModule
 global magicdns_session_chars: string
-global lkisScancodeDown: function(...: any): any
-global lkisDown: function(...: any): any
-global lmisDown: function(...: any): any
+global lkisScancodeDown: function(any): any
+global lkisDown: function(any): any
+global lmisDown: function(any): any
 global joysticks: {Joystick}
 global bdrawui: any
 global drawreplays: any
@@ -1696,5 +1696,5 @@ global animationstrings: {any:{string}}
 global GCA: number
 
 global unstatics: any
-global net_quit: function(...: any): any
-global net_sendchat: function(...: any): any
+global net_quit: function()
+global net_sendchat: function(any): any
