@@ -8,6 +8,7 @@ local Protocol = require("net.protocol") as {string:any}
 local Sync = require("net.sync") as {string:any}
 local Match = require("net.match") as {string:any}
 local State = require("net.state") as {string:any}
+local StateHash = require("net.statehash") as {string:any}
 
 local HEARTBEAT_INTERVAL = 2.0
 local PEER_TIMEOUT = 8.0
@@ -16,6 +17,7 @@ local MAX_PLAYERS = (Match.MAX_PLAYERS as integer) or 4
 local DEFAULT_PORT = 7331
 -- Drop peer after this many consecutive frames of per-peer recv abuse.
 local ABUSE_DISCONNECT_FRAMES = 3
+local HASH_EVERY = 60 -- frames between hash exchange
 
 local sock: any = nil
 local role: string = "idle" -- idle | host | client
@@ -31,6 +33,11 @@ local send_seq: integer = 0
 local last_seen: {string:{string:integer}} = {}
 -- host: peer_key -> consecutive abuse-frame count
 local abuse_strikes: {string:integer} = {}
+-- Desync detector (F1)
+local match_frame: integer = 0
+local last_local_hash: integer = 0
+local peer_hashes: {string:{string:any}} = {} -- peer_id -> {frame, h}
+local desync_reported_frame: integer = -1
 
 local SEQ_OPS: {string:boolean} = {
 	input = true,
@@ -81,6 +88,12 @@ local function clear_seq_state()
 	end
 	for k in pairs(abuse_strikes) do
 		abuse_strikes[k] = nil
+	end
+	match_frame = 0
+	last_local_hash = 0
+	desync_reported_frame = -1
+	for k in pairs(peer_hashes) do
+		peer_hashes[k] = nil
 	end
 end
 
@@ -322,8 +335,82 @@ local function peer_count(): integer
 	return n
 end
 
+local function report_desync(frame: integer, local_h: integer, remote_h: integer, who: string)
+	if desync_reported_frame == frame then
+		return
+	end
+	desync_reported_frame = frame
+	local msg = "DESYNC frame=" .. tostring(frame) .. " local=" .. tostring(local_h) .. " peer=" .. tostring(remote_h) .. " (" .. who .. ")"
+	net_log(msg)
+	notice.new("desync @" .. tostring(frame), notice.red)
+end
+
+local function on_remote_hash(from_id: string, msg: {string:any})
+	local frame = (tonumber(msg.frame) or -1) as integer
+	local h = (tonumber(msg.h) or 0) as integer
+	if frame < 0 then
+		return
+	end
+	peer_hashes[from_id] = {frame = frame, h = h}
+	-- Compare when we have a local hash for the same frame (or latest if we just computed it).
+	if frame == match_frame and last_local_hash ~= 0 and h ~= last_local_hash then
+		report_desync(frame, last_local_hash, h, from_id)
+	elseif last_local_hash ~= 0 and frame % HASH_EVERY == 0 then
+		-- Peer reported a hash boundary; if our last hash frame matches, compare.
+		if (match_frame - (match_frame % HASH_EVERY)) == frame and h ~= last_local_hash then
+			report_desync(frame, last_local_hash, h, from_id)
+		end
+	end
+end
+
+local function hash_tick()
+	if not in_match or not objects then
+		return
+	end
+	match_frame = match_frame + 1
+	if match_frame % HASH_EVERY ~= 0 then
+		return
+	end
+	local h = (StateHash.sim_hash as function(): integer)()
+	last_local_hash = h
+	local msg = (StateHash.pack_hash as function(integer, integer, integer|nil): {string:any})(match_frame, h, next_seq())
+	if role == "host" then
+		if peer_count() > 0 then
+			broadcast(msg, nil)
+		end
+		-- Compare any peer hashes already received for this frame.
+		for pid, row in pairs(peer_hashes) do
+			local r = row as {string:any}
+			if (tonumber(r.frame) or -1) == match_frame then
+				local rh = (tonumber(r.h) or 0) as integer
+				if rh ~= h then
+					report_desync(match_frame, h, rh, tostring(pid))
+				end
+			end
+		end
+	elseif role == "client" then
+		encode_send(msg, nil, nil)
+		local host_row = peer_hashes["host"]
+		if host_row then
+			local r = host_row as {string:any}
+			if (tonumber(r.frame) or -1) == match_frame then
+				local rh = (tonumber(r.h) or 0) as integer
+				if rh ~= h then
+					report_desync(match_frame, h, rh, "host")
+				end
+			end
+		end
+	end
+end
+
 local function start_match_from_msg(msg: {string:any})
 	in_match = true
+	match_frame = 0
+	last_local_hash = 0
+	desync_reported_frame = -1
+	for k in pairs(peer_hashes) do
+		peer_hashes[k] = nil
+	end
 	(Sync.clear_held as function())()
 	local slot = (Match.begin_match as function({string:any}, string): integer)(msg, local_id)
 	rawset(_G, "netplayernumber", slot)
@@ -432,6 +519,13 @@ local function handle_host_msg(msg: {string:any}, from_ip: string, from_port: in
 		if in_match and peer_count() == 0 then
 			notice.new("all clients left", notice.red)
 		end
+	elseif t == "hash" then
+		if in_match then
+			if not accept_seq(key, "hash", msg.seq) then
+				return
+			end
+			on_remote_hash(tostring(p.id or key), msg)
+		end
 	end
 end
 
@@ -492,6 +586,13 @@ local function handle_client_msg(msg: {string:any})
 				return
 			end
 			(Sync.apply_snapshot as function({string:any}, boolean))(msg, true)
+		end
+	elseif t == "hash" then
+		if in_match then
+			if not accept_seq("_host", "hash", msg.seq) then
+				return
+			end
+			on_remote_hash("host", msg)
 		end
 	elseif t == "host_gone" then
 		notice.new("host disconnected", notice.red)
@@ -720,6 +821,7 @@ live.update = function(dt: number)
 	end
 
 	sync_tick(dt)
+	hash_tick()
 
 	heartbeat_t = heartbeat_t + dt
 	if heartbeat_t >= HEARTBEAT_INTERVAL then

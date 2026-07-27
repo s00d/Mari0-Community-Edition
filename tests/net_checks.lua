@@ -114,7 +114,8 @@ for _, name in pairs(Protocol.OP) do
 	seen_ops[name] = true
 	op_count = op_count + 1
 end
-check("protocol op count >= 13", op_count >= 13)
+check("protocol op count >= 14", op_count >= 14)
+check("protocol is_op hash", Protocol.is_op("hash") == true)
 
 -- Transport size / rate constants
 local Transport = require("net.transport")
@@ -359,7 +360,7 @@ if ok_sess then
 	end
 
 	-- Module layout present
-	for _, name in ipairs({"facade", "transport", "protocol", "session", "sync", "match", "state"}) do
+	for _, name in ipairs({"facade", "transport", "protocol", "session", "sync", "match", "state", "statehash"}) do
 		local p = root .. "/src/net/" .. name .. ".tl"
 		local f = io.open(p, "r")
 		check("src/net/" .. name .. ".tl exists", f ~= nil)

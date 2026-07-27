@@ -21,6 +21,7 @@ local OP = {
 	start = "start",
 	input = "input",
 	snap = "snap",
+	hash = "hash",
 }
 
 local OP_SET: {string:boolean} = {}
