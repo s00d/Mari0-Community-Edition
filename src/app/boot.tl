@@ -108,6 +108,7 @@ function Boot.require_game()
 	require "entities.portalparticle"
 	require "entities.portalprojectile"
 	require "entities.box"
+	require "entities.iceblock"
 	require "entities.emancipationgrill"
 	require "entities.door"
 	require "entities.button"

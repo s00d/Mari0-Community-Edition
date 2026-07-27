@@ -352,6 +352,28 @@ global record box is Entity, Body
 	new: function(box, number, number): box
 end
 
+global record iceblock is Entity, Body
+	frozen: boolean
+	thaw: number
+	victim_t: any
+	victim_dir: any
+	grabbable: boolean
+	gg_group: string
+	beamed: any
+	graphic: any
+	quad: any
+	offsetX: number
+	offsetY: number
+	quadcenterX: number
+	quadcenterY: number
+	destroying: boolean
+	drawable: boolean
+	melt: function(iceblock)
+	shatter: function(iceblock)
+	update: function(iceblock, number): boolean
+	new: function(iceblock, {string:any}): iceblock
+end
+
 global record bubble is Entity, Body
 	width: number
 	height: number

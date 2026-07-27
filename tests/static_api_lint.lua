@@ -62,6 +62,7 @@ local banned_flat_requires = {
 	"platformspawner",
 	"scaffold",
 	"box",
+	"iceblock",
 	"spring",
 	"vine",
 	"bowser",

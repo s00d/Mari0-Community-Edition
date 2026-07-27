@@ -76,9 +76,12 @@ function lightbridge:input(t, input)
 	end
 end
 
-function lightbridge:update(dt: number)
+function lightbridge:update(dt: number): boolean
+	if self.destroy then
+		return true
+	end
 	self.glowtimer = self.glowtimer + dt*2
-	
+	return false
 end
 
 function lightbridge:getglowa(offset: any): number

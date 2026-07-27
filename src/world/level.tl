@@ -7,6 +7,7 @@ OBJECT_GROUP_KEYS = {
 	"tile",
 	"vine",
 	"box",
+	"iceblock",
 	"door",
 	"button",
 	"groundlight",
