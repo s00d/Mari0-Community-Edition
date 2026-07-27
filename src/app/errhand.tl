@@ -61,7 +61,7 @@ function love.errhand(msg)
 	if love.audio then love.audio.stop() end
 	love.graphics.reset()
 	love.graphics.setBackgroundColor(89 / 255, 157 / 255, 220 / 255)
-	local _ = love.graphics.setNewFont(scale*7)
+	love.graphics.setFont(love.graphics.newFont(scale*7))
 
 	love.graphics.setColor(1, 1, 1, 1)
 

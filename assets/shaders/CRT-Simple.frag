@@ -33,7 +33,7 @@ extern vec2 textureSize;
 #define outputGamma 2.2
 
 // Macros.
-#define TEX2D(c) pow(checkTexelBounds(texture, (c)), vec4(inputGamma))
+#define TEX2D(c) pow(checkTexelBounds(tex, (c)), vec4(inputGamma))
 #define PI 3.141592653589
 
 
@@ -56,21 +56,21 @@ vec2 radialDistortion(vec2 coord, const vec2 ratio)
 }
 
 #ifdef CURVATURE
-vec4 checkTexelBounds(Image texture, vec2 coords)
+vec4 checkTexelBounds(Image tex, vec2 coords)
 {
 	vec2 ss = step(coords, vec2(bounds.x, 1.0)) * step(vec2(0.0, bounds.y), coords);
-	return Texel(texture, coords) * ss.x * ss.y;
+	return Texel(tex, coords) * ss.x * ss.y;
 }
 #else
-vec4 checkTexelBounds(Image texture, vec2 coords)
+vec4 checkTexelBounds(Image tex, vec2 coords)
 {
-	return Texel(texture, coords);
+	return Texel(tex, coords);
 }
 #endif
 
 
 /*
-vec4 checkTexelBounds(Image texture, vec2 coords)
+vec4 checkTexelBounds(Image tex, vec2 coords)
 {
 	vec2 bounds = vec2(inputSize.x / textureSize.x, 1.0 - inputSize.y / textureSize.y);
 
@@ -78,7 +78,7 @@ vec4 checkTexelBounds(Image texture, vec2 coords)
 	if (coords.x > bounds.x || coords.x < 0.0 || coords.y > 1.0 || coords.y < bounds.y)
 		color = vec4(0.0, 0.0, 0.0, 1.0);
 	else
-		color = Texel(texture, coords);
+		color = Texel(tex, coords);
 
 	return color;
 }
@@ -110,7 +110,7 @@ vec4 scanlineWeights(float distance, vec4 color)
 	return 1.4 * exp(-pow(weights * inversesqrt(0.5 * wid), wid)) / (0.6 + 0.2 * wid);
 }
 
-vec4 effect(vec4 vcolor, Image texture, vec2 texCoord, vec2 pixel_coords)
+vec4 effect(vec4 vcolor, Image tex, vec2 texCoord, vec2 pixel_coords)
 {
 	vec2 one = 1.0 / textureSize;
 	float mod_factor = texCoord.x * textureSize.x * outputSize.x / inputSize.x;

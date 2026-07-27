@@ -5,7 +5,7 @@ extern vec2 textureSize;
 
 #define round(x) floor( (x) + 0.5 )
 
-vec4 effect(vec4 vcolor, Image texture, vec2 texcoord, vec2 pixel_coords)
+vec4 effect(vec4 vcolor, Image tex, vec2 texcoord, vec2 pixel_coords)
 {
 	vec2 texelSize = 1.0 / textureSize;
 
@@ -18,10 +18,10 @@ vec4 effect(vec4 vcolor, Image texture, vec2 texcoord, vec2 pixel_coords)
 	float right  = texcoord.x + range.x;
 	float bottom = texcoord.y - range.y;
 
-	vec4 topLeftColor     = Texel(texture, (floor(vec2(left, top)     / texelSize) + 0.5) * texelSize);
-	vec4 bottomRightColor = Texel(texture, (floor(vec2(right, bottom) / texelSize) + 0.5) * texelSize);
-	vec4 bottomLeftColor  = Texel(texture, (floor(vec2(left, bottom)  / texelSize) + 0.5) * texelSize);
-	vec4 topRightColor    = Texel(texture, (floor(vec2(right, top)    / texelSize) + 0.5) * texelSize);
+	vec4 topLeftColor     = Texel(tex, (floor(vec2(left, top)     / texelSize) + 0.5) * texelSize);
+	vec4 bottomRightColor = Texel(tex, (floor(vec2(right, bottom) / texelSize) + 0.5) * texelSize);
+	vec4 bottomLeftColor  = Texel(tex, (floor(vec2(left, bottom)  / texelSize) + 0.5) * texelSize);
+	vec4 topRightColor    = Texel(tex, (floor(vec2(right, top)    / texelSize) + 0.5) * texelSize);
 
 	vec2 border = clamp(
 		round(texcoord / texelSize) * texelSize,

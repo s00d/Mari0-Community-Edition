@@ -59,9 +59,9 @@ extern vec2 textureSize;
 #endif
 
 #ifdef LINEAR_PROCESSING
-#	define TEX2D(c) pow(LEVELS(checkTexelBounds(texture, (c))), vec4(inputGamma))
+#	define TEX2D(c) pow(LEVELS(checkTexelBounds(tex, (c))), vec4(inputGamma))
 #else
-#	define TEX2D(c) LEVELS(checkTexelBounds(texture, (c)))
+#	define TEX2D(c) LEVELS(checkTexelBounds(tex, (c)))
 #endif
 
 
@@ -85,17 +85,17 @@ vec2 radialDistortion(vec2 coord, const vec2 ratio)
 }
 
 #ifdef CURVATURE
-vec4 checkTexelBounds(Image texture, vec2 coords)
+vec4 checkTexelBounds(Image tex, vec2 coords)
 {
 	vec2 ss = step(coords, vec2(bounds.x, 1.0)) * step(vec2(0.0, bounds.y), coords);
 
-	return Texel(texture, coords) * ss.x * ss.y;
+	return Texel(tex, coords) * ss.x * ss.y;
 	// return texcolor;
 }
 #else
-vec4 checkTexelBounds(Image texture, vec2 coords)
+vec4 checkTexelBounds(Image tex, vec2 coords)
 {
-	return Texel(texture, coords);
+	return Texel(tex, coords);
 }
 #endif
 
@@ -125,7 +125,7 @@ vec4 scanlineWeights(float distance, vec4 color)
 	return 1.4 * exp(-pow(weights * inversesqrt(0.5 * wid), wid)) / (0.6 + 0.2 * wid);
 }
 
-vec4 effect(vec4 vcolor, Image texture, vec2 texCoord, vec2 pixel_coords)
+vec4 effect(vec4 vcolor, Image tex, vec2 texCoord, vec2 pixel_coords)
 {
 	vec2 one = 1.0 / textureSize;
 	float mod_factor = texCoord.x * textureSize.x * outputSize.x / inputSize.x;

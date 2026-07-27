@@ -375,7 +375,7 @@ function editor_update(dt: number)
 	--EDITOR--
 	----------
 	
-	if middlemode[1] == false and not love.mouse.isDown("m") then
+	if middlemode[1] == false and not love.mouse.isDown(3) then
 		middlemode[2], middlemode[3] = getMouseTile(love.mouse.getX(), love.mouse.getY()-8*scale)
 	end
 	
@@ -609,7 +609,7 @@ function editor_update_closed(_: number)
 				end
 			end
 		end
-	elseif love.mouse.isDown("m") and not middlemode[1] then
+	elseif love.mouse.isDown(3) and not middlemode[1] then
 		if (math.abs(love.mouse.getX() - middlemode[2] as number) as number) >= 8*scale or (math.abs(love.mouse.getY() - middlemode[3] as number) as number) >= 8*scale then
 			middlemode[1] = true
 			love.mouse.setVisible(false)
@@ -1026,7 +1026,7 @@ function editor_draw_overlay(emx: number, emy: number)
 			elseif pastingtiles == false then
 				love.graphics.setColor(1, 1, 1, 0.8)
 				local cox, coy = (middlemode[2] as number), (middlemode[3] as number)
-				if love.mouse.isDown("m") then
+				if love.mouse.isDown(3) then
 					cox, coy = getMouseTile(love.mouse.getX(), love.mouse.getY()-8*scale)
 				end
 				if editentities == false then

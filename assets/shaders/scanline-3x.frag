@@ -21,9 +21,9 @@ This shader works best at scale 3x or else the pixels don't match up correctly.
 // modified by slime73 for use with love pixeleffects
 
 
-vec4 effect(vec4 vcolor, Image texture, vec2 texture_coords, vec2 pixel_coords)
+vec4 effect(vec4 vcolor, Image tex, vec2 texture_coords, vec2 pixel_coords)
 { 
-	vec4 rgb = Texel(texture, texture_coords);
+	vec4 rgb = Texel(tex, texture_coords);
 	vec4 intens;
 	if (fract(gl_FragCoord.y * (0.5*4.0/3.0)) > 0.5)
 		intens = vec4(0.0, 0.0, 0.0, 1.0);

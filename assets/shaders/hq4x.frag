@@ -13,7 +13,7 @@ const float min_w =-0.10;  // min smoothing/sharpening weigth
 const float lum_add = 0.2; // effects smoothing
 
 
-vec4 effect(vec4 vcolor, Image texture, vec2 texcoord, vec2 pixel_coords)
+vec4 effect(vec4 vcolor, Image tex, vec2 texcoord, vec2 pixel_coords)
 {
 	//number x = (inputSize.x/2048.0)*outputSize.x;
 	//number y = (inputSize.y/1024.0)*outputSize.y;
@@ -25,15 +25,15 @@ vec4 effect(vec4 vcolor, Image texture, vec2 texcoord, vec2 pixel_coords)
 	vec2 sd11 = dg1*0.5;
 	vec2 sd21 = dg2*0.5;
 	
-	vec3 c  = Texel(texture, texcoord).xyz;
-	vec3 i1 = Texel(texture, texcoord - sd11).xyz; 
-	vec3 i2 = Texel(texture, texcoord - sd21).xyz; 
-	vec3 i3 = Texel(texture, texcoord + sd11).xyz; 
-	vec3 i4 = Texel(texture, texcoord + sd21).xyz; 
-	vec3 o1 = Texel(texture, texcoord - dg1).xyz; 
-	vec3 o3 = Texel(texture, texcoord + dg1).xyz; 
-	vec3 o2 = Texel(texture, texcoord - dg2).xyz;
-	vec3 o4 = Texel(texture, texcoord + dg2).xyz; 
+	vec3 c  = Texel(tex, texcoord).xyz;
+	vec3 i1 = Texel(tex, texcoord - sd11).xyz; 
+	vec3 i2 = Texel(tex, texcoord - sd21).xyz; 
+	vec3 i3 = Texel(tex, texcoord + sd11).xyz; 
+	vec3 i4 = Texel(tex, texcoord + sd21).xyz; 
+	vec3 o1 = Texel(tex, texcoord - dg1).xyz; 
+	vec3 o3 = Texel(tex, texcoord + dg1).xyz; 
+	vec3 o2 = Texel(tex, texcoord - dg2).xyz;
+	vec3 o4 = Texel(tex, texcoord + dg2).xyz; 
 
 	vec3 dt = vec3(1.0);
 

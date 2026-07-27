@@ -82,21 +82,21 @@ vec4 grid_color( vec2 coords )
 {
 		vec2 snes = floor( coords * textureSize );
 		if ( (mod(snes.x, 3.0) == 0.0) && (mod(snes.y, 3.0) == 0.0) )
-				return Texel(texture, coords);
+				return Texel(tex, coords);
 		else
 				return vec4(0.0);
 }
 #define TEX2D(coords)   GAMMA_IN( grid_color( coords ) )
 
 #else // DEBUG
-#define TEX2D(coords)   GAMMA_IN( Texel(texture, coords) )
+#define TEX2D(coords)   GAMMA_IN( Texel(tex, coords) )
 
 #endif // DEBUG
 
 vec2 onex = vec2( 1.0/textureSize.x, 0.0 );
 vec2 oney = vec2( 0.0, 1.0/textureSize.y );
 
-vec4 effect(vec4 vcolor, Image texture, vec2 texCoord, vec2 pixel_coords)
+vec4 effect(vec4 vcolor, Image tex, vec2 texCoord, vec2 pixel_coords)
 {
 	vec2 coords = (texCoord * textureSize);
 	vec2 pixel_start = floor(coords);

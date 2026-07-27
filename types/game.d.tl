@@ -1173,7 +1173,6 @@ global bulletbillquad: {any}
 global magicdns_validresponses: {string}
 
 -- Missing globals declared for cyan -u (auto)
-global LOVE_MAJOR: number
 global actionblockimg: Image
 global andgateimg: Image
 global animatedtiletriggerimg: Image

@@ -126,11 +126,12 @@ global function changescale(s: number, init?: boolean)
 		end
 	end
 	
+	local vsync_mode = vsync and 1 or 0
 	if fullscreen then
-		love.window.setMode(desktopsize.width, desktopsize.height, {fullscreen=fullscreen, vsync=vsync--[[, fsaa=fsaa]]})
+		love.window.setMode(desktopsize.width, desktopsize.height, {fullscreen=fullscreen, vsync=vsync_mode--[[, fsaa=fsaa]]})
 	else
 		uispace = math.floor(width*16*scale/4)
-		love.window.setMode(width*16*scale, height*16*scale, {fullscreen=fullscreen, vsync=vsync--[[, fsaa=fsaa]]}) --25x14 blocks (15 blocks actual height)
+		love.window.setMode(width*16*scale, height*16*scale, {fullscreen=fullscreen, vsync=vsync_mode--[[, fsaa=fsaa]]}) --25x14 blocks (15 blocks actual height)
 	end
 
 	completecanvas = love.graphics.newCanvas()
@@ -268,8 +269,11 @@ global function openSaveFolder(subfolder: string|nil): boolean --By Slime
 end
 
 global function getupdate(): boolean
-	local onlinedata, code = http.request("http://server.stabyourself.net/mari0/?mode=mappacks")
-	if code ~= 200 then
+	if not http or not http.request then
+		return false
+	end
+	local ok, onlinedata, code = pcall(http.request, "http://server.stabyourself.net/mari0/?mode=mappacks")
+	if not ok or code ~= 200 then
 		return false
 	elseif not onlinedata then
 		return false

@@ -9,7 +9,7 @@ const float max_w = 0.25;    // max filter weight
 const float min_w =-0.05;    // min filter weight
 const float lum_add = 0.25;  // effects smoothing
 
-vec4 effect(vec4 vcolor, Image texture, vec2 texture_coords, vec2 pixel_coords)
+vec4 effect(vec4 vcolor, Image tex, vec2 texture_coords, vec2 pixel_coords)
 {
 	float x = 0.5 * (1.0 / textureSize.x);
 	float y = 0.5 * (1.0 / textureSize.y);
@@ -18,17 +18,17 @@ vec4 effect(vec4 vcolor, Image texture, vec2 texture_coords, vec2 pixel_coords)
 	vec2 dx = vec2(x, 0.0);
 	vec2 dy = vec2(0.0, y);
 	
-	vec4 texcolor = Texel(texture, texture_coords);
+	vec4 texcolor = Texel(tex, texture_coords);
 	
-	vec3 c00 = Texel(texture, texture_coords - dg1).xyz; 
-	vec3 c10 = Texel(texture, texture_coords - dy).xyz;
-	vec3 c20 = Texel(texture, texture_coords - dg2).xyz;
-	vec3 c01 = Texel(texture, texture_coords - dx).xyz;
+	vec3 c00 = Texel(tex, texture_coords - dg1).xyz; 
+	vec3 c10 = Texel(tex, texture_coords - dy).xyz;
+	vec3 c20 = Texel(tex, texture_coords - dg2).xyz;
+	vec3 c01 = Texel(tex, texture_coords - dx).xyz;
 	vec3 c11 = texcolor.xyz;
-	vec3 c21 = Texel(texture, texture_coords + dx).xyz;
-	vec3 c02 = Texel(texture, texture_coords + dg2).xyz;
-	vec3 c12 = Texel(texture, texture_coords + dy).xyz;
-	vec3 c22 = Texel(texture, texture_coords + dg1).xyz;
+	vec3 c21 = Texel(tex, texture_coords + dx).xyz;
+	vec3 c02 = Texel(tex, texture_coords + dg2).xyz;
+	vec3 c12 = Texel(tex, texture_coords + dy).xyz;
+	vec3 c22 = Texel(tex, texture_coords + dg1).xyz;
 	vec3 dt = vec3(1.0, 1.0, 1.0);
 
 	float md1 = dot(abs(c00 - c22), dt);

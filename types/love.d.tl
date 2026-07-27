@@ -328,6 +328,8 @@ global record love
 		isSupported: function(feature: string): boolean
 		isCreated: function(): boolean
 		reset: function()
+		newFont: function(...: any): Font
+		setFont: function(font: Font)
 		setNewFont: function(...: any): Font
 		getRendererInfo: function(): string, string, string, string
 		setBlendMode: function(...: any)
@@ -341,6 +343,7 @@ global record love
 		polygon: function(...: any)
 		circle: function(...: any)
 		present: function()
+		captureScreenshot: function(...: any)
 		newScreenshot: function(...: any): any
 	end
 

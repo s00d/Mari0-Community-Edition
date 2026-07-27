@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 extern vec2 textureSize;
 
-vec4 effect(vec4 vcolor, Image texture, vec2 texture_coords, vec2 pixel_coords)
+vec4 effect(vec4 vcolor, Image tex, vec2 texture_coords, vec2 pixel_coords)
 {
 	vec4 sum = vec4(0.0);
 	vec4 bum = vec4(0.0);
@@ -38,16 +38,16 @@ vec4 effect(vec4 vcolor, Image texture, vec2 texture_coords, vec2 pixel_coords)
 	{
 		for (j = -1; j < 1; j++)
 		{
-			sum += Texel(texture, texture_coords + vec2(-i, j)*glaresize) * power;
-			bum += Texel(texture, texture_coords + vec2(j, i)*glaresize) * power;            
+			sum += Texel(tex, texture_coords + vec2(-i, j)*glaresize) * power;
+			bum += Texel(tex, texture_coords + vec2(j, i)*glaresize) * power;            
 		}
 	}
 	
 	vec4 texcolor = vec4(0.0);
 
-	if (Texel(texture, texture_coords).r < 2.0)
+	if (Texel(tex, texture_coords).r < 2.0)
 	{
-		texcolor = sum*sum*sum*0.001+bum*bum*bum*0.0080 + Texel(texture, texture_coords);
+		texcolor = sum*sum*sum*0.001+bum*bum*bum*0.0080 + Texel(tex, texture_coords);
 	}
 	
 	texcolor.a = 1.0;

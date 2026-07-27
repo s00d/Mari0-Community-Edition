@@ -4,9 +4,9 @@ const vec4 redfilter = vec4(1.0, 0.0, 0.0, 1.0);
 const vec4 bluegreenfilter = vec4(0.0, 1.0, 0.7, 1.0);
 
 
-vec4 effect(vec4 vcolor, Image texture, vec2 texture_coords, vec2 pixel_coords)
+vec4 effect(vec4 vcolor, Image tex, vec2 texture_coords, vec2 pixel_coords)
 {
-	vec4 input0 = Texel(texture, texture_coords);
+	vec4 input0 = Texel(tex, texture_coords);
 
 	vec4 redrecord = input0 * redfilter;
 	vec4 bluegreenrecord = input0 * bluegreenfilter;

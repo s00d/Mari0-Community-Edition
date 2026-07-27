@@ -18,18 +18,18 @@ float intensity(){
 }
 
 
-vec4 effect(vec4 vcolor, Image texture, vec2 texture_coords, vec2 pixel_coords)
+vec4 effect(vec4 vcolor, Image tex, vec2 texture_coords, vec2 pixel_coords)
 {
-	vec4 input0 = Texel(texture, texture_coords);
+	vec4 input0 = Texel(tex, texture_coords);
 
 		
 	vec2 redzoomtvec = mod((texture_coords) + redoffset/textureSize, 1.0);
 	vec2 greezoomvec = mod((texture_coords) + greenoffset/textureSize, 1.0);
 	vec2 bluezoomvec = mod((texture_coords) + blueoffset/textureSize, 1.0);
 	
-	vec4 redinput = Texel(texture, redzoomtvec);
-	vec4 greeninput = Texel(texture, greezoomvec);
-	vec4 blueinput = Texel(texture, bluezoomvec);
+	vec4 redinput = Texel(tex, redzoomtvec);
+	vec4 greeninput = Texel(tex, greezoomvec);
+	vec4 blueinput = Texel(tex, bluezoomvec);
 	
 	input0 = mix(input0, vec4(redinput.r, greeninput.g, blueinput.b, 1.0), intensity());
 	
@@ -56,14 +56,14 @@ vec4 effect(vec4 vcolor, Image texture, vec2 texture_coords, vec2 pixel_coords)
 
 	for(i = -2; i < 2; i++){
 		for (j = -2; j < 2; j++){
-			sum += Texel(texture, texture_coords + vec2(-i, j)*glaresize) * power;
-			bum += Texel(texture, texture_coords + vec2(j, i)*glaresize) * power;            
+			sum += Texel(tex, texture_coords + vec2(-i, j)*glaresize) * power;
+			bum += Texel(tex, texture_coords + vec2(j, i)*glaresize) * power;            
 		}
 	}
 	
 	vec4 texcolor = vec4(0.0);
 
-	if (Texel(texture, texture_coords).r < 2.0)
+	if (Texel(tex, texture_coords).r < 2.0)
 	{
 		texcolor = sum*sum*sum*0.001+bum*bum*bum*0.0080 + input0;
 	}

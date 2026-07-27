@@ -1,23 +1,6 @@
 --[[ love.run extracted from main.lua ]]
 
 function love.run(): function()|nil
-	--I can't believe I had to write this function in the first place
-	local function updateVersion(): number
-		if love.getVersion then
-			local major, minor = love.getVersion()
-			if major > 0 then
-				return major
-			else
-				return minor
-			end
-		else
-			return love._version_minor
-		end
-	end
-
-	LOVE_MAJOR = updateVersion()
-
-	-- Love 11.x only (compat for 0.9/0.10 removed).
 	LOVE_COLOR_MAX = 1
 	DISK_COLOR_MAX = 255
 	MUSIC_SOURCE_TYPE = "stream"
