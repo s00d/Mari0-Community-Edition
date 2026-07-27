@@ -334,8 +334,9 @@ do
 	local obj = {gravitydirection = math.pi/2}
 	local sx, sy = convertfromstandard(obj, 3, -4)
 	local rx, ry = converttostandard(obj, sx, sy)
-	check("convert roundtrip x", math.abs(rx - 3) < 1e-9, tostring(rx))
-	check("convert roundtrip y", math.abs(ry - (-4)) < 1e-9, tostring(ry))
+	-- dmath LUT (~1e-7) — not bit-identical to libm; game physics tolerance.
+	check("convert roundtrip x", math.abs(rx - 3) < 1e-5, tostring(rx))
+	check("convert roundtrip y", math.abs(ry - (-4)) < 1e-5, tostring(ry))
 	-- near-zero snap
 	local zx, zy = converttostandard(obj, 1e-12, 1e-12)
 	check("convert snap zero", zx == 0 and zy == 0)
