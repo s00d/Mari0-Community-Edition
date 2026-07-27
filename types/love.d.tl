@@ -41,6 +41,25 @@ global record Character
 	raccoon: boolean
 	nopointing: boolean
 	dbljmppls: boolean
+	-- Optional per-character physics (Quote / Cave Story). When set, mario.tl prefers these over globals.
+	maxwalkspeed: number
+	maxrunspeed: number
+	yacceleration: number
+	yaccelerationjumping: number
+	walkacceleration: number
+	walkaccelerationair: number
+	friction: number
+	jumpforce: number
+	jumpforceadd: number
+	uwmaxwalkspeed: number
+	uwmaxrunspeed: number
+	uwyacceleration: number
+	uwyaccelerationjumping: number
+	uwwalkacceleration: number
+	uwwalkaccelerationair: number
+	uwfriction: number
+	uwjumpforce: number
+	uwjumpforceadd: number
 	animations: any
 	biganimations: any
 	flowercolor: {any}

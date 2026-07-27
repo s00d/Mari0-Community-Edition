@@ -27,3 +27,7 @@
 
 # Converted 1.6 DLC outputs (regenerate via scripts/convert-mappack.lua)
 /mappacks/dlc_*/
+
+# Cave Story assets / converted pack (Pixel freeware — never commit)
+/mappacks/cavestory/
+/toconvert/cavestory/

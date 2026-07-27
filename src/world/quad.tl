@@ -91,16 +91,23 @@ global function getquadprops(imgdata: ImageData, x: number, y: number): {string:
 	
 	--get left slant
 	self.slantupleft = false
-	local _, _, _, a = imgdata:getPixel(x*17-1, (y-1)*17+6)
+	local r, g, _, a = imgdata:getPixel(x*17-1, (y-1)*17+6)
 	if a > 0.5*LOVE_COLOR_MAX then
 		self.slantupleft = true
+		-- CS 4-step: G≈0 marks stepped slope; R encodes step 1..4. White legacy → no slopestep.
+		if g < 0.1*LOVE_COLOR_MAX then
+			self.slopestep = math.max(1, math.min(4, math.floor(r / LOVE_COLOR_MAX * 4 + 0.5)))
+		end
 	end
 	
 	--get right slant
 	self.slantupright = false
-	local _, _, _, a = imgdata:getPixel(x*17-1, (y-1)*17+7)
-	if a > 0.5*LOVE_COLOR_MAX then
+	local r2, g2, _, a2 = imgdata:getPixel(x*17-1, (y-1)*17+7)
+	if a2 > 0.5*LOVE_COLOR_MAX then
 		self.slantupright = true
+		if g2 < 0.1*LOVE_COLOR_MAX then
+			self.slopestep = math.max(1, math.min(4, math.floor(r2 / LOVE_COLOR_MAX * 4 + 0.5)))
+		end
 	end
 	
 	--get mirror

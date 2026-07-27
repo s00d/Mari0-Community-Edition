@@ -1108,12 +1108,23 @@ function mario:update_replay(dt: number)
 	
 end
 
+-- Prefer Character config physics when present (Quote / Cave Story).
+local function char_num(char: Character|nil, key: string, default: number): number
+	if char then
+		local v = (char as {string:any})[key]
+		if type(v) == "number" then
+			return v as number
+		end
+	end
+	return default
+end
+
 function mario:update_gravity(_dt: number)
 	if self.jumping then
 		if self.underwater then
-			self.gravity = uwyaccelerationjumping
+			self.gravity = char_num(self.char, "uwyaccelerationjumping", uwyaccelerationjumping)
 		else
-			self.gravity = yaccelerationjumping
+			self.gravity = char_num(self.char, "yaccelerationjumping", yaccelerationjumping)
 		end
 		
 		if self.speedy > 0 then
@@ -1122,9 +1133,9 @@ function mario:update_gravity(_dt: number)
 		end
 	else
 		if self.underwater then
-			self.gravity = uwyacceleration
+			self.gravity = char_num(self.char, "uwyacceleration", uwyacceleration)
 		else
-			self.gravity = yacceleration
+			self.gravity = char_num(self.char, "yacceleration", yacceleration)
 		end
 	end
 	
@@ -1392,10 +1403,12 @@ function mario:updateangle()
 end
 
 function mario:movement(dt: number)
-	local maxrunspeed = maxrunspeed
-	local maxwalkspeed = maxwalkspeed
+	local maxrunspeed = char_num(self.char, "maxrunspeed", maxrunspeed)
+	local maxwalkspeed = char_num(self.char, "maxwalkspeed", maxwalkspeed)
 	local runacceleration = runacceleration
-	local walkacceleration = walkacceleration
+	local walkacceleration = char_num(self.char, "walkacceleration", walkacceleration)
+	local walkaccelerationair = char_num(self.char, "walkaccelerationair", walkaccelerationair)
+	local friction = char_num(self.char, "friction", friction)
 	--Orange gel
 	--not in air
 	if self.falling == false and self.jumping == false then
@@ -1755,10 +1768,12 @@ function mario:underwatermovement(dt: number)
 		end
 	end
 	
-	local maxrunspeed = maxrunspeed
-	local maxwalkspeed = maxwalkspeed
+	local maxrunspeed = char_num(self.char, "uwmaxrunspeed", uwmaxrunspeed)
+	local maxwalkspeed = char_num(self.char, "uwmaxwalkspeed", uwmaxwalkspeed)
 	local runacceleration = runacceleration
-	local walkacceleration = walkacceleration
+	local walkacceleration = char_num(self.char, "uwwalkacceleration", uwwalkacceleration)
+	local walkaccelerationair = char_num(self.char, "uwwalkaccelerationair", uwwalkaccelerationair)
+	local uwfriction = char_num(self.char, "uwfriction", uwfriction)
 	--Orange gel
 	--not in air
 	if self.falling == false and self.jumping == false then
@@ -2019,8 +2034,11 @@ function mario:jump(force: any)
 						end
 					end
 					
-					local force = -jumpforce - (math.abs(self.speedx) / maxrunspeed)*jumpforceadd
-					force = math.max(-jumpforce - jumpforceadd, force)
+					local jf = char_num(self.char, "jumpforce", jumpforce)
+					local jfa = char_num(self.char, "jumpforceadd", jumpforceadd)
+					local mrs = char_num(self.char, "maxrunspeed", maxrunspeed)
+					local force = -jf - (math.abs(self.speedx) / mrs)*jfa
+					force = math.max(-jf - jfa, force)
 					
 					self.speedy = force
 					
@@ -2035,7 +2053,7 @@ function mario:jump(force: any)
 			end
 			playsound("swim")
 			
-			self.speedy = -uwjumpforce - (math.abs(self.speedx) / maxrunspeed)*uwjumpforceadd
+			self.speedy = -char_num(self.char, "uwjumpforce", uwjumpforce) - (math.abs(self.speedx) / char_num(self.char, "uwmaxrunspeed", maxrunspeed))*char_num(self.char, "uwjumpforceadd", uwjumpforceadd)
 			self.jumping = true
 			self.animationstate = "jumping"
 			self:setquad()

@@ -55,6 +55,9 @@ global function checkcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: 
 			if tilequads[map[t.cox][t.coy][1]]:getproperty("slantupright", t.cox, t.coy) then
 				slant = "ur"
 			end
+			t.slant = slant
+			local step = tilequads[map[t.cox][t.coy][1]]:getproperty("slopestep", t.cox, t.coy)
+			;(t as {string:any}).slopestep = step
 			if not passed and aabt(v.x, v.y, v.width, v.height, t.x, t.y, t.width, t.height, slant) then --passive collision! (oh noes!)
 				if trianglepassivecollision(v, t, h, g, j, i, dt) then
 					hadvercollision = true
@@ -70,28 +73,41 @@ global function checkcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: 
 	return hadhorcollision, hadvercollision
 end
 
+--- Cave Story 4-step slope surface Y (top of ramp). Legacy 45° when slopestep nil/0.
+-- Ported semantics from doukutsu-rs physics slopes; see licenses/doukutsu-rs.MIT
+global function slope_y(t: Entity, px: number): number
+	local step = (t as {string:any}).slopestep as number|nil
+	local f = math.max(0, math.min(1, px - t.x))
+	if t.slant == "ul" then
+		f = 1 - f
+	end
+	if type(step) == "number" and (step as number) >= 1 and (step as number) <= 4 then
+		local s = step as number
+		local base = (s - 1) / 4
+		return t.y + 1 - (base + f / 4)
+	end
+	-- Legacy Mari0 full-tile 45°
+	return t.y + f
+end
+
 global function trianglevercollision(v: Entity, t: Entity, _: any, g: any, j: any, i: any, dt: number): any
+	local px = v.x + (v.speedx or 0) * dt
+	if t.slant == "ul" then
+		px = px + v.width
+	end
 	if v.floorcollide then
 		if v:floorcollide(j, v, g, i) ~= false then
 			if v.speedy then
 				v.speedy = 0
 			end
-			if t.slant == "ur" then
-				v.y = t.y-v.height + math.max(0, math.min(1, (v.x+v.speedx*dt)-(t.x)))
-			elseif t.slant == "ul" then
-				v.y = t.y-v.height + math.max(0, math.min(1, (t.x+t.width)-((v.x+v.speedx*dt)+v.width)))
-			end
+			v.y = slope_y(t, px) - v.height
 			return true
 		end
 	else
 		if v.speedy then
 			v.speedy = 0
 		end
-		if t.slant == "ur" then
-			v.y = t.y-v.height+(t.x-v.x)+2/16
-		elseif t.slant == "ul" then
-			v.y = t.y-v.height + math.max(0, math.min(1, (t.x+t.width)-((v.x+v.speedx*dt)+v.width)))
-		end
+		v.y = slope_y(t, px) - v.height
 		return true
 	end
 end

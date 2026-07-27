@@ -36,6 +36,28 @@
 	"bigimgwidth": 439,
 	"bigimgheight": 160,
 
+	"_comment_physics": "Cave Story Quote constants from doukutsu-rs engine_constants (MIT), converted: speed=cs*50/8192, accel=cs*2500/8192",
+
+	"maxwalkspeed": 4.956,
+	"maxrunspeed": 9.369,
+	"yacceleration": 24.41,
+	"yaccelerationjumping": 9.766,
+	"walkacceleration": 25.94,
+	"walkaccelerationair": 9.766,
+	"friction": 15.56,
+	"jumpforce": 7.813,
+	"jumpforceadd": 0,
+
+	"uwmaxwalkspeed": 2.478,
+	"uwmaxrunspeed": 4.681,
+	"uwyacceleration": 12.21,
+	"uwyaccelerationjumping": 4.883,
+	"uwwalkacceleration": 12.82,
+	"uwwalkaccelerationair": 4.883,
+	"uwfriction": 7.629,
+	"uwjumpforce": 3.906,
+	"uwjumpforceadd": 0,
+
 	"hatoffsets": {
 		"idle": [0,0],
 		"running": [[0,0],[0,0],[-1,-1]],
