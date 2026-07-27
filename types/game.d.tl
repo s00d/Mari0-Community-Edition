@@ -595,7 +595,8 @@ global scrollrate: number
 global userscrollrange: number
 global firetimer: number
 global prevsublevel: number|boolean
-global spawnrestrictions: {{number}}
+global spawnrestrictions: {integer:boolean}
+global add_spawn_restriction: function(sx: number, sy: number)
 global gamefinished: boolean
 global frameskip: any
 global mkstation: boolean
@@ -657,7 +658,7 @@ global bulletbilltimer: number
 global flyingfishzones: {{number|boolean}}
 global bulletbillzones: {{number|boolean}}
 global mazesolved: {any}
-global enemiesspawned: {{number}}
+global enemiesspawned: {integer:boolean}
 global livereplaydelay: {number}
 global endpressbutton: boolean
 global id: {any}

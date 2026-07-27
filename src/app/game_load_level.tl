@@ -404,11 +404,11 @@ global function loadlevel(level: string|number): boolean
 	end
 	
 	spawnrestrictions = {}
-	
+
 	--Clear spawn area from enemies
 	for i = 1, #startx do
 		if startx[i] == checkpointx[i] and starty[i] == checkpointy[i] then
-			table.insert(spawnrestrictions, {startx[i], starty[i]})
+			add_spawn_restriction(startx[i] as number, starty[i] as number)
 		end
 	end
 	

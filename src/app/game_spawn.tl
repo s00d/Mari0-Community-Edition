@@ -1,32 +1,36 @@
 --[[ Teal extract from root game.lua: spawn helpers ]]
 
+global function add_spawn_restriction(sx: number, sy: number)
+	-- Precompute exclusive ±6 zone cells (same predicate as legacy list scan).
+	for x = math.floor(sx) - 5, math.floor(sx) + 5 do
+		for y = math.floor(sy) - 5, math.floor(sy) + 5 do
+			spawnrestrictions[tilekey(x, y)] = true
+		end
+	end
+end
+
 global function spawnenemy(x: number, y: number)
 	if not inmap(x, y) then
 		return
 	end
-	
+
+	local key = tilekey(x, y)
+
 	--don't spawn when on a coinblock or breakable block
 	if tilequads[map[x][y][1] ]:getproperty("breakable", x, y) or tilequads[map[x][y][1] ]:getproperty("coinblock", x, y) then
-		table.insert(enemiesspawned, {x, y})
+		enemiesspawned[key] = true
 		return
 	end
 
-	for i = 1, #enemiesspawned do
-		if x == enemiesspawned[i][1] and y == enemiesspawned[i][2] then
-			return
-		end
+	if enemiesspawned[key] then
+		return
 	end
-	
-	--spawnrestriction
-	allowenemy = true
-	for i = 1, #spawnrestrictions do
-		if x > spawnrestrictions[i][1]-6 and x < spawnrestrictions[i][1]+6 and y > spawnrestrictions[i][2]-6 and y < spawnrestrictions[i][2]+6 then
-			allowenemy = false
-		end
-	end
-	
+
+	--spawnrestriction (tilekey set, precomputed on add)
+	allowenemy = not spawnrestrictions[key]
+
 	local r = map[x][y]
-	if #r > 1 then 
+	if #r > 1 then
 		local wasenemy = false
 		if allowenemy and tablecontains(enemies, r[2]) and not editormode then
 			if not tilequads[map[x][y][1] ]:getproperty("breakable", x, y) and not tilequads[map[x][y][1] ]:getproperty("coinblock", x, y) then
@@ -37,9 +41,9 @@ global function spawnenemy(x: number, y: number)
 			local t = entitylist[r[2]].t
 			wasenemy = dispatch_enemy_entity_spawn(t, x, y, r, allowenemy)
 		end
-		
-		table.insert(enemiesspawned, {x, y})
-		
+
+		enemiesspawned[key] = true
+
 		if wasenemy then
 			--spawn enemies in 5x1 line so they spawn as a unit and not alone.
 			spawnenemy(x-2, y)
