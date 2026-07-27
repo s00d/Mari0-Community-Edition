@@ -277,6 +277,8 @@ function love.keypressed(key: any, scancode: any, _: any)
 			gamefinished = true
 			saveconfig()
 			notice.new("Cheats unlocked!")
+			-- Also enable F3–F8 / FrameDebug (same as --debug / MARI0_DEBUG=1)
+			enable_debugbinds()
 		end
 		menu_keypressed(key)
 	elseif gamestate == "game" then

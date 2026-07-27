@@ -884,6 +884,7 @@ global testlevelworld: number
 global testlevellevel: number
 global font2quads: {string:any}
 global debugbinds: boolean
+global enable_debugbinds: function()
 global portal_pair_offsets: function(any, any): number, number, number, number
 global maxyspeed: number
 global overwrittenimages: {string}
@@ -1737,6 +1738,9 @@ global profzones_toggle: function(): boolean
 global profzones_frame_begin: function()
 global profzones_report: function(integer|nil): string
 global profzones_reset: function()
+global frametime_record: function(number)
+global frametime_percentiles: function(): number, number, number
+global frametime_reset: function()
 global spatialhash_clear: function()
 global spatialhash_count: function(): integer
 global spatialhash_insert: function(any, number, number, number, number)

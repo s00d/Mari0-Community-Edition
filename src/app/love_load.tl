@@ -2,6 +2,31 @@
 
 local LoveLoad = {}
 
+-- F3–F8 / FrameDebug are gated on debugbinds. Enable via:
+--   love . --debug   |   MARI0_DEBUG=1   |   konami code in menu (also unlocks cheats)
+global function enable_debugbinds()
+	if debugbinds then
+		return
+	end
+	debugbinds = true
+	print("debugbinds: F3 frametime, F4 profzones, F5 pause, F6 step, F7 portal vel, F8 hitboxes, RShift FF, RCtrl slowmo")
+end
+
+local function want_debug_from_env_or_arg(arg: any): boolean
+	local env = os.getenv("MARI0_DEBUG")
+	if env == "1" or env == "true" then
+		return true
+	end
+	if arg then
+		for i = 1, #(arg as {any}) do
+			if (arg as {any})[i] == "--debug" then
+				return true
+			end
+		end
+	end
+	return false
+end
+
 function LoveLoad.install_mouse()
 	local mouse = {}
 
@@ -44,7 +69,7 @@ function LoveLoad.install_mouse()
 	_G.mouse = mouse
 end
 
-function LoveLoad.run(_: any)
+function LoveLoad.run(arg: any)
 	marioversion = 1107
 	versionstring = "version 1.0se"
 	debugprints = false
@@ -159,12 +184,15 @@ function LoveLoad.run(_: any)
 	spritebatch_pending_dx = 0
 	spritebatch_pending_dy = 0
 
-	DEBUG = false
+	DEBUG = want_debug_from_env_or_arg(arg)
 
 	editordebug = DEBUG
 	skipintro = DEBUG
 	skiplevelscreen = DEBUG
-	debugbinds = DEBUG
+	debugbinds = false
+	if DEBUG then
+		enable_debugbinds()
+	end
 	frameskip = false
 
 	replaysystem = false

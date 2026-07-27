@@ -18,6 +18,16 @@ make package      # .love archive (includes build/)
 
 See [docs/architecture.md](docs/architecture.md) for the Teal layout (dotted requires, no root shims). Media lives under `assets/` (`graphics/`, `sounds/`, `shaders/`, …).
 
+### Debug binds (F3–F8)
+
+Off by default. Enable without editing source:
+
+- `love . --debug`
+- `MARI0_DEBUG=1 love .` (also works with `MARI0_DEBUG=1 make run`)
+- Konami code in the menu (also unlocks cheats) — prints a one-line key help to the console
+
+Keys (Love scancodes, lowercase): F3 frametime, F4 profzones, F5 pause, F6 step, F7 portal vel, F8 hitboxes, RShift FF, RCtrl slowmo.
+
 You can run the .love files found in the [RELEASES](https://github.com/Mari0-CE/Mari0-Community-Edition/releases) section using **Löve**, which can be found here for [Windows](https://bitbucket.org/rude/love/downloads/love-11.1-win64.exe), [Mac](https://bitbucket.org/rude/love/downloads/love-11.1-macos.zip), [or other platforms](https://bitbucket.org/rude/love/downloads/ "Use 0.11.1").
 
 If you're looking for help or mappacks, or you made a mappack of your own, [the game's forum is here](http://forum.stabyourself.net/viewforum.php?f=8). You can also find a dedicated thread to sharing user-made mappacks [HERE](http://forum.stabyourself.net/viewtopic.php?f=12&t=3591).
