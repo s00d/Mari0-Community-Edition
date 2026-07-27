@@ -153,8 +153,7 @@ global record World
 	editormode: boolean
 	paused: boolean
 	new: function(): World
-	bind_globals: function(World)
-	push_globals: function(World)
+	sync_session_from_globals: function(World)
 	set_scroll: function(World, number, number)
 	set_map_size: function(World, integer, integer)
 	set_gamestate: function(World, string)

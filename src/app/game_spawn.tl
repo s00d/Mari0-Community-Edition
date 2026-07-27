@@ -48,7 +48,7 @@ global function spawnenemy(x: number, y: number)
 			spawnenemy(x+2, y)
 		end
 	end
-	if session then session:bind_globals() end
+	if session then session:sync_session_from_globals() end
 end
 
 global function givelive(_: any, t: Entity)

@@ -502,17 +502,17 @@ global function loadlevel(level: string|number): boolean
 	updateranges()
 	
 	generatespritebatch()
-	if session then session:bind_globals() end
+	if session then session:sync_session_from_globals() end
 	return needs_to_be_saved
 end
 
 global function startlevel(levelstart?: any)
 	
-	gamestate = "game"
-	if Gamestate then Gamestate.set("game") end
 	if session then
-		session.gamestate = "game"
-		session:bind_globals()
+		session:set_gamestate("game")
+	else
+		gamestate = "game"
+		if Gamestate then Gamestate.set("game") end
 	end
 	skipupdate = true
 	

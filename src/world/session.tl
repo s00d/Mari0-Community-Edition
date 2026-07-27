@@ -1,5 +1,5 @@
 -- Session / world bag (Teal strangler).
--- Gradual replacement for naked globals; bind/push keep _G in sync.
+-- Gradual replacement for naked globals; sync_session_from_globals keeps session in sync.
 -- `World` record shape lives in types/entities.d.tl (ambient / global_env_def).
 -- .d.tl does not emit Lua, so bootstrap the runtime table here.
 
@@ -23,7 +23,7 @@ function World.new(): World
 	return self
 end
 
-function World:bind_globals()
+function World:sync_session_from_globals()
 	self.map = (rawget(_G, "map") as {number:{number:{any}}}) or {}
 	self.objects = (rawget(_G, "objects") as {string:{number:Entity}}) or {}
 	self.mapwidth = (rawget(_G, "mapwidth") as integer) or 0
@@ -39,27 +39,6 @@ function World:bind_globals()
 	self.currentlevel = rawget(_G, "currentlevel")
 	self.editormode = rawget(_G, "editormode") and true or false
 	self.paused = rawget(_G, "paused") and true or false
-end
-
-function World:push_globals()
-	rawset(_G, "map", self.map)
-	rawset(_G, "objects", self.objects)
-	rawset(_G, "mapwidth", self.mapwidth)
-	rawset(_G, "mapheight", self.mapheight)
-	rawset(_G, "xscroll", self.xscroll)
-	rawset(_G, "yscroll", self.yscroll)
-	rawset(_G, "mariotimer", self.mariotimer)
-	if self.gamestate then
-		rawset(_G, "gamestate", self.gamestate)
-	end
-	if self.mappack ~= nil then
-		rawset(_G, "mappack", self.mappack)
-	end
-	if self.currentlevel ~= nil then
-		rawset(_G, "currentlevel", self.currentlevel)
-	end
-	rawset(_G, "editormode", self.editormode)
-	rawset(_G, "paused", self.paused)
 end
 
 function World:set_scroll(x: number, y: number)
