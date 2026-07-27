@@ -435,13 +435,6 @@ global function loadlevel(level: string|number): boolean
 	updateranges()
 	
 	generatespritebatch()
-	local Ctx = require("core.ctx")
-	local lvl = Ctx.level
-	if lvl ~= nil then
-		local level = lvl as Level
-		level:pull_globals()
-		level:push_globals()
-	end
 	if session then session:sync_session_from_globals() end
 	return needs_to_be_saved
 end

@@ -1,7 +1,5 @@
 --[[ portal / game input handlers ]]
 
-local Input = require("util.input")
-
 global function game_keypressed(key: any)
 	
 	if key == "return" then
@@ -345,7 +343,7 @@ global function game_mousereleased(x: any, y: any, button: any)
 end
 
 global function runkey(i: any): any
-	return Input.pressed(i as integer, "run")
+	return checkkey(controls[i]["run"])
 end
 
 global function rightkey(i: any): any
@@ -359,7 +357,7 @@ global function rightkey(i: any): any
 	else
 		action = "up"
 	end
-	return Input.pressed(i as integer, action)
+	return checkkey(controls[i][action])
 end
 
 global function leftkey(i: any): any
@@ -373,7 +371,7 @@ global function leftkey(i: any): any
 	else
 		action = "down"
 	end
-	return Input.pressed(i as integer, action)
+	return checkkey(controls[i][action])
 end
 
 global function downkey(i: any): any
@@ -387,7 +385,7 @@ global function downkey(i: any): any
 	else
 		action = "right"
 	end
-	return Input.pressed(i as integer, action)
+	return checkkey(controls[i][action])
 end
 
 global function upkey(i: any): any
@@ -401,7 +399,7 @@ global function upkey(i: any): any
 	else
 		action = "left"
 	end
-	return Input.pressed(i as integer, action)
+	return checkkey(controls[i][action])
 end
 
 global function checkkey(s: any): any
