@@ -2,7 +2,13 @@
 -- Depends at runtime on: objects, PHYSICS_LATE_*, convert*, checkportal*,
 -- handlegroup, checkcollision, inmap, tilequads, map, tilekey, checkforemances, inportal.
 
+if rawget(_G, "prof_push") == nil then
+	rawset(_G, "prof_push", function(_: string) end)
+	rawset(_G, "prof_pop", function(_: string|nil) end)
+end
+
 global function physicsupdate(dt: number)
+	prof_push("physicsupdate")
 	local lobjects = objects
 	
 	for gi = 1, #PHYSICS_GROUP_ORDER do
@@ -147,4 +153,5 @@ global function physicsupdate(dt: number)
 			end
 		end
 	end
+	prof_pop("physicsupdate")
 end

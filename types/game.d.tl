@@ -525,6 +525,9 @@ global spritebatch_floor_y: integer
 global spritebatch_view: {number:{number:SpriteBatchViewCell|nil}}
 global spritebatch_orphan_slots: integer
 global spritebatch_portal_catchup: boolean
+global spritebatch_dirty: boolean
+global spritebatch_pending_dx: integer
+global spritebatch_pending_dy: integer
 global invalidate_spritebatch_after_portal_teleport: function()
 global firestartx: any
 global pipestarty: number
@@ -1028,6 +1031,7 @@ global portaldotimg: Image
 global portalcrosshairimg: Image
 global physicsdebug: any
 global portalwalldebug: any
+global portalveldebug: boolean
 global coinblockimg: Image
 global coinimg: Image
 global portalbackgroundimg: Image
@@ -1478,6 +1482,7 @@ global game_textinput: function(any)
 global generateanimationgui: function(): any
 global generateentitylist: function(): any
 global generatespritebatch: function(integer, integer)
+global updatespritebatch: function()
 global getAngleFrame: function(number, number): any
 global getPortal: function(x: number, y: number, dir?: any): number|boolean, number|nil, any, any, any, any, any, any
 global getSelectedTiles: function(): {{any}}
@@ -1722,6 +1727,29 @@ global enemy_name_ok: function(any): boolean
 global normalize_enemy_props: function(any): Dyn
 global apply_enemy_defaults: function(any, any): Dyn
 global enemy_onscreen: function(any, any, any, any): boolean
+global onscreen: function(number, number, number|nil, number|nil): boolean
+global ondrawscreen: function(number, number, number|nil, number|nil): boolean
+global prof_push: function(string)
+global prof_pop: function(string|nil)
+global profzones_set_enabled: function(boolean)
+global profzones_enabled: function(): boolean
+global profzones_toggle: function(): boolean
+global profzones_frame_begin: function()
+global profzones_report: function(integer|nil): string
+global profzones_reset: function()
+global spatialhash_clear: function()
+global spatialhash_count: function(): integer
+global spatialhash_insert: function(any, number, number, number, number)
+global spatialhash_rebuild_group: function({any:Body})
+global spatialhash_query: function(number, number, number, number, {any}, {any:boolean}): integer
+global Replay_new: function(number|nil): any
+global Replay_record: function(any, {string:boolean}, {string:number}|nil)
+global Replay_frame_count: function(any): integer
+global Replay_get_frame: function(any, integer): any
+global Replay_snapshots_match: function({string:number}|nil, {string:number}|nil, number|nil): boolean
+global Replay_export: function(any): {string:any}
+global Replay_load: function({string:any}): any
+global Replay_verify: function(any, any, number|nil): integer
 global record LoveLoadModule
 	install_mouse: function(LoveLoadModule)
 	run: function(LoveLoadModule, any)

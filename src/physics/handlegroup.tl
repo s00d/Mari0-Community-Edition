@@ -1,4 +1,6 @@
 -- Object-group collision pass (depends on checkcollision).
+-- Note: no per-call prof zones here — handlegroup is too hot; profile via
+-- physicsupdate zone or temporarily wrap locally when investigating.
 
 global function handlegroup(i: any, h: any, u: {any:Body}, v: Body, j: any, dt: number, passed: any): boolean, boolean
 	local horcollision = false
