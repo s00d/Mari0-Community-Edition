@@ -8,6 +8,61 @@ local function portal_spritebatch_after_teleport(self: Entity)
 	end
 end
 
+-- Up/down entry band at the detection plane (matches checkportalHOR up: y-1; down: y).
+local function hor_portal_detection_y(facing: any, portalY: number): number|nil
+	if facing == "up" then
+		return portalY - 1
+	elseif facing == "down" then
+		return portalY
+	end
+	return nil
+end
+
+local function inportal_hor_center_match(facing: any, portalY: number, centerY: number, height: number): boolean
+	local plane = hor_portal_detection_y(facing, portalY)
+	if not plane then
+		return false
+	end
+	if facing == "up" then
+		return centerY >= plane and centerY <= plane + height / 8
+	elseif facing == "down" then
+		return centerY <= plane and centerY >= plane - height / 8
+	end
+	return false
+end
+
+local function inportal_y_match(facing: any, portalY: number, gridY: number, portalYplus: number, centerY: number, height: number): boolean
+	local plane = hor_portal_detection_y(facing, portalY)
+	if plane then
+		return inportal_hor_center_match(facing, portalY, centerY, height)
+	end
+	if portalYplus ~= 0 then
+		return gridY == portalY + portalYplus
+	end
+	return gridY == portalY
+end
+
+local function inportal_x_match(portalX: number, gridX: number, portalXplus: number): boolean
+	return gridX == portalX or gridX == portalX + portalXplus
+end
+
+local function hor_portal_velocity_ok(facing: any, speedy: number): boolean
+	if facing == "up" then
+		return speedy >= 0
+	elseif facing == "down" then
+		return speedy <= 0
+	end
+	return true
+end
+
+local function portal_exit_clear(self: Entity, testx: number, testy: number): boolean
+	local dyn = self as {string:any}
+	if dyn.ignoreportalspacecheck then
+		return true
+	end
+	return #checkrect(testx, testy, self.width, self.height, {"exclude", self}, false) == 0
+end
+
 global function inportal(self: Entity): boolean
 	if self.mask[2] then
 		return
@@ -21,34 +76,77 @@ global function inportal(self: Entity): boolean
 			local portal1xplus, portal1yplus = portal_facing_offset(v.facing1)
 			local portal2xplus, portal2yplus = portal_facing_offset(v.facing2)
 			
-			local x = math.floor(self.x+self.width/2)+1
-			local y = math.floor(self.y+self.height/2)+1
+			-- Match checkportalHOR X indexing; horizontal portals use checkportalVER only.
+			local x = math.floor(self.x + 1)
+			local y = math.floor(self.y + self.height / 2) + 1
+			local centerY = self.y + self.height / 2
 			
-			if (x == portal1X or x == portal1X + portal1xplus) and (y == portal1Y or y == portal1Y + portal1yplus) then
-				local entryportalX = v.x1 as number
-				local entryportalY = v.y1 as number
-				local entryportalfacing = v.facing1
-				
-				local exitportalX = v.x2 as number
-				local exitportalY = v.y2 as number
-				local exitportalfacing = v.facing2
-				
-				self.x, self.y, self.speedx, self.speedy, self.rotation = portalcoords(self.x, self.y, self.speedx, self.speedy, self.width, self.height, self.rotation, self.animationdirection, entryportalX, entryportalY, entryportalfacing, exitportalX, exitportalY, exitportalfacing, self, true)
-				portal_spritebatch_after_teleport(self)
-
-			elseif (x == portal2X or x == portal2X + portal2xplus) and (y == portal2Y or y == portal2Y + portal2yplus) then
-				local entryportalX = v.x2 as number
-				local entryportalY = v.y2 as number
-				local entryportalfacing = v.facing2
-				
-				local exitportalX = v.x1 as number
-				local exitportalY = v.y1 as number
-				local exitportalfacing = v.facing1
-				
-				self.x, self.y, self.speedx, self.speedy, self.rotation = portalcoords(self.x, self.y, self.speedx, self.speedy, self.width, self.height, self.rotation, self.animationdirection, entryportalX, entryportalY, entryportalfacing, exitportalX, exitportalY, exitportalfacing, self)
-				portal_spritebatch_after_teleport(self)
-
+			local portal1match = false
+			local portal2match = false
+			if v.facing1 ~= "left" and v.facing1 ~= "right" then
+				portal1match = inportal_x_match(portal1X, x, portal1xplus)
+					and inportal_y_match(v.facing1, portal1Y, y, portal1yplus, centerY, self.height)
 			end
+			if v.facing2 ~= "left" and v.facing2 ~= "right" then
+				portal2match = inportal_x_match(portal2X, x, portal2xplus)
+					and inportal_y_match(v.facing2, portal2Y, y, portal2yplus, centerY, self.height)
+			end
+			
+			if portal1match or portal2match then
+				local useportal1: boolean
+				if portal1match and portal2match then
+					local portal1ok = hor_portal_velocity_ok(v.facing1, self.speedy)
+					local portal2ok = hor_portal_velocity_ok(v.facing2, self.speedy)
+					if portal1ok and not portal2ok then
+						useportal1 = true
+					elseif portal2ok and not portal1ok then
+						useportal1 = false
+					else
+						useportal1 = portal1match
+					end
+				else
+					useportal1 = portal1match
+				end
+				
+				local entryportalfacing = useportal1 and v.facing1 or v.facing2
+				if not hor_portal_velocity_ok(entryportalfacing, self.speedy) then
+					goto inportal_continue
+				end
+				
+				local entryportalX: number
+				local entryportalY: number
+				local exitportalX: number
+				local exitportalY: number
+				local exitportalfacing: any
+				if useportal1 then
+					entryportalX = v.x1 as number
+					entryportalY = v.y1 as number
+					exitportalX = v.x2 as number
+					exitportalY = v.y2 as number
+					exitportalfacing = v.facing2
+				else
+					entryportalX = v.x2 as number
+					entryportalY = v.y2 as number
+					exitportalX = v.x1 as number
+					exitportalY = v.y1 as number
+					exitportalfacing = v.facing1
+				end
+				
+				local testx, testy, testspeedx, testspeedy, testrotation = portalcoords(self.x, self.y, self.speedx, self.speedy, self.width, self.height, self.rotation, self.animationdirection, entryportalX, entryportalY, entryportalfacing, exitportalX, exitportalY, exitportalfacing, self, true)
+				if portal_exit_clear(self, testx, testy) then
+					self.x, self.y, self.speedx, self.speedy, self.rotation = testx, testy, testspeedx, testspeedy, testrotation
+					portal_spritebatch_after_teleport(self)
+					if (entryportalfacing == "down" and exitportalfacing == "up") or (entryportalfacing == "up" and exitportalfacing == "down") then
+					else
+						self.jumping = false
+						self.falling = true
+					end
+					if self.portaled then
+						self:portaled(exitportalfacing)
+					end
+				end
+			end
+			::inportal_continue::
 		end
 	end
 	
@@ -80,8 +178,11 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 			end
 			
 			--first part checks whether object is in the portal's x range,                                  second part whether object just moved through the portal's Y value
-			if ((v.x1 == math.floor(self.x+1) or (v.x1 as number)+portal1xplus == math.floor(self.x+1)) and inrange(portal1Y, self.y+self.height/2, nextY+self.height/2))
-			or ((v.x2 == math.floor(self.x+1) or (v.x2 as number)+portal2xplus == math.floor(self.x+1)) and inrange(portal2Y, self.y+self.height/2, nextY+self.height/2)) then
+			local portal1xmatch = v.x1 == math.floor(self.x+1) or (v.x1 as number)+portal1xplus == math.floor(self.x+1)
+			local portal2xmatch = v.x2 == math.floor(self.x+1) or (v.x2 as number)+portal2xplus == math.floor(self.x+1)
+			local portal1hit = portal1xmatch and inrange(portal1Y, self.y+self.height/2, nextY+self.height/2)
+			local portal2hit = portal2xmatch and inrange(portal2Y, self.y+self.height/2, nextY+self.height/2)
+			if portal1hit or portal2hit then
 			
 				--check which portal is entry
 				local entryportalX: number
@@ -94,7 +195,23 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 				local _: number = 0
 				local exitportalxplus: number = 0
 				local _: number = 0
-				if (v.x1 == math.floor(self.x+1) or (v.x1 as number)+portal1xplus == math.floor(self.x+1)) and inrange(portal1Y, self.y+self.height/2, nextY+self.height/2) then
+				local useportal1: boolean
+				if portal1hit and portal2hit then
+					local rising = self.speedy < 0
+					local falling = self.speedy > 0
+					local portal1ok = (v.facing1 == "down" and rising) or (v.facing1 == "up" and falling)
+					local portal2ok = (v.facing2 == "down" and rising) or (v.facing2 == "up" and falling)
+					if portal1ok and not portal2ok then
+						useportal1 = true
+					elseif portal2ok and not portal1ok then
+						useportal1 = false
+					else
+						useportal1 = portal1hit
+					end
+				else
+					useportal1 = portal1hit
+				end
+				if useportal1 then
 					entryportalX = v.x1 as number
 					entryportalY = v.y1 as number
 					entryportalfacing = v.facing1
@@ -119,21 +236,21 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 				--check if movement makes that portal even a possibility
 				if entryportalfacing == "up" then
 					if self.speedy < 0 then
-						return false
+						goto portal_hor_continue
 					end
 				elseif entryportalfacing == "down" then
 					if self.speedy > 0 then
-						return false
+						goto portal_hor_continue
 					end
 				end
 				
 				if entryportalfacing == "left" or entryportalfacing == "right" then
-					return false
+					goto portal_hor_continue
 				end
 				
 				local testx, testy, testspeedx, testspeedy, testrotation = portalcoords(self.x, self.y, self.speedx, self.speedy, self.width, self.height, self.rotation, self.animationdirection, entryportalX, entryportalY, entryportalfacing, exitportalX, exitportalY, exitportalfacing, self, true)
 			
-				if #checkrect(testx, testy, self.width, self.height, {"exclude", self}, false) == 0 then --Check if exit position is free
+				if portal_exit_clear(self, testx, testy) then --Check if exit position is free
 					self.x, self.y, self.speedx, self.speedy, self.rotation = testx, testy, testspeedx, testspeedy, testrotation
 					portal_spritebatch_after_teleport(self)
 				else
@@ -161,6 +278,7 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 				
 				return true
 			end
+			::portal_hor_continue::
 		end
 	end
 	return false
@@ -241,7 +359,7 @@ global function checkportalVER(self: Entity, nextX: number): boolean --handles v
 				
 				local testx, testy, testspeedx, testspeedy, testrotation = portalcoords(self.x, self.y, self.speedx, self.speedy, self.width, self.height, self.rotation, self.animationdirection, entryportalX, entryportalY, entryportalfacing, exitportalX, exitportalY, exitportalfacing, self, true)
 			
-				if #checkrect(testx, testy, self.width, self.height, {"exclude", self}, false) == 0 then
+				if portal_exit_clear(self, testx, testy) then
 					self.x, self.y, self.speedx, self.speedy, self.rotation = testx, testy, testspeedx, testspeedy, testrotation
 					portal_spritebatch_after_teleport(self)
 				else

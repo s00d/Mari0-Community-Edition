@@ -243,7 +243,7 @@ do
 	check("inportal empty false", inportal(self) == false)
 end
 
--- inportal: near platform from below (grid y != portal row) does not snap
+-- inportal: near platform from below (outside entry band) does not snap
 do
 	portals = {
 		{
@@ -263,7 +263,27 @@ do
 	end
 end
 
--- inportal: grid match at portal row (floor(center)+1 == portalY) teleports
+-- inportal: same-tile up+down picks down entry when rising (not up->down snap)
+do
+	portals = {
+		{
+			x1 = 5, y1 = 7, facing1 = "up",
+			x2 = 5, y2 = 7, facing2 = "down",
+		},
+	}
+	function checkrect()
+		return {}
+	end
+	local w, h = 12 / 16, 12 / 16
+	local self = {
+		mask = {}, x = 4.2, y = 6.625, width = w, height = h,
+		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
+	}
+	inportal(self)
+	check("inportal same tile rising down entry", self.y < 6.8, "y=" .. self.y)
+end
+
+-- inportal: detection band at down portal plane teleports to linked exit
 do
 	portals = {
 		{
@@ -271,13 +291,16 @@ do
 			x2 = 5, y2 = 7, facing2 = "down",
 		},
 	}
+	function checkrect()
+		return {}
+	end
 	local w, h = 12 / 16, 12 / 16
 	local self = {
-		mask = {}, x = 4.2, y = 6.0, width = w, height = h,
+		mask = {}, x = 4.2, y = 6.55, width = w, height = h,
 		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
 	}
 	inportal(self)
-	check("inportal grid match at portal row teleports", self.y + h / 2 > 10)
+	check("inportal down band teleports to floor", self.y + h / 2 > 10)
 end
 
 return failed

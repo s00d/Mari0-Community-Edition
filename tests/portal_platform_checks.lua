@@ -83,12 +83,25 @@ do
 		{ x1 = 2, y1 = 12, facing1 = "up", x2 = 5, y2 = 7, facing2 = "down" },
 	}
 
-	-- Below platform (grid y != 7): no inportal snap.
+	-- Below platform (outside down-portal entry band): no inportal snap.
 	for _, startY in ipairs({ 7.0, 8.0, 8.5 }) do
 		local self = mario(4.2, startY, -6)
 		local ybefore = self.y
 		inportal(self)
 		check("A no inportal snap y=" .. startY, self.y == ybefore, "y=" .. self.y)
+	end
+
+	-- Same tile up+down: rising inportal must use down entry (not up->down onto platform).
+	do
+		portals = {
+			{ x1 = 5, y1 = 7, facing1 = "up", x2 = 5, y2 = 7, facing2 = "down" },
+		}
+		local self = mario(4.2, 6.625, -6)
+		inportal(self)
+		check("A same-tile rising down entry not up->down", self.y < 6.8, "y=" .. self.y)
+		portals = {
+			{ x1 = 2, y1 = 12, facing1 = "up", x2 = 5, y2 = 7, facing2 = "down" },
+		}
 	end
 
 	-- Rising jump: checkportalHOR sweep crosses down portal plane and exits at floor.
