@@ -32,40 +32,41 @@ global function enemies_load(...: any): any
 end
 
 global function loadenemy(...: any): any
-	local filename = ...
+	local filename = ... as string
 	local ss = strsplit(filename, "/")
 	local folder = ""
 	for i = 1, #ss-1 do
-		folder = folder .. ss[i] .. "/"
+		folder = folder .. (ss[i] as string) .. "/"
 	end
 	
-	local s = string.sub(ss[#ss], 1, -6):lower()
+	local s = string.sub(ss[#ss] as string, 1, -6):lower()
 	
 	--CHECK FOR - , ; * AND WHATEVER ELSE WOULD BREAK MAPS
 	local skip = not enemy_name_ok(s) as any
 	
 	if not skip then --bad letter
 		local data = love.filesystem.read(filename)
-		data = data:gsub("\r", "")
+		if not data then return end
+		local datastr = (data as string):gsub("\r", "")
 		
-		if string.sub(data, 1, 4) == "base" then
-			local split = strsplit(data, "\n")
-			local base = string.sub(split[1], 6)
+		if string.sub(datastr, 1, 4) == "base" then
+			local split = strsplit(datastr, "\n")
+			local base = string.sub(split[1] as string, 6)
 			if enemiesdata[base] then
 				local newdata = ""
 				for i = 2, #split do
-					newdata = newdata .. split[i]
+					newdata = newdata .. (split[i] as string)
 					if i ~= #split then
 						newdata = newdata .. "\n"
 					end
 				end
 				
-				enemiesdata[s] = usebase(enemiesdata[base])
+				enemiesdata[s] = usebase(enemiesdata[base]) as EnemyDef
 				
-				local temp = JSON.decode(newdata)
+				local temp = JSON.decode(newdata) as Dyn
 				
 				for i, v in pairs(temp) do
-					enemiesdata[s][i] = v
+					(enemiesdata[s] as Dyn)[i] = v
 				end
 			else
 				--Put enemy for later loading because base hasn't been loaded yet
@@ -79,7 +80,7 @@ global function loadenemy(...: any): any
 				return
 			end
 		else
-			enemiesdata[s] = JSON.decode(data)
+			enemiesdata[s] = JSON.decode(datastr) as EnemyDef
 		end
 		
 		--CASE INSENSITVE THING
@@ -94,7 +95,7 @@ global function loadenemy(...: any): any
 		
 		--Set up quads if given
 		if enemiesdata[s].graphic and enemiesdata[s].quadcount then
-			local imgwidth, imgheight = enemiesdata[s].graphic:getWidth(), enemiesdata[s].graphic:getHeight()
+			local imgwidth, imgheight = (enemiesdata[s].graphic as Image):getWidth(), (enemiesdata[s].graphic as Image):getHeight()
 			local quadwidth = imgwidth/enemiesdata[s].quadcount
 			local quadheight = imgheight/4
 			
@@ -103,16 +104,17 @@ global function loadenemy(...: any): any
 					quadheight = quadheight*4
 				end
 				
-				enemiesdata[s].quadbase = {}
+				local qb: Dyn = {}
+				enemiesdata[s].quadbase = qb
 				
 				for y = 1, 4 do
-					enemiesdata[s].quadbase[y] = {}
+					qb[y] = {}
 					for x = 1, enemiesdata[s].quadcount do
 						local realy = (y-1)*quadheight
 						if enemiesdata[s].nospritesets then
 							realy = 0
 						end
-						enemiesdata[s].quadbase[y][x] = love.graphics.newQuad((x-1)*quadwidth, realy, quadwidth, quadheight, imgwidth, imgheight)
+						(qb[y] as Dyn)[x] = love.graphics.newQuad((x-1)*quadwidth, realy, quadwidth, quadheight, imgwidth, imgheight)
 					end
 				end
 			end
@@ -121,11 +123,12 @@ global function loadenemy(...: any): any
 		--check if graphic for enemy exists
 		if enemiesdata[s].quadbase and enemiesdata[s].graphic then
 			enemiesdata[s].drawable = true
-			enemiesdata[s].quadgroup = enemiesdata[s].quadbase[spriteset]
+			local qb = enemiesdata[s].quadbase as Dyn
+			enemiesdata[s].quadgroup = qb[spriteset as integer]
 			if enemiesdata[s].animationtype == "frames" then
-				enemiesdata[s].quad = enemiesdata[s].quadbase[spriteset][enemiesdata[s].animationstart]
+				enemiesdata[s].quad = (qb[spriteset as integer] as Dyn)[enemiesdata[s].animationstart]
 			else
-				enemiesdata[s].quad = enemiesdata[s].quadbase[spriteset][enemiesdata[s].quadno]
+				enemiesdata[s].quad = (qb[spriteset as integer] as Dyn)[enemiesdata[s].quadno]
 			end
 		end
 		
@@ -135,7 +138,7 @@ global function loadenemy(...: any): any
 		if loaddelayed[s] and #loaddelayed[s] > 0 then
 			for j = #loaddelayed[s], 1, -1 do
 				loadenemy(loaddelayed[s][j]) --RECURSIVE PROGRAMMING AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH
-				table.remove(loaddelayed, j)
+				table.remove(loaddelayed[s], j)
 			end
 		end
 	else

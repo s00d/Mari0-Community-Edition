@@ -9,7 +9,7 @@ PHYSICS_LATE_SET = {
 PHYSICS_LATE_LIST = {"portalwall", "castlefirefire", "platform"}
 
 -- Entity types that need collision callback before position update
-local PREROTATE_SET = {
+local PREROTATE_SET: {string:boolean} = {
 	goomba = true,
 	koopa = true,
 	hammerbros = true,
@@ -19,18 +19,15 @@ local PREROTATE_SET = {
 	squid = true,
 }
 
-global function prerotatecall(...: any): any
-	local a, b = ...
-	return PREROTATE_SET[a] == true
+global function prerotatecall(a: any, b: any): any
+	return PREROTATE_SET[a as string] == true
 end
 
-global function aabb(...: any): any
-	local ax, ay, awidth, aheight, bx, by, bwidth, bheight = ...
+global function aabb(ax: number, ay: number, awidth: number, aheight: number, bx: number, by: number, bwidth: number, bheight: number): boolean
 	return ax+awidth > bx and ax < bx+bwidth and ay+aheight > by and ay < by+bheight
 end
 
-global function aabt(...: any): any
-	local ax, ay, awidth, aheight, bx, by, bwidth, bheight, bdir = ...
+global function aabt(ax: number, ay: number, awidth: number, aheight: number, bx: number, by: number, bwidth: number, bheight: number, bdir: any): boolean
 	if bdir == "ur" then
 		return ax+awidth > bx and ax < bx+bwidth and ay+aheight > by and ay < by+bheight and ay + aheight - by > ax - bx
 	elseif bdir == "ul" then
@@ -40,4 +37,5 @@ global function aabt(...: any): any
 	elseif bdir == "dr" then
 		return ax+awidth > bx and ax < bx+bwidth and ay+aheight > by and ay < by+bheight and ay - by < bwidth- ax + bx
 	end
+	return false
 end

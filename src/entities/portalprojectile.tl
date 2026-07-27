@@ -9,7 +9,7 @@ function portalprojectile.new(_: portalprojectile, x: number, y: number, tx: any
 	return self
 end
 
-function portalprojectile:init(x: number, y: number, tx, ty, color, hit, payload, mirror, mirrored, bounces)
+function portalprojectile:init(x: number, y: number, tx: any, ty: any, color: any, hit: any, payload: any, mirror: any, mirrored: any, bounces: any)
 	self.x = x
 	self.y = y
 	
@@ -26,16 +26,18 @@ function portalprojectile:init(x: number, y: number, tx, ty, color, hit, payload
 	
 	self.mirror = mirror
 	
-	self.sinestart = math.random(math.pi*10)/10
+	self.sinestart = math.random()*math.pi
 	if mirrored then
 		self.timer = 0
 	else
 		self.timer = 0.005
 	end
 	
-	self.length = math.sqrt((tx-x)^2 + (ty-y)^2)
+	local txn = tx as number
+	local tyn = ty as number
+	self.length = math.sqrt((txn-x)^2 + (tyn-y)^2)
 	self.time = self.length/portalprojectilespeed
-	self.angle = math.atan2(tx-x, ty-y)
+	self.angle = math.atan2(txn-x, tyn-y)
 	
 	self.particles = {}
 	self.lastparticle = math.floor(self.timer/portalprojectileparticledelay)
@@ -45,15 +47,15 @@ function portalprojectile:update(dt: number): any...
 	self.timer = self.timer + dt
 
 	if self.timer < self.time then
-		self.x = self.startx + (self.endx-self.startx)*(self.timer/self.time)
-		self.y = self.starty + (self.endy-self.starty)*(self.timer/self.time)
+		self.x = self.startx + ((self.endx as number)-(self.startx as number))*(self.timer/self.time)
+		self.y = self.starty + ((self.endy as number)-(self.starty as number))*(self.timer/self.time)
 		
 		local currentparticle = math.floor(self.timer/portalprojectileparticledelay)
 		
 		for i = self.lastparticle+1, currentparticle do
 			local t = i*portalprojectileparticledelay
-			local tx = self.startx + (self.endx-self.startx)*(t/self.time)
-			local ty = self.starty + (self.endy-self.starty)*(t/self.time)
+			local tx = self.startx + ((self.endx as number)-(self.startx as number))*(t/self.time)
+			local ty = self.starty + ((self.endy as number)-(self.starty as number))*(t/self.time)
 			
 			--INNER LINE
 			local r, g, b = unpack(self.color)			
@@ -164,9 +166,9 @@ function portalprojectile:createportal()
 		
 		local angle
 		if side == "up" or side == "down" then
-			angle = -math.atan2(self.endx-self.startx, self.endy-self.starty)
+			angle = -math.atan2((self.endx as number)-(self.startx as number), (self.endy as number)-(self.starty as number))
 		else
-			angle = math.atan2(self.endx-self.startx, self.starty-self.endy)
+			angle = math.atan2((self.endx as number)-(self.startx as number), self.starty-self.endy)
 		end
 		if self.bounces > 0 then
 			shootportal(portal.number, i, self.endx, self.endy, angle, true, self.bounces-1)

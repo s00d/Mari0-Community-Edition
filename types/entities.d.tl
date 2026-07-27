@@ -51,6 +51,9 @@ global record EnemyDef is {any}
 	spawnsenemy: string
 	graphic: any
 	quad: any
+	quadbase: any
+	quadgroup: any
+	drawable: boolean
 end
 
 -- Character config bag (assets/characters/*/config.txt + quads from characterloader).
@@ -262,7 +265,7 @@ global record MusicPlayer is {any}
 	pitch: any
 	list: {string}
 	list_fast: {string}
-	load: function(MusicPlayer, any)
+	load: function(MusicPlayer, any): boolean
 	play: function(MusicPlayer, any, any)
 	stop: function(MusicPlayer, any, any)
 	update: function(MusicPlayer)

@@ -295,7 +295,8 @@ function mario:adddata()
 	
 	for i, v in pairs(data as {any:any}) do
 		if livereplaystored[self.playernumber][i] == nil or livereplaystored[self.playernumber][i] ~= v then
-			livereplaydata[self.playernumber][#livereplaydata[self.playernumber]][i] = v as any
+			local frame = livereplaydata[self.playernumber][#livereplaydata[self.playernumber]] as Dyn
+			frame[i] = v as Dyn
 			livereplaystored[self.playernumber][i] = v
 		end
 	end
@@ -590,7 +591,7 @@ function mario:update_animation(dt: number): any
 				end
 			end
 			
-			if timedelta > math.max(fireworkcount*fireworkdelay, soundlist["levelend"].source:getDuration()-castleflagtime)+endtime then
+			if timedelta > math.max((fireworkcount as number)*fireworkdelay, soundlist["levelend"].source:getDuration()-castleflagtime)+endtime then
 				nextlevel()
 				return true
 			end
@@ -2394,7 +2395,7 @@ function mario:rightcollide(a: any, b: Entity, c: any, d: any): any
 		else
 			if self.raccoonspinframe and b.shotted then
 				b:shotted("right", true, true)
-				addpoints((firepoints as {any})[(b as {string:any}).t] or 100, self.x, self.y)
+				addpoints(firepoints[(b as {string:any}).t] or 100, self.x, self.y)
 				return false
 			end
 			if b.shellanimal and b.small and b.speedx == 0 then
@@ -2517,7 +2518,7 @@ function mario:leftcollide(a: any, b: Entity, c: any, d: any): any
 		else
 			if self.raccoonspinframe and b.shotted then
 				b:shotted("left", true, true)
-				addpoints((firepoints as {any})[(b as {string:any}).t] or 100, self.x, self.y)
+				addpoints(firepoints[(b as {string:any}).t] or 100, self.x, self.y)
 				return false
 			end
 			
@@ -2834,7 +2835,7 @@ function mario:starcollide(a: any, b: Entity, c: any, d: any): any
 	--enemies that die
 	if a == "enemy" then
 		b:shotted("right", nil, nil, false, true)
-		addpoints((firepoints as {any})[(b as {string:any}).t] or 100, self.x, self.y)
+		addpoints(firepoints[(b as {string:any}).t] or 100, self.x, self.y)
 		return true
 	elseif a == "bowser" then
 		b:shotted("right")
@@ -3038,7 +3039,7 @@ global function hitblock(x: number, y: number, t: any, koopa: any): any
 			table.insert(blockbouncecontent, false)
 			table.insert(blockbouncecontent2, (t as {string:any}).size)
 			
-			if (koopa or (t and t.size > 1)) and tilequads[r[1]]:getproperty("coinblock", x, y) == false and (#r == 1 or (entitylist[r[2]] and entitylist[r[2]].t ~= "manycoins")) then --destroy block!
+			if (koopa or (t and (t as Dyn).size as number > 1)) and tilequads[r[1]]:getproperty("coinblock", x, y) == false and (#r == 1 or (entitylist[r[2]] and entitylist[r[2]].t ~= "manycoins")) then --destroy block!
 				destroyblock(x, y)
 			end
 		end
@@ -3177,11 +3178,12 @@ end
 global function destroyblock(x: number, y: number): any
 	for i = 1, players do
 		local v = playerobjs[i].portal
-		local x1 = v.x1
-		local y1 = v.y1
+		local zv = v as Dyn
+		local x1 = zv.x1 as number
+		local y1 = zv.y1 as number
 		
-		local x2 = v.x2
-		local y2 = v.y2
+		local x2 = zv.x2 as number
+		local y2 = zv.y2 as number
 		
 		local x3 = x1
 		local y3 = y1
@@ -3383,7 +3385,7 @@ function mario:emancipate(a: any)
 	local delete = {}
 	
 	for i, v in pairs(portalprojectiles) do
-		if v.payload[1] == self.playernumber then
+		if (v.payload as {any})[1] == self.playernumber then
 			table.insert(delete, i)
 		end
 	end
@@ -3391,7 +3393,7 @@ function mario:emancipate(a: any)
 	remove_indices_desc(portalprojectiles, delete)
 end
 
-function mario:removeportals(i: any)
+function mario:removeportals(i: any): any
 	local portal = self.portal as portal
 	if (self.portalsavailable[1] and portal.x1) or (self.portalsavailable[2] and portal.x2) then
 		playsound("portalfizzle")
@@ -3422,8 +3424,8 @@ function mario:use(xcenter: number, ycenter: number): any
 	end
 	
 	local col, i = userect(xcenter-usesquaresize/2, ycenter-usesquaresize/2, usesquaresize, usesquaresize)
-	if #(col as {any}) > 0 then
-		((col as {any})[1].used as function(any, any): any)((col as {any})[1], self.playernumber)
+	if #col > 0 then
+		col[1]:used(self.playernumber)
 	end
 end
 
@@ -3535,7 +3537,7 @@ function mario:pipe(x: number, y: number, dir: any, i: any): any
 	playsound("pipe")
 	
 	if intermission then
-		respawnsublevel = i
+		respawnsublevel = i as number
 	end
 	
 	if dir == "down" then
@@ -3570,9 +3572,11 @@ function mario:savereplaydata()
 	
 	
 	for j = 2, #rep.data do
-		for k, v in pairs(rep.data[j-1]) do
-			if rep.data[j][k] == nil then
-				rep.data[j][k] = v
+		local prev = rep.data[j-1] as {any:any}
+		local cur = rep.data[j] as {any:any}
+		for k, v in pairs(prev) do
+			if cur[k] == nil then
+				cur[k] = v
 			end
 		end
 	end
@@ -3625,7 +3629,7 @@ function mario:flag(): any
 	flagscore = flagscores[1]
 	for i = 1, #flagvalues do
 		if self.y < flagvalues[i]-13+flagy then
-			flagscore = flagscores[i+1]
+			flagscore = flagscores[(i+1) as integer]
 		else
 			break
 		end
@@ -3634,7 +3638,7 @@ function mario:flag(): any
 	addpoints(flagscore)
 	
 	--get firework count
-	fireworkcount = tonumber(string.sub(math.ceil(mariotime), -1, -1))
+	fireworkcount = tonumber(string.sub(tostring(math.ceil(mariotime)), -1, -1))
 	if fireworkcount ~= 1 and fireworkcount ~= 3 and fireworkcount ~= 6 then
 		fireworkcount = 0
 	end
@@ -3719,7 +3723,7 @@ function mario:vineanimation()
 	self.controlsenabled = false
 	self.animationx = self.x
 	self.animationy = vineanimationstart
-	self.animationmisc = map[self.vinex][self.viney][3]-1
+	self.animationmisc = (map[self.vinex][self.viney][3] as number)-1
 	self.active = false
 	self.vine = false
 end
@@ -3791,7 +3795,7 @@ global function collectcoin(x: number, y: number, i: any): any
 	end
 	addpoints(200)
 	playsound("coin")
-	mariocoincount = mariocoincount + (i or 1)
+	mariocoincount = mariocoincount + ((i or 1) as number)
 	
 	while mariocoincount >= 100 do
 		if mariolivecount ~= false then
@@ -3807,7 +3811,7 @@ end
 
 function mario:portaled(dir: any): any
 	if self.pickup then
-		self.pickup:portaled()
+		(self.pickup as Entity):portaled(dir)
 	end
 	if not sonicrainboom or not self.rainboomallowed then
 		return
@@ -3838,7 +3842,7 @@ function mario:portaled(dir: any): any
 		for i, v in pairs(objects["enemy"]) do
 			v:shotted()
 			if (v as any) ~= "bowser" then
-				addpoints((firepoints as {any})[(v as {string:any}).t] or 100, v.x, v.y)
+				addpoints(firepoints[(v as {string:any}).t] or 100, v.x, v.y)
 			else
 				for i = 1, 6 do
 					v:shotted()
@@ -3887,8 +3891,8 @@ function mario:respawn(): any
 		spawnx = fastestplayer.x
 		spawny = fastestplayer.y + fastestplayer.height-12/16
 	elseif pipestartx then
-		spawnx = pipestartx-6/16
-		spawny = pipestarty-1-1-12/16
+		spawnx = (pipestartx as number)-6/16
+		spawny = (pipestarty as number)-1-1-12/16
 	elseif startx and startx[1] then
 		spawnx = startx[1]-6/16
 		spawny = starty[1]-12/16
@@ -3988,7 +3992,7 @@ function mario:stopanimation()
 end
 
 function mario:portalpickup(i: any): any
-	self.lastportal = i
+	self.lastportal = i as number
 	
 	if not self.portalsavailable[1] and not self.portalsavailable[2] then
 		self.biggraphic = self.char.biganimations

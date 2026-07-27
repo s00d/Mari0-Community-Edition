@@ -179,22 +179,22 @@ global record animationguiline is {any}
 	deletebutton: guielement
 	downbutton: guielement
 	elements: {animationguielement}
-	t: any
-	type: any
+	t: {any:any}
+	type: string
 	upbutton: guielement
 	init: function(animationguiline, any, any): any...
-	update: function(animationguiline, any): any...
-	draw: function(animationguiline, any, any): any...
-	click: function(animationguiline, any, any, any): any...
-	unclick: function(animationguiline, any, any, any): any...
+	update: function(animationguiline, number): any...
+	draw: function(animationguiline, number, number)
+	click: function(animationguiline, number, number, any): any
+	unclick: function(animationguiline, number, number, any): any
 	delete: function(animationguiline): any...
 	moveup: function(animationguiline): any...
 	movedown: function(animationguiline): any...
-	keypressed: function(animationguiline, any): any...
-	textinput: function(animationguiline, any): any...
+	keypressed: function(animationguiline, string): any
+	textinput: function(animationguiline, string): any
 	changemainthing: function(animationguiline, any): any...
-	submenuchange: function(animationguiline, any, any): any...
-	haspriority: function(animationguiline): any...
+	submenuchange: function(animationguiline, any, any): any
+	haspriority: function(animationguiline): any
 	new: function(animationguiline, any, any): animationguiline
 end
 
@@ -317,7 +317,7 @@ global record box is Entity
 	offsetX: number
 	offsetY: number
 	outtable: {{any}}
-	parent: any
+	parent: Entity|nil
 	portaledframe: boolean
 	portaloverride: boolean
 	pushed: boolean
@@ -328,20 +328,20 @@ global record box is Entity
 	speedx: number
 	speedy: number
 	static: boolean
-	userect: number
+	userect: Entity
 	width: number
 	x: number
 	y: number
 	init: function(box, number, number)
 	update: function(box, number): any...
-	globalcollide: function(box, any, Entity, any, any, any): any...
-	ceilcollide: function(box, any, Entity): any...
-	leftcollide: function(box, any, Entity): any...
-	rightcollide: function(box, any, Entity): any...
-	floorcollide: function(box, any, Entity): any...
-	passivecollide: function(box, any, Entity): any...
+	globalcollide: function(box, any, Entity, any, any, any): boolean
+	ceilcollide: function(box, any, Entity, any, any): boolean
+	leftcollide: function(box, any, Entity, any, any): boolean
+	rightcollide: function(box, any, Entity, any, any): boolean
+	floorcollide: function(box, any, Entity, any, any): boolean
+	passivecollide: function(box, any, Entity, any, any): boolean
 	startfall: function(box)
-	emancipate: function(box)
+	emancipate: function(box, any)
 	destroy: function(box)
 	addoutput: function(box, any, any)
 	used: function(box, any)
@@ -667,12 +667,12 @@ global record dialogbox is {any}
 	curchar: number
 	hasaprefix: boolean
 	lifetime: number
-	speaker: number
+	speaker: string
 	text: string
 	textcolors: {any}
-	textsplit: number
+	textsplit: {any}
 	timer: number
-	init: function(dialogbox, number, number)
+	init: function(dialogbox, any, any)
 	update: function(dialogbox, number): any...
 	draw: function(dialogbox)
 	new: function(dialogbox, any, any): dialogbox
@@ -771,8 +771,8 @@ global record emancipationgrill is {any}
 	endx: number
 	endy: number
 	inputstate: any
-	involvedtiles: any
-	particles: any
+	involvedtiles: {any:any}
+	particles: Dyn
 	r: {any}
 	range: number
 	startx: number
@@ -784,7 +784,7 @@ global record emancipationgrill is {any}
 	link: function(emancipationgrill)
 	update: function(emancipationgrill, number): any...
 	draw: function(emancipationgrill)
-	getTileInvolved: function(Entity, ...: any): any...
+	getTileInvolved: function(emancipationgrill, any, any): any, any
 	input: function(emancipationgrill, any, any)
 	new: function(emancipationgrill, number, number, {any}): emancipationgrill
 end
@@ -1082,7 +1082,7 @@ global record faithplate is Entity
 	includetable: {any}
 	input1state: any
 	mask: {boolean}
-	power: boolean
+	power: any
 	r: {any}
 	static: boolean
 	width: number
@@ -1537,7 +1537,7 @@ global record lightbridgebody is Entity
 	input1state: any
 	mask: {boolean}
 	parent: any
-	power: boolean
+	power: any
 	r: {any}
 	static: boolean
 	width: number
@@ -1616,7 +1616,7 @@ global record mario is Entity
 	jumpanimationprogress: number
 	jumpframe: number
 	jumping: any
-	lastcollision: number
+	lastcollision: {any}
 	lastground: {number}
 	lastportal: number
 	looktimer: number
@@ -1813,7 +1813,7 @@ global record notgate is Entity
 	initial: boolean
 	input1state: any
 	outtable: {{any}}
-	power: boolean
+	power: any
 	r: {any}
 	visible: boolean
 	x: number
@@ -2013,7 +2013,7 @@ global record portalent is Entity
 	id: number
 	input1state: any
 	portal: any
-	power: boolean
+	power: any
 	r: {any}
 	x: number
 	y: number
@@ -2056,17 +2056,17 @@ global record portalprojectile is Entity
 	mask: {boolean}
 	alpha: number
 	angle: number
-	bounces: number
-	color: {number}
-	endx: number
-	endy: number
-	hit: number
+	bounces: any
+	color: any
+	endx: any
+	endy: any
+	hit: any
 	lastparticle: number
 	length: number
-	mirror: boolean
+	mirror: any
 	particles: {any}
-	payload: number
-	payloaddelivered: number
+	payload: any
+	payloaddelivered: any
 	sinestart: number
 	speedx: number
 	speedy: number
@@ -2285,9 +2285,9 @@ global record rightclickmenu is {any}
 	mousereleased: function(rightclickmenu, any, any, any)
 	keypressed: function(rightclickmenu, any)
 	textinput: function(rightclickmenu, any)
-	linkcallback: function(rightclickmenu, any, any, any)
-	regioncallback: function(rightclickmenu, any, any)
-	directioncallback: function(rightclickmenu, any, any, any)
+	linkcallback: function(rightclickmenu, rightclickmenu, any, any)
+	regioncallback: function(rightclickmenu, rightclickmenu, any)
+	directioncallback: function(rightclickmenu, rightclickmenu, any, any)
 	new: function(rightclickmenu, number, number, any, any, any): rightclickmenu
 end
 
@@ -2366,7 +2366,7 @@ global record scaffold is Entity
 	height: number
 	input1state: any
 	mask: {boolean}
-	power: boolean
+	power: any
 	r: {any}
 	rotation: number
 	size: number
@@ -2423,7 +2423,7 @@ global record scrollingscore is Entity
 	category: number
 	mask: {boolean}
 	draw: function(scrollingscore)
-	i: number
+	i: any
 	timer: number
 	x: number
 	y: number
@@ -2581,7 +2581,7 @@ global record textentity is Entity
 	hasaprefix: boolean
 	input1state: any
 	pass: boolean
-	power: boolean
+	power: any
 	r: {any}
 	red: number
 	text: string

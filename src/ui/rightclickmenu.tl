@@ -14,8 +14,8 @@ rightclickcellspacing = 2
 
 rightclickelementslist = {"scrollbar", "input", "checkbox", "directionbuttons", "submenu", "regionselect"}
 
-function rightclickmenu:init(x: number, y: number, elements, tx, ty)
-	self.elements = elements
+function rightclickmenu:init(x: number, y: number, elements: any, tx: any, ty: any)
+	self.elements = elements as {any}
 	self.x = x
 	self.y = y
 	
@@ -57,12 +57,12 @@ function rightclickmenu:init(x: number, y: number, elements, tx, ty)
 			table.insert(self.variables, v)
 			
 		elseif v.t == "scrollbar" then
-			local current = 0
+			local current: number = 0
 			local cell = map[tx as number][ty as number][actuali+2]
 			if string.sub(cell as string, 1, 1) == "m" then
-				current = -tonumber(string.sub(cell as string, 2))
+				current = -(tonumber(string.sub(cell as string, 2)) or 0)
 			else
-				current = tonumber(cell as string)
+				current = tonumber(cell as string) or 0
 			end
 			
 			table.insert(self.t, guielement:new(v.t, self.x+1, self.y+1+(rightclickcellheight+rightclickcellspacing)*(i-1), rightclickwidth-2, 33, rightclickcellheight, current, "hor", true, v.min, v.max, v.step))
@@ -91,7 +91,7 @@ function rightclickmenu:init(x: number, y: number, elements, tx, ty)
 			local dirbtns: {guielement} = {}
 			
 			for k = 1, 6 do
-				local dir
+				local dir: string = "hor"
 				if k == 1 then
 					dir = "hor"
 				elseif k == 2 then
@@ -106,7 +106,7 @@ function rightclickmenu:init(x: number, y: number, elements, tx, ty)
 					dir = "down"
 				end
 				
-				if v[dir] then
+				if (v as Dyn)[dir] then
 					table.insert(dirbtns, guielement:new("button", self.x+j*12, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), "_dir" .. k, rightclickmenu.directioncallback, nil, {nil, self, #self.t+1, dir}, nil, rightclickcellheight-1))
 					j = j + 1
 					
@@ -125,17 +125,17 @@ function rightclickmenu:init(x: number, y: number, elements, tx, ty)
 			
 		elseif v.t == "submenu" then
 		
-			local values
+			local values: {any} = {}
 			if type(v.entries) == "function" then
-				values = v.entries()
+				values = (v.entries as function(): {any})()
 			else
-				values = v.entries
+				values = v.entries as {any}
 			end
 			
 			local start = map[tx as number][ty as number][actuali+2]
 			
 			if v.actualvalue then
-				for i, w in pairs(values) do
+				for i, w in pairs(values as {any:any}) do
 					if w == start then
 						start = i
 					end
@@ -157,7 +157,7 @@ function rightclickmenu:init(x: number, y: number, elements, tx, ty)
 			table.insert(self.variables, v)
 			
 			for j, k in pairs(variablesadd) do
-				self.variables[#self.variables][j] = k
+				(self.variables[#self.variables] as {string:any})[j as string] = k
 			end
 		end
 		
@@ -170,12 +170,14 @@ end
 
 function rightclickmenu:update(dt: number): any...
 	for i = 1, #self.t do
-		if type(self.t[i][1]) == "table" then
-			for j = 1, #self.t[i] do
-				self.t[i][j]:update(dt)
+		local entry = self.t[i] as Dyn
+		if type(entry[1]) == "table" then
+			local arr = entry as {guielement}
+			for j = 1, #arr do
+				arr[j]:update(dt)
 			end
 		else
-			self.t[i]:update(dt)
+			(entry as guielement):update(dt)
 		end
 	end
 end
@@ -185,28 +187,32 @@ function rightclickmenu:draw()
 	--background
 	love.graphics.rectangle("fill", self.x*scale, self.y*scale, rightclickwidth*scale, ((rightclickcellheight+rightclickcellspacing)*#self.elements+1)*scale)
 	
-	for i, v in pairs(self.t) do
-		if type(self.t[i][1]) == "table" then
-			for j = 1, #self.t[i] do
-				self.t[i][j]:draw(rightclicka)
+	for i, v in pairs(self.t as {any:any}) do
+		local entry = self.t[i] as Dyn
+		if type(entry[1]) == "table" then
+			local arr = entry as {guielement}
+			for j = 1, #arr do
+				arr[j]:draw(rightclicka)
 			end
 		else
-			self.t[i]:draw(rightclicka)
+			(entry as guielement):draw(rightclicka)
 		end
 	end
 end
 
-function rightclickmenu:mousepressed(x, y, button)
+function rightclickmenu:mousepressed(x: any, y: any, button: any): boolean
 	local r = false
 	for i = 1, #self.t do
-		if type(self.t[i][1]) == "table" then
-			for j = 1, #self.t[i] do
-				if self.t[i][j]:click(x, y, button) then
+		local entry = self.t[i] as Dyn
+		if type(entry[1]) == "table" then
+			local arr = entry as {guielement}
+			for j = 1, #arr do
+				if arr[j]:click(x as number, y as number, button) then
 					r = true
 				end
 			end
 		else
-			if self.t[i]:click(x, y, button) then
+			if (entry as guielement):click(x as number, y as number, button) then
 				r = true
 			end
 		end
@@ -216,46 +222,50 @@ function rightclickmenu:mousepressed(x, y, button)
 		return true
 	end
 	
-	if x < self.x*scale or x >= (self.x+rightclickwidth)*scale or y < self.y*scale or y > (self.y+(rightclickcellheight+rightclickcellspacing)*#self.elements+1)*scale then
+	if (x as number) < self.x*scale or (x as number) >= (self.x+rightclickwidth)*scale or (y as number) < self.y*scale or (y as number) > (self.y+(rightclickcellheight+rightclickcellspacing)*#self.elements+1)*scale then
 		return false
 	end
 	
 	return true
 end
 
-function rightclickmenu:mousereleased(x, y, button)
+function rightclickmenu:mousereleased(x: any, y: any, button: any)
 	for i = 1, #self.t do
-		if type(self.t[i][1]) == "table" then
-			for j = 1, #self.t[i] do
-				self.t[i][j]:unclick(x, y, button)
+		local entry = self.t[i] as Dyn
+		if type(entry[1]) == "table" then
+			local arr = entry as {guielement}
+			for j = 1, #arr do
+				arr[j]:unclick(x as number, y as number, button)
 			end
 		else
-			self.t[i]:unclick(x, y, button)
+			(entry as guielement):unclick(x as number, y as number, button)
 		end
 	end
 end
 
-function rightclickmenu:keypressed(key)
+function rightclickmenu:keypressed(key: any)
 	for i = 1, #self.t do
-		if self.t[i].type then
-			if self.t[i]:keypress(key) then
+		local el = self.t[i] as guielement
+		if el.type then
+			if el:keypress(key as string) then
 				return
 			end
 		end
 	end
 end
 
-function rightclickmenu:textinput(text)
+function rightclickmenu:textinput(text: any)
 	for i = 1, #self.t do
-		if self.t[i].type then
-			if self.t[i]:textinput(text) then
+		local el = self.t[i] as guielement
+		if el.type then
+			if el:textinput(text as string) then
 				return
 			end
 		end
 	end
 end
 
-function rightclickmenu:linkcallback(self, t, rem)
+function rightclickmenu:linkcallback(self: rightclickmenu, t: any, rem: any)
 	if rem then
 		removelink(self.tx, self.ty, t)
 	else
@@ -263,25 +273,26 @@ function rightclickmenu:linkcallback(self, t, rem)
 	end
 end
 
-function rightclickmenu:regioncallback(self, t)
+function rightclickmenu:regioncallback(self: rightclickmenu, t: any)
 	startregion(self.tx, self.ty, t)
 end
 
-function rightclickmenu:directioncallback(self, y, x)
-	for i = 1, #self.t[y] do
-		self.t[y][i].bordercolor = {0.5, 0.5, 0.5}
-		self.t[y][i].bordercolorhigh = {1, 1, 1}
+function rightclickmenu:directioncallback(self: rightclickmenu, y: any, x: any)
+	local arr = self.t[y as integer] as {guielement}
+	for i = 1, #arr do
+		arr[i].bordercolor = {0.5, 0.5, 0.5}
+		arr[i].bordercolorhigh = {1, 1, 1}
 	end
 	
-	for i = 1, #self.t[y] do
-		if self.t[y][i].arguments[4] == x then
-			self.t[y][i].bordercolor = {1, 0, 0}
-			self.t[y][i].bordercolorhigh = {1, 0.5, 0.5}
+	for i = 1, #arr do
+		if arr[i].arguments[4] == x then
+			arr[i].bordercolor = {1, 0, 0}
+			arr[i].bordercolorhigh = {1, 0.5, 0.5}
 			break
 		end
 	end
 	
-	self.variables[y].value = x
+	self.variables[y as integer].value = x
 end
 
 return { ported = true }

@@ -104,7 +104,7 @@ global function game_draw_fx(...: any): any
 
 	--COINBLOCKanimation
 	for i, v in pairs(coinblockanimations) do
-		love.graphics.draw(coinblockanimationimg, coinblockanimationquads[coinblockanimations[i].frame], math.floor((coinblockanimations[i].x - xscroll)*16*scale), math.floor(((coinblockanimations[i].y-yscroll)*16-8)*scale), 0, scale, scale, 4, 54)
+		love.graphics.draw(coinblockanimationimg, coinblockanimationquads[coinblockanimations[i].frame as integer], math.floor((coinblockanimations[i].x - xscroll)*16*scale), math.floor(((coinblockanimations[i].y-yscroll)*16-8)*scale), 0, scale, scale, 4, 54)
 	end
 
 	--SCROLLING SCORE
@@ -132,7 +132,8 @@ global function game_draw_fx(...: any): any
 	if levelfinished == false then
 		for pl = 1, players do
 			if playerobjs[pl].controlsenabled and playerobjs[pl].t == "portal" and playerobjs[pl].vine == false and (playerobjs[pl].portalsavailable[1] or playerobjs[pl].portalsavailable[2]) then
-				local sourcex, sourcey = playerobjs[pl].x+6/16, playerobjs[pl].y+6/16
+				local sourcex: number = playerobjs[pl].x+6/16
+				local sourcey: number = playerobjs[pl].y+6/16
 				local an = playerobjs[pl].pointingangle
 				local cox: any = false
 				local coy: any = nil
@@ -143,7 +144,7 @@ global function game_draw_fx(...: any): any
 				cox, coy, side, tend, x, y = traceline(sourcex, sourcey, an)
 				local mirror = 1
 
-				local portalpossible = true
+				local portalpossible: any = true
 				if cox == false then
 					portalpossible = false
 				else
@@ -151,22 +152,24 @@ global function game_draw_fx(...: any): any
 					if m == "mirror" then
 						portalpossible = false
 
-						local sourcex, sourcey = playerobjs[pl].x+6/16, playerobjs[pl].y+6/16
-						local an = playerobjs[pl].pointingangle
-						local cox: any = false
-						local coy: any = nil
-						local side: any = nil
-						local tend: any = nil
-						local x: any = nil
-						local y: any = nil
+						sourcex = playerobjs[pl].x+6/16
+						sourcey = playerobjs[pl].y+6/16
+						an = playerobjs[pl].pointingangle
+						cox = false
+						coy = nil
+						side = nil
+						tend = nil
+						x = nil
+						y = nil
 						cox, coy, side, tend, x, y = traceline(sourcex, sourcey, an)
 
 						for a = 1, portalbouncethreshold do
 							if cox then
-								local _, _, m = getportalposition(1, cox, coy, side, tend, true)
-								if m == "mirror" then
+								local _, _, m2 = getportalposition(1, cox, coy, side, tend, true)
+								if m2 == "mirror" then
 									mirror = mirror+1
-									sourcex, sourcey = x, y
+									sourcex = x as number
+									sourcey = y as number
 									if side == "up" or side == "down" then
 										an = math.pi-an
 										if an >= math.pi then an = an - math.pi*2 end
@@ -195,21 +198,25 @@ global function game_draw_fx(...: any): any
 
 				love.graphics.setColor(1, 1, 1, 1)
 
-				local dist = math.sqrt(((x-xscroll)*16*scale - (sourcex-xscroll)*16*scale)^2 + ((y-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)^2)/16/scale
+				local xn = x as number
+				local yn = y as number
+				local dist = math.sqrt(((xn-xscroll)*16*scale - (sourcex-xscroll)*16*scale)^2 + ((yn-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)^2)/16/scale
 
 				for a = 1, mirror do
 					local pd = portaldotsdistance-- * (.5+.5*a/(mirror))
 					for i = 1, dist/pd+1 do
 						if ((i-1+portaldotstimer/portaldotstime)/(dist/pd)) < 1 then
-							local xplus = ((x-xscroll)*16*scale - (sourcex-xscroll)*16*scale)*((i-1+portaldotstimer/portaldotstime)/(dist/pd))
-							local yplus = ((y-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)*((i-1+portaldotstimer/portaldotstime)/(dist/pd))
+							xn = x as number
+							yn = y as number
+							local xplus = ((xn-xscroll)*16*scale - (sourcex-xscroll)*16*scale)*((i-1+portaldotstimer/portaldotstime)/(dist/pd))
+							local yplus = ((yn-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)*((i-1+portaldotstimer/portaldotstime)/(dist/pd))
 
 							local dotx = (sourcex-xscroll)*16*scale + xplus
 							local doty = (sourcey-.5-yscroll)*16*scale + yplus
 
 							local radius = math.sqrt(xplus^2 + yplus^2)/scale
 
-							local alpha = 1
+							local alpha: number = 1
 							if radius < portaldotsouter and a == 1 then
 								alpha = (radius-portaldotsinner) * (255/(portaldotsouter-portaldotsinner))
 								if alpha < 0 then
@@ -230,9 +237,10 @@ global function game_draw_fx(...: any): any
 					end
 
 					if cox then
-						local _, _, m = getportalposition(1, cox, coy, side, tend, true)
-						if m == "mirror" then
-							sourcex, sourcey = x, y
+						local _, _, m3 = getportalposition(1, cox, coy, side, tend, true)
+						if m3 == "mirror" then
+							sourcex = x as number
+							sourcey = y as number
 							if side == "up" or side == "down" then
 								an = math.pi-an
 								if an >= math.pi then an = an - math.pi*2 end
@@ -242,7 +250,9 @@ global function game_draw_fx(...: any): any
 							cox, coy, side, tend, x, y = traceline(sourcex, sourcey, an)
 						end
 					end
-					dist = math.sqrt(((x-xscroll)*16*scale - (sourcex-xscroll)*16*scale)^2 + ((y-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)^2)/16/scale
+					xn = x as number
+					yn = y as number
+					dist = math.sqrt(((xn-xscroll)*16*scale - (sourcex-xscroll)*16*scale)^2 + ((yn-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)^2)/16/scale
 				end
 
 				love.graphics.setColor(1, 1, 1, 1)
@@ -254,7 +264,7 @@ global function game_draw_fx(...: any): any
 						love.graphics.setColor(0, 1, 0)
 					end
 
-					local rotation = 0
+					local rotation: number = 0
 					if side == "right" then
 						rotation = math.pi/2
 					elseif side == "down" then
@@ -262,7 +272,7 @@ global function game_draw_fx(...: any): any
 					elseif side == "left" then
 						rotation = math.pi/2*3
 					end
-					love.graphics.draw(portalcrosshairimg, math.floor((x-xscroll)*16*scale), math.floor((y-.5-yscroll)*16*scale), rotation, scale, scale, 4, 8)
+					love.graphics.draw(portalcrosshairimg, math.floor(((x as number)-xscroll)*16*scale), math.floor(((y as number)-.5-yscroll)*16*scale), rotation, scale, scale, 4, 8)
 				end
 			end
 		end
@@ -288,11 +298,11 @@ global function game_draw_seethrough_portals(...: any): any
 	end
 	
 	local pl = playerobjs[1]
-	scenecanvas:clear()
-	love.graphics.setCanvas{scenecanvas, stencil=true}
+	(scenecanvas as Canvas):clear()
+	love.graphics.setCanvas{scenecanvas as Canvas, stencil=true}
 	scenedraw()
-	love.graphics.setCanvas{completecanvas, stencil=true}
-	love.graphics.draw(scenecanvas, 0, 0)
+	love.graphics.setCanvas{completecanvas as Canvas, stencil=true}
+	love.graphics.draw(scenecanvas as Canvas, 0, 0)
 	
 	if firstpersonview and firstpersonrotate then
 		local xtranslate = width/2*16*scale
@@ -305,6 +315,7 @@ global function game_draw_seethrough_portals(...: any): any
 	currentscissor = {0, 0,width*16*scale, height*16*scale}
 	
 	for k, v in pairs(portals) do
+		local pv = v as Dyn
 		if v.x1 and v.x2 then
 			for i = 1, 2 do
 				local otheri = 1
@@ -312,8 +323,12 @@ global function game_draw_seethrough_portals(...: any): any
 					otheri = 2
 				end
 			
-				local x, y, facing = v["x" .. i], v["y" .. i], v["facing" .. i]
-				local x2, y2, facing2 = v["x" .. otheri], v["y" .. otheri], v["facing" .. otheri]
+				local x = pv["x" .. i] as number
+				local y = pv["y" .. i] as number
+				local facing = pv["facing" .. i] as string
+				local x2 = pv["x" .. otheri] as number
+				local y2 = pv["y" .. otheri] as number
+				local facing2 = pv["facing" .. otheri] as string
 				local pass = false
 				
 				if facing == "up" then
@@ -327,7 +342,14 @@ global function game_draw_seethrough_portals(...: any): any
 				end
 				
 				if pass then
-					local p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y
+					local p1x: number = 0
+					local p1y: number = 0
+					local p2x: number = 0
+					local p2y: number = 0
+					local p3x: number = 0
+					local p3y: number = 0
+					local p4x: number = 0
+					local p4y: number = 0
 					if facing == "right" then
 						p1x, p1y = (x-xscroll), (y-yscroll-1.5)
 						p2x, p2y = p1x, p1y+2
@@ -355,23 +377,25 @@ global function game_draw_seethrough_portals(...: any): any
 					
 					
 					--Calculate the middle of the portals
-					local tx, ty
-					local r1
+					local tx: number = 0
+					local ty: number = 0
+					local r1b: number = 0
 					if facing == "right" then
 						tx, ty = (x-xscroll), (y-yscroll-.5)
-						r1 = math.pi/2
+						r1b = math.pi/2
 					elseif facing == "down" then
 						tx, ty = (x-xscroll-1), (y-yscroll-.5)
-						r1 = math.pi
+						r1b = math.pi
 					elseif facing == "left" then
 						tx, ty = (x-xscroll-1), (y-yscroll-1.5)
-						r1 = math.pi*1.5
+						r1b = math.pi*1.5
 					elseif facing == "up" then
 						tx, ty = (x-xscroll), (y-yscroll-1.5)
-						r1 = 0
+						r1b = 0
 					end
 					
-					local ox, oy
+					local ox: number = 0
+					local oy: number = 0
 					if facing2 == "right" then
 						ox, oy = (x2-xscroll), (y2-yscroll-.5)
 						r2 = math.pi/2
@@ -388,7 +412,7 @@ global function game_draw_seethrough_portals(...: any): any
 					
 					local offx, offy = tx-ox, ty-oy
 					
-					local a = r2-r1
+					local a = r2-r1b
 					
 					local xscale, yscale = 1, 1
 					
@@ -409,14 +433,14 @@ global function game_draw_seethrough_portals(...: any): any
 					end, "replace", 1) --feels like javascript
 					love.graphics.setStencilTest("greater", 0)
 					
-					love.graphics.setColor(unpack(background))
+					love.graphics.setColor(unpack(background as {number}))
 					love.graphics.rectangle("fill", 0, 0, width*16*scale, height*16*scale)
 					
 					
 					love.graphics.setColor(1, 1, 1)
-					love.graphics.draw(scenecanvas, (offx+ox)*16*scale, (offy+oy)*16*scale, a, xscale, yscale, ox*16*scale, oy*16*scale)
+					love.graphics.draw(scenecanvas as Canvas, (offx+ox)*16*scale, (offy+oy)*16*scale, a, xscale, yscale, ox*16*scale, oy*16*scale)
 					
-					local r, g, b = unpack(v["portal" .. i .. "color"])
+					local r, g, b = unpack(pv["portal" .. i .. "color"] as {number})
 					--love.graphics.setColor(r, g, b, 0.6)
 					--love.graphics.rectangle("fill", 0, 0, width*16*scale, height*16*scale)
 				

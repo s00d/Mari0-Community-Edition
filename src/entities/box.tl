@@ -90,11 +90,12 @@ function box:update(dt: number): any...
 	self.rotation = 0
 	
 	if self.parent then
+		local parent = self.parent as Entity
 		local oldx = self.x
 		local oldy = self.y
 		
-		self.x = self.parent.x+math.sin(-self.parent.pointingangle)*0.3
-		self.y = self.parent.y-math.cos(-self.parent.pointingangle)*0.3
+		self.x = parent.x+math.sin(-parent.pointingangle)*0.3
+		self.y = parent.y-math.cos(-parent.pointingangle)*0.3
 		
 		if self.portaledframe == false then
 			for h, u in pairs(emancipationgrills) do
@@ -112,7 +113,7 @@ function box:update(dt: number): any...
 			end
 		end
 		
-		self.rotation = self.parent.rotation
+		self.rotation = parent.rotation
 	end
 	
 	self.userect.x = self.x
@@ -132,7 +133,7 @@ function box:update(dt: number): any...
 	end
 end
 
-function box:globalcollide(a: any, b: Entity, c: any, d: any, dir: any)
+function box:globalcollide(a: any, b: Entity, c: any, d: any, dir: any): boolean
 	if a == "platform" or a == "seesawplatform" then
 		if dir == "floor" then
 			if self.jumping and self.speedy < -jumpforce + 0.1 then
@@ -142,15 +143,17 @@ function box:globalcollide(a: any, b: Entity, c: any, d: any, dir: any)
 			return true
 		end
 	end
+	return false
 end
 
-function box:ceilcollide(a: any, b: Entity)
+function box:ceilcollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "ceil") then
 		return false
 	end
+	return true
 end
 
-function box:leftcollide(a: any, b: Entity)
+function box:leftcollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "left") then
 		return false
 	end
@@ -166,9 +169,10 @@ function box:leftcollide(a: any, b: Entity)
 		self.pushed = true
 		return false
 	end
+	return true
 end
 
-function box:rightcollide(a: any, b: Entity)
+function box:rightcollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "right") then
 		return false
 	end
@@ -184,9 +188,10 @@ function box:rightcollide(a: any, b: Entity)
 		self.pushed = true
 		return false
 	end
+	return true
 end
 
-function box:floorcollide(a: any, b: Entity)
+function box:floorcollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "floor") then
 		return false
 	end
@@ -195,7 +200,7 @@ function box:floorcollide(a: any, b: Entity)
 		self.falling = false
 	end
 	
-	if a == "enemy" and b.killedbyboxes then
+	if a == "enemy" and (b as Dyn).killedbyboxes then
 		if b.stompable then
 			b:stomp()
 		else
@@ -207,9 +212,10 @@ function box:floorcollide(a: any, b: Entity)
 		self.speedy = -10
 		return false
 	end
+	return true
 end
 
-function box:passivecollide(a: any, b: Entity)
+function box:passivecollide(a: any, b: Entity, c: any, d: any): boolean
 	if self:globalcollide(a, b, c, d, "passive") then
 		return false
 	end
@@ -221,19 +227,21 @@ function box:passivecollide(a: any, b: Entity)
 			self.x = b.x-self.width
 		end
 	end
+	return true
 end
 
 function box:startfall()
 	self.falling = true
 end
 
-function box:emancipate()
+function box:emancipate(_a: any)
 	if not self.destroying then
 		local speedx, speedy = self.speedx, self.speedy
 		if self.parent then
-			self.parent:cubeemancipate()
-			speedx = speedx + self.parent.speedx
-			speedy = speedy + self.parent.speedy
+			local parent = self.parent as Entity
+			parent:cubeemancipate()
+			speedx = speedx + parent.speedx
+			speedy = speedy + parent.speedy
 		end
 		table.insert(emancipateanimations, emancipateanimation:new(self.x, self.y, self.width, self.height, self.graphic, self.quad, speedx, speedy, self.rotation, self.offsetX, self.offsetY, self.quadcenterX, self.quadcenterY))
 		self:destroy()
@@ -241,24 +249,25 @@ function box:emancipate()
 end
 
 function box:destroy()
-	self.userect.delete = true
+	(self.userect as {string:any}).delete = true
 	self.destroying = true
 	
 	for i = 1, #self.outtable do
-		if self.outtable[i][1].input then
-			self.outtable[i][1]:input("toggle", self.outtable[i][2])
+		local out = self.outtable[i][1] as Entity
+		if out.input then
+			(out.input as function(Entity, any, any))(out, "toggle", self.outtable[i][2])
 		end
 	end
 end
 
-function box:addoutput(a, t)
+function box:addoutput(a: any, t: any)
 	table.insert(self.outtable, {a, t})
 end
 
-function box:used(id)
-	self.parent = playerobjs[id]
+function box:used(id: any)
+	self.parent = playerobjs[id as integer] as Entity
 	self.active = false
-	playerobjs[id]:pickupbox(self)
+	playerobjs[id as integer]:pickupbox(self)
 end
 
 function box:dropped()
@@ -270,20 +279,20 @@ function box:portaled()
 	self.portaledframe = true
 end
 
-function box:enteredfunnel(inside)
+function box:enteredfunnel(inside: any)
 	if inside then
 		self.infunnel = true
 	else
 		self.infunnel = false
-		self.gravity = nil
+		self.gravity = 0
 	end
 end
 
-function box:faithplate(dir)
+function box:faithplate(_dir: any)
 	self.falling = true
 end
 
-function box:onbutton(s)
+function box:onbutton(s: any)
 	if s then
 		self.quad = boxquad[2]
 	else

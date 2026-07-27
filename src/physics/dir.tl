@@ -1,8 +1,7 @@
 -- Gravity-relative direction remapping (pure).
 
-global function twistdirection(...: any): any
-	local gravitydir, dir = ...
-	if not gravitydir or (gravitydir > math.pi/4*1 and gravitydir <= math.pi/4*3) then
+global function twistdirection(gravitydir: any, dir: any): any
+	if not gravitydir or ((gravitydir as number) > math.pi/4*1 and (gravitydir as number) <= math.pi/4*3) then
 		if dir == "floor" then
 			return "floor"
 		elseif dir == "left" then
@@ -12,7 +11,7 @@ global function twistdirection(...: any): any
 		elseif dir == "right" then
 			return "right"
 		end
-	elseif gravitydir > math.pi/4*3 and gravitydir <= math.pi/4*5 then
+	elseif (gravitydir as number) > math.pi/4*3 and (gravitydir as number) <= math.pi/4*5 then
 		if dir == "floor" then
 			return "left"
 		elseif dir == "left" then
@@ -22,7 +21,7 @@ global function twistdirection(...: any): any
 		elseif dir == "right" then
 			return "floor"
 		end
-	elseif gravitydir > math.pi/4*5 and gravitydir <= math.pi/4*7 then
+	elseif (gravitydir as number) > math.pi/4*5 and (gravitydir as number) <= math.pi/4*7 then
 		if dir == "floor" then
 			return "ceil"
 		elseif dir == "left" then
@@ -45,44 +44,44 @@ global function twistdirection(...: any): any
 	end
 end
 
-global function adjustcollside(...: any): any
-	local side, gravitydirection = ...
+global function adjustcollside(side: any, gravitydirection: any): any
+	local gd = gravitydirection as number
 	if side == "left" then
-		if gravitydirection > math.pi/4*1 and gravitydirection <= math.pi/4*3 then --down
+		if gd > math.pi/4*1 and gd <= math.pi/4*3 then --down
 			return "left"
-		elseif gravitydirection > math.pi/4*3 and gravitydirection <= math.pi/4*5 then --left
+		elseif gd > math.pi/4*3 and gd <= math.pi/4*5 then --left
 			return "up"
-		elseif gravitydirection > math.pi/4*5 and gravitydirection <= math.pi/4*7 then --up
+		elseif gd > math.pi/4*5 and gd <= math.pi/4*7 then --up
 			return "right"
 		else --right
 			return "down"
 		end
 	elseif side == "up" then
-		if gravitydirection > math.pi/4*1 and gravitydirection <= math.pi/4*3 then --down
+		if gd > math.pi/4*1 and gd <= math.pi/4*3 then --down
 			return "up"
-		elseif gravitydirection > math.pi/4*3 and gravitydirection <= math.pi/4*5 then --left
+		elseif gd > math.pi/4*3 and gd <= math.pi/4*5 then --left
 			return "right"
-		elseif gravitydirection > math.pi/4*5 and gravitydirection <= math.pi/4*7 then --up
+		elseif gd > math.pi/4*5 and gd <= math.pi/4*7 then --up
 			return "down"
 		else --right
 			return "left"
 		end
 	elseif side == "right" then
-		if gravitydirection > math.pi/4*1 and gravitydirection <= math.pi/4*3 then --down
+		if gd > math.pi/4*1 and gd <= math.pi/4*3 then --down
 			return "right"
-		elseif gravitydirection > math.pi/4*3 and gravitydirection <= math.pi/4*5 then --left
+		elseif gd > math.pi/4*3 and gd <= math.pi/4*5 then --left
 			return "down"
-		elseif gravitydirection > math.pi/4*5 and gravitydirection <= math.pi/4*7 then --up
+		elseif gd > math.pi/4*5 and gd <= math.pi/4*7 then --up
 			return "left"
 		else --right
 			return "up"
 		end
 	elseif side == "down" then
-		if gravitydirection > math.pi/4*1 and gravitydirection <= math.pi/4*3 then --down
+		if gd > math.pi/4*1 and gd <= math.pi/4*3 then --down
 			return "down"
-		elseif gravitydirection > math.pi/4*3 and gravitydirection <= math.pi/4*5 then --left
+		elseif gd > math.pi/4*3 and gd <= math.pi/4*5 then --left
 			return "left"
-		elseif gravitydirection > math.pi/4*5 and gravitydirection <= math.pi/4*7 then --up
+		elseif gd > math.pi/4*5 and gd <= math.pi/4*7 then --up
 			return "up"
 		else --right
 			return "right"

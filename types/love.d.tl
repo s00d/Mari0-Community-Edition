@@ -101,7 +101,7 @@ global interface Entity is {any}
 	invincible: boolean
 	pickup: any
 	payload: any
-	gels: any
+	gels: {string:any}
 	slant: string
 	callback: any
 	link: any
@@ -120,6 +120,7 @@ global interface Entity is {any}
 	die: any
 	fall: any
 	portaled: function(Entity, any)
+	cubeemancipate: function(Entity, ...: any): any
 	-- EnemyDef-ish props accessed via Entity in mario collide paths
 	shellanimal: any
 	stompable: any
@@ -141,7 +142,7 @@ global interface Entity is {any}
 	intactoncollect: any
 	intactvalue: any
 	collectsound: any
-	hit: any
+	hit: function(Entity, ...: any): any
 	emancipate: any
 	limit: any
 	destroying: any
@@ -155,12 +156,13 @@ global interface Entity is {any}
 	animationwalk: any
 	stopanimation: any
 	setquad: any
-	pickupbox: any
+	pickupbox: function(Entity, ...: any): any
 	savereplaydata: any
 	updaterange: any
-	getTileInvolved: function(Entity, ...: any): any
+	getTileInvolved: function(Entity, ...: any): any, any
 	updateangle: any
 	input: any
+	used: function(Entity, ...: any): any
 	passivecollide: function(Entity, any, Entity, any, any): any
 	floorcollide: function(Entity, any, Entity, any, any): any
 	leftcollide: function(Entity, any, Entity, any, any): any

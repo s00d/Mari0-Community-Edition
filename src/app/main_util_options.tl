@@ -12,7 +12,7 @@ global function saveconfig(...: any): any
 		for j, k in pairs(controls[i]) do
 			local c = ""
 			for l = 1, #controls[i][j] do
-				c = c .. controls[i][j][l]
+				c = c .. tostring(controls[i][j][l])
 				if l ~= #controls[i][j] then
 					c = c ..  "-"
 				end
@@ -62,7 +62,7 @@ global function saveconfig(...: any): any
 			s = s .. ":"
 		end
 		for j = 1, #mariohats[i] do
-			s = s .. mariohats[i][j]
+			s = s .. tostring(mariohats[i][j])
 			if j == #mariohats[i] then
 				s = s .. ";"
 			else
@@ -132,43 +132,43 @@ global function loadconfig(...: any): any
 	for i = 1, #s1-1 do
 		s2 = strsplit(s1[i], ":")
 		if s2[1] == "playercontrols" then
-			if controls[tonumber(s2[2])] == nil then
-				controls[tonumber(s2[2])] = {}
+			if controls[tonumber(s2[2]) as integer] == nil then
+				controls[tonumber(s2[2]) as integer] = {}
 			end
 			
 			s3 = strsplit(s2[3], ",")
 			for j = 1, #s3 do
 				s4 = strsplit(s3[j], "-")
-				controls[tonumber(s2[2])][s4[1]] = {}
+				controls[tonumber(s2[2]) as integer][s4[1]] = {}
 				for k = 2, #s4 do
 					if tonumber(s4[k]) ~= nil then
-						controls[tonumber(s2[2])][s4[1]][k-1] = tonumber(s4[k]) as any
+						controls[tonumber(s2[2]) as integer][s4[1]][k-1] = tonumber(s4[k]) as any
 					else
-						controls[tonumber(s2[2])][s4[1]][k-1] = s4[k]
+						controls[tonumber(s2[2]) as integer][s4[1]][k-1] = s4[k]
 					end
 				end
 			end
-			players = math.max(players, tonumber(s2[2]))
+			players = math.max(players, tonumber(s2[2]) as integer)
 			
 		elseif s2[1] == "playercolors" then
-			if mariocolors[tonumber(s2[2])] == nil then
-				mariocolors[tonumber(s2[2])] = {}
+			if mariocolors[tonumber(s2[2]) as integer] == nil then
+				mariocolors[tonumber(s2[2]) as integer] = {}
 			end
 			s3 = strsplit(s2[3], ",")
-			mariocolors[tonumber(s2[2])] = {}
+			mariocolors[tonumber(s2[2]) as integer] = {}
 			for i = 1, #s3/3 do
-				mariocolors[tonumber(s2[2])][i] = {tonumber(s3[1+(i-1)*3]) / 255, tonumber(s3[2+(i-1)*3]) / 255, tonumber(s3[3+(i-1)*3]) / 255}
+				mariocolors[tonumber(s2[2]) as integer][i as integer] = {tonumber(s3[(1+(i-1)*3) as integer]) / 255, tonumber(s3[(2+(i-1)*3) as integer]) / 255, tonumber(s3[(3+(i-1)*3) as integer]) / 255}
 			end
 		elseif s2[1] == "portalhues" then
-			if portalhues[tonumber(s2[2])] == nil then
-				portalhues[tonumber(s2[2])] = {}
+			if portalhues[tonumber(s2[2]) as integer] == nil then
+				portalhues[tonumber(s2[2]) as integer] = {}
 			end
 			s3 = strsplit(s2[3], ",")
-			portalhues[tonumber(s2[2])] = {tonumber(s3[1]), tonumber(s3[2])}
+			portalhues[tonumber(s2[2]) as integer] = {tonumber(s3[1]), tonumber(s3[2])}
 		
 		elseif s2[1] == "mariohats" then
 			local playerno = tonumber(s2[2])
-			mariohats[playerno] = {}
+			mariohats[playerno as integer] = {}
 			
 			if s2[3] == "mariohats" then --SAVING WENT WRONG OMG
 			
@@ -176,7 +176,7 @@ global function loadconfig(...: any): any
 				s3 = strsplit(s2[3], ",")
 				for i = 1, #s3 do
 					local hatno = tonumber(s3[i])
-					mariohats[playerno][i] = hatno
+					mariohats[playerno as integer][i] = hatno
 				end
 			end
 			
@@ -186,13 +186,13 @@ global function loadconfig(...: any): any
 		elseif s2[1] == "shader1" then
 			for i = 1, #shaderlist do
 				if shaderlist[i] == s2[2] then
-					currentshaderi1 = i
+					currentshaderi1 = i as integer
 				end
 			end
 		elseif s2[1] == "shader2" then
 			for i = 1, #shaderlist do
 				if shaderlist[i] == s2[2] then
-					currentshaderi2 = i
+					currentshaderi2 = i as integer
 				end
 			end
 		elseif s2[1] == "volume" then
@@ -201,7 +201,7 @@ global function loadconfig(...: any): any
 		elseif s2[1] == "musicvolume" then
 			volumemusic = tonumber(s2[2])
 		elseif s2[1] == "mouseowner" then
-			mouseowner = tonumber(s2[2])
+			mouseowner = tonumber(s2[2]) as integer
 		elseif s2[1] == "mappack" then
 			if love.filesystem.getInfo("mappacks/" .. s2[2] .. "/settings.txt") then
 				mappack = s2[2]
@@ -215,11 +215,11 @@ global function loadconfig(...: any): any
 			local s3 = strsplit(s2[3], ",")
 			for i = 1, #s3 do
 				if tonumber(s3[i]) == 1 then
-					reachedworlds[s2[2]][i] = true as any
+					reachedworlds[s2[2]][i as integer] = true
 				end
 			end
 		elseif s2[1] == "mariocharacter" then
-			mariocharacter[tonumber(s2[2])] = s2[3]
+			mariocharacter[tonumber(s2[2]) as integer] = s2[3]
 		elseif s2[1] == "fullscreen" then
 			fullscreen = s2[2] == "true"
 		elseif s2[1] == "fullscreenmode" then
@@ -348,8 +348,8 @@ global function suspendgame(...: any): any
 		marioworld = 1
 		mariolevel = 3
 	end
-	s = s .. "a/" .. marioworld .. "|"
-	s = s .. "b/" .. mariolevel .. "|"
+	s = s .. "a/" .. tostring(marioworld) .. "|"
+	s = s .. "b/" .. tostring(mariolevel) .. "|"
 	s = s .. "c/" .. mariocoincount .. "|"
 	s = s .. "d/" .. marioscore .. "|"
 	s = s .. "e/" .. players .. "|"
@@ -395,9 +395,9 @@ global function continuegame(...: any): any
 		elseif split2[1] == "e" then
 			players = tonumber(split2[2])
 		elseif split2[1] == "f" and mariolivecount ~= false then
-			mariolives[tonumber(split2[2])] = tonumber(split2[3])
+			mariolives[tonumber(split2[2]) as integer] = tonumber(split2[3]) as number
 		elseif split2[1] == "g" then
-			mariosizes[tonumber(split2[2])] = tonumber(split2[3]) as any
+			mariosizes[tonumber(split2[2]) as integer] = tonumber(split2[3]) as any
 		elseif split2[1] == "h" then
 			mappack = split2[2]
 		end
@@ -417,10 +417,10 @@ global function serializetable(...: any): any
 	tableindex = {}
 	repeat
 		nexttablestodo = {}
-		for i, v in pairs(tablestodo) do
+		for i, v in pairs(tablestodo as {any:any}) do
 			if type(v) == "table" then
 				local tableexists = false
-				for j, k in pairs(tableindex) do
+				for j, k in pairs(tableindex as {any:any}) do
 					if k == v then
 						tableexists = true
 					end

@@ -1018,35 +1018,40 @@ table.insert(toenter, {name = "dotoallint",
 })
 
 --SORT ALPHABETICALLY (I didn't even know you could greater/less compare strings.)
-table.sort(toenter as {any}, function(a: any, b: any): boolean return (a.t as {string:any}).nicename < (b.t as {string:any}).nicename end)
+table.sort(toenter as {Dyn}, function(a: Dyn, b: Dyn): boolean
+	local at = a.t as {string:any}
+	local bt = b.t as {string:any}
+	return (at.nicename as string) < (bt.nicename as string)
+end)
 
 local typelist = {"trigger", "condition", "action"}
 
-local animationstrings = {}
+local animationstrings: {string:{string}} = {}
 
 for i = 1, #typelist do
 	animationstrings[typelist[i] ] = {}
 end
 
-for i, v in pairs(toenter as {any:any}) do
-	animationlist[v.name] = v.t
-	table.insert(animationstrings[v.t.t], v.t.nicename)
+for i, v in pairs(toenter as {any:Dyn}) do
+	animationlist[v.name as string] = v.t
+	table.insert(animationstrings[v.t.t as string], v.t.nicename as string)
 end
 
-function animationguiline:init(tabl, t2): any
-	self.t = tabl
-	self.type = t2
+function animationguiline:init(tabl: any, t2: any): any
+	self.t = tabl as {any:any}
+	self.type = t2 as string
 	
 	local x = 0
 	self.elements = {}
 	self.elements[1] = {} as animationguielement
 	local start = 1
-	for i = 1, #(animationstrings[self.type] as {string}) do
-		if (animationlist as {any:any})[self.t[1]] and (animationlist as {any:any})[self.t[1]].nicename == (animationstrings[self.type] as {string})[i] then
+	for i = 1, #animationstrings[self.type] do
+		local entry = (animationlist as Dyn)[self.t[1]] as {string:any}
+		if entry and entry.nicename == animationstrings[self.type][i] then
 			start = i as integer
 		end
 	end
-	local firstwidth = 22--#(animationstrings[self.type] as {string})[start]
+	local firstwidth = 22--#animationstrings[self.type][start]
 	
 	self.deletebutton = guielement:new("button", 0, 0, "x", function() self:delete() end, nil, nil, nil, 8, 0.1)
 	self.deletebutton.textcolor = {0.6, 0, 0}
@@ -1057,13 +1062,13 @@ function animationguiline:init(tabl, t2): any
 	self.upbutton = guielement:new("button", 0, 0, "_dir4", function() self:moveup() end, nil, nil, nil, 8, 0.1)
 	self.upbutton.textcolor = {1, 1, 1}
 	
-	self.elements[1].gui = guielement:new("dropdown", 0, 0, firstwidth, function(val) self:changemainthing(val) end, start, unpack(animationstrings[self.type] as {string}))
+	self.elements[1].gui = guielement:new("dropdown", 0, 0, firstwidth, function(val) self:changemainthing(val) end, start, unpack(animationstrings[self.type]))
 	self.elements[1].width = 14+firstwidth*8
 	
 	if not self.t[1] then
 		for i, raw in pairs(animationlist as {any:any}) do
 			local v = raw as {string:any}
-			if v.nicename == (animationstrings[self.type] as {string})[1] then
+			if v.nicename == animationstrings[self.type][1] then
 				self.t[1] = i
 				break
 			end
@@ -1071,15 +1076,15 @@ function animationguiline:init(tabl, t2): any
 	end
 	
 	local tid = 1
-	if animationlist[self.t[1] ] then
-		for i, raw in ipairs(((animationlist as {any:any})[self.t[1]] as {string:any}).entries as {any}) do
+	if (animationlist as Dyn)[self.t[1]] then
+		for i, raw in ipairs(((animationlist as Dyn)[self.t[1]] as {string:any}).entries as {any}) do
 			local v = raw as {string:any}
 			local temp = {} as animationguielement
 			
 			if v.t == "text" then
 				temp.t = "text"
 				temp.value = v.value
-				temp.width = #v.value*8
+				temp.width = #(v.value as {any})*8
 			else
 				tid = tid + 1
 				
@@ -1149,7 +1154,7 @@ function animationguiline:init(tabl, t2): any
 				if dropdown then
 					local j = #self.elements+1
 					local starti = 1
-					for j, k in pairs(args) do
+					for j, k in pairs(args as {any:any}) do
 						if self.t[tid] == k then
 							starti = j
 						end
@@ -1200,13 +1205,13 @@ function animationguiline:draw(x: number, y: number)
 		if self.elements[i].t == "text" then
 			love.graphics.setColor(1, 1, 1)
 			properprint(self.elements[i].value, (x+xadd-1)*scale, (y+2)*scale)
-			xadd = (xadd as number) + (self.elements[i].width as number)
+			xadd = ((xadd as number) + (self.elements[i].width as number)) as integer
 		else
 			if not self.elements[i].gui.extended then
 				self.elements[i].gui.x = x+xadd
 				self.elements[i].gui.y = y
 			end
-			xadd = (xadd as number) + (self.elements[i].width as number)
+			xadd = ((xadd as number) + (self.elements[i].width as number)) as integer
 		end
 	end
 end
@@ -1284,7 +1289,7 @@ end
 function animationguiline:changemainthing(value): any
 	local name: any = nil
 	for i, v in pairs(animationlist as {any:any}) do
-		if v.nicename == (animationstrings[self.type] as {string})[value] then
+		if (v as {string:any}).nicename == animationstrings[self.type][value as integer] then
 			name = i
 		end
 	end
@@ -1297,8 +1302,8 @@ end
 
 function animationguiline:haspriority(): any
 	for i, v in pairs(self.elements as {any:any}) do
-		if v.gui then
-			if v.gui.priority then
+		if (v as animationguielement).gui then
+			if (v as animationguielement).gui.priority then
 				return true
 			end
 		end

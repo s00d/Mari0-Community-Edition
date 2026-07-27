@@ -20,18 +20,18 @@ music = ({
 } as MusicPlayer)
 
 
-global function getfilepath(...: any): any
-	local name = ...
+global function getfilepath(name: any): any
 	local musicpaths = {"assets/sounds/", "mappacks/" .. mappack .. "/music/"}
 	
 	for i = 1, #musicpaths do
-		if love.filesystem.getInfo(musicpaths[i] .. name, "file") then
-			return musicpaths[i] .. name
+		if love.filesystem.getInfo(musicpaths[i] .. (name as string), "file") then
+			return musicpaths[i] .. (name as string)
 		end
 	end
+	return nil
 end
 
-function music:load(name)
+function music:load(name: any): boolean
 	local filepath = getfilepath(name)
 	if not filepath then
 		print(string.format("can't load music %q: can't find file!", name))
@@ -54,9 +54,10 @@ function music:load(name)
 	return true
 end
 
-function music:play(name, fast)
+function music:play(name: any, fast: any)
 	if fast then
-		local newname = name:sub(0, -5) .. "-fast" .. name:sub(-4)
+		local ns = name as string
+		local newname = ns:sub(0, -5) .. "-fast" .. ns:sub(-4)
 		if getfilepath(newname) then
 			name = newname
 		end
@@ -77,9 +78,10 @@ function music:play(name, fast)
 	end
 end
 
-function music:stop(name, fast)
+function music:stop(name: any, fast: any)
 	if fast then
-		local newname = name:sub(0, -5) .. "-fast" .. name:sub(-4)
+		local ns = name as string
+		local newname = ns:sub(0, -5) .. "-fast" .. ns:sub(-4)
 		if getfilepath(newname) then
 			name = newname
 		end

@@ -3,44 +3,43 @@
 
 local atan2 = math.atan2 or math.atan -- LuaJIT/5.1: atan2; Lua 5.3+: atan(y, x)
 
-global function converttostandard(...: any): any
-	local obj, speedx, speedy = ...
+global function converttostandard(obj: Entity, speedx: number, speedy: number): number, number
 	--Convert speedx and speedy to horizontal values
 	local speed = math.sqrt(speedx^2+speedy^2)
 	local speeddir = atan2(speedy, speedx)
 
-	local speedx, speedy = math.cos(speeddir-obj.gravitydirection+math.pi/2)*speed, math.sin(speeddir-obj.gravitydirection+math.pi/2)*speed
+	local sx = math.cos(speeddir-obj.gravitydirection+math.pi/2)*speed
+	local sy = math.sin(speeddir-obj.gravitydirection+math.pi/2)*speed
 
-	if math.abs(speedy) < 0.00001 then
-		speedy = 0
+	if math.abs(sy) < 0.00001 then
+		sy = 0
 	end
-	if math.abs(speedx) < 0.00001 then
-		speedx = 0
+	if math.abs(sx) < 0.00001 then
+		sx = 0
 	end
 
-	return speedx, speedy
+	return sx, sy
 end
 
-global function convertfromstandard(...: any): any
-	local obj, speedx, speedy = ...
+global function convertfromstandard(obj: Entity, speedx: number, speedy: number): number, number
 	--reconvert speedx and speedy to actual directions
 	local speed = math.sqrt(speedx^2+speedy^2)
 	local speeddir = atan2(speedy, speedx)
 
-	local speedx, speedy = math.cos(speeddir+obj.gravitydirection-math.pi/2)*speed, math.sin(speeddir+obj.gravitydirection-math.pi/2)*speed
+	local sx = math.cos(speeddir+obj.gravitydirection-math.pi/2)*speed
+	local sy = math.sin(speeddir+obj.gravitydirection-math.pi/2)*speed
 
-	if math.abs(speedy) < 0.00001 then
-		speedy = 0
+	if math.abs(sy) < 0.00001 then
+		sy = 0
 	end
-	if math.abs(speedx) < 0.00001 then
-		speedx = 0
+	if math.abs(sx) < 0.00001 then
+		sx = 0
 	end
 
-	return speedx, speedy
+	return sx, sy
 end
 
-global function unrotate(...: any): any
-	local rotation, gravitydirection, dt = ...
+global function unrotate(rotation: number, gravitydirection: number, dt: number): number
 	--rotate back to gravitydirection (portals)
 	local mod = math.fmod
 	rotation = mod(rotation, math.pi*2)
