@@ -73,8 +73,7 @@ end
 require "app.game_update"
 require "app.game_draw"
 
-global function loadlevel(...: any): any
-	local level = ...
+global function loadlevel(level: string|number): boolean
 	collectgarbage("collect")
 	love.audio.stop()
 	animationsystem_load()
@@ -101,7 +100,7 @@ global function loadlevel(...: any): any
 			level = tostring(marioworld) .. "-" .. tostring(mariolevel)
 		end
 	else
-		local s = strsplit(level, "_")
+		local s = strsplit(level as string, "_")
 		if s[2] then
 			mariosublevel = (tonumber(s[2] as string) or 0) as number
 		else
@@ -288,7 +287,7 @@ global function loadlevel(...: any): any
 	
 	--LOAD THE MAP
 	local needs_to_be_saved = false
-	if loadmap(level, true) == false then --make one up
+	if loadmap(tostring(level), true) == false then --make one up
 		needs_to_be_saved = true
 		mapwidth = width
 		background = {unpack(backgroundcolor[1] as {any})} as {any:number}

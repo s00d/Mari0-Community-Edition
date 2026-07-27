@@ -7,7 +7,7 @@ local unpack = rawget(_G, "unpack") or table.unpack
 local math_mod = math.fmod
 
 -- Filename convention: N-M.txt / N-M_S.txt (no extension).
-global function level_filename(world: any, level: any, sublevel: any): string
+global function level_filename(world: number|string, level: number|string, sublevel?: number): string
 	local w = tostring(world)
 	local l = tostring(level)
 	if not sublevel or sublevel == 0 then
@@ -20,34 +20,33 @@ global function level_detect_format_version(s: string): integer
 	return string.match(s, BLOCKDELIMITER[1]) and 1 or 2
 end
 
-global function level_delimiters(v: any): string, string, string, string, string
-	local i = v as number
-	return BLOCKDELIMITER[i], LAYERDELIMITER[i], CATEGORYDELIMITER[i], MULTIPLYDELIMITER[i], EQUALSIGN[i]
+global function level_delimiters(v: integer): string, string, string, string, string
+	return BLOCKDELIMITER[v], LAYERDELIMITER[v], CATEGORYDELIMITER[v], MULTIPLYDELIMITER[v], EQUALSIGN[v]
 end
 
 -- Split raw level text into version, height, tile tokens, and category sections.
-global function level_split_file_contents(s: string): any, any, any, any, any, any, any, any, any
+global function level_split_file_contents(s: string): integer, number, {string}, {string}, string, string, string, string, string
 	local v = level_detect_format_version(s)
 	local blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign = level_delimiters(v)
 	local s2 = strsplit(s, categorydelimiter)
-	local mapheight: any
-	local t: any
+	local mapheight: number
+	local t: {string}
 	if string.find(s2[1] as string, blockdelimiter) then
 		mapheight = 15
 		t = strsplit(s2[1], blockdelimiter)
 	else
-		mapheight = tonumber(s2[1])
+		mapheight = tonumber(s2[1]) or 15
 		t = strsplit(s2[2], blockdelimiter)
 	end
 	return v, mapheight, t, s2, blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign
 end
 
-global function level_count_tile_entries(t: {any}, multipledelimiter: any): any
-	local entries = 0
-	for i = 1, #(t as {any}) do
-		local parts = strsplit(t[i] as string, multipledelimiter as string)
+global function level_count_tile_entries(t: {any}, multipledelimiter: string): number
+	local entries: number = 0
+	for i = 1, #t do
+		local parts = strsplit(t[i] as string, multipledelimiter)
 		if parts[2] then
-			entries = ((entries as number) + (tonumber(parts[2] as string) or 0)) as integer
+			entries = entries + (tonumber(parts[2] as string) or 0)
 		else
 			entries = entries + 1
 		end
@@ -57,9 +56,9 @@ end
 
 -- Decode tile tokens into map/coinmap tables (no objects, no tile-ID clamp).
 -- Column-major order matches loadmap (x then wrap to next y).
-global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: number, layerdelimiter: any, multipledelimiter: any): any, any
-	local map: {any:{any:any}} = {}
-	local coinmap: {any:{any}} = {}
+global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: number, layerdelimiter: string, multipledelimiter: string): {number:{number:MapCell}}, {number:{number:boolean}}
+	local map: {number:{number:MapCell}} = {}
+	local coinmap: {number:{number:boolean}} = {}
 	for x = 1, mapwidth do
 		map[x] = {}
 		coinmap[x] = {}
@@ -69,9 +68,9 @@ global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: 
 	end
 
 	local x, y = 1, 1
-	for i = 1, #(t as {any}) do
-		if string.find(t[i] as string, multipledelimiter as string) then
-			local r = strsplit(tostring(t[i]), multipledelimiter as string)
+	for i = 1, #t do
+		if string.find(t[i] as string, multipledelimiter) then
+			local r = strsplit(tostring(t[i]), multipledelimiter)
 			local coin = false
 			if string.sub(r[1] as string, -1) == "c" then
 				r[1] = string.sub(r[1] as string, 1, -2)
@@ -81,7 +80,7 @@ global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: 
 				if coin then
 					coinmap[x][y] = true
 				end
-				(map[x as number][y as number] as {any})[1] = tonumber(r[1])
+				map[x][y][1] = tonumber(r[1])
 				x = x + 1
 				if x > mapwidth then
 					x = 1
@@ -89,16 +88,16 @@ global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: 
 				end
 			end
 		else
-			local r = strsplit(tostring(t[i]), layerdelimiter as string)
+			local r = strsplit(tostring(t[i]), layerdelimiter)
 			if string.sub(r[1] as string, -1) == "c" then
 				r[1] = string.sub(r[1] as string, 1, -2)
 				coinmap[x][y] = true
 			end
 			for li = 1, #r do
 				if tonumber(r[li]) then
-					(map[x as number][y as number] as {any})[li] = tonumber(r[li])
+					map[x][y][li] = tonumber(r[li])
 				else
-					(map[x as number][y as number] as {any})[li] = r[li]
+					map[x][y][li] = r[li]
 				end
 			end
 			x = x + 1
@@ -112,22 +111,18 @@ global function level_decode_tile_tokens(t: {any}, mapwidth: number, mapheight: 
 end
 
 -- Pure tile-body serializer (same run-length / layer encoding as savemap).
-global function level_serialize_maptiles(...: any): any
-	local map, coinmap, mapwidth, mapheight, v = ...
-	local m = map as {any:{any:any}}
-	local cm = coinmap as {any:{any}}
-	local mw = mapwidth as number
-	local mh = mapheight as number
+global function level_serialize_maptiles(m: {number:{number:MapCell}}, cm: {number:{number:any}}, mw: number, mh: number, v: integer): string
 	local s = ""
 	local mul = 1
 	local prev: string|nil = nil
 
 	for y = 1, mh do
 		for x = 1, mw do
-			local current = tostring((m[x][y] as {any})[1]) .. ((cm[x as integer] as {any})[y as integer] and "c" or "")
+			local cell = m[x][y]
+			local current = tostring(cell[1]) .. (cm[x][y] and "c" or "")
 
 			--check if previous is the same
-			if #(m[x][y] as {any}) == 1 then
+			if #cell == 1 then
 				if prev == current and (y ~= mh or x ~= mw) then
 					mul = mul + 1
 				elseif prev == current and y == mh and x == mw then
@@ -167,18 +162,20 @@ global function level_serialize_maptiles(...: any): any
 				prev = nil
 				mul = 1
 
-				for i = 1, #(m[x][y] as {any}) do
-					if tonumber((m[x][y] as {any})[i]) and tonumber((m[x][y] as {any})[i]) < 0 then
-						s = s .. "m" .. tostring(math.abs(tonumber((m[x][y] as {any})[i] as any) as number) as number)
+				for i = 1, #cell do
+					local entry = cell[i]
+					local n = tonumber(entry)
+					if n and n < 0 then
+						s = s .. "m" .. tostring(math.abs(n))
 					else
-						s = s .. tostring((m[x][y] as {any})[i])
+						s = s .. tostring(entry)
 					end
 
-					if i == 1 and (cm[x as integer] as {any})[y as integer] then
+					if i == 1 and cm[x][y] then
 						s = s .. "c"
 					end
 
-					if i ~= #(m[x][y] as {any}) then
+					if i ~= #cell then
 						s = s .. LAYERDELIMITER[v]
 					end
 				end
@@ -193,40 +190,38 @@ global function level_serialize_maptiles(...: any): any
 end
 
 -- Parse a full level string into map/coinmap/dimensions (no LÖVE / no entities).
-global function level_parse_tiles_only(...: any): any...
-	local s = ...
-	local v, mapheight, t, s2, blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign = level_split_file_contents((s) as string)
+global function level_parse_tiles_only(s: string): LevelTilesParse|nil, string|nil
+	local v, mapheight, t, s2, blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign = level_split_file_contents(s)
 	mapheight = mapheight or 15
-	local entries: number = level_count_tile_entries(t as {any}, multipledelimiter) as number
-	if math_mod(entries as number, mapheight as number) ~= 0 then
-		return nil, "Incorrect number of entries: " .. #(t as {any})
+	local entries = level_count_tile_entries(t, multipledelimiter)
+	if math_mod(entries, mapheight) ~= 0 then
+		return nil, "Incorrect number of entries: " .. #t
 	end
-	local mapwidth = (entries as number) / (mapheight as number)
-	local map, coinmap = level_decode_tile_tokens(t as {any}, mapwidth as number, mapheight as number, layerdelimiter, multipledelimiter)
+	local mapwidth = entries / mapheight
+	local decoded_map, decoded_coinmap = level_decode_tile_tokens(t, mapwidth, mapheight, layerdelimiter, multipledelimiter)
 	return {
 		v = v,
 		mapwidth = mapwidth,
 		mapheight = mapheight,
-		map = map,
-		coinmap = coinmap,
+		map = decoded_map,
+		coinmap = decoded_coinmap,
 		categories = s2,
 		equalsign = equalsign,
 	}
 end
 
 
-global function loadmap(...: any): any...
-	local filename, createobjects = ...
-	print("**************************" .. string.rep("*", #((mappack as string) .. (filename as string))))
+global function loadmap(filename: string, createobjects?: boolean): boolean
+	print("**************************" .. string.rep("*", #((mappack as string) .. filename)))
 	print("* Loading mappacks/" .. tostring(mappack) .. "/" .. tostring(filename) .. ".txt *")
-	if not love.filesystem.getInfo("mappacks/" .. (mappack as string) .. "/" .. (filename as string) .. ".txt") then
-		print("mappacks/" .. (mappack as string) .. "/" .. (filename as string) .. ".txt not found!")
+	if not love.filesystem.getInfo("mappacks/" .. (mappack as string) .. "/" .. filename .. ".txt") then
+		print("mappacks/" .. (mappack as string) .. "/" .. filename .. ".txt not found!")
 		return false
 	end
-	local s = love.filesystem.read( "mappacks/" .. (mappack as string) .. "/" .. (filename as string) .. ".txt" )
+	local s = love.filesystem.read( "mappacks/" .. (mappack as string) .. "/" .. filename .. ".txt" )
 	
-	local v, parsed_height, t, s2, blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign = level_split_file_contents((s) as string)
-	mapheight = parsed_height as number
+	local v, parsed_height, t, s2, blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign = level_split_file_contents(s as string)
+	mapheight = parsed_height
 	
 	map = {}
 	unstatics = {}
@@ -251,32 +246,31 @@ global function loadmap(...: any): any...
 	spritebatchY = {}
 	
 	--get mapwidth
-	local entries: number = level_count_tile_entries(t as {any}, multipledelimiter) as number
+	local entries = level_count_tile_entries(t, multipledelimiter)
 	
 	mapheight = mapheight or 15
-	if math.fmod(entries as number, mapheight as number) ~= 0 then
-		print("Incorrect number of entries: " .. #(t as {any}))
+	if math.fmod(entries, mapheight) ~= 0 then
+		print("Incorrect number of entries: " .. #t)
 		return false
 	end
 	
-	mapwidth = (entries as number)/(mapheight as number)
+	mapwidth = entries / mapheight
 	coinmap = {}
 	
 	for x = 1, mapwidth do
 		map[x] = {}
 		coinmap[x] = {}
 		for y = 1, mapheight do
-			map[x as number][y as number] = {} as MapCell
-			(map[x as number][y as number] as {any:any})["gels"] = {}
-			(map[x as number][y as number] as {any:any})["portaloverride"] = {}
+			map[x][y] = {} as MapCell
+			map[x][y]["gels"] = {}
+			map[x][y]["portaloverride"] = {}
 		end
 	end
 	
 	local x, y = 1, 1
-	local tiles = t as {any}
-	for i = 1, #tiles do
-		if string.find(tiles[i] as string, multipledelimiter as string) then --new stuff!
-			local r = strsplit(tostring(tiles[i]), multipledelimiter as string)
+	for i = 1, #t do
+		if string.find(t[i], multipledelimiter) then --new stuff!
+			local r = strsplit(tostring(t[i]), multipledelimiter)
 			
 			local coin = false
 			if string.sub(r[1] as string, -1) == "c" then
@@ -293,7 +287,7 @@ global function loadmap(...: any): any...
 					r[1] = "1"
 				end
 				
-				(map[x as number][y as number] as {any})[1] = tonumber(r[1])
+				map[x][y][1] = tonumber(r[1])
 				
 			
 				--create object for block
@@ -309,7 +303,7 @@ global function loadmap(...: any): any...
 			end
 			
 		else --Old stuff.
-			local r = strsplit(tostring(tiles[i]), layerdelimiter as string)
+			local r = strsplit(tostring(t[i]), layerdelimiter)
 			
 			if string.sub(r[1] as string, -1) == "c" then
 				r[1] = string.sub(r[1] as string, 1, -2)
@@ -322,9 +316,9 @@ global function loadmap(...: any): any...
 			
 			for i = 1, #r do
 				if tonumber(r[i]) then
-					(map[x as number][y as number] as {any})[i] = tonumber(r[i])
+					map[x][y][i] = tonumber(r[i])
 				else
-					(map[x as number][y as number] as {any})[i] = r[i]
+					map[x][y][i] = r[i]
 				end
 			end
 			
@@ -357,7 +351,7 @@ global function loadmap(...: any): any...
 	
 	for y = 1, mapheight do
 		for x = 1, mapwidth do
-			local r = (map[x as number][y as number] as {any})
+			local r = map[x][y]
 			
 			if (r[1] as number) > 10000 then
 				if tilequads[r[1]].triggered then
@@ -365,7 +359,7 @@ global function loadmap(...: any): any...
 				elseif  tilequads[r[1]].boolean then
 					animatedbooltimers[x][y] = animatedbooltimer:new(x, y, r[1])
 				elseif tilequads[r[1]].cache then
-					table.insert((tilequads[r[1] as any] as animatedquad).cache as {any}, {x=x,y=y})
+					table.insert((tilequads[r[1]] as animatedquad).cache as {any}, {x=x,y=y})
 				end
 			end
 			
@@ -375,8 +369,8 @@ global function loadmap(...: any): any...
 			
 			if #r > 1 then 
 				if entitylist[r[2]] then
-					local t = entitylist[r[2]].t
-					dispatch_map_entity_spawn(t, x, y, r, createobjects, editormode)
+					local et = entitylist[r[2]].t
+					dispatch_map_entity_spawn(et, x, y, r, createobjects, editormode)
 				end
 			end
 		end
@@ -415,11 +409,11 @@ global function loadmap(...: any): any...
 	for x = 0, -30, -1 do
 		map[x] = {}
 		for y = 1, mapheight-2 do
-			map[x as number][y as number] = {1} as MapCell
+			map[x][y] = {1} as MapCell
 		end
 		
 		for y = mapheight-1, mapheight do
-			map[x as number][y as number] = {2} as MapCell
+			map[x][y] = {2} as MapCell
 			if createobjects then
 				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
 			end
@@ -437,9 +431,8 @@ global function loadmap(...: any): any...
 	levelscreenbackname = nil
 	
 	--MORE STUFF
-	local cats = s2 as {any}
-	for i = 3, #cats do
-		s3 = strsplit(cats[i] as string, equalsign)
+	for i = 3, #s2 do
+		s3 = strsplit(s2[i], equalsign)
 		if s3[1] == "backgroundr" then
 			background[1] = (tonumber(s3[2] as string) or 0) / 255
 		elseif s3[1] == "backgroundg" then
@@ -458,8 +451,8 @@ global function loadmap(...: any): any...
 			underwater = true
 		elseif s3[1] == "music" then
 			if tonumber(s3[2]) then
-				local i = tonumber(s3[2])
-				musicname = musiclist[i as integer] as string
+				local mi = tonumber(s3[2])
+				musicname = musiclist[mi as integer] as string
 			else
 				musicname = s3[2]
 			end
@@ -498,53 +491,52 @@ global function loadmap(...: any): any...
 		end
 	end
 	
-	print("* DONE!" .. string.rep(" ", #((mappack as string) .. (filename as string))+17) .. " *")
-	print("**************************" .. string.rep("*", #((mappack as string) .. (filename as string))))
+	print("* DONE!" .. string.rep(" ", #((mappack as string) .. filename)+17) .. " *")
+	print("**************************" .. string.rep("*", #((mappack as string) .. filename)))
 	return true
 end
 
-global function savemap(...: any): any
-	local filename, silent = ...
+global function savemap(filename: string, silent?: boolean)
 	local v = 1
-	local s = mapheight .. tostring(CATEGORYDELIMITER[v as any]) .. tostring(level_serialize_maptiles(map, coinmap, mapwidth, mapheight, v))
+	local s = mapheight .. CATEGORYDELIMITER[v] .. level_serialize_maptiles(map, coinmap, mapwidth, mapheight, v)
 	
 	--options
-	s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "backgroundr" .. tostring(EQUALSIGN[v as any]) ..  background[1] * 255
-	s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "backgroundg" .. tostring(EQUALSIGN[v as any]) ..  background[2] * 255
-	s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "backgroundb" .. tostring(EQUALSIGN[v as any]) ..  background[3] * 255
-	s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "spriteset" .. tostring(EQUALSIGN[v as any]) .. tostring(spriteset)
+	s = s .. CATEGORYDELIMITER[v] .. "backgroundr" .. EQUALSIGN[v] ..  background[1] * 255
+	s = s .. CATEGORYDELIMITER[v] .. "backgroundg" .. EQUALSIGN[v] ..  background[2] * 255
+	s = s .. CATEGORYDELIMITER[v] .. "backgroundb" .. EQUALSIGN[v] ..  background[3] * 255
+	s = s .. CATEGORYDELIMITER[v] .. "spriteset" .. EQUALSIGN[v] .. tostring(spriteset)
 	if musicname then
-		s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "music" .. tostring(EQUALSIGN[v as any]) ..  musicname
+		s = s .. CATEGORYDELIMITER[v] .. "music" .. EQUALSIGN[v] ..  musicname
 	end
 	if intermission then
-		s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "intermission"
+		s = s .. CATEGORYDELIMITER[v] .. "intermission"
 	end
 	if bonusstage then
-		s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "bonusstage"
+		s = s .. CATEGORYDELIMITER[v] .. "bonusstage"
 	end
 	if haswarpzone then
-		s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "haswarpzone"
+		s = s .. CATEGORYDELIMITER[v] .. "haswarpzone"
 	end
 	if underwater then
-		s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "underwater"
+		s = s .. CATEGORYDELIMITER[v] .. "underwater"
 	end
 	if custombackground then
 		if custombackground == true then
-			s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "custombackground"
+			s = s .. CATEGORYDELIMITER[v] .. "custombackground"
 		else
-			s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "custombackground" .. tostring(EQUALSIGN[v as any]) .. tostring(custombackground)
+			s = s .. CATEGORYDELIMITER[v] .. "custombackground" .. EQUALSIGN[v] .. tostring(custombackground)
 		end
 	end
 	if customforeground then
 		if customforeground == true then
-			s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "customforeground"
+			s = s .. CATEGORYDELIMITER[v] .. "customforeground"
 		else
-			s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "customforeground" .. tostring(EQUALSIGN[v as any]) .. tostring(customforeground)
+			s = s .. CATEGORYDELIMITER[v] .. "customforeground" .. EQUALSIGN[v] .. tostring(customforeground)
 		end
 	end
-	s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "timelimit" .. tostring(EQUALSIGN[v as any]) ..  mariotimelimit
-	s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "scrollfactor" .. tostring(EQUALSIGN[v as any]) ..  scrollfactor
-	s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "fscrollfactor" .. tostring(EQUALSIGN[v as any]) ..  fscrollfactor
+	s = s .. CATEGORYDELIMITER[v] .. "timelimit" .. EQUALSIGN[v] ..  mariotimelimit
+	s = s .. CATEGORYDELIMITER[v] .. "scrollfactor" .. EQUALSIGN[v] ..  scrollfactor
+	s = s .. CATEGORYDELIMITER[v] .. "fscrollfactor" .. EQUALSIGN[v] ..  fscrollfactor
 	if not portalsavailable[1] or not portalsavailable[2] then
 		local ptype = "none"
 		if portalsavailable[1] then
@@ -553,11 +545,11 @@ global function savemap(...: any): any
 			ptype = "orange"
 		end
 		
-		s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "portalgun" .. tostring(EQUALSIGN[v as any]) ..  ptype
+		s = s .. CATEGORYDELIMITER[v] .. "portalgun" .. EQUALSIGN[v] ..  ptype
 	end
 	
 	if levelscreenbackname then
-		s = s .. tostring(CATEGORYDELIMITER[v as any]) .. "levelscreenback" .. tostring(EQUALSIGN[v as any]) .. tostring(levelscreenbackname)
+		s = s .. CATEGORYDELIMITER[v] .. "levelscreenback" .. EQUALSIGN[v] .. tostring(levelscreenbackname)
 	end
 	
 	--tileset
@@ -565,12 +557,12 @@ global function savemap(...: any): any
 	love.filesystem.createDirectory( "mappacks" )
 	love.filesystem.createDirectory( "mappacks/" .. mappack )
 	
-	love.filesystem.write("mappacks/" .. (mappack as string) .. "/" .. (filename as string) .. ".txt", s)
+	love.filesystem.write("mappacks/" .. (mappack as string) .. "/" .. filename .. ".txt", s)
 	
 	--preview
 	
-	previewimg = renderpreview() as ImageData
-	previewimg:encode("png", "mappacks/" .. (mappack as string) .. "/" .. (filename as string) .. ".png")
+	previewimg = renderpreview()
+	previewimg:encode("png", "mappacks/" .. (mappack as string) .. "/" .. filename .. ".png")
 	
 	if not silent then
 		print("Map saved as " .. "mappacks/" .. tostring(filename) .. ".txt")
@@ -578,7 +570,7 @@ global function savemap(...: any): any
 	end
 end
 
-global function renderpreview(...: any): any
+global function renderpreview(): ImageData
 	local out = love.image.newImageData(mapwidth, height+1)
 	
 	--find startpoint
@@ -586,7 +578,7 @@ global function renderpreview(...: any): any
 	
 	for x = 1, mapwidth do
 		for y = 1, mapheight do
-			if (map[x as number][y as number] as {any})[2] and entitylist[(map[x as number][y as number] as {any})[2]] and entitylist[(map[x as number][y as number] as {any})[2]].t == "spawn" then
+			if map[x][y][2] and entitylist[map[x][y][2]] and entitylist[map[x][y][2]].t == "spawn" then
 				startx, starty = x as integer, y as integer
 				break
 			end
@@ -611,6 +603,6 @@ global function renderpreview(...: any): any
 	return out
 end
 
-global function savelevel(...: any): any
+global function savelevel()
 	savemap(level_filename(marioworld, mariolevel, mariosublevel))
 end

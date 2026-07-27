@@ -56,6 +56,16 @@ global record MapCell is {any}
 	gels: {string:any}
 	portal: any
 end
+-- Pure tile parse result from level_parse_tiles_only (no entities / no LÖVE).
+global record LevelTilesParse
+	v: integer
+	mapwidth: number
+	mapheight: number
+	map: {number:{number:MapCell}}
+	coinmap: {number:{number:boolean}}
+	categories: {string}
+	equalsign: string
+end
 global record SelectionTile
 	x: number
 	y: number
@@ -288,8 +298,8 @@ global currentshaderi2: integer
 global globints: {any:any}
 global outputs: {any:any}
 global CATEGORYDELIMITER: {any:string}
-global MAP_SPAWN_HANDLERS: {string:function(number, number, {any}): any}
-global MAP_SPAWN_EARLY_HANDLERS: {string:function(number, number, {any}): any}
+global MAP_SPAWN_HANDLERS: {string:function(number, number, {any})}
+global MAP_SPAWN_EARLY_HANDLERS: {string:function(number, number, {any})}
 
 -- Auto-ambient stubs for legacy globals (narrow later)
 global record NoticeModule is {any}
@@ -402,7 +412,7 @@ global selectionheight: number
 global newmapoffsetx: number
 global newmapoffsety: number
 global blacktime: number
-global ENEMY_SPAWN_HANDLERS: {string:any}
+global ENEMY_SPAWN_HANDLERS: {string:function(number, number, {any}, boolean|nil): boolean}
 global playerlist: {any}
 global emancipationgrills: {any:Entity}
 global marioscore: number
@@ -467,7 +477,7 @@ global groundlighttable: {string}
 global runanimationframe: number
 global usemagic: boolean
 global modcustomspritebatch: {number:any}
-global blockbouncex: {any:any}
+global blockbouncex: {any:number}
 global blockbouncey: {any:number}
 global fscrollfactor: number
 global infinitetime: boolean
@@ -782,7 +792,7 @@ global mappackscrollbar: Image
 global onlinemappackname: {any}
 global toconvertmappackname: {any}
 global js: string
-global ITEM_SPAWN_HANDLERS: {string:any}
+global ITEM_SPAWN_HANDLERS: {string:function(number, number, any)}
 global entitiesimg: Image
 global recording: boolean
 global skippedframes: number
@@ -944,7 +954,7 @@ global largestworld: number
 global line: string
 global dropdownarrowimg: Image
 global livesleft: number|boolean
-global sublevelscreen_level: any
+global sublevelscreen_level: string|number
 global RGBchangespeed: number
 global updatenotification: boolean
 global playerselectimg: Image
@@ -1310,7 +1320,7 @@ global convertentity: function(...: any): any
 global convertfromstandard: function(Entity, number, number): number, number
 global convertmappack: function(...: any): any
 global converttostandard: function(Entity, number, number): number, number
-global count_spawn_handlers: function({any:any}): any
+global count_spawn_handlers: function({any:any}): number
 global createdialogbox: function(...: any): any
 global creategame: function(...: any): any
 global createmappack: function(...: any): any
@@ -1322,8 +1332,8 @@ global delete_mappack: function(...: any): any
 global deleteanimationguiline: function(string, animationguiline)
 global deleteline: function(...: any): any
 global destroyblock: function(number, number): any
-global dispatch_enemy_entity_spawn: function(...: any): any
-global dispatch_map_entity_spawn: function(...: any): any
+global dispatch_enemy_entity_spawn: function(t: string, x: number, y: number, r: {any}, allowenemy?: boolean): boolean
+global dispatch_map_entity_spawn: function(t: string, x: number, y: number, r: {any}, createobjects?: boolean, editormode?: boolean)
 global downkey: function(...: any): any
 global downloadfile: function(...: any): any
 global downloadmappacks: function(...: any): any
@@ -1439,19 +1449,19 @@ global intro_keypressed: function(...: any): any
 global intro_load: function(...: any): any
 global intro_mousepressed: function(...: any): any
 global intro_update: function(...: any): any
-global item: function(...: any): any
+global item: function(i: any, x: number, y: number, size?: any)
 global joingame: function(...: any): any
 global keyprompt_update: function(...: any): any
 global keypromptstart: function(...: any): any
 global leftkey: function(...: any): any
-global level_count_tile_entries: function({any}, any): any
-global level_decode_tile_tokens: function({any}, number, number, any, any): any, any
-global level_delimiters: function(any): string, string, string, string, string
+global level_count_tile_entries: function(t: {any}, multipledelimiter: string): number
+global level_decode_tile_tokens: function(t: {any}, mapwidth: number, mapheight: number, layerdelimiter: string, multipledelimiter: string): {number:{number:MapCell}}, {number:{number:boolean}}
+global level_delimiters: function(v: integer): string, string, string, string, string
 global level_detect_format_version: function(string): integer
-global level_filename: function(any, any, any): string
-global level_parse_tiles_only: function(...: any): any
-global level_serialize_maptiles: function(...: any): any
-global level_split_file_contents: function(string): any, any, any, any, any, any, any, any, any
+global level_filename: function(world: number|string, level: number|string, sublevel?: number): string
+global level_parse_tiles_only: function(s: string): LevelTilesParse|nil, string|nil
+global level_serialize_maptiles: function(map: {number:{number:MapCell}}, coinmap: {number:{number:any}}, mapwidth: number, mapheight: number, v: integer): string
+global level_split_file_contents: function(s: string): integer, number, {string}, {string}, string, string, string, string, string
 global levelscreen_draw: function(...: any): any
 global levelscreen_load: function(...: any): any
 global levelscreen_update: function(...: any): any
@@ -1467,9 +1477,9 @@ global loadcustomimages: function(...: any): any
 global loadcustomsounds: function(...: any): any
 global loadenemy: function(...: any): any
 global loadhat: function(...: any): any
-global loadlevel: function(...: any): any
+global loadlevel: function(level: string|number): boolean
 global loadlevelscreens: function(...: any): any
-global loadmap: function(...: any): any...
+global loadmap: function(filename: string, createobjects?: boolean): boolean
 global loadmapold: function(...: any): any
 global loadmappacks: function(...: any): any
 global loadmodcustomtiles: function(...: any): any
@@ -1532,7 +1542,7 @@ global properprint2: function(...: any): any
 global properprintbackground: function(...: any): any
 global removelink: function(...: any): any
 global renameline: function(...: any): any
-global renderpreview: function(...: any): any
+global renderpreview: function(): ImageData
 global reset_mappacks: function(...: any): any
 global resetconfig: function(...: any): any
 global respawnplayers: function(...: any): any
@@ -1543,8 +1553,8 @@ global runkey: function(...: any): any
 global saveHotKeys: function(...: any): any
 global saveanimation: function(...: any): any
 global saveconfig: function(...: any): any
-global savelevel: function(...: any): any
-global savemap: function(...: any): any
+global savelevel: function()
+global savemap: function(filename: string, silent?: boolean)
 global savemtobject: function(...: any): any
 global savesettings: function(...: any): any
 global savestate: function(...: any): any
@@ -1558,7 +1568,7 @@ global selectworld: function(...: any): any
 global sendchat: function(...: any): any
 global serializetable: function(...: any): any
 global shootportal: function(...: any): any
-global spawnenemy: function(...: any): any
+global spawnenemy: function(x: number, y: number)
 global startlevel: function(...: any): any
 global startlinking: function(...: any): any
 global startregion: function(...: any): any

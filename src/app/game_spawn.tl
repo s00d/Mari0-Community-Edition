@@ -1,9 +1,6 @@
 --[[ Teal extract from root game.lua: spawn helpers ]]
 
-global function spawnenemy(...: any): any
-	local args = {...}
-	local x = args[1] as number
-	local y = args[2] as number
+global function spawnenemy(x: number, y: number)
 	if not inmap(x, y) then
 		return
 	end
@@ -38,7 +35,7 @@ global function spawnenemy(...: any): any
 			end
 		elseif entitylist[r[2]] then
 			local t = entitylist[r[2]].t
-			wasenemy = dispatch_enemy_entity_spawn(t, x, y, r, allowenemy) as boolean
+			wasenemy = dispatch_enemy_entity_spawn(t, x, y, r, allowenemy)
 		end
 		
 		table.insert(enemiesspawned, {x, y})

@@ -2882,9 +2882,9 @@ function mapnumberclick(i: number, j: number, k: any)
 		local needs_to_be_saved = false
 		if k then
 			k = tonumber(k)
-			needs_to_be_saved = loadlevel(i .. "-" .. j .. "_" .. (k as number)) as boolean
+			needs_to_be_saved = loadlevel(i .. "-" .. j .. "_" .. (k as number))
 		else
-			needs_to_be_saved = loadlevel(i .. "-" .. j) as boolean
+			needs_to_be_saved = loadlevel(i .. "-" .. j)
 		end
 		startlevel()
 		if needs_to_be_saved then
