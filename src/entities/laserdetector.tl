@@ -21,7 +21,7 @@ function laserdetector:init(x: number, y: number, r)
 	table.remove(self.r, 1)
 	--DIRECTION
 	if #self.r > 0 and self.r[1] ~= "link" then
-		self.dir = self.r[1]
+		self.dir = self.r[1] as string
 		table.remove(self.r, 1)
 	end
 	
@@ -36,8 +36,9 @@ function laserdetector:update(dt: number): any...
 	if self.out ~= self.prevout then
 		self.prevout = self.out
 		for i = 1, #self.outtable do
-			if self.outtable[i][1].input then
-				self.outtable[i][1]:input(self.out, self.outtable[i][2])
+			local entry = self.outtable[i] as {Entity, any}
+			if entry[1].input then
+				entry[1]:input(self.out, entry[2])
 			end
 		end
 	end
@@ -63,7 +64,7 @@ function laserdetector:draw()
 end
 
 function laserdetector:addoutput(a, t)
-	table.insert(self.outtable, {a, t})
+	table.insert(self.outtable, {a, t} as any)
 end
 
 function laserdetector:clear()

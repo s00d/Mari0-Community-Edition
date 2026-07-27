@@ -19,7 +19,7 @@ function portalprojectile:init(x: number, y: number, tx: any, ty: any, color: an
 	self.endy = ty
 	self.bounces = bounces or portalbouncethreshold
 	
-	self.color = color
+	self.color = color as {number}
 	self.hit = hit
 	self.payload = payload
 	self.payloaddelivered = false
@@ -58,12 +58,12 @@ function portalprojectile:update(dt: number): any...
 			local ty = self.starty + ((self.endy as number)-(self.starty as number))*(t/self.time)
 			
 			--INNER LINE
-			local r, g, b = unpack(self.color)			
+			local r, g, b = unpack(self.color as {number})
 			table.insert(self.particles, portalprojectileparticle:new(tx, ty, {r, g, b}))
 			
 			--OUTER LINES
 			local r, g, b = unpack(self.color)
-			r, g, b = r/2, g/2, b/2
+			r, g, b = (r as number)/2, (g as number)/2, (b as number)/2
 			
 			--Sine
 			local x = tx + math.sin(self.angle+math.pi/2)*(math.sin(t*portalprojectilesinemul+self.sinestart))*portalprojectilesinesize
@@ -125,7 +125,7 @@ end
 function portalprojectileparticle:init(x: number, y: number, color, r, g, b)
 	self.x = x
 	self.y = y
-	self.color = color
+	self.color = color as {number}
 	
 	
 	self.speedx = math.random(-10, 10)/70
@@ -161,11 +161,11 @@ end
 
 function portalprojectile:createportal()
 	if self.mirror then
-		local portal, i, cox, coy, side, tendency, x, y = unpack(self.payload as {any})
-		local p = portal as portal
+		local portalobj, i, cox, coy, side, tendency, x, y = unpack(self.payload as {any})
+		local p = portalobj as portal
 		portaldelay[p.number] = 0
 		
-		local angle
+		local angle: number = 0
 		if side == "up" or side == "down" then
 			angle = -math.atan2((self.endx as number)-(self.startx as number), (self.endy as number)-(self.starty as number))
 		else
@@ -175,6 +175,6 @@ function portalprojectile:createportal()
 			shootportal(p.number, i, self.endx, self.endy, angle, true, (self.bounces as number)-1)
 		end
 	else
-		portal.createportal(unpack(self.payload as {any}))
+		(rawget(_G, "portal") as portal).createportal(unpack(self.payload as {any}))
 	end
 end

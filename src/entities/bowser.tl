@@ -12,7 +12,7 @@ function bowser:init(x: number, y: number, i)
 	--PHYSICS STUFF
 	self.x = x+4
 	self.y = y-27/16
-	self.level = i or marioworld
+	self.level = (i as number) or marioworld
 	self.startx = x+12
 	self.starty = y
 	self.speedy = 0
@@ -117,7 +117,7 @@ function bowser:update(dt: number): any...
 					self.hammertimer = self.hammertimer - self.hammertime
 					
 					--new delay
-					self.hammertime = bowserhammertable[math.random(#bowserhammertable)]
+					self.hammertime = bowserhammertable[math.random(#bowserhammertable)] as number
 				end
 			end
 		end
@@ -133,7 +133,7 @@ function bowser:update(dt: number): any...
 		
 		--left of player override
 		if not self.fall then
-			if playerobjs[getclosestplayer(self.x+15/16)].x > self.x+15/16 and self.jump == false then
+			if (playerobjs[getclosestplayer(self.x+15/16) as any] as Entity).x > self.x+15/16 and self.jump == false then
 				self.animationdirection = "left"
 				self.speedx = bowserspeedbackwards
 				self.backwards = true
@@ -162,7 +162,7 @@ function bowser:draw()
 	end
 end
 
-function bowser:newtargetx(dir)
+function bowser:newtargetx(dir: any)
 	if dir == "right" then
 		self.targetx = self.startx-1-math.random(2)
 	else
@@ -170,19 +170,21 @@ function bowser:newtargetx(dir)
 	end
 end
 
-function bowser:shotted(dir)
+function bowser:shotted(...: any): any
+	local dir = ...
 	self.hp = self.hp - 1
 	if self.hp == 0 then
 		self:firedeath()
 	end
 end
 
-function bowser:firedeath()
+function bowser:firedeath(...: any)
+	local dir = ...
 	playsound("shot")
 	playsound("bowserfall")
 	self.shot = true
 	self.speedy = -shotjumpforce
-	self.direction = dir or "right"
+	self.direction = (dir as string) or "right"
 	self.active = false
 	self.gravity = shotgravity
 	self.speedx = 0
@@ -196,19 +198,19 @@ function bowser:firedeath()
 	end
 end
 
-function bowser:leftcollide(a: any, b: Entity)
+function bowser:leftcollide(a: any, b: Entity): any
 	if a == "player" then
 		return false
 	end
 end
 
-function bowser:rightcollide(a: any, b: Entity)
+function bowser:rightcollide(a: any, b: Entity): any
 	if a == "player" then
 		return false
 	end
 end
 
-function bowser:ceilcollide(a: any, b: Entity)
+function bowser:ceilcollide(a: any, b: Entity): any
 	if a == "player" then
 		return false
 	end
@@ -218,7 +220,7 @@ function bowser:startfall()
 
 end
 
-function bowser:floorcollide(a: any, b: Entity)
+function bowser:floorcollide(a: any, b: Entity): any
 	if self.jump then
 		self.jump = false
 		self.timer = 0

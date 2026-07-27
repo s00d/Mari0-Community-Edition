@@ -9,17 +9,18 @@ function entitylistitem.new(_: entitylistitem, t: any, i: any): entitylistitem
 end
 
 function entitylistitem:init(t, i)
-	self.x = x
-	self.y = y
-	self.t = t
-	self.i = i
+	-- Original uses ambient globals x/y; layout overwrites these in generateentitylist.
+	self.x = (rawget(_G, "x") as number) or 0
+	self.y = (rawget(_G, "y") as number) or 0
+	self.t = t as string
+	self.i = i as number
 end
 
-function entitylistitem:gethighlight(x, y)
-	x = x/scale-5
-	y = y/scale-38+tilesoffset/scale
+function entitylistitem:gethighlight(x, y): boolean
+	local nx = (x as number)/scale-5
+	local ny = (y as number)/scale-38+tilesoffset/scale
 	
-	return x >= self.x and x < self.x+16 and y >= self.y and y < self.y+16
+	return nx >= self.x and nx < self.x+16 and ny >= self.y and ny < self.y+16
 end
 
 global function getentityhighlight(...: any): any

@@ -135,7 +135,7 @@ tooltipimages = {}
 for i = 1, #entitylist do
 	local path = "assets/graphics/entitytooltips/" .. entitylist[i].t .. ".png"
 	if love.filesystem.getInfo(path) then
-		tooltipimages[i] = AssetStore.load_image(path)
+		tooltipimages[i] = AssetStore.load_image(path) as Image
 	end
 end
 
@@ -226,13 +226,13 @@ rightclickmenues.musicentity = {
 	{t="checkbox", text="visible", default="true"},
 	{t="checkbox", text="single use", default="true"},
 	{},
-	{t="submenu", entries=function() local t = {} for i, v in pairs(musiclist) do table.insert(t, v) end return t end, actualvalue=true, default=1, width=15},
+	{t="submenu", entries=function(): {any} local t = {} as {any} for i, v in pairs(musiclist as {any}) do table.insert(t, v) end return t end, actualvalue=true, default=1, width=15},
 	{},
 	{t="linkbutton", value="link trigger", link="trigger"}
 }
 
 rightclickmenues.enemyspawner = {
-	{t="submenu", entries=function() return {unpack(enemies)} end, actualvalue=true, default=1, width=15},
+	{t="submenu", entries=function(): {any} return {unpack(enemies)} as {any} end, actualvalue=true, default=1, width=15},
 	{},
 	{t="text", value="velocity x:"},
 	{t="scrollbar", min=-50, max=50, default=0},
@@ -250,7 +250,7 @@ rightclickmenues.boxtube = {
 	{t="text", value="if destroyed"},
 	{},
 	{t="text", value="object:"},
-	{t="submenu", entries=function() return {"box", unpack(enemies)} end, actualvalue=true, default=1, width=15},
+	{t="submenu", entries=function(): {any} return {"box", unpack(enemies)} as {any} end, actualvalue=true, default=1, width=15},
 	{},
 	{t="linkbutton", value="link drop", link="drop"}
 }
@@ -561,8 +561,10 @@ for i = 1, #groundlighttable do
 end
 
 function entity:init(img, x, y, width, height)
-	self.image = img
-	self.quad = love.graphics.newQuad((x-1)*17, (y-1)*17, 16, 16, width, height)	
+	self.image = img as Image
+	local nx = x as number
+	local ny = y as number
+	self.quad = love.graphics.newQuad((nx-1)*17, (ny-1)*17, 16, 16, width as number, height as number)
 end
 
 function entity:sett(i)

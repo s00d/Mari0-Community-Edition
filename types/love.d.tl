@@ -38,6 +38,7 @@ global interface Entity is {any}
 	falling: boolean
 	flying: boolean
 	small: boolean
+	emancipatecheck: boolean
 	killsenemies: any
 	nocollidestops: any
 	funnel: any
@@ -171,6 +172,16 @@ global interface Entity is {any}
 	ceilcollide: function(Entity, any, Entity, any, any): any
 	addoutput: function(Entity, any, any)
 	stomp: function(Entity, ...: any): any
+	laser: any
+	fireballcallback: any
+	ignorefaithplates: any
+	faithplate: any
+	callbackleft: any
+	callbackright: any
+	clear: function(Entity, ...: any): any
+	firepoints: any
+	autodelete: boolean
+	autodeleted: any
 end
 
 -- Minimal LÖVE 11 API surface for Teal (expand as modules need more).
@@ -184,9 +195,12 @@ global record love
 	end
 
 	getVersion: function(): number, number, number, string
+	_version: string
 	_version_minor: number
+	_os: string
 	handlers: {string:function}
 	quit: function()
+	errhand: function(any)
 
 	record conf
 		record Config
@@ -200,6 +214,7 @@ global record love
 
 	record graphics
 		print: function(text: string, x: number, y: number)
+		printf: function(...: any)
 		newImage: function(...: any): Image
 		newQuad: function(x: number, y: number, w: number, h: number, sw: number, sh: number): Quad
 		newCanvas: function(...: any): Canvas
@@ -226,6 +241,10 @@ global record love
 		rectangle: function(mode: string, x: number, y: number, w: number, h: number)
 		stencil: function(...: any)
 		isSupported: function(feature: string): boolean
+		isCreated: function(): boolean
+		reset: function()
+		setNewFont: function(...: any): Font
+		getRendererInfo: function(): string, string, string, string
 		setBlendMode: function(...: any)
 		getBlendMode: function(): string
 		setColorMask: function(...: any)
@@ -284,6 +303,7 @@ global record love
 		isGamepadDown: function(self: Joystick, ...: any): boolean
 		getName: function(self: Joystick): string
 		getID: function(self: Joystick): number
+		setVibration: function(self: Joystick, ...: any): any
 	end
 
 	record joystick
@@ -305,6 +325,7 @@ global record love
 		setTitle: function(title: string)
 		setIcon: function(data: any)
 		getFullscreenModes: function(): {{string:any}}
+		isOpen: function(): boolean
 	end
 
 	record system

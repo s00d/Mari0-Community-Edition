@@ -13,12 +13,12 @@ function love.errhand(msg)
 	if not versionerror then
 		table.insert(err, "Tell us what happened at github.com/Mari0-CE/Mari0-Community-Edition/issues, that'd be swell.\nAlso send us a screenshot.\n")
 	end
-	table.insert(err, "Mari0 " .. (marioversion or "UNKNOWN") .. ", LOVE " .. (love._version or "UNKNOWN") .. " running on " .. (love._os or "UNKNOWN") .. "\n")
+	table.insert(err, "Mari0 " .. tostring(marioversion or "UNKNOWN") .. ", LOVE " .. tostring(love._version or "UNKNOWN") .. " running on " .. tostring(love._os or "UNKNOWN") .. "\n")
 	if love.graphics.getRendererInfo then
 		local info = {love.graphics.getRendererInfo()}
 		err[#err] = err[#err].."Graphics: "..info[1].." "..info[2].." ("..info[4]..", "..info[3]..")\n"
 	end
-	table.insert(err, msg.."\n\n")
+	table.insert(err, (msg as string).."\n\n")
 
 	if not versionerror then
 		for l in string.gmatch(trace, "(.-)\n") do
@@ -29,7 +29,7 @@ function love.errhand(msg)
 		end
 	end
 
-	for m,p in pairs(err) do
+	for m,p in ipairs(err) do
 		print(p)
 	end
 	--error_printer(msg, 2)

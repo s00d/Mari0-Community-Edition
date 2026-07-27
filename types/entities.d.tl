@@ -49,6 +49,7 @@ global record EnemyDef is {any}
 	movementrandoms: {string}
 	spawnsound: string
 	spawnsenemy: string
+	directfromblock: boolean
 	graphic: any
 	quad: any
 	quadbase: any
@@ -245,7 +246,7 @@ global record AssetStore is {any}
 	register_image: function(AssetStore, string, string)
 	register_sound: function(AssetStore, string, string)
 	get_image: function(AssetStore, string): any
-	get_sound: function(AssetStore, string): any
+	get_sound: function(AssetStore, string): SoundSource
 	override_image: function(AssetStore, string, string)
 	override_sound: function(AssetStore, string, string)
 	restore_image_defaults: function(AssetStore)
@@ -266,7 +267,7 @@ end
 
 global record MusicPlayer is {any}
 	loaded: {string:Source}
-	pitch: any
+	pitch: number
 	list: {string}
 	list_fast: {string}
 	load: function(MusicPlayer, any): boolean

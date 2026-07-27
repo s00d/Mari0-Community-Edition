@@ -39,16 +39,17 @@ function faithplate:init(x: number, y: number, r)
 	table.remove(self.r, 1)
 	--Xspeed
 	if #self.r > 0 then
-		if string.sub(self.r[1], 1, 1) == "m" then
-			self.xspeed = -tonumber(string.sub(self.r[1], 2))
+		local xs = self.r[1] as string
+		if string.sub(xs, 1, 1) == "m" then
+			self.xspeed = -(tonumber(string.sub(xs, 2)) as number)
 		else
-			self.xspeed = tonumber(self.r[1])
+			self.xspeed = tonumber(xs) as number
 		end
 		table.remove(self.r, 1)
 	end
 	--Yspeed
 	if #self.r > 0 then
-		self.yspeed = tonumber(self.r[1]) or 20
+		self.yspeed = (tonumber(self.r[1] as any) as number) or 20
 		table.remove(self.r, 1)
 	end
 	--POWER
@@ -86,7 +87,7 @@ end
 function faithplate:link()
 	while #self.r > 3 do
 		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w]) do
+			for i, v in pairs(objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -108,16 +109,17 @@ function faithplate:update(dt: number): any...
 		local intable = checkrect(self.x+.5, self.y-0.125, 1, 0.125, self.includetable)
 		
 		for i = 1, #intable, 2 do
-			if not objects[intable[i]][intable[i+1]].ignorefaithplates then
-				if objects[intable[i]][intable[i+1]].speedy >= 0 then
-					objects[intable[i]][intable[i+1]].speedy = -self.yspeed
-					objects[intable[i]][intable[i+1]].speedx = self.xspeed
+			local obj = (objects[intable[i] as any] as {any:Entity})[intable[i+1] as any]
+			if not obj.ignorefaithplates then
+				if obj.speedy >= 0 then
+					obj.speedy = -self.yspeed
+					obj.speedx = self.xspeed
 					
-					objects[intable[i]][intable[i+1]].x = self.x+1-objects[intable[i]][intable[i+1]].width/2
+					obj.x = self.x+1-obj.width/2
 					
 					
-					if objects[intable[i]][intable[i+1]].faithplate then
-						objects[intable[i]][intable[i+1]]:faithplate(self.dir)
+					if obj.faithplate then
+						(obj.faithplate as function(Entity, any))(obj, self.dir)
 					end
 					
 					self.animationtimer = 0
@@ -142,7 +144,7 @@ function faithplate:draw()
 
 	if self.animationtimer < 1 then
 		if self.dir == "right" then
-			local rot = 0
+			local rot: number = 0
 			if self.animationtimer < 0.1 then
 				rot = math.pi/4*(self.animationtimer/0.1)
 			elseif self.animationtimer < 0.3 then
@@ -153,7 +155,7 @@ function faithplate:draw()
 				
 			love.graphics.draw(faithplateplateimg, faithplatequad[quad], math.floor((self.cox+1-xscroll)*16*scale), (self.coy-yscroll-1.5)*16*scale, rot, scale, scale, 32)
 		elseif self.dir == "left" then
-			local rot = 0
+			local rot: number = 0
 			if self.animationtimer < 0.1 then
 				rot = math.pi/4*(self.animationtimer/0.1)
 			elseif self.animationtimer < 0.3 then
@@ -164,7 +166,7 @@ function faithplate:draw()
 			
 			love.graphics.draw(faithplateplateimg, faithplatequad[quad], math.floor((self.cox-1-xscroll)*16*scale), (self.coy-yscroll-1.5)*16*scale, -rot, -scale, scale, 32)
 		elseif self.dir == "up" then
-			local ymod = 0
+			local ymod: number = 0
 			if self.animationtimer < 0.1 then
 				ymod = .5*(self.animationtimer/0.1)
 			elseif self.animationtimer < 0.3 then

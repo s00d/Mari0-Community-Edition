@@ -117,7 +117,7 @@ global inrange: function(i: number, a: number, b: number, include: boolean|nil):
 global round: function(num: number, idp: number|nil): number
 global tablecontains: function(t: {any}, entry: any): boolean
 global getTile: function(number, number, any, any, any, any, any, any): any, any
-global getMouseTile: function(x: number, y: number): number, number
+global getMouseTile: function(...: any): number, number
 
 -- Tiles / enemies / characters
 global tilequads: {any:TileQuad}
@@ -148,7 +148,7 @@ global portalcolor1: {number:number}
 global portalcolor2: {number:number}
 global portals: {number:portal}
 global portalsavailable: {boolean}
-global controls: {{string:{any}}}
+global controls: {any:{string:{any}}}
 global mouse: MouseProxy
 global mousex: number
 global mousey: number
@@ -286,7 +286,7 @@ global introprogress: number
 global currentshaderi1: integer
 global currentshaderi2: integer
 global globints: {any:any}
-global outputs: {string:any}
+global outputs: {any:any}
 global CATEGORYDELIMITER: {any:string}
 global MAP_SPAWN_HANDLERS: {string:function(number, number, {any}): any}
 global MAP_SPAWN_EARLY_HANDLERS: {string:function(number, number, {any}): any}
@@ -426,13 +426,13 @@ global custombackgroundheight: {any:{number}}
 global custombackgroundwidth: {any:{number}}
 global testlevel: boolean
 global checkpointx: {number:number}
-global globools: {string:any}
+global globools: {any:any}
 global pipestartx: number
 global dirscale: number
 global vsync: boolean
 global pipeanimationtime: number
 global sonicrainboom: boolean
-global fireballquad: {any}
+global fireballquad: {number:any}
 global arcade: boolean
 global multitilesoffset: number
 global savestates: {any}
@@ -458,7 +458,7 @@ global success: boolean
 global allowskip: boolean
 global fastestplayer: Entity
 global regiondragboxwidth: number
-global seesawquad: {any}
+global seesawquad: {any:any}
 global animationlist: {any:any}
 global minimapheight: number
 global mtclipboard: {{any}}
@@ -546,7 +546,7 @@ global onlinemappackdescription: {any}
 global toconvertmappackicon: {Image}
 global toconvertmappackdescription: {any}
 global axiserror: any
-global cheepcheepquad: {any}
+global cheepcheepquad: {any:{any:any}}
 global portalparticles: {any:Entity}
 global portaldotstime: number
 global scenecanvas: any
@@ -594,10 +594,10 @@ global growframedelay: number
 global flagydistance: number
 global konamitable: {any}
 global emancipationfizzletime: number
-global tooltipimages: {number:{number:any}}
+global tooltipimages: {any:Image}
 global faithplatequad: {any}
 global endimg: Image
-global excursionquad: {any}
+global excursionquad: {any:any}
 global subtracttimer: number
 global vx: number
 global vy: number
@@ -621,8 +621,8 @@ global scrollingscoretime: number
 global scrollingtexts: {any:Entity}
 global rainbooms: {any:Entity}
 global blockbounceheight: number
-global coinblockquads: {any:{any:Quad}}
-global coinquads: {any:{any:Quad}}
+global coinblockquads: {any:{any:any}}
+global coinquads: {any:{any:any}}
 global flagimgx: number
 global flagimgy: number
 global sunrot: number
@@ -663,23 +663,23 @@ global fireworkdelay: number
 global castleanimationmariomove: number
 global funnelforce: number
 global emancipateanimationtime: number
-global bowserquad: {any}
-global buttonquad: {any}
+global bowserquad: {any:{any:any}}
+global buttonquad: {any:any}
 global emancemaxspeed: number
 global parstartup: number
 global realaction: any
 global faithplateplateimg: Image
 global img: {string:any}
 global bowserfall: boolean
-global portalquad: {any}
-global vinequad: {any}
+global portalquad: {any:any}
+global vinequad: {any:{any:any}}
 global brushmax: number
 global minimapscrollspeed: number
 global animationlineinset: number
 global advanceddrawtool: string|boolean
 global linktoolX: number
 global linktoolY: number
-global blackafterintro: boolean
+global blackafterintro: any
 global levelscreenback: any
 global huechangespeed: number
 global continueavailable: boolean
@@ -701,7 +701,7 @@ global port: number
 global portalbouncethreshold: number
 global firstpersonview: boolean
 global currentscissor: {number}
-global coinanimationquads: {any}
+global coinanimationquads: {any:{any:any}}
 global pausemenuoptions2: {number:any}
 global volumesliderimg: Image
 global scroll_batch_offset: function(number, number|nil): number
@@ -751,8 +751,8 @@ global rainboomspeed: number
 global emancipatefadeouttime: number
 global pedestaltime: number
 global raccoonstarttime: number
-global blockdebrisquads: {any}
-global boxquad: {any}
+global blockdebrisquads: {any:{any:any}}
+global boxquad: {any:any}
 global buttonimg: Image
 global hatcount: number
 global doorpieceimg: Image
@@ -767,7 +767,7 @@ global castleflagmove: boolean
 global castleflagtime: number
 global bridgedisappear: boolean
 global platformimg: Image
-global springquads: {any}
+global springquads: {any:{any:any}}
 global linktoolfadeouttime: number
 global tileswitcherpressed: boolean
 global entitytooltipobject: {any}
@@ -802,7 +802,7 @@ global gel2groundimg: Image
 global gel3groundimg: Image
 global gel4groundimg: Image
 global warpzonenumbers: {any}
-global axequads: {any}
+global axequads: {any:any}
 global miniblocks: {any:Entity}
 global rainboomearthquake: number
 global tremorx: number
@@ -861,7 +861,7 @@ global mariostarblinkrate: number
 global bowseranimationspeed: number
 global bowserspeedforwards: number
 global bowserjumpdelay: number
-global bowserhammertable: {any}
+global bowserhammertable: {number}
 global platformbonusspeed: number
 global platformjustspeed: number
 global seesawspeed: number
@@ -922,12 +922,12 @@ global raccoonbuttondelay: number
 global raccoontailwagdelay: number
 global raccoonspindelay: number
 global wallindicatorquad: {any}
-global decoysquad: {any}
+global decoysquad: {any:any}
 global fireballimg: Image
 global emanceaccel: number
 global parstartright: number
 global parstartdown: number
-global firequad: {any}
+global firequad: {any:any}
 global magicquad: {any}
 global firework: number|boolean
 global panelquad: {any}
@@ -955,13 +955,13 @@ global huebarimg: Image
 global huebarmarkerimg: Image
 global DEBUG: boolean
 global yadd: number
-global goombaquad: {any}
-global spikeyquad: {any}
-global lakitoquad: {any}
-global koopaquad: {any}
-global hammerbrosquad: {any}
-global hammerquad: {any}
-global plantquads: {any}
+global goombaquad: {any:{any:any}}
+global spikeyquad: {any:{any:any}}
+global lakitoquad: {any:{any:any}}
+global koopaquad: {any:{any:any}}
+global hammerbrosquad: {any:{any:any}}
+global hammerquad: {any:any}
+global plantquads: {any:{any:any}}
 global versionerror: boolean
 global targetdt: number
 global screenshotimagedata: any
@@ -1068,7 +1068,7 @@ global raccoonascendspeed: number
 global raccoondescendspeed: number
 global defaultvalues: {string:any}
 global nobasevalues: {string}
-global gelquad: {any}
+global gelquad: {any:any}
 global lightbridgeimg: Image
 global lightbridgeglowimg: Image
 global magicimg: Image
@@ -1076,7 +1076,7 @@ global blay: number
 global portalparticleimg: Image
 global portalprojectileimg: Image
 global portalprojectileparticleimg: Image
-global pushbuttonquad: {any}
+global pushbuttonquad: {any:any}
 global rainboomimg: Image
 global scaffoldimg: Image
 global vineimg: Image
@@ -1095,7 +1095,7 @@ global regiontoolX: number
 global regiontoolY: number
 global regiontoolt: any
 global checkboximg: Image
-global checkboxquad: {any}
+global checkboxquad: {any:any}
 global playedwilhelm: boolean
 global logo: Image
 global logoblood: Image
@@ -1112,10 +1112,10 @@ global shaderssupported: boolean
 global backgroundi: number
 global volume: number
 global previewimg: ImageData
-global numberglyphs: any
-global starquad: {any}
-global flowerquad: {any}
-global squidquad: {any}
+global numberglyphs: string
+global starquad: {any:any}
+global flowerquad: {any:any}
+global squidquad: {any:{any:any}}
 global bulletbillquad: {any}
 global magicdns_validresponses: {any}
 
@@ -1424,7 +1424,7 @@ global givelive: function(...: any): any
 global globintCH: function(...: any): any
 global globintSH: function(...: any): any
 global globoolSH: function(...: any): any
-global handlegroup: function(...: any): any
+global handlegroup: function(...: any): any, any
 global hitblock: function(number, number, any, any): any
 global hitrightside: function(...: any): any
 global horcollision: function(Entity, Entity, any, any, any, any, number): boolean
@@ -1637,8 +1637,8 @@ global mapsort: function(...: any): any
 global gradient: function({number}, {number}, number): {number}
 global menu_parse_settings_text: function(...: any): any, any, any
 global getclosestplayer: function(...: any): any
-global cameraxpan: function(...: any): any
-global cameraypan: function(...: any): any
+global cameraxpan: function(...: any)
+global cameraypan: function(...: any)
 global update_and_compact: function(...: any): any
 global adduserect: function(...: any): Entity
 global userect: function(...: any): {Entity}, any

@@ -1,7 +1,7 @@
 --[[ Teal port of root characterloader.lua ]]
 
 global function loadcharacter(...: any): any
-	local charname = ...
+	local charname = (... as string)
 	local folder = "assets/characters/" .. charname .. "/"
 	if not love.filesystem.getInfo(folder .. "config.txt") then
 		return false
@@ -13,14 +13,16 @@ global function loadcharacter(...: any): any
 	--VARIABLE LOADING--
 	--------------------
 	
-	local char = JSON.decode(s) as Character
+	local char = JSON.decode(s as string) as Character
+	local chardyn = char as Dyn
 	char.name = (char.name and string.lower(char.name)) or string.lower(charname)
 
 	if char.defaultcolors then
-		for i, colors in ipairs(char.defaultcolors) do
-			for j, color in ipairs (colors) do
+		local dcolors = char.defaultcolors as {any:{any:{number}}}
+		for i, colors in ipairs(dcolors) do
+			for j, color in ipairs(colors) do
 				for k = 1, 3 do
-					char.defaultcolors[i][j][k] = char.defaultcolors[i][j][k] / 255
+					dcolors[i][j][k] = dcolors[i][j][k] / 255
 				end
 			end
 		end
@@ -30,7 +32,7 @@ global function loadcharacter(...: any): any
 	--IMAGE LOADING--
 	-----------------
 	for t = 1, 4 do
-		local curtype
+		local curtype: string = "nogunbiganimations"
 		if t == 1 then
 			curtype = "animations"
 		elseif t == 2 then
@@ -51,24 +53,24 @@ global function loadcharacter(...: any): any
 						break
 					end
 				end
-				if not char[curtype] then
-					char[curtype] = {}
+				if not chardyn[curtype] then
+					chardyn[curtype] = {}
 				end
-				char[curtype][i] = love.graphics.newImage(folder .. curtype .. i .. ".png")
+				chardyn[curtype][i] = love.graphics.newImage(folder .. curtype .. i .. ".png")
 			end
 			
 			--0 Image
 			if love.filesystem.getInfo(folder .. curtype .. "0.png") then
-				char[curtype][0] = love.graphics.newImage(folder .. curtype .. "0.png")
+				chardyn[curtype][0] = love.graphics.newImage(folder .. curtype .. "0.png")
 			end
 			
 			--Dot Image
 			if love.filesystem.getInfo(folder .. curtype .. "dot.png") then
-				char[curtype]["dot"] = love.graphics.newImage(folder .. curtype .. "dot.png")
+				chardyn[curtype]["dot"] = love.graphics.newImage(folder .. curtype .. "dot.png")
 			end
 		else
 			if love.filesystem.getInfo(folder .. curtype .. ".png") then
-				char[curtype] = love.graphics.newImage(folder .. curtype .. ".png")
+				chardyn[curtype] = love.graphics.newImage(folder .. curtype .. ".png")
 			end
 		end
 	end
@@ -177,11 +179,11 @@ end
 
 characterlist = {}
 characters = {}
-for i, v in pairs(love.filesystem.getDirectoryItems("assets/characters/")) do
+for i, v in ipairs(love.filesystem.getDirectoryItems("assets/characters/")) do
 	if love.filesystem.getInfo("assets/characters/" .. v, "directory") then
 		local temp = loadcharacter(v)
 		if temp then
-			characters[v] = temp
+			characters[v] = temp as Character
 			table.insert(characterlist, v)
 		end
 	end

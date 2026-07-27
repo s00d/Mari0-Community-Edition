@@ -13,8 +13,8 @@ regiondragboxwidth = 3
 function regiondrag:init(x: number, y: number, width, height)
 	self.x = x-1
 	self.y = y-1
-	self.width = width or 1
-	self.height = height or 1
+	self.width = (width as number) or 1
+	self.height = (height as number) or 1
 	
 	self.grabbed = 0
 end
@@ -119,7 +119,8 @@ function regiondrag:draw()
 	--edges
 	
 	for i = 1, 4 do
-		local x, y
+		local x: number = 0
+		local y: number = 0
 		
 		if i == self.grabbed or (self.grabbed == 0 and high == i) then
 			love.graphics.setColor(1, 1, 1, 0.8)
@@ -145,7 +146,7 @@ function regiondrag:draw()
 	end
 end
 
-function regiondrag:mousepressed(x, y, button)
+function regiondrag:mousepressed(x, y, button): any
 	for i = 1, 5 do
 		if self:inhighlight(mouse.getX(), mouse.getY(), i) then
 			self.grabbed = i
@@ -154,8 +155,8 @@ function regiondrag:mousepressed(x, y, button)
 	end
 	
 	if self.grabbed == 5 then
-		self.movex = x
-		self.movey = y
+		self.movex = x as number
+		self.movey = y as number
 		self.movestartx = self.x
 		self.movestarty = self.y
 	elseif self.grabbed == 0 then
@@ -167,7 +168,11 @@ function regiondrag:mousereleased(x, y, button)
 	self.grabbed = 0
 end
 
-function regiondrag:inhighlight(x, y, i)
+function regiondrag:inhighlight(x, y, i): boolean
+	local nx = x as number
+	local ny = y as number
+	local vx: number = 0
+	local vy: number = 0
 	if i == 1 then
 		vx = (self.x-xscroll)*16*scale
 		vy = (self.y-yscroll-.5)*16*scale
@@ -181,8 +186,8 @@ function regiondrag:inhighlight(x, y, i)
 		vx = (self.x-xscroll+self.width)*16*scale
 		vy = (self.y-yscroll-.5+self.height)*16*scale
 	elseif i == 5 then
-		return x >= (self.x-xscroll)*16*scale and x < (self.x-xscroll+self.width)*16*scale and y >= (self.y-yscroll-.5)*16*scale and y < (self.y-yscroll-.5+self.height)*16*scale
+		return nx >= (self.x-xscroll)*16*scale and nx < (self.x-xscroll+self.width)*16*scale and ny >= (self.y-yscroll-.5)*16*scale and ny < (self.y-yscroll-.5+self.height)*16*scale
 	end
 	
-	return x >= vx-regiondragboxwidth*scale and x < vx+regiondragboxwidth*scale and y >= vy-regiondragboxwidth*scale and y < vy+regiondragboxwidth*scale
+	return nx >= vx-regiondragboxwidth*scale and nx < vx+regiondragboxwidth*scale and ny >= vy-regiondragboxwidth*scale and ny < vy+regiondragboxwidth*scale
 end

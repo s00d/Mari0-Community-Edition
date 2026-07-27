@@ -14,17 +14,17 @@ emanceaccel = 20
 function emancipateanimation:init(x: number, y: number, width, height, img, quad, speedx, speedy, rotation, offsetX, offsetY, quadcenterX, quadcenterY)
 	self.x = x
 	self.y = y
-	self.width = width
-	self.height = height
-	self.img = img
+	self.width = width as number
+	self.height = height as number
+	self.img = img as Image
 	self.quad = quad
-	self.speedx = speedx
-	self.speedy = speedy
-	self.rotation = rotation
-	self.offsetX = offsetX
-	self.offsetY = offsetY
-	self.quadcenterX = quadcenterX
-	self.quadcenterY = quadcenterY
+	self.speedx = speedx as number
+	self.speedy = speedy as number
+	self.rotation = rotation as number
+	self.offsetX = offsetX as number
+	self.offsetY = offsetY as number
+	self.quadcenterX = quadcenterX as number
+	self.quadcenterY = quadcenterY as number
 	
 	self.speedx = math.max(-emancemaxspeed, math.min(emancemaxspeed, self.speedx))
 	

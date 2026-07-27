@@ -8,9 +8,9 @@ function platform.new(_: platform, x: number, y: number, r: {any}, diroverride: 
 	return self
 end
 
-function platform:init(x: number, y: number, r, diroverride): any
+function platform:init(x: number, y: number, r, diroverride)
 	self.size = 2
-	self.dir = diroverride or "normal" --(normal, Justup, Justdown, justright(bonus stage), fall)
+	self.dir = (diroverride as string) or "normal" --(normal, Justup, Justdown, justright(bonus stage), fall)
 	self.speed = platformjustspeed
 	self.xdistance = 0
 	self.ydistance = 0
@@ -22,16 +22,17 @@ function platform:init(x: number, y: number, r, diroverride): any
 	
 	--SIZE
 	if #self.r > 0 then
-		self.size = tonumber(self.r[1])
+		self.size = tonumber(self.r[1] as any) as number
 		table.remove(self.r, 1)
 	end
 	
 	--X Distance
 	if #self.r > 0 then
-		if string.sub(self.r[1], 1, 1) == "m" then
-			self.xdistance = -tonumber(string.sub(self.r[1], 2))
+		local xd = self.r[1] as string
+		if string.sub(xd, 1, 1) == "m" then
+			self.xdistance = -(tonumber(string.sub(xd, 2)) as number)
 		else
-			self.xdistance = tonumber(self.r[1])
+			self.xdistance = tonumber(xd) as number
 		end
 		table.remove(self.r, 1)
 	end
@@ -39,10 +40,11 @@ function platform:init(x: number, y: number, r, diroverride): any
 	
 	--X Distance
 	if #self.r > 0 then
-		if string.sub(self.r[1], 1, 1) == "m" then
-			self.ydistance = -tonumber(string.sub(self.r[1], 2))
+		local yd = self.r[1] as string
+		if string.sub(yd, 1, 1) == "m" then
+			self.ydistance = -(tonumber(string.sub(yd, 2)) as number)
 		else
-			self.ydistance = tonumber(self.r[1])
+			self.ydistance = tonumber(yd) as number
 		end
 		table.remove(self.r, 1)
 	end
@@ -86,7 +88,7 @@ function platform:init(x: number, y: number, r, diroverride): any
 	end
 end
 
-function platform:func(i) --0-1 in please
+function platform:func(i: number): number --0-1 in please
 	return (-math.cos(i*math.pi*2)+1)/2
 end
 
@@ -112,14 +114,14 @@ function platform:update(dt: number): any...
 		end
 	end
 	
-	local checktable = {"player", "enemy", "box"}
+	local checktable = {"player", "enemy", "box"} as {any}
 	
 	local numberofobjects = 0
 	
 	--GET FALL SPEED
 	
 	if self.dir == "fall" then
-		for i, v in pairs(checktable) do
+		for i, v in ipairs(checktable) do
 			for j, w in pairs(objects[v]) do
 				if inrange(w.x, self.x-w.width, self.x+self.width) and inrange(w.y + w.height, self.y - 0.1, self.y + 0.1) then
 					numberofobjects = numberofobjects + 1
@@ -132,7 +134,7 @@ function platform:update(dt: number): any...
 	
 	local nextx, nexty = self.x + self.speedx*dt, self.y + self.speedy*dt
 	
-	for i, v in pairs(checktable) do
+	for i, v in ipairs(checktable) do
 		for j, w in pairs(objects[v]) do
 			if inrange(w.x, self.x-w.width, self.x+self.width) and inrange(w.y + w.height, self.y - 0.1, self.y + 0.1) then
 				checkforemances(dt, w, self.speedx, self.speedy)

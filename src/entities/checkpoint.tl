@@ -53,16 +53,16 @@ function checkpoint:init(x: number, y: number, r)
 	--REGION
 	if #self.r > 0 then
 		local s = strsplit(self.r[1], ":")
-		self.regionX, self.regionY, self.regionwidth, self.regionheight = s[2], s[3], tonumber(s[4]), tonumber(s[5])
-		if string.sub(self.regionX, 1, 1) == "m" then
-			self.regionX = -tonumber(string.sub(self.regionX, 2))
+		self.regionX, self.regionY, self.regionwidth, self.regionheight = s[2], s[3], tonumber(s[4]) as number, tonumber(s[5]) as number
+		if string.sub(self.regionX as string, 1, 1) == "m" then
+			self.regionX = -tonumber(string.sub(self.regionX as string, 2))
 		end
-		if string.sub(self.regionY, 1, 1) == "m" then
-			self.regionY = -tonumber(string.sub(self.regionY, 2))
+		if string.sub(self.regionY as string, 1, 1) == "m" then
+			self.regionY = -tonumber(string.sub(self.regionY as string, 2))
 		end
 		
-		self.regionX = tonumber(self.regionX) + self.x - 1
-		self.regionY = tonumber(self.regionY) + self.y - 1
+		self.regionX = (tonumber(self.regionX) as number) + self.x - 1
+		self.regionY = (tonumber(self.regionY) as number) + self.y - 1
 		table.remove(self.r, 1)
 	end
 	
@@ -79,8 +79,8 @@ end
 
 function checkpoint:link()
 	while #self.r > 3 do
-		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w]) do
+		for j, w in pairs(outputs as {any}) do
+			for i, v in pairs(objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -125,7 +125,7 @@ function checkpoint:trigger()
 		end
 	end
 	
-	for i, v in pairs(modtable) do
+	for i, v in ipairs(modtable) do
 		checkpointx[v] = self.x
 		checkpointy[v] = self.y
 	end

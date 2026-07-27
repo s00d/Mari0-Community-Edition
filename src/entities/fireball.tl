@@ -46,7 +46,7 @@ function fireball:init(x: number, y: number, dir, v)
 	self.quadcenterX = 4
 	self.quadcenterY = 4
 	
-	self.fireballthrower = v
+	self.fireballthrower = v as Entity
 	
 	self.rotation = 0 --for portals
 	self.gravitydirection = math.pi/2
@@ -85,7 +85,7 @@ function fireball:update(dt: number): any...
 	end
 	
 	if self.x < xscroll-1 or self.x > xscroll+width+1 or self.y > mapheight and self.active then
-		self.fireballthrower:fireballcallback()
+		(self.fireballthrower as mario):fireballcallback()
 		self.destroy = true
 	end
 	
@@ -96,7 +96,7 @@ function fireball:update(dt: number): any...
 	end
 end
 
-function fireball:leftcollide(a: any, b: Entity)
+function fireball:leftcollide(a: any, b: Entity): any
 	self.x = self.x-.5
 	self:hitstuff(a, b)
 	
@@ -104,14 +104,14 @@ function fireball:leftcollide(a: any, b: Entity)
 	return false
 end
 
-function fireball:rightcollide(a: any, b: Entity)
+function fireball:rightcollide(a: any, b: Entity): any
 	self:hitstuff(a, b)
 	
 	self.speedx = -fireballspeed
 	return false
 end
 
-function fireball:floorcollide(a: any, b: Entity)
+function fireball:floorcollide(a: any, b: Entity): any
 	if a ~= "tile" and a ~= "portalwall" then
 		self:hitstuff(a, b)
 	end
@@ -120,24 +120,26 @@ function fireball:floorcollide(a: any, b: Entity)
 	return false
 end
 
-function fireball:ceilcollide(a: any, b: Entity)
+function fireball:ceilcollide(a: any, b: Entity): any
 	self:hitstuff(a, b)
+	return false
 end
 
-function fireball:passivecollide(a: any, b: Entity)
+function fireball:passivecollide(a: any, b: Entity): any
 	self:ceilcollide(a, b)
 	return false
 end
 
 function fireball:hitstuff(a, b)
+	local ent = b as Entity
 	if a == "tile" or a == "bulletbill" or a == "portalwall" or a == "spring" then
 		self:explode()
 		playsound("blockhit")
 		
 	elseif a == "enemy" or a == "bowser" then
-		if b:shotted("right", false, false, true) ~= false then
+		if ent:shotted("right", false, false, true) ~= false then
 			if a ~= "bowser" then
-				addpoints(b.firepoints or 200, self.x, self.y)
+				addpoints((ent.firepoints as number) or 200, self.x, self.y)
 			end
 		end
 		self:explode()
@@ -146,7 +148,7 @@ end
 
 function fireball:explode()
 	if self.active then
-		self.fireballthrower:fireballcallback()
+		(self.fireballthrower as mario):fireballcallback()
 		
 		self.destroysoon = true
 		self.quadi = 5

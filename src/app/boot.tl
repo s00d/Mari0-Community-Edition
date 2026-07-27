@@ -2,7 +2,7 @@
      Called from love.load before the bulk require block.
 ]]
 
-local Boot = {}
+local Boot = {} as BootModule
 
 function Boot.setup_core_helpers()
 	require("core.stringutil")
@@ -265,11 +265,11 @@ function Boot.load_media()
 	
 	linktoolpointerimg = love.graphics.newImage("assets/graphics/linktoolpointer.png")
 	
-	blockdebrisquads = {}
+	blockdebrisquads = {} as {any:{any:any}}
 	for y = 1, 4 do
-		blockdebrisquads[y] = {}
+		(blockdebrisquads as {any:{any:any}})[y] = {} as {any:any}
 		for x = 1, 2 do
-			blockdebrisquads[y][x] = love.graphics.newQuad((x-1)*8, (y-1)*8, 8, 8, 16, 32)
+			(blockdebrisquads as {any:{any:any}})[y][x] = love.graphics.newQuad((x-1)*8, (y-1)*8, 8, 8, 16, 32)
 		end
 	end
 	
@@ -278,65 +278,65 @@ function Boot.load_media()
 		coinblockanimationquads[i] = love.graphics.newQuad((i-1)*8, 0, 8, 52, 256, 64)
 	end
 	
-	coinanimationquads = {}
+	coinanimationquads = {} as {any:{any:any}}
 	for j = 1, 4 do
-		coinanimationquads[j] = {}
+		coinanimationquads[j] = {} as {any:any}
 		for i = 1, 5 do
 			coinanimationquads[j][i] = love.graphics.newQuad((i-1)*5, (j-1)*8, 5, 8, 25, 32)
 		end
 	end
 	
 	--coinblock
-	coinblockquads = {}
+	coinblockquads = {} as {any:{any:any}}
 	for j = 1, 4 do
-		coinblockquads[j] = {}
+		coinblockquads[j] = {} as {any:any}
 		for i = 1, 5 do
 			coinblockquads[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*16, 16, 16, 80, 64)
 		end
 	end
 	
 	--coin
-	coinquads = {}
+	coinquads = {} as {any:{any:any}}
 	for j = 1, 4 do
-		coinquads[j] = {}
+		coinquads[j] = {} as {any:any}
 		for i = 1, 5 do
 			coinquads[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*16, 16, 16, 80, 64)
 		end
 	end
 	
 	--axe
-	axequads = {}
+	axequads = {} as {any:any}
 	for i = 1, 5 do
 		axequads[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 80, 16)
 	end
 	
 	--spring
-	springquads = {}
+	springquads = {} as {any:{any:any}}
 	for i = 1, 4 do
-		springquads[i] = {}
+		springquads[i] = {} as {any:any}
 		for j = 1, 3 do
 			springquads[i][j] = love.graphics.newQuad((j-1)*16, (i-1)*31, 16, 31, 48, 124)
 		end
 	end
 	
-	seesawquad = {}
+	seesawquad = {} as {any:any}
 	for i = 1, 4 do
 		seesawquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
 	end
 	
 	playerselectimg = love.graphics.newImage("assets/graphics/playerselectarrow.png")
 	
-	starquad = {}
+	starquad = {} as {any:any}
 	for i = 1, 4 do
 		starquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
 	end
 	
-	flowerquad = {}
+	flowerquad = {} as {any:any}
 	for i = 1, 4 do
 		flowerquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
 	end
 	
-	fireballquad = {}
+	fireballquad = {} as {number:any}
 	for i = 1, 4 do
 		fireballquad[i] = love.graphics.newQuad((i-1)*8, 0, 8, 8, 80, 16)
 	end
@@ -345,27 +345,27 @@ function Boot.load_media()
 		fireballquad[i] = love.graphics.newQuad((i-5)*16+32, 0, 16, 16, 80, 16)
 	end
 	
-	vinequad = {}
+	vinequad = {} as {any:{any:any}}
 	for i = 1, 4 do
-		vinequad[i] = {}
+		vinequad[i] = {} as {any:any}
 		for j = 1, 2 do
 			vinequad[i][j] = love.graphics.newQuad((j-1)*16, (i-1)*16, 16, 16, 32, 64) 
 		end
 	end
 	
 	--enemies
-	goombaquad = {}
+	goombaquad = {} as {any:{any:any}}
 	
 	for y = 1, 4 do
-		goombaquad[y] = {}
+		goombaquad[y] = {} as {any:any}
 		for x = 1, 2 do
 			goombaquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*16, 16, 16, 32, 64)
 		end
 	end
 		
-	spikeyquad = {}
+	spikeyquad = {} as {any:{any:any}}
 	for y = 1, 4 do
-		spikeyquad[y] = {}
+		spikeyquad[y] = {} as {any:any}
 		for x = 1, 4 do
 			spikeyquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*16, 16, 16, 64, 64)
 		end
@@ -373,7 +373,7 @@ function Boot.load_media()
 	
 	lakitoquad = {}
 	for y = 1, 4 do
-		lakitoquad[y] = {}
+		lakitoquad[y] = {} as {any:any}
 		for x = 1, 2 do
 			lakitoquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*24, 16, 24, 32, 96)
 		end
@@ -382,18 +382,18 @@ function Boot.load_media()
 	koopaquad = {}
 	
 	for y = 1, 4 do
-		koopaquad[y] = {}
+		koopaquad[y] = {} as {any:any}
 		for x = 1, 5 do
 			koopaquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*24, 16, 24, 80, 96)
 		end
 	end
 	cheepcheepquad = {}
 	
-	cheepcheepquad[1] = {}
+	cheepcheepquad[1] = {} as {any:any}
 	cheepcheepquad[1][1] = love.graphics.newQuad(0, 0, 16, 16, 32, 32)
 	cheepcheepquad[1][2] = love.graphics.newQuad(16, 0, 16, 16, 32, 32)
 	
-	cheepcheepquad[2] = {}
+	cheepcheepquad[2] = {} as {any:any}
 	cheepcheepquad[2][1] = love.graphics.newQuad(0, 16, 16, 16, 32, 32)
 	cheepcheepquad[2][2] = love.graphics.newQuad(16, 16, 16, 16, 32, 32)
 	
@@ -410,7 +410,7 @@ function Boot.load_media()
 	
 	hammerbrosquad = {}
 	for y = 1, 4 do
-		hammerbrosquad[y] = {}
+		hammerbrosquad[y] = {} as {any:any}
 		for x = 1, 4 do
 			hammerbrosquad[y][x] = love.graphics.newQuad((x-1)*16, (y-1)*34, 16, 34, 64, 136)
 		end
@@ -426,7 +426,7 @@ function Boot.load_media()
 	
 	plantquads = {}
 	for j = 1, 4 do
-		plantquads[j] = {}
+		plantquads[j] = {} as {any:any}
 		for i = 1, 2 do
 			plantquads[j][i] = love.graphics.newQuad((i-1)*16, (j-1)*23, 16, 23, 32, 92)
 		end
@@ -536,7 +536,7 @@ function Boot.load_media()
 		assets:register_sound(v, "assets/sounds/" .. v .. ".ogg")
 		local src = assets:get_sound(v)
 		soundlist[v] = {}
-		soundlist[v as any].source = src as any
+		soundlist[v].source = src
 		soundlist[v].lastplayed = 0
 		defaultsoundslist[v] = src
 	end

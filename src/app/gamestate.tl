@@ -3,10 +3,10 @@
      tracks handlers and provides a typed entry point for migration.
 ]]
 
-local Gamestate = {}
-
-Gamestate.current = "intro"
-Gamestate.handlers = {} -- {string:{update:function, draw:function}}
+local Gamestate = {
+	current = "intro" as string,
+	handlers = {} as {string:{string:function}},
+}
 
 function Gamestate.register(name: string, handlers: {string:function})
 	Gamestate.handlers[name] = handlers
@@ -20,7 +20,7 @@ end
 function Gamestate.get(): string
 	local g = rawget(_G, "gamestate")
 	if type(g) == "string" then
-		Gamestate.current = g
+		Gamestate.current = g as string
 	end
 	return Gamestate.current
 end

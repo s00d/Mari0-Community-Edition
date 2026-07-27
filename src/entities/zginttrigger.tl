@@ -52,15 +52,15 @@ function zginttrigger:update(dt: number): any...
 	if self.out == "off" and col then
 		self.out = "on"
 		for i = 1, #self.outtable do
-			if self.outtable[i][1].input then
-				self.outtable[i][1]:input(self.out, self.outtable[i][2])
+			if (self.outtable[i] as {Entity, any})[1].input then
+				(self.outtable[i] as {Entity, any})[1]:input(self.out, (self.outtable[i] as {Entity, any})[2])
 			end
 		end
 	elseif self.out == "on" and not col then
 		self.out = "off"
 		for i = 1, #self.outtable do
-			if self.outtable[i][1].input then
-				self.outtable[i][1]:input(self.out, self.outtable[i][2])
+			if (self.outtable[i] as {Entity, any})[1].input then
+				(self.outtable[i] as {Entity, any})[1]:input(self.out, (self.outtable[i] as {Entity, any})[2])
 			end
 		end
 	end
@@ -71,5 +71,5 @@ function zginttrigger:draw()
 end
 
 function zginttrigger:addoutput(a, t)
-	table.insert(self.outtable, {a, t})
+	table.insert(self.outtable, {a, t} as any)
 end

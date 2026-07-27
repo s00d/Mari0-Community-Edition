@@ -4,7 +4,9 @@ local function round(num: number, idp: number|nil): number
 end
 
 local function getrainbowcolor(i: number): {number}
-	local r, g, b = 0, 0, 0
+	local r: number = 0
+	local g: number = 0
+	local b: number = 0
 	if i < 1 / 6 then
 		r = 1
 		g = i * 6
@@ -44,8 +46,8 @@ local function gradient(color1: {number}, color2: {number}, progress: number): {
 end
 
 _G.round = round
-_G.getrainbowcolor = getrainbowcolor as any
-_G.gradient = gradient as any
+_G.getrainbowcolor = getrainbowcolor
+_G.gradient = gradient
 
 return {
 	round = round,

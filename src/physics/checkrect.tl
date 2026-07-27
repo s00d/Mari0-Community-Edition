@@ -2,30 +2,36 @@
 -- Depends at runtime on: objects, aabb.
 
 global function checkrect(...: any): {any}
-	local x, y, width, height, list, statics = ...
+	local x = (... as number)
+	local y = (select(2, ...) as number)
+	local width = (select(3, ...) as number)
+	local height = (select(4, ...) as number)
+	local list: any = select(5, ...)
+	local statics = select(6, ...)
 	local unpack = table.unpack or unpack
-	local out = {}
+	local out = {} as {any}
 	
-	local inobj
+	local inobj: {Entity}|nil = nil
 	
-	local catlist = ""
+	local catlist: any = ""
 	
-	if type(list) == "table" and list[1] == "exclude" then
-		inobj = {unpack(list)}
-		table.remove(inobj, 1)
+	if type(list) == "table" and (list as {any})[1] == "exclude" then
+		inobj = {unpack(list as {any})} as {Entity}
+		table.remove(inobj as {any}, 1)
 		list = "all"
 	end
 
 	for i, v in pairs(objects) do
 		local contains = false
 		
-		if list and list ~= "all" then			
-			for j = 1, #list do
-				if list[j] == i then
+		if list and list ~= "all" then
+			local lst = list as {any}
+			for j = 1, #lst do
+				if lst[j] == i then
 					contains = true
-				elseif tonumber(list[j]) and "enemy" == i then
+				elseif tonumber(lst[j] as any) and "enemy" == i then
 					contains = true
-					catlist = tonumber(list[j])
+					catlist = tonumber(lst[j] as any)
 				end
 			end
 		end
@@ -35,12 +41,12 @@ global function checkrect(...: any): {any}
 				if statics or w.static ~= true or list ~= "all" then
 					local skip = false
 					if inobj then
-						for i, v in pairs(inobj) do
-							if v == w then
+						for ii, vv in pairs(inobj) do
+							if vv == w then
 								skip = true
 							end
 							
-							if (v.mask ~= nil and v.mask[w.category] == true) or (w.mask ~= nil and w.mask[v.category] == true) then
+							if (vv.mask ~= nil and vv.mask[w.category] == true) or (w.mask ~= nil and w.mask[vv.category] == true) then
 								skip = true
 							end
 							

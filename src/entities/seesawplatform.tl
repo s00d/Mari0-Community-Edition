@@ -10,14 +10,14 @@ end
 
 function seesawplatform:init(x: number, y: number, size, callback, side)
 	--PHYSICS STUFF
-	self.size = size or 2
-	self.startx = x-self.size	
+	self.size = (size as number) or 2
+	self.startx = x-(self.size as number)
 	self.starty = y	
-	self.x = x-self.size/2-0.5
+	self.x = x-(self.size as number)/2-0.5
 	self.y = y-17/16
 	self.speedx = 0 --!
 	self.speedy = 0
-	self.width = self.size
+	self.width = self.size as number
 	self.height = 8/16
 	self.static = true
 	self.active = true
@@ -41,7 +41,7 @@ function seesawplatform:update(dt: number): any...
 	local previousY = self.y
 	
 	local checktable = {}
-	for i, v in pairs(enemies) do
+	for i, v in ipairs(enemies) do
 		if objects[v] then
 			table.insert(checktable, v)
 		end
@@ -65,9 +65,9 @@ function seesawplatform:update(dt: number): any...
 	
 	--report back on number of objects
 	if self.side == "left" then
-		self.callback:callbackleft(numberofobjects)
+		((self.callback as Entity).callbackleft as function(any, number))(self.callback, numberofobjects)
 	else
-		self.callback:callbackright(numberofobjects)
+		((self.callback as Entity).callbackright as function(any, number))(self.callback, numberofobjects)
 	end
 	
 	if self.y > mapheight+1 then
@@ -78,7 +78,7 @@ function seesawplatform:update(dt: number): any...
 end
 
 function seesawplatform:draw()
-	for i = 1, self.size do
+	for i = 1, (self.size as number) do
 		if self.dir ~= "justright" then
 			love.graphics.draw(platformimg, math.floor((self.x+i-1-xscroll)*16*scale), math.floor((self.y-yscroll-8/16)*16*scale), 0, scale, scale)
 		else
@@ -86,23 +86,23 @@ function seesawplatform:draw()
 		end
 	end
 	
-	if math.ceil(self.size) ~= self.size then --draw 1 more on the rightest
-		love.graphics.draw(platformimg, math.floor((self.x+self.size-1-xscroll)*16*scale), math.floor((self.y-yscroll-8/16)*16*scale), 0, scale, scale)
+	if math.ceil(self.size as number) ~= (self.size as number) then --draw 1 more on the rightest
+		love.graphics.draw(platformimg, math.floor((self.x+(self.size as number)-1-xscroll)*16*scale), math.floor((self.y-yscroll-8/16)*16*scale), 0, scale, scale)
 	end
 end
 
-function seesawplatform:rightcollide(a: any, b: Entity)
+function seesawplatform:rightcollide(a: any, b: Entity): any
 	return false
 end
 
-function seesawplatform:leftcollide(a: any, b: Entity)
+function seesawplatform:leftcollide(a: any, b: Entity): any
 	return false
 end
 
-function seesawplatform:ceilcollide(a: any, b: Entity)
+function seesawplatform:ceilcollide(a: any, b: Entity): any
 	return false
 end
 
-function seesawplatform:floorcollide(a: any, b: Entity)
+function seesawplatform:floorcollide(a: any, b: Entity): any
 	return false
 end

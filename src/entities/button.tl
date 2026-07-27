@@ -44,7 +44,10 @@ function button:init(x: number, y: number, r)
 end
 
 function button:update(_dt: number): any...
-	local x, y, width, height
+	local x: number = 0
+	local y: number = 0
+	local width: number = 0
+	local height: number = 0
 	if self.dir == "down" then
 		x = self.x+5/16
 		y = self.y-2/16

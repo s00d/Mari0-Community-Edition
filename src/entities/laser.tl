@@ -45,7 +45,7 @@ end
 
 function laser:link()
 	while #self.r > 3 do
-		for j, w in pairs(outputs) do
+		for j, w in pairs(outputs as {any}) do
 			for i, v in pairs(objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
@@ -79,7 +79,10 @@ function laser:update(dt: number): any...
 		self.framestart = self.framestart + 1
 		return
 	end
-	local x, y, width, height
+	local x: number = 0
+	local y: number = 0
+	local width: number = 0
+	local height: number = 0
 	local col = false
 	
 	for i = 1, #self.lasertable, 5 do
@@ -116,62 +119,63 @@ function laser:update(dt: number): any...
 			col = true
 			self.blocked = true
 		
-			local obj
+			local obj: Entity|nil = nil
 			if (self.lasertable[i] as string) == "right" or (self.lasertable[i] as string) == "down" then
 				local smallestx = mapwidth+1
-				local smallesti: any
+				local smallesti: number = 0
 			
 				for j = 1, #rectcol, 2 do
-					if (objects[rectcol[j] as any] as {any:Entity})[rectcol[j+1] as any].x < smallestx then
-						smallestx = (objects[rectcol[j] as any] as {any:Entity})[rectcol[j+1] as any].x
+					if (objects[rectcol[j as integer] as any] as {any:Entity})[rectcol[(j+1) as integer] as any].x < smallestx then
+						smallestx = (objects[rectcol[j as integer] as any] as {any:Entity})[rectcol[(j+1) as integer] as any].x
 						smallesti = j
 					end
 				end
-				obj = (objects[rectcol[smallesti] as any] as {any:Entity})[rectcol[smallesti+1] as any]
+				obj = (objects[rectcol[smallesti as integer] as any] as {any:Entity})[rectcol[(smallesti+1) as integer] as any]
 			else
 				local biggestx = -1
-				local biggesti: any
+				local biggesti: number = 0
 			
 				for j = 1, #rectcol, 2 do
-					if (objects[rectcol[j] as any] as {any:Entity})[rectcol[j+1] as any].x > biggestx then
-						biggestx = (objects[rectcol[j] as any] as {any:Entity})[rectcol[j+1] as any].x
+					if (objects[rectcol[j as integer] as any] as {any:Entity})[rectcol[(j+1) as integer] as any].x > biggestx then
+						biggestx = (objects[rectcol[j as integer] as any] as {any:Entity})[rectcol[(j+1) as integer] as any].x
 						biggesti = j
 					end
 				end
 				
-				obj = (objects[rectcol[biggesti] as any] as {any:Entity})[rectcol[biggesti+1] as any]
+				obj = (objects[rectcol[biggesti as integer] as any] as {any:Entity})[rectcol[(biggesti+1) as integer] as any]
 			end
+			local o = obj as Entity
 			
-			local newtable = {}
+			local newtable = {} as {any}
 			for k = 1, i*5 do
-				table.insert(newtable, self.lasertable[k])
+				table.insert(newtable as {any}, self.lasertable[k])
 			end
 			
 			if (self.lasertable[i] as string) == "left" then
-				if obj.laser then
-					obj:laser("right")
+				if o.laser then
+					(o.laser as function(Entity, any))(o, "right")
 				end
 				
-				newtable[i+3] = obj.x - newtable[i+1] + obj.width+1
+				newtable[i+3] = o.x - (newtable[i+1] as number) + o.width+1
 			elseif (self.lasertable[i] as string) == "right" then
-				if obj.laser then
-					obj:laser("left")
+				if o.laser then
+					(o.laser as function(Entity, any))(o, "left")
 				end
 				
-				newtable[i+3] = obj.x - newtable[i+1]
+				newtable[i+3] = o.x - (newtable[i+1] as number)
 			elseif (self.lasertable[i] as string) == "up" then
-				if obj.laser then
-					obj:laser("down")
+				if o.laser then
+					(o.laser as function(Entity, any))(o, "down")
 				end
 				
-				newtable[i+4] = obj.y - newtable[i+2]+1
+				newtable[i+4] = o.y - (newtable[i+2] as number)+1
 			elseif (self.lasertable[i] as string) == "down" then
-				if obj.laser then
-					obj:laser("up")
+				if o.laser then
+					(o.laser as function(Entity, any))(o, "up")
 				end
 				
 				
-				newtable[i+4] = obj.y - newtable[i+2] + 1 - obj.height+1-1
+				newtable[i+4] = o.y - (newtable[i+2] as number) + 1 - o.height+1-1
 			end
 			
 			self.lasertable = newtable
@@ -341,20 +345,20 @@ function laser:updaterange()
 			table.insert(self.lasertable, rangex)
 			table.insert(self.lasertable, rangey)
 			
-			x, y = portalx, portaly
+			x, y = portalx as number, portaly as number
 			dir = portalfacing
 			
 			rangex, rangey = 0, 0
 			
 			if dir == "right" then
-				x = portalx + 1
+				x = (portalx as number) + 1
 			elseif dir == "left" then
-				x = portalx - 1
+				x = (portalx as number) - 1
 				rangex = 0
 			elseif dir == "up" then
-				y = portaly - 1
+				y = (portaly as number) - 1
 			elseif dir == "down" then
-				y = portaly + 1
+				y = (portaly as number) + 1
 			end
 		end
 		

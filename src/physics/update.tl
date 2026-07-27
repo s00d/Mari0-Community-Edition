@@ -3,7 +3,7 @@
 -- handlegroup, checkcollision, inmap, tilequads, map, tilekey, checkforemances, inportal.
 
 global function physicsupdate(...: any): any
-	local dt = ...
+	local dt = (... as number)
 	local lobjects = objects
 	
 	for j, w in pairs(lobjects) do
@@ -44,7 +44,7 @@ global function physicsupdate(...: any): any
 					
 					--VS OTHER OBJECTS PRE TILE GROUP
 					for h, u in pairs(lobjects) do
-						if h ~= "tile" and not PHYSICS_LATE_SET[h] then
+						if h ~= "tile" and not PHYSICS_LATE_SET[h as string] then
 							local hor, ver = handlegroup(i, h, u, v, j, dt, passed)
 							if hor then
 								horcollision = true
@@ -77,7 +77,7 @@ global function physicsupdate(...: any): any
 								local t = tiles[tk]
 								if t then
 									--    Same object          Active        Not masked
-									if (i ~= g or j ~= h) and t.active and v.mask[t.category] ~= true then
+									if (i ~= tk or j ~= "tile") and t.active and v.mask[t.category] ~= true then
 										local collision1, collision2 = checkcollision(v, t, "tile", tk, j, i, dt, passed)
 										if collision1 then
 											horcollision = true
@@ -124,7 +124,7 @@ global function physicsupdate(...: any): any
 						if v.previouslyonground and v.startfall and not v.jumping then
 							v.previouslyonground = false
 							if v.speedy >= 0 then
-								v:startfall(i)
+								(v.startfall as function(Entity, any))(v, i)
 							end
 						end
 					elseif not v.previouslyonground and v.startfall then

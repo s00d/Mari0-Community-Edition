@@ -249,12 +249,12 @@ global record bowser is Entity
 	direction: string
 	drawable: boolean
 	emancipatecheck: boolean
-	fall: number
+	fall: boolean
 	fireframe: number
 	graphic: any
 	gravity: number
 	gravitydirection: number
-	hammers: number
+	hammers: boolean
 	hammertime: number
 	hammertimer: number
 	height: number
@@ -284,14 +284,13 @@ global record bowser is Entity
 	update: function(bowser, number): any...
 	draw: function(bowser)
 	newtargetx: function(bowser, any)
-	shotted: function(Entity, ...: any): any...
-	firedeath: function(bowser)
-	leftcollide: function(bowser, any, Entity): any...
-	rightcollide: function(bowser, any, Entity): any...
-	ceilcollide: function(bowser, any, Entity): any...
+	shotted: function(bowser, ...: any): any
+	firedeath: function(bowser, ...: any)
+	leftcollide: function(bowser, any, Entity): any
+	rightcollide: function(bowser, any, Entity): any
+	ceilcollide: function(bowser, any, Entity): any
 	startfall: function(bowser)
-	floorcollide: function(bowser, any, Entity): any...
-	startfall: function(bowser)
+	floorcollide: function(bowser, any, Entity): any
 	emancipate: function(bowser, any)
 	new: function(bowser, number, number, any): bowser
 end
@@ -561,17 +560,17 @@ global record checkpoint is Entity
 	category: number
 	mask: {boolean}
 	draw: function(checkpoint)
-	all: number
+	all: boolean
 	cox: number
 	coy: number
 	input1state: any
-	p: number
+	p: {boolean}
 	r: {any}
-	regionX: number
-	regionY: number
+	regionX: any
+	regionY: any
 	regionheight: number
 	regionwidth: number
-	rest: number
+	rest: boolean
 	visible: boolean
 	x: number
 	y: number
@@ -1012,7 +1011,7 @@ global record enemy is Entity
 	enteredfunnel: function(enemy, any): any...
 	getspawnedenemies: function(enemy): any...
 	onscreen: function(enemy): any...
-	new: function(enemy, number, number, string, any): enemy
+	new: function(enemy, number, number, any, any): enemy
 end
 
 global record enemyspawner is Entity
@@ -1044,7 +1043,7 @@ global record entity is {any}
 	image: Image
 	quad: any
 	t: string
-	init: function(entity, number, number, any, any, any)
+	init: function(entity, any, any, any, any, any)
 	sett: function(entity, any)
 	new: function(entity, any, any, any, any, any): entity
 end
@@ -1054,8 +1053,8 @@ global record entitylistitem is {any}
 	t: string
 	x: number
 	y: number
-	init: function(entitylistitem, number, number)
-	gethighlight: function(entitylistitem, any, any)
+	init: function(entitylistitem, any, any)
+	gethighlight: function(entitylistitem, any, any): boolean
 	new: function(entitylistitem, any, any): entitylistitem
 end
 
@@ -1137,10 +1136,10 @@ global record fireball is Entity
 	active: boolean
 	category: number
 	destroy: boolean
-	destroysoon: number
+	destroysoon: boolean
 	drawable: boolean
 	emancipatecheck: boolean
-	fireballthrower: number
+	fireballthrower: Entity
 	graphic: any
 	gravity: number
 	gravitydirection: number
@@ -1163,11 +1162,11 @@ global record fireball is Entity
 	y: number
 	init: function(fireball, number, number, any, any)
 	update: function(fireball, number): any...
-	leftcollide: function(fireball, any, Entity): any...
-	rightcollide: function(fireball, any, Entity): any...
-	floorcollide: function(fireball, any, Entity): any...
-	ceilcollide: function(fireball, any, Entity): any...
-	passivecollide: function(fireball, any, Entity): any...
+	leftcollide: function(fireball, any, Entity): any
+	rightcollide: function(fireball, any, Entity): any
+	floorcollide: function(fireball, any, Entity): any
+	ceilcollide: function(fireball, any, Entity): any
+	passivecollide: function(fireball, any, Entity): any
 	hitstuff: function(fireball, any, any)
 	explode: function(fireball)
 	emancipate: function(fireball)
@@ -1410,9 +1409,9 @@ global record itemanimation is Entity
 	static: boolean
 	category: number
 	mask: {boolean}
-	i: number
+	i: any
 	timer: number
-	v: number
+	v: EnemyDef
 	x: number
 	y: number
 	init: function(itemanimation, number, number, any)
@@ -1439,7 +1438,7 @@ global record laser is {any}
 	framestart: number
 	input1state: any
 	lasertable: {any}
-	outtable: {{Entity, any}}
+	outtable: {Entity}
 	power: any
 	r: {any}
 	init: function(laser, number, number, any)
@@ -1467,11 +1466,11 @@ global record laserdetector is Entity
 	allowclear: boolean
 	cox: number
 	coy: number
-	dir: string
+	dir: any
 	drawable: boolean
-	out: boolean
-	outtable: {{Entity, any}}
-	prevout: number
+	out: any
+	outtable: {any}
+	prevout: any
 	r: {any}
 	init: function(laserdetector, number, number, any)
 	update: function(laserdetector, number): any...
@@ -1893,12 +1892,13 @@ global record pedestal is Entity
 	static: boolean
 	category: number
 	mask: {boolean}
-	blue: number
+	blue: boolean
 	cox: number
 	coy: number
-	orange: number
-	pickedup: number
+	orange: boolean
+	pickedup: boolean
 	progress: number
+	portals: any
 	r: {any}
 	x: number
 	y: number
@@ -1911,7 +1911,7 @@ end
 global record platform is Entity
 	active: boolean
 	category: number
-	dir: string
+	dir: any
 	drawable: boolean
 	gravity: number
 	height: number
@@ -1933,14 +1933,14 @@ global record platform is Entity
 	y: number
 	ydistance: number
 	init: function(platform, number, number, any, any)
-	func: function(platform, any)
+	func: function(platform, number): number
 	update: function(platform, number): any...
 	draw: function(platform)
-	rightcollide: function(platform, any, Entity): any...
-	leftcollide: function(platform, any, Entity): any...
-	ceilcollide: function(platform, any, Entity): any...
-	floorcollide: function(platform, any, Entity): any...
-	passivecollide: function(platform, any, Entity): any...
+	rightcollide: function(platform, any, Entity): any
+	leftcollide: function(platform, any, Entity): any
+	ceilcollide: function(platform, any, Entity): any
+	floorcollide: function(platform, any, Entity): any
+	passivecollide: function(platform, any, Entity): any
 	new: function(platform, number, number, {any}, any): platform
 end
 
@@ -2147,13 +2147,13 @@ global record pushbutton is Entity
 	static: boolean
 	category: number
 	mask: {boolean}
-	base: number
+	base: any
 	cox: number
 	coy: number
-	dir: string
-	out: boolean
-	outtable: {{Entity, any}}
-	pusheddown: number
+	dir: any
+	out: any
+	outtable: {any}
+	pusheddown: boolean
 	r: {any}
 	timer: number
 	init: function(pushbutton, number, number, any)
@@ -2222,9 +2222,9 @@ global record regiondrag is {any}
 	init: function(regiondrag, number, number, any, any)
 	update: function(regiondrag, number): any...
 	draw: function(regiondrag)
-	mousepressed: function(regiondrag, any, any, any)
+	mousepressed: function(regiondrag, any, any, any): any
 	mousereleased: function(regiondrag, any, any, any)
-	inhighlight: function(regiondrag, any, any, any)
+	inhighlight: function(regiondrag, any, any, any): boolean
 	new: function(regiondrag, number, number, any, any): regiondrag
 end
 
@@ -2505,10 +2505,12 @@ global record seesawplatform is {any}
 	init: function(seesawplatform, number, number, any, any, any)
 	update: function(seesawplatform, number): any...
 	draw: function(seesawplatform)
-	rightcollide: function(seesawplatform, any, Entity): any...
-	leftcollide: function(seesawplatform, any, Entity): any...
-	ceilcollide: function(seesawplatform, any, Entity): any...
-	floorcollide: function(seesawplatform, any, Entity): any...
+	rightcollide: function(seesawplatform, any, Entity): any
+	leftcollide: function(seesawplatform, any, Entity): any
+	ceilcollide: function(seesawplatform, any, Entity): any
+	floorcollide: function(seesawplatform, any, Entity): any
+	callbackleft: any
+	callbackright: any
 	new: function(seesawplatform, number, number, any, any, any): seesawplatform
 end
 
@@ -2702,11 +2704,11 @@ global record zgbooltrigger is Entity
 	checktable: any
 	cox: number
 	coy: number
-	id: number
-	inverted: number
+	id: any
+	inverted: any
 	invisible: boolean
-	out: boolean
-	outtable: {{Entity, any}}
+	out: any
+	outtable: {any}
 	r: {any}
 	x: number
 	y: number
@@ -2727,15 +2729,15 @@ global record zginttrigger is Entity
 	category: number
 	mask: {boolean}
 	checktable: any
-	condition: number
-	conditions: number
+	condition: any
+	conditions: {any}
 	cox: number
 	coy: number
-	id: number
-	out: boolean
-	outtable: {{Entity, any}}
+	id: any
+	out: any
+	outtable: {any}
 	r: {any}
-	value: number
+	value: any
 	x: number
 	y: number
 	init: function(zginttrigger, number, number, any)
