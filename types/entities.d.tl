@@ -159,6 +159,30 @@ global record World
 	set_gamestate: function(World, string)
 end
 
+-- Per-level state bag (world.level); Ctx.level owns map/objects/scroll for a load.
+global record Level
+	map: {number:{number:{any}}}
+	coinmap: {number:{number:boolean}}
+	objects: {string:{any:Entity}}
+	mapwidth: integer
+	mapheight: integer
+	xscroll: number
+	yscroll: number
+	ylookmodifier: number
+	playerobjs: {Entity}
+	portals: {any}
+	teardown: {function}
+	smbspritebatch: SpriteBatch|nil
+	smbspritebatchfront: SpriteBatch|nil
+	portalspritebatch: SpriteBatch|nil
+	portalspritebatchfront: SpriteBatch|nil
+	new: function(): Level
+	destroy: function(Level)
+	on_destroy: function(Level, function)
+	push_globals: function(Level)
+	pull_globals: function(Level)
+end
+
 -- Asset store (assets.store).
 global record AssetStoreEntry
 	path: string

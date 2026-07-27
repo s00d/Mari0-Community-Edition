@@ -1503,6 +1503,7 @@ global loadcustomsounds: function(string)
 global loadenemy: function(string)
 global loadhat: function(string)
 global loadlevel: function(level: string|number): boolean
+global level_reset_ctx: function(): Level
 global loadlevelscreens: function()
 global loadmap: function(filename: string, createobjects?: boolean): boolean
 global loadmapold: function(any): any

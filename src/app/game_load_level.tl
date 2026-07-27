@@ -1,5 +1,7 @@
 --[[ game_load level / map lifecycle ]]
 
+require "world.level"
+
 global function game_load(suspended?: any)
 	
 	checkpointx = {}
@@ -211,62 +213,7 @@ global function loadlevel(level: string|number): boolean
 	
 	portals = {}
 	
-	objects = {}
-	playerobjs = {}
-	objects["player"] = playerobjs
-	objects["portalwall"] = {}
-	objects["tile"] = {}
-	objects["vine"] = {}
-	objects["box"] = {}
-	objects["door"] = {}
-	objects["button"] = {}
-	objects["groundlight"] = {}
-	objects["wallindicator"] = {}
-	objects["animatedtiletrigger"] = {}
-	objects["delayer"] = {}
-	objects["walltimer"] = {}
-	objects["notgate"] = {}
-	objects["rsflipflop"] = {}
-	objects["orgate"] = {}
-	objects["andgate"] = {}
-	objects["musicentity"] = {}
-	objects["enemyspawner"] = {}
-	objects["squarewave"] = {}
-	objects["lightbridge"] = {}
-	objects["lightbridgebody"] = {}
-	objects["faithplate"] = {}
-	objects["laser"] = {}
-	objects["laserdetector"] = {}
-	objects["gel"] = {}
-	objects["geldispenser"] = {}
-	objects["cubedispenser"] = {}
-	objects["pushbutton"] = {}
-	objects["fireball"] = {}
-	objects["platform"] = {}
-	objects["platformspawner"] = {}
-	objects["castlefire"] = {}
-	objects["castlefirefire"] = {}
-	objects["bowser"] = {}
-	objects["spring"] = {}
-	objects["seesawplatform"] = {}
-	objects["ceilblocker"] = {}
-	objects["funnel"] = {}
-	objects["panel"] = {}
-	objects["scaffold"] = {}
-	objects["regiontrigger"] = {}
-	objects["zgbooltrigger"] = {}
-	objects["zginttrigger"] = {}
-	objects["animationtrigger"] = {}
-	objects["checkpoints"] = {}
-	objects["portalent"] = {}
-	objects["actionblock"] = {}
-	
-	--!
-	objects["enemy"] = {}
-	
-	xscroll = 0
-	yscroll = 0
-	ylookmodifier = 0
+	level_reset_ctx()
 	
 	startx = {3, 3, 3, 3, 3}
 	starty = {13, 13, 13, 13, 13}
@@ -502,6 +449,13 @@ global function loadlevel(level: string|number): boolean
 	updateranges()
 	
 	generatespritebatch()
+	local Ctx = require("core.ctx")
+	local lvl = Ctx.level
+	if lvl ~= nil then
+		local level = lvl as Level
+		level:pull_globals()
+		level:push_globals()
+	end
 	if session then session:sync_session_from_globals() end
 	return needs_to_be_saved
 end

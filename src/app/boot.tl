@@ -30,6 +30,8 @@ function Boot.run_early(debugprints: any, music_type: any): LoggerModule, AssetS
 	rawset(_G, "World", WorldMod)
 	rawset(_G, "assets", assets)
 	rawset(_G, "session", session)
+	local Ctx = require("core.ctx")
+	Ctx.assets = assets
 	LoggerMod.info("Loading Mari0 SE!")
 	LoggerMod.info("=======================")
 	return LoggerMod, AssetStoreMod, GamestateMod, WorldMod, assets, session
