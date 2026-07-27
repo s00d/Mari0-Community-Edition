@@ -1,0 +1,5 @@
+{
+  "actions":[["dotobool","q4471_fall_gate","false"]],
+  "conditions":[["worldequals","1"],["levelequals","2"]],
+  "triggers":[["mapload"]]
+}

@@ -74,6 +74,7 @@ local needed = {
 	"truffleshuffle", "shell", "follow", "piston", "wiggle", "verticalwiggle",
 	"rocket", "squid", "targety", "flyvertical", "flyhorizontal",
 	"turret", "sine", "shy", "bones", "slam", "charge", "hop", "trap", "hover", "latch",
+	"nullptr", "offbyone", "memleak",
 }
 for _, name in ipairs(needed) do
 	check("move registered " .. name, type(ENEMY_MOVES[name]) == "function")

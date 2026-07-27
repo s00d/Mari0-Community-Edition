@@ -1,0 +1,5 @@
+{
+  "actions":[["dotobool","ef_sign_b","true"],["dialogbox","SIGN B: only breakable blocks are real. SIGN A is deprecated.","sign"]],
+  "conditions":[["worldequals","1"],["levelequals","1"],["ifbool","ef_sign_b","false"]],
+  "triggers":[["playerxgreater","17"]]
+}

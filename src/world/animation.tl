@@ -65,6 +65,7 @@ makeplayerlook:player:angle			makes players aim in direction of <angle>, startin
 makeplayerfireportal:player:i		makes a player shoot one of their portal
 enableportalgun:player				enable portal gun of player
 disableportalgun:player				disable portal gun of player
+giveweapon:id						give weapon <id> to all players (Weapons.give)
 --]]
 
 --[[ FES:
@@ -458,6 +459,15 @@ function animation:update(dt: number)
 					local i: number = self:decodenuminput(string.sub(v[2] as string, -1))
 					if playerobjs[i] then
 						playerobjs[i].portalgundisabled = false
+					end
+				end
+			elseif v[1] == "giveweapon" then
+				if Weapons and Weapons.give and playerobjs then
+					local wid = tostring(v[2] or "")
+					for i = 1, players do
+						if playerobjs[i] then
+							Weapons.give(playerobjs[i], wid)
+						end
 					end
 				end
 			elseif v[1] == "dotobool" then

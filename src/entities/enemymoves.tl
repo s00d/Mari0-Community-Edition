@@ -805,6 +805,73 @@ global function enemymove_drybones_stomp(self: enemy): boolean
 	return false
 end
 
+-- ===== ENGINE FAULT identity AI =====
+
+ENEMY_MOVES["nullptr"] = function(self: enemy, _dt: number)
+	local pl = closest_player(self)
+	if pl == nil then
+		self.drawable = false
+		return
+	end
+	local p = pl as mario
+	local sx = self.x + self.width / 2
+	local sy = self.y + self.height / 2
+	local px = p.x + p.width / 2
+	local py = p.y + p.height / 2
+	local dx, dy = px - sx, py - sy
+	local len = math.max(0.001, math.sqrt(dx * dx + dy * dy))
+	local ang = p.pointingangle or 0
+	local ax, ay = -math.sin(ang), -math.cos(ang)
+	-- visible only when player aims at us (same cone math as shy)
+	local from_pl_x = sx - px
+	local from_pl_y = sy - py
+	local plen = math.max(0.001, math.sqrt(from_pl_x * from_pl_x + from_pl_y * from_pl_y))
+	local aimed = (from_pl_x / plen) * ax + (from_pl_y / plen) * ay >= n(self.npcone, 0.55)
+	self.drawable = aimed
+	local spd = n(self.npspeed, 3.2)
+	self.speedx = (dx / len) * spd
+	self.speedy = (dy / len) * spd
+end
+
+ENEMY_MOVES["offbyone"] = function(self: enemy, dt: number)
+	local tf = ENEMY_MOVES["truffleshuffle"]
+	if tf then
+		tf(self, dt)
+	end
+	if self.obo_base_ox == nil then
+		self.obo_base_ox = self.offsetX or 6
+	end
+	local shift = (self.animationdirection == "right") and 16 or -16
+	self.offsetX = (self.obo_base_ox as number) + shift
+end
+
+ENEMY_MOVES["memleak"] = function(self: enemy, dt: number)
+	local grow = n(self.mlgrow, 0.08)
+	local mlmax = n(self.mlmax, 3.0)
+	self.width = math.min(mlmax, self.width + grow * dt)
+	self.height = math.min(mlmax, self.height + grow * dt)
+	self.customscale = self.width / 0.75
+	self.mltimer = n(self.mltimer, 0) + dt
+	if self.mltimer >= n(self.mlsplit, 6.0) then
+		self.mltimer = 0
+		local list = (objects and objects["enemy"]) as {any}|nil
+		if list and #list < 60 and enemy and enemy.new then
+			local e = enemy:new(self.x + 1, self.y + 1, self.t, nil)
+			e.x = self.x
+			e.y = self.y - 1
+			e.width = 0.75
+			e.height = 0.75
+			e.customscale = 1
+			e.mltimer = 0
+			table.insert(list, e)
+		end
+	end
+	local tf = ENEMY_MOVES["truffleshuffle"]
+	if tf then
+		tf(self, dt)
+	end
+end
+
 global function enemymove_splitter_die(self: enemy): boolean
 	local lvl = n(self.splitlevel, 0)
 	if lvl <= 0 then

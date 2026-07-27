@@ -1077,6 +1077,14 @@ global record enemy is Entity, Body
 	lastdir: number
 	shakes: number
 	shakewin: number
+	-- ENGINE FAULT
+	npspeed: number
+	npcone: number
+	obo_base_ox: number
+	mlgrow: number
+	mlsplit: number
+	mlmax: number
+	mltimer: number
 	hookanchor: boolean
 	grabbable: boolean
 	killsonsides: boolean

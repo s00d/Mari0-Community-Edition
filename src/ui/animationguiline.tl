@@ -915,6 +915,18 @@ table.insert(toenter, {name = "enableportalgun",
 	}
 })
 
+table.insert(toenter, {name = "giveweapon",
+	t = {
+		t="action",
+		nicename="give weapon",
+		entries={
+			{
+				t="input",
+			},
+		}
+	}
+})
+
 table.insert(toenter, {name = "dotobool", 
 	t = {
 		t="action",
