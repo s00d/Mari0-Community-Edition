@@ -1,6 +1,6 @@
 --[[ Teal port of root lobby.lua ]]
 
-global function lobby_load(...: any): any
+global function lobby_load()
 	gamestate = "lobby"
 	guielements = {}
 	guielements.chatentry = guielement:new("input", 4, 207, 43+7/8, sendchat, "", 43)
@@ -16,8 +16,7 @@ global function lobby_load(...: any): any
 	magicdns_delay = 30
 end
 
-global function lobby_update(...: any): any
-	local dt = ...
+global function lobby_update(dt: number)
 	runanimationtimer = runanimationtimer + dt
 	while runanimationtimer > runanimationdelay do
 		runanimationtimer = runanimationtimer - runanimationdelay
@@ -37,7 +36,8 @@ global function lobby_update(...: any): any
 	end
 end
 
-global function lobby_draw(...: any): any
+global function lobby_draw()
+	local scroll = guielements.playerscroll.value as number
 	--STUFF
 	love.graphics.setColor(0, 0, 0, 0.8)
 	love.graphics.rectangle("fill", 3*scale, 3*scale, 233*scale, 104*scale)
@@ -59,13 +59,13 @@ global function lobby_draw(...: any): any
 	love.graphics.setColor(0, 0, 0, 0.8)
 	love.graphics.rectangle("fill", 239*scale, 3*scale, 150*scale, 104*scale)
 	
-	love.graphics.translate(0, -missingpixels*guielements.playerscroll.value*scale)
+	love.graphics.translate(0, -missingpixels*scroll*scale)
 	
 	local y = 1
 	for i = 1, #playerlist do
 		if playerlist[i].connected then
 			local focus = netplayerid == playerlist[i].id
-			local ping = nil
+			local ping: number|nil = nil
 			if i > 1 then
 				ping = round(playerlist[i].ping*1000)
 			end
@@ -74,7 +74,7 @@ global function lobby_draw(...: any): any
 		end
 	end
 	
-	love.graphics.translate(0, missingpixels*guielements.playerscroll.value*scale)
+	love.graphics.translate(0, missingpixels*scroll*scale)
 	guielements.playerscroll:draw()
 	love.graphics.setScissor()
 	
@@ -88,7 +88,7 @@ global function lobby_draw(...: any): any
 	guielements.sendbutton:draw()
 	
 	--chat messages
-	local height = 0
+	local chat_height = 0
 	for i = #chatmessages, math.max(1, #chatmessages-8), -1 do
 		--find playerlist number
 		local pid = 0
@@ -102,28 +102,28 @@ global function lobby_draw(...: any): any
 		if pid ~= 0 then
 			local nick = playerlist[pid].nick
 			
-			local background = {1, 1, 1}
+			local nick_background = {1, 1, 1}
 			
-			local adds = 0
-			for i = 1, 3 do
-				adds = adds + playerlist[pid].colors[1][i]
+			local adds: number = 0
+			for c = 1, 3 do
+				adds = adds + playerlist[pid].colors[1][c]
 			end
 			
 			if adds/3 > 40 then
-				background = {0, 0, 0}
+				nick_background = {0, 0, 0}
 			end
 			
 			love.graphics.setColor(unpack(playerlist[pid].colors[1]))
-			properprintbackground(nick, 8*scale, (196-(height*10))*scale, true, background)
+			properprintbackground(nick, 8*scale, (196-(chat_height*10))*scale, true, nick_background)
 			
 			love.graphics.setColor(1, 1, 1)
-			properprint(":" .. chatmessages[i].message, (8+(string.len(nick))*8)*scale, (196-(height*10))*scale)
-			height = height + 1
+			properprint(":" .. chatmessages[i].message, (8+(string.len(nick))*8)*scale, (196-(chat_height*10))*scale)
+			chat_height = chat_height + 1
 		end
 	end
 end
 
-global function sendchat(...: any): any
+global function sendchat()
 	net_sendchat(guielements.chatentry.value)
 	guielements.chatentry.value = ""
 	guielements.chatentry.cursorpos = 1

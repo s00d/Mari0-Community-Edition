@@ -234,9 +234,9 @@ global record PromptState
 end
 global prompt: PromptState
 global rgbselection: number
-global client_load: function(...: any): any
-global server_load: function(...: any): any
-global server_start: function(...: any): any
+global client_load: function()
+global server_load: function()
+global server_start: function()
 
 -- Level / world visuals
 global spriteset: integer
@@ -414,7 +414,19 @@ global newmapoffsetx: number
 global newmapoffsety: number
 global blacktime: number
 global ENEMY_SPAWN_HANDLERS: {string:function(number, number, {any}, boolean|nil): boolean}
-global playerlist: {any}
+global record OnlinePlayer
+	connected: boolean
+	id: string
+	ping: number
+	colors: {{number}}
+	hats: any
+	nick: string
+end
+global record ChatMessage
+	id: string
+	message: string
+end
+global playerlist: {OnlinePlayer}
 global emancipationgrills: {any:Entity}
 global marioscore: number
 global flagy: number
@@ -508,7 +520,7 @@ global tilescrollbarheight: number
 global selectworldcursor: number
 global mappackdescription: {any}
 global axisDeadZones: {any:any}
-global playerconfig: {any}
+global playerconfig: number
 global blockdebristable: {any:Entity}
 global portalprojectiles: {any:Entity}
 global completecanvas: any
@@ -709,7 +721,7 @@ global runanimationdelay: number
 global adjective: string
 global noun: string
 global actualy: number
-global magics: {any:Entity}
+global magics: {magic}
 global port: number
 global portalbouncethreshold: number
 global firstpersonview: boolean
@@ -801,9 +813,9 @@ global recordframe: number
 global recordskip: number
 global recordtarget: any
 global touchfrominsidescaling: number
-global chatmessages: {any}
+global chatmessages: {ChatMessage}
 global localnick: string
-global magicdns_identity: any
+global magicdns_identity: string
 global coinblockanimationquads: {integer:any}
 global scrollingscoreheight: number
 global portaldotsouter: number
@@ -979,7 +991,7 @@ global versionerror: boolean
 global targetdt: number
 global screenshotimagedata: any
 global magicdns_delay: number
-global localnicks: {any}
+global localnicks: {string}
 global magicdelay: number
 global ip: string
 global magicdns_session: string
@@ -1130,7 +1142,7 @@ global starquad: {any:any}
 global flowerquad: {any:any}
 global squidquad: {any:any}
 global bulletbillquad: {any}
-global magicdns_validresponses: {any}
+global magicdns_validresponses: {string}
 
 -- Missing globals declared for cyan -u (auto)
 global LOVE_MAJOR: number
@@ -1305,7 +1317,7 @@ global changespriteset: function(any): any
 global checkcollision: function(Entity, Entity, any, any, any, any, number, any): boolean, boolean
 global checkforemances: function(dt: number, v: Body, speedx?: number, speedy?: number)
 global checkkey: function(any): any
-global checkmagic: function(...: any): any
+global checkmagic: function(s: string): boolean
 global checkportalHOR: function(Entity, number): boolean
 global checkportalVER: function(Entity, number): boolean
 global checkportalremove: function(any, any)
@@ -1314,8 +1326,8 @@ global closerightclickmenu: function()
 global collectblock: function(any): any
 global collectcoin: function(x: number, y: number, i?: any): any
 global collisionscalls: function(any, Entity, any, Entity, any, any): any
-global configdecrease: function(...: any): any
-global configincrease: function(...: any): any
+global configdecrease: function()
+global configincrease: function()
 global continuegame: function()
 global convertentity: function(any): any
 global convertfromstandard: function(Entity, number, number): number, number
@@ -1323,7 +1335,7 @@ global convertmappack: function(any)
 global converttostandard: function(Entity, number, number): number, number
 global count_spawn_handlers: function({any:any}): number
 global createdialogbox: function(any, any)
-global creategame: function(...: any): any
+global creategame: function()
 global createmappack: function()
 global createnewanimation: function(): any
 global decreasetimelimit: function(): any
@@ -1344,6 +1356,7 @@ global drawlevel_tiles: function(any, any)
 global drawlinkline: function(any, any, any, any): any
 global drawlinkline2: function(any, any, any, any): any
 global drawmushrooms: function(): any
+global drawplayercard: function(x: number, y: number, colors: {{number}}, hats: any, nick: string, ping?: number, focus?: boolean)
 global drawplayer: function(any, any, any, cscale?: any, offsetX?: any, offsetY?: any, rotation?: any, quadcenterX?: any, quadcenterY?: any, animationstate?: any, underwater?: any, ducking?: any, hats?: any, graphic?: any, quad?: any, pointingangle?: any, shot?: any, upsidedown?: any, colors?: any, lastportal?: any, portal1color?: any, portal2color?: any, runframe?: any, swimframe?: any, climbframe?: any, jumpframe?: any, biggraphic?: any, fireanimationtimer?: any, char?: any)
 global drawpowerlines: function(): any
 global drawrectangle: function(any, any, any, any): any
@@ -1451,7 +1464,7 @@ global intro_load: function()
 global intro_mousepressed: function()
 global intro_update: function(number)
 global item: function(i: any, x: number, y: number, size?: any)
-global joingame: function(...: any): any
+global joingame: function()
 global keyprompt_update: function()
 global keypromptstart: function()
 global leftkey: function(any): any
@@ -1489,14 +1502,14 @@ global loadmtobjects: function(): any
 global loadonlinemappacks: function()
 global loadstate: function(s?: any): any
 global loadtoconvertmappacks: function()
-global lobby_draw: function(...: any): any
-global lobby_load: function(...: any): any
-global lobby_update: function(...: any): any
-global magicdns_error: function(...: any): any
-global magicdns_find: function(...: any): any
-global magicdns_keep: function(...: any): any
-global magicdns_make: function(...: any): any
-global magicdns_remove: function(...: any): any
+global lobby_draw: function()
+global lobby_load: function()
+global lobby_update: function(dt: number)
+global magicdns_error: function(result: {string}): boolean
+global magicdns_find: function(adjective: string, noun: string): string, string, string
+global magicdns_keep: function()
+global magicdns_make: function(): string, string
+global magicdns_remove: function()
 global mapnumberclick: function(any, any, k?: any): any
 global mappacks: function()
 global mapwidthapply: function(): any
@@ -1526,9 +1539,9 @@ global newlevel: function(): any
 global nextcharacter: function()
 global nextlevel: function()
 global objectclipboardcopy: function(any): any
-global onlinemenu_draw: function(...: any): any
-global onlinemenu_load: function(...: any): any
-global onlinemenu_update: function(...: any): any
+global onlinemenu_draw: function()
+global onlinemenu_load: function()
+global onlinemenu_update: function(dt: number)
 global onlineupdatescroll: function()
 global openchangewidth: function(): any
 global passivecollision: function(Entity, Entity, any, any, any, any, number): boolean
@@ -1566,7 +1579,7 @@ global selectionend: function(): any
 global selectiongettiles: function(any, any, any, any): {SelectionTile}
 global selectionstart: function(): any
 global selectworld: function()
-global sendchat: function(...: any): any
+global sendchat: function()
 global serializetable: function(any)
 global shootportal: function(any, any, any, any, any, mirrored?: any, bounces?: any)
 global spawnenemy: function(x: number, y: number)
@@ -1592,7 +1605,7 @@ global togglecustomforeground: function(any): any
 global toggledrawalllinks: function(any): any
 global toggleeditordebug: function(any): any
 global toggleintermission: function(any): any
-global togglemagic: function(...: any): any
+global togglemagic: function()
 global toggleskiplevelscreen: function(any): any
 global toggleunderwater: function(any): any
 global togglewarpzone: function(any): any

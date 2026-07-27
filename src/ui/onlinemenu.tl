@@ -1,6 +1,6 @@
 --[[ Teal port of root onlinemenu.lua ]]
 
-global function onlinemenu_load(...: any): any
+global function onlinemenu_load()
 	objects = nil
 	mappack = "smb"
 	
@@ -44,8 +44,7 @@ global function onlinemenu_load(...: any): any
 	magics = {}
 end
 
-global function onlinemenu_update(...: any): any
-	local dt = ...
+global function onlinemenu_update(dt: number)
 	runanimationtimer = runanimationtimer + dt
 	while runanimationtimer > runanimationdelay do
 		runanimationtimer = runanimationtimer - runanimationdelay
@@ -58,14 +57,14 @@ global function onlinemenu_update(...: any): any
 	magictimer = magictimer + dt
 	while magictimer > magicdelay do
 		magictimer = magictimer - magicdelay
-		if checkmagic(guielements.ipentry.value) then
+		if checkmagic(guielements.ipentry.value as string) then
 			table.insert(magics, magic:new())
 		end
 	end
 	
-	local delete = {}
+	local delete: {integer} = {}
 	
-	for i, v in pairs(magics) do
+	for i, v in ipairs(magics) do
 		if v:update(dt) == true then
 			table.insert(delete, i)
 		end
@@ -73,10 +72,10 @@ global function onlinemenu_update(...: any): any
 	
 	remove_indices_desc(magics, delete)
 	
-	localnick = guielements.nickentry.value
+	localnick = guielements.nickentry.value as string
 end
 
-global function onlinemenu_draw(...: any): any
+global function onlinemenu_draw()
 	--TOP PART
 	love.graphics.setColor(0, 0, 0, 0.8)
 	love.graphics.rectangle("fill", 3*scale, 3*scale, 394*scale, 52*scale)
@@ -92,7 +91,7 @@ global function onlinemenu_draw(...: any): any
 	guielements.configdecrease:draw()
 	guielements.configincrease:draw()
 	
-	drawplayercard(240, 10, mariocolors[playerconfig], mariohats[playerconfig], localnick)
+	drawplayercard(240, 10, mariocolors[playerconfig as integer], mariohats[playerconfig as integer], localnick)
 	
 	
 	--BOTTOM PART
@@ -146,26 +145,25 @@ global function onlinemenu_draw(...: any): any
 	
 	guielements.hostbutton:draw()
 	
-	for i, v in pairs(magics) do
+	for _, v in ipairs(magics) do
 		v:draw()
 	end
 end
 
-global function configdecrease(...: any): any
+global function configdecrease()
 	playerconfig = math.max(1, playerconfig-1)
 end
 
-global function configincrease(...: any): any
+global function configincrease()
 	playerconfig = math.min(4, playerconfig+1)
 end
 
-global function togglemagic(...: any): any
+global function togglemagic()
 	usemagic = not usemagic
 	guielements.magiccheckbox.var = usemagic
 end
 
-global function checkmagic(...: any): any
-	local s = ...
+global function checkmagic(s: string): boolean
 	if string.find(s, " ") then
 		return true
 	else
@@ -173,29 +171,31 @@ global function checkmagic(...: any): any
 	end
 end
 
-global function creategame(...: any): any
-	port = tonumber(guielements.portentry.value)
+global function creategame()
+	port = tonumber(guielements.portentry.value) or port
 	server_load()
 	if usemagic then
 		adjective, noun = magicdns_make()
 	end
 end
 
-global function joingame(...: any): any
-	port = tonumber(guielements.portentry2.value)
-	local s = guielements.ipentry.value
+global function joingame()
+	port = tonumber(guielements.portentry2.value) or port
+	local s = guielements.ipentry.value as string
 	if checkmagic(s) then
 		usemagic = true
 		local split = strsplit(s, " ")
 		adjective, noun = split[1], split[2]
-		ip, port = magicdns_find(adjective, noun)
+		local found_ip, found_port = magicdns_find(adjective, noun)
 		
-		if ip == nil then
+		if found_ip == "" then
 			return
 		end
+		ip = found_ip
+		port = tonumber(found_port) or port
 	else
 		usemagic = false
-		ip = guielements.ipentry.value
+		ip = s
 	end
 	
 	client_load()
@@ -203,65 +203,63 @@ end
 
 magicdns_validresponses = {"MADE", "KEPT", "REMOVED", "FOUND", "NOTFOUND", "ERROR"}
 
-global function magicdns_make(...: any): any
+global function magicdns_make(): string, string
 	http.PORT = port
-	s = http.request("http://dns.stabyourself.net/MAKE/" .. magicdns_identity .. "/" .. magicdns_session .. "/" .. port)
-	result = strsplit(s, "/")
-	magicdns_error(result)
+	local s = http.request("http://dns.stabyourself.net/MAKE/" .. magicdns_identity .. "/" .. magicdns_session .. "/" .. port) as string
+	local dns_parts = strsplit(s, "/")
+	magicdns_error(dns_parts)
 	
-	if result[1] == "MADE" then
-		return string.lower(result[2]), string.lower(result[3])
+	if dns_parts[1] == "MADE" then
+		return string.lower(dns_parts[2]), string.lower(dns_parts[3])
 	else
 		print("MAGICDNS MAKE FAILED HORRIBLY")
 		usemagic = false
-		return
+		return "", ""
 	end
 end
 
-global function magicdns_keep(...: any): any
-	s = http.request("http://dns.stabyourself.net/KEEP/"..magicdns_identity.."/"..magicdns_session)
-	result = strsplit(s, "/")
-	magicdns_error(result)
-	if result[1] ~= "KEPT" then
+global function magicdns_keep()
+	local s = http.request("http://dns.stabyourself.net/KEEP/"..magicdns_identity.."/"..magicdns_session) as string
+	local dns_parts = strsplit(s, "/")
+	magicdns_error(dns_parts)
+	if dns_parts[1] ~= "KEPT" then
 		print("MAGICDNS KEEP FAILED! RETURNED: " .. s)
-	elseif result[2] ~= "" then
-		print("MAGICDNS EXTERNAL PORT KNOWN = " .. result[2])
+	elseif dns_parts[2] ~= "" then
+		print("MAGICDNS EXTERNAL PORT KNOWN = " .. dns_parts[2])
 	end
 end
 
-global function magicdns_remove(...: any): any
-	s = http.request("http://dns.stabyourself.net/REMOVE/"..magicdns_identity.."/"..magicdns_session)
-	result = strsplit(s, "/")
-	magicdns_error(result)
-	if result[1] ~= "REMOVED" then
+global function magicdns_remove()
+	local s = http.request("http://dns.stabyourself.net/REMOVE/"..magicdns_identity.."/"..magicdns_session) as string
+	local dns_parts = strsplit(s, "/")
+	magicdns_error(dns_parts)
+	if dns_parts[1] ~= "REMOVED" then
 		print("MAGICDNS REMOVE FAILED! RETURNED: " .. s)
 	end
 end
 	
-global function magicdns_find(...: any): any
-	local adjective, noun = ...
-	s = http.request("http://dns.stabyourself.net/FIND/" .. magicdns_identity .. "/" .. string.upper(adjective) .. "/" .. string.upper(noun))
+global function magicdns_find(adj: string, dns_noun: string): string, string, string
+	local s = http.request("http://dns.stabyourself.net/FIND/" .. magicdns_identity .. "/" .. string.upper(adj) .. "/" .. string.upper(dns_noun)) as string
 	
-	local result = strsplit(s, "/")
-	magicdns_error(result)
-	if result[1] == "FOUND" then
-		if result[4] == "" then
+	local dns_parts = strsplit(s, "/")
+	magicdns_error(dns_parts)
+	if dns_parts[1] == "FOUND" then
+		if dns_parts[4] == "" then
 		print("MAGICDNS Server external port is not known!")
 		end		
-		return result[2], result[3], result[4]
+		return dns_parts[2], dns_parts[3], dns_parts[4]
 	else
-		return nil
+		return "", "", ""
 	end
 end
 
-global function magicdns_error(...: any): any
-	local result = ...
-	if result[1] == "ERROR" then
+global function magicdns_error(dns_parts: {string}): boolean
+	if dns_parts[1] == "ERROR" then
 		
-		print("MAGICDNS ERROR: "..result[2])
+		print("MAGICDNS ERROR: "..dns_parts[2])
 		return true
-	elseif not tablecontains(magicdns_validresponses, result[1]) then
-		print("MAGICDNS: nonstandard response: "..result[1])
+	elseif not tablecontains(magicdns_validresponses, dns_parts[1]) then
+		print("MAGICDNS: nonstandard response: "..dns_parts[1])
 		return true
 	end
 	return false

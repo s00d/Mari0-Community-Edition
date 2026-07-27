@@ -80,8 +80,8 @@ function LoveLoad.run(arg: any)
 		local rand = math.random(string.len(magicdns_session_chars))
 		magicdns_session = magicdns_session .. string.sub(magicdns_session_chars, rand, rand)
 	end
-	magicdns_identity = strsplit(love.filesystem.getSaveDirectory(), "/")
-	magicdns_identity = string.upper((magicdns_identity as {string})[#(magicdns_identity as {string})])
+	local identity_parts = strsplit(love.filesystem.getSaveDirectory(), "/")
+	magicdns_identity = string.upper(identity_parts[#identity_parts])
 
 	shaderlist = love.filesystem.getDirectoryItems("assets/shaders/") as {number:string}
 	local rem: integer | nil

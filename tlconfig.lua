@@ -8,5 +8,5 @@ return {
 	feat_arity = "on",
 	include = { "**/*.tl" },
 	-- Unused at boot (require commented); skip typecheck sink.
-	exclude = { "types/**", "ui/onlinemenu.tl", "ui/lobby.tl" },
+	exclude = { "types/**" },
 }
