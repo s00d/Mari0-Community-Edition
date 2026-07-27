@@ -6,11 +6,16 @@ create_host/create_client/send/recv_burst surface — no native compile needed.
 ]]
 
 local MAX_RECV_PER_FRAME = 48
+local MAX_RECV_PER_PEER = 12
 local MAX_DATAGRAM = 1200
 
 -- Reused across frames to avoid empty-table alloc when the socket has no datagrams.
 local EMPTY_RECV: {{string:any}} = {}
 local recv_buf: {{string:any}} = {}
+-- peer_key -> count this burst (host only); reused table cleared each recv_burst.
+local peer_recv_counts: {string:integer} = {}
+-- Peers that hit MAX_RECV_PER_PEER this frame (host); cleared each burst.
+local abuse_list: {string} = {}
 
 local function try_socket(): any|nil, string|nil
 	local req = require as function(string): any
@@ -85,6 +90,7 @@ local function close(u: any)
 	end
 end
 
+-- Refuse oversized datagrams (truncation would corrupt JSON). Caller must split or shrink.
 local function send(u: any, data: string, ip: string|nil, port: integer|nil): boolean
 	if not u or not data then
 		return false
@@ -94,7 +100,7 @@ local function send(u: any, data: string, ip: string|nil, port: integer|nil): bo
 		return false
 	end
 	if #data > MAX_DATAGRAM then
-		data = data:sub(1, MAX_DATAGRAM)
+		return false
 	end
 	local sock = bag.sock as {string:any}
 	if bag.mode == "client" then
@@ -108,6 +114,36 @@ local function send(u: any, data: string, ip: string|nil, port: integer|nil): bo
 	return ok ~= nil
 end
 
+local function clear_peer_counts()
+	for k in pairs(peer_recv_counts) do
+		peer_recv_counts[k] = nil
+	end
+	for i = #abuse_list, 1, -1 do
+		abuse_list[i] = nil as string
+	end
+end
+
+local function note_peer_recv(key: string): boolean
+	local n = (peer_recv_counts[key] or 0) + 1
+	peer_recv_counts[key] = n
+	if n == MAX_RECV_PER_PEER + 1 then
+		table.insert(abuse_list, key)
+	end
+	return n <= MAX_RECV_PER_PEER
+end
+
+local function push_slot(n: integer, data: string, ip: string, port: integer): integer
+	local slot = recv_buf[n]
+	if not slot then
+		slot = {}
+		recv_buf[n] = slot
+	end
+	slot.data = data
+	slot.ip = ip
+	slot.port = port
+	return n
+end
+
 local function recv_burst(u: any): {{string:any}}
 	if not u then
 		return EMPTY_RECV
@@ -116,26 +152,25 @@ local function recv_burst(u: any): {{string:any}}
 	if not bag.sock then
 		return EMPTY_RECV
 	end
-	-- Clear previous burst length (keep pooled slot tables when possible).
+	clear_peer_counts()
 	local prev_n = #recv_buf
 	local sock = bag.sock as {string:any}
 	local mode = bag.mode as string
 	local n = 0
+	-- Drain up to MAX_RECV_PER_FRAME datagrams; oversized and per-peer excess are dropped.
 	for _ = 1, MAX_RECV_PER_FRAME do
 		if mode == "client" then
 			local data = (sock.receive as function(any): any)(bag.sock)
 			if type(data) ~= "string" then
 				break
 			end
-			n = n + 1
-			local slot = recv_buf[n]
-			if not slot then
-				slot = {}
-				recv_buf[n] = slot
+			local s = data as string
+			if #s > MAX_DATAGRAM then
+				-- drop oversized
+			else
+				n = n + 1
+				push_slot(n, s, (bag.peer_ip as string) or "", (bag.peer_port as integer) or 0)
 			end
-			slot.data = data as string
-			slot.ip = (bag.peer_ip as string) or ""
-			slot.port = (bag.peer_port as integer) or 0
 		else
 			local got_data: string|nil = nil
 			local got_ip: string = ""
@@ -151,15 +186,17 @@ local function recv_burst(u: any): {{string:any}}
 			if not ok or not got_data then
 				break
 			end
-			n = n + 1
-			local slot = recv_buf[n]
-			if not slot then
-				slot = {}
-				recv_buf[n] = slot
+			local s = got_data as string
+			if #s > MAX_DATAGRAM then
+				-- drop oversized
+			else
+				local key = got_ip .. ":" .. tostring(got_port)
+				if note_peer_recv(key) then
+					n = n + 1
+					push_slot(n, s, got_ip, got_port)
+				end
+				-- else: drop excess from this peer this frame (still counted toward global drain)
 			end
-			slot.data = got_data as string
-			slot.ip = got_ip
-			slot.port = got_port
 		end
 	end
 	if n == 0 then
@@ -175,6 +212,11 @@ local function peer_key(ip: string, port: integer): string
 	return ip .. ":" .. tostring(port)
 end
 
+-- Host-only: peer keys that exceeded MAX_RECV_PER_PEER in the last recv_burst.
+local function last_abuse_peers(): {string}
+	return abuse_list
+end
+
 return {
 	available = available,
 	create_host = create_host,
@@ -183,4 +225,8 @@ return {
 	send = send,
 	recv_burst = recv_burst,
 	peer_key = peer_key,
+	last_abuse_peers = last_abuse_peers,
+	MAX_DATAGRAM = MAX_DATAGRAM,
+	MAX_RECV_PER_FRAME = MAX_RECV_PER_FRAME,
+	MAX_RECV_PER_PEER = MAX_RECV_PER_PEER,
 }

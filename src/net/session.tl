@@ -14,6 +14,8 @@ local PEER_TIMEOUT = 8.0
 local MAX_CHAT = 64
 local MAX_PLAYERS = (Match.MAX_PLAYERS as integer) or 4
 local DEFAULT_PORT = 7331
+-- Drop peer after this many consecutive frames of per-peer recv abuse.
+local ABUSE_DISCONNECT_FRAMES = 3
 
 local sock: any = nil
 local role: string = "idle" -- idle | host | client
@@ -23,6 +25,64 @@ local heartbeat_t: number = 0
 local connect_t: number = 0
 local peers_by_key: {string:any} = {} -- host-only
 local in_match: boolean = false
+-- Monotonic outbound seq for input / snap / hash (UDP reorder / duplicate guard).
+local send_seq: integer = 0
+-- last_seen[peer_key or "_host"][opcode] = highest accepted seq
+local last_seen: {string:{string:integer}} = {}
+-- host: peer_key -> consecutive abuse-frame count
+local abuse_strikes: {string:integer} = {}
+
+local SEQ_OPS: {string:boolean} = {
+	input = true,
+	snap = true,
+	hash = true,
+}
+
+local function next_seq(): integer
+	send_seq = send_seq + 1
+	return send_seq
+end
+
+local function net_log(msg: string)
+	if Logger and Logger.warn then
+		(Logger.warn as function(...: any))("net", msg)
+	else
+		print("[net] " .. msg)
+	end
+end
+
+local function accept_seq(peer_id: string, op: string, seq: any): boolean
+	if not SEQ_OPS[op] then
+		return true
+	end
+	local s = tonumber(seq)
+	if not s then
+		-- Legacy packets without seq: accept once migration peers catch up.
+		return true
+	end
+	local n = s as integer
+	local bucket = last_seen[peer_id]
+	if not bucket then
+		bucket = {}
+		last_seen[peer_id] = bucket
+	end
+	local prev = bucket[op]
+	if prev ~= nil and n <= prev then
+		return false
+	end
+	bucket[op] = n
+	return true
+end
+
+local function clear_seq_state()
+	send_seq = 0
+	for k in pairs(last_seen) do
+		last_seen[k] = nil
+	end
+	for k in pairs(abuse_strikes) do
+		abuse_strikes[k] = nil
+	end
+end
 
 local function gen_id(): string
 	local chars = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -127,8 +187,17 @@ local function rebuild_playerlist_from_peers()
 end
 
 local function encode_send(msg: {string:any}, to_ip: string|nil, to_port: integer|nil)
+	local t = msg.t as string
+	if SEQ_OPS[t] and msg.seq == nil then
+		msg.seq = next_seq()
+	end
 	local data = (Protocol.encode as function({string:any}): string|nil)(msg)
 	if not data or not sock then
+		return
+	end
+	local max_d = (Transport.MAX_DATAGRAM as integer) or 1200
+	if #data > max_d then
+		net_log("drop oversized send t=" .. tostring(t) .. " bytes=" .. tostring(#data) .. " max=" .. tostring(max_d))
 		return
 	end
 	(Transport.send as function(any, string, string|nil, integer|nil): boolean)(sock, data, to_ip, to_port)
@@ -235,6 +304,7 @@ local function reset_session()
 	heartbeat_t = 0
 	connect_t = 0
 	in_match = false
+	clear_seq_state()
 	(Sync.clear_held as function())()
 	rawset(_G, "SERVER", false)
 	rawset(_G, "CLIENT", false)
@@ -333,14 +403,23 @@ local function handle_host_msg(msg: {string:any}, from_ip: string, from_port: in
 		end
 	elseif t == "input" then
 		if in_match then
-			local slot, h = (Sync.unpack_input as function({string:any}): integer, {string:any})(msg)
-			-- Prefer peer.slot if assigned at start; fall back to packet slot.
-			local use_slot = (tonumber(p.slot) or slot) as integer
-			if use_slot >= 2 then
-				h.slot = use_slot
-				(Sync.set_held as function(integer, {string:any}))(use_slot, h)
-				(Sync.refresh_net_held_global as function())()
+			if not accept_seq(key, "input", msg.seq) then
+				return
 			end
+			local packet_slot, h = (Sync.unpack_input as function({string:any}): integer, {string:any})(msg)
+			-- Host uses ONLY peer.slot assigned at start — never trust packet slot.
+			local use_slot = (tonumber(p.slot) or 0) as integer
+			if use_slot < 2 then
+				net_log("drop input: peer has no slot key=" .. key)
+				return
+			end
+			if packet_slot ~= 0 and packet_slot ~= use_slot then
+				net_log("drop input: slot spoof packet=" .. tostring(packet_slot) .. " peer=" .. tostring(use_slot) .. " key=" .. key)
+				return
+			end
+			h.slot = use_slot
+			(Sync.set_held as function(integer, {string:any}))(use_slot, h)
+			(Sync.refresh_net_held_global as function())()
 		end
 	elseif t == "bye" then
 		local nick = tostring(p.nick or "player")
@@ -409,6 +488,9 @@ local function handle_client_msg(msg: {string:any})
 		start_match_from_msg(msg)
 	elseif t == "snap" then
 		if in_match and objects then
+			if not accept_seq("_host", "snap", msg.seq) then
+				return
+			end
 			(Sync.apply_snapshot as function({string:any}, boolean))(msg, true)
 		end
 	elseif t == "host_gone" then
@@ -431,7 +513,7 @@ local function sync_tick(dt: number)
 		end
 		(Sync.host_process_edges as function())()
 		if (Sync.should_send_snap as function(number): boolean)(dt) then
-			local snap = (Sync.pack_snapshot as function(): {string:any})()
+			local snap = (Sync.pack_snapshot as function(integer|nil): {string:any})(next_seq())
 			broadcast(snap, nil)
 		end
 	elseif role == "client" then
@@ -440,7 +522,7 @@ local function sync_tick(dt: number)
 		if (Sync.should_send_input as function(number): boolean)(dt) then
 			local slot = (netplayernumber as integer) or 1
 			local h = (Sync.read_local_held as function(integer): {string:any})(slot)
-			encode_send((Sync.pack_input as function(integer, {string:any}): {string:any})(slot, h), nil, nil)
+			encode_send((Sync.pack_input as function(integer, {string:any}, integer|nil): {string:any})(slot, h, next_seq()), nil, nil)
 		end
 	end
 end
@@ -596,6 +678,43 @@ live.update = function(dt: number)
 				handle_host_msg(m, pkt.ip as string, (pkt.port as integer) or 0)
 			else
 				handle_client_msg(m)
+			end
+		end
+	end
+
+	-- Host: disconnect peers that repeatedly exceed per-peer recv budget.
+	if role == "host" then
+		local abused = (Transport.last_abuse_peers as function(): {string})()
+		local hit: {string:boolean} = {}
+		for i = 1, #abused do
+			hit[abused[i]] = true
+		end
+		local drop: {string} = {}
+		for key in pairs(peers_by_key) do
+			if hit[key] then
+				local n = (abuse_strikes[key] or 0) + 1
+				abuse_strikes[key] = n
+				if n >= ABUSE_DISCONNECT_FRAMES then
+					table.insert(drop, key)
+				end
+			else
+				abuse_strikes[key] = nil
+			end
+		end
+		for _, key in ipairs(drop) do
+			local peer = peers_by_key[key] as {string:any}
+			if peer then
+				local pid = tostring(peer.id or "")
+				local nick = tostring(peer.nick or "player")
+				peers_by_key[key] = nil
+				abuse_strikes[key] = nil
+				last_seen[key] = nil
+				broadcast({t = "peer_leave", id = pid}, nil)
+				if not in_match then
+					rebuild_playerlist_from_peers()
+				end
+				net_log("disconnect rate-limit abuse: " .. nick .. " key=" .. key)
+				notice.new("kicked (rate): " .. nick, notice.red)
 			end
 		end
 	end

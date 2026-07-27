@@ -116,6 +116,27 @@ for _, name in pairs(Protocol.OP) do
 end
 check("protocol op count >= 13", op_count >= 13)
 
+-- Transport size / rate constants
+local Transport = require("net.transport")
+check("transport MAX_DATAGRAM 1200", Transport.MAX_DATAGRAM == 1200)
+check("transport MAX_RECV_PER_PEER", Transport.MAX_RECV_PER_PEER ~= nil and Transport.MAX_RECV_PER_PEER > 0)
+check("transport last_abuse_peers empty", type(Transport.last_abuse_peers()) == "table" and #Transport.last_abuse_peers() == 0)
+
+-- Oversized send refused (no truncate)
+do
+	local fake = {
+		sock = {
+			send = function() return 1 end,
+			sendto = function() return 1 end,
+		},
+		mode = "client",
+	}
+	local big = string.rep("x", Transport.MAX_DATAGRAM + 1)
+	check("transport refuse oversized send", Transport.send(fake, big) == false)
+	local ok_small = Transport.send(fake, string.rep("y", 10))
+	check("transport accept small send", ok_small == true)
+end
+
 --------------------------------------------------------------------------
 -- State machine
 --------------------------------------------------------------------------
@@ -140,8 +161,9 @@ check("state classify error", State.classify("idle", "error: no socket", false) 
 local Sync = require("net.sync")
 local h = Sync.empty_held()
 check("sync empty_held jump false", h.jump == false)
-local packed = Sync.pack_input(2, {left = true, right = false, jump = true, ang = 1.5})
+local packed = Sync.pack_input(2, {left = true, right = false, jump = true, ang = 1.5}, 7)
 check("sync pack_input opcode", packed.t == "input" and packed.slot == 2 and packed.left == true)
+check("sync pack_input seq", packed.seq == 7)
 local slot, uh = Sync.unpack_input(packed)
 check("sync unpack_input", slot == 2 and uh.left == true and uh.jump == true)
 Sync.set_held(2, uh)
@@ -169,8 +191,9 @@ _G.playerobjs = {
 	{ x = 1.23456, y = 2.5, speedx = 0.1, speedy = -0.2, pointingangle = 0.3333, size = 1, dead = false },
 	{ x = 3, y = 4, speedx = 0, speedy = 0, pointingangle = 0, size = 2, dead = true },
 }
-local snap = Sync.pack_snapshot()
+local snap = Sync.pack_snapshot(42)
 check("sync pack_snapshot opcode", snap.t == "snap" and type(snap.p) == "table" and #snap.p == 2)
+check("sync pack_snapshot seq", snap.seq == 42)
 check("sync pack_snapshot round3", snap.p[1].x == 1.235)
 Sync.apply_snapshot(snap, false)
 check("sync apply_snapshot pos", playerobjs[2].x == 3 and playerobjs[2].dead == true)
@@ -203,7 +226,7 @@ check("match start slots", #start_msg.slots == 2 and start_msg.slots[2].id == "c
 --------------------------------------------------------------------------
 -- Transport empty recv shared / zero-alloc
 --------------------------------------------------------------------------
-local Transport = require("net.transport")
+-- Transport already required above for MAX_DATAGRAM checks
 local empty1 = Transport.recv_burst(nil)
 local empty2 = Transport.recv_burst({ sock = nil })
 check("recv_burst nil is empty", type(empty1) == "table" and #empty1 == 0)
@@ -342,6 +365,16 @@ if ok_sess then
 		check("src/net/" .. name .. ".tl exists", f ~= nil)
 		if f then f:close() end
 		check("build/net/" .. name .. ".lua exists", io.open(root .. "/build/net/" .. name .. ".lua", "r") ~= nil)
+	end
+
+	-- F0: slot spoofing removed (host uses peer.slot only)
+	local sess_src = io.open(root .. "/src/net/session.tl", "r")
+	if sess_src then
+		local src = sess_src:read("*a")
+		sess_src:close()
+		check("session no packet-slot fallback", src:find("fall back to packet slot", 1, true) == nil)
+		check("session mentions slot spoof", src:find("slot spoof", 1, true) ~= nil)
+		check("session has accept_seq", src:find("accept_seq", 1, true) ~= nil)
 	end
 end
 

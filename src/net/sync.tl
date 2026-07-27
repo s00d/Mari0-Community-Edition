@@ -1,8 +1,16 @@
 --[[ Host-authoritative input + player snapshots.
 
-Gaffer-style choice for Mari0: full lockstep is a poor fit (Lua physics not
-bit-identical); rollback is heavy. Host runs sim, clients send inputs (~30 Hz),
-host broadcasts player snaps (~20 Hz) with soft local correction.
+Current model: host runs sim, clients send inputs (~30 Hz), host broadcasts
+player snaps (~20 Hz) with soft local correction.
+
+Lockstep roadmap (model B):
+  F0 security (slot/seq/rate/datagram) — done in transport/session
+  F1 statehash exchange — net.statehash
+  F2 dmath transcendentals — core.dmath
+  F3 TODO: input delay window (DELAY frames + last-N window per packet)
+  F4 TODO: start msg seed + build hash; refuse version mismatch
+  F5 TODO: delete pack_snapshot/apply_snapshot/SOFT_CORRECT after F3-F4 green
+Decision after F2: validate x86 vs ARM sim_hash before F3.
 ]]
 
 local INPUT_HZ = 30
@@ -67,10 +75,11 @@ local function read_local_held(slot: integer): {string:any}
 	return h
 end
 
-local function pack_input(slot: integer, h: {string:any}): {string:any}
+local function pack_input(slot: integer, h: {string:any}, seq?: integer): {string:any}
 	return {
 		t = "input",
 		slot = slot,
+		seq = seq or 0,
 		left = h.left == true,
 		right = h.right == true,
 		up = h.up == true,
@@ -144,7 +153,7 @@ local function pack_player(i: integer): {string:any}|nil
 	}
 end
 
-local function pack_snapshot(): {string:any}
+local function pack_snapshot(seq?: integer): {string:any}
 	local plist: {{string:any}} = {}
 	if playerobjs then
 		for i = 1, (players as integer) or 1 do
@@ -154,7 +163,7 @@ local function pack_snapshot(): {string:any}
 			end
 		end
 	end
-	return {t = "snap", p = plist}
+	return {t = "snap", seq = seq or 0, p = plist}
 end
 
 local function apply_one(row: {string:any}, soft_local: boolean)
