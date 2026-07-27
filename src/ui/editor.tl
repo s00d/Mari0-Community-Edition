@@ -719,8 +719,8 @@ function editor_update_main(dt: number)
 				--SPRITEBATCH UPDATE
 				if math.floor(splitxscroll[1]) ~= spritebatchX[1] then
 					spritebatchX[1] = math.floor(splitxscroll[1])
+					generatespritebatch()
 				end
-				generatespritebatch()
 				
 				--VERTICAL
 				if mousey < (minimapy+5)*scale then
@@ -745,12 +745,17 @@ function editor_update_main(dt: number)
 				end
 
 				--SPRITEBATCH UPDATE
+				local batch_dirty = false
 				if math.floor(xscroll) ~= spritebatchX[1] then
 					spritebatchX[1] = math.floor(xscroll)
+					batch_dirty = true
 				elseif math.floor(yscroll) ~= spritebatchY[1] then
 					spritebatchY[1] = math.floor(yscroll)
+					batch_dirty = true
 				end
-				generatespritebatch()
+				if batch_dirty then
+					generatespritebatch()
+				end
 			end
 		end
 		

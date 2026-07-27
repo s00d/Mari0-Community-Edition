@@ -8,10 +8,18 @@ for i = 1, #OBJECT_GROUP_KEYS do
 end
 PHYSICS_GROUP_ORDER[#PHYSICS_GROUP_ORDER + 1] = "screenboundary"
 
+-- Scratch buffer reused each call (callers must not retain the returned table).
+local keys_scratch: {any} = {}
+
 global function physics_group_keys_sorted(w: {any: any}): {any}
-	local keys: {any} = {}
+	local keys = keys_scratch
+	local n = 0
 	for k in pairs(w) do
-		keys[#keys + 1] = k
+		n = n + 1
+		keys[n] = k
+	end
+	for i = n + 1, #keys do
+		keys[i] = nil
 	end
 	table.sort(keys, function(a, b): boolean
 		local ta = type(a)

@@ -318,34 +318,9 @@ function lightbridgebody:draw()
 	love.graphics.setColor(1, 1, 1)
 	
 	--gel
-	for i = 1, 4 do
-		local dir = "top"
-		local r: number = 0
-		if i == 2 then
-			dir = "right"
-			r = math.pi/2
-		elseif i == 3 then
-			dir = "bottom"
-			r = math.pi
-		elseif i == 4 then
-			dir = "left"
-			r = math.pi*1.5
-		end
-		
-		for i = 1, 4 do
-			if (self.gels as {string:any})[dir] == i then
-				if i == 1 then
-					img = gel1groundimg
-				elseif i == 2 then
-					img = gel2groundimg
-				elseif i == 3 then
-					img = gel3groundimg
-				elseif i == 4 then
-					img = gel4groundimg
-				end
-				
-				love.graphics.draw(img, math.floor((self.cox-.5-xscroll)*16*scale), math.floor((self.coy-1-yscroll)*16*scale), r, scale, scale, 8, 2)
-			end
-		end
+	if self.gels then
+		local px = math.floor((self.cox - .5 - xscroll) * 16 * scale)
+		local py = math.floor((self.coy - 1 - yscroll) * 16 * scale)
+		draw_tile_gel_overlays(self.gels as {string:any}, px, py, 8, 2)
 	end
 end

@@ -3,6 +3,9 @@
 -- Update entity lists and compact removed entries (dense in-place or sparse remove).
 -- Uses globals mapwidth / mapheight for autodelete bounds (same as game loop).
 
+-- Reused across sparse-path calls to avoid per-frame table allocation.
+local delete_scratch: {any} = {}
+
 local function update_and_compact(v: Dyn, dt: number)
 	-- Dense array path: compact in-place (no sort/remove)
 	local n = #(v as {Entity})
@@ -36,21 +39,27 @@ local function update_and_compact(v: Dyn, dt: number)
 	end
 
 	-- Sparse / hash tables: collect keys then delete (legacy path)
-	local delete = {} as {any}
+	local delete = delete_scratch
+	local n = 0
 	local mapv = v as {any:Entity}
 	for j, w in pairs(mapv) do
 		if w.update and w:update(dt) then
-			table.insert(delete, j)
+			n = n + 1
+			delete[n] = j
 		elseif w.autodelete then
 			if w.y > mapheight+5 or w.x > mapwidth+5 or w.x < -5 or w.y < -5 then
 				if w.autodeleted then
 					(w.autodeleted as function(Entity))(w)
 				end
-				table.insert(delete, j)
+				n = n + 1
+				delete[n] = j
 			end
 		end
 	end
-	if #delete > 0 then
+	for i = n + 1, #delete do
+		delete[i] = nil
+	end
+	if n > 0 then
 		remove_indices_desc(v, delete)
 	end
 end

@@ -834,6 +834,7 @@ global portaldotsinner: number
 global firstpersonrotate: boolean
 global incognito: boolean
 global gel1groundimg: Image
+global gelgroundimgs: {Image}
 global gel2groundimg: Image
 global gel3groundimg: Image
 global gel4groundimg: Image
@@ -1311,6 +1312,7 @@ global animationsystem_draw: function()
 global animationsystem_load: function()
 global animationsystem_update: function(number)
 global build_blockbounce_lookup: function({any:any}, {any:any}): {any:any}
+global draw_tile_gel_overlays: function({string:any}, number, number, number, number)
 global callcollision: function(any, Entity, any, Entity, any, any): any
 global changebackground: function(any): any
 global changecharacter: function(any)

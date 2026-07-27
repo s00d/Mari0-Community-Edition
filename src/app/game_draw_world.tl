@@ -62,39 +62,8 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 					end
 				end
 				
-				--Gel overlays!
 				if t.gels then
-					for i = 1, 4 do
-						local dir = "top"
-						local r: number = 0
-						if i == 2 then
-							dir = "right"
-							r = math.pi/2
-						elseif i == 3 then
-							dir = "bottom"
-							r = math.pi
-						elseif i == 4 then
-							dir = "left"
-							r = math.pi*1.5
-						end
-						
-						for i = 1, 4 do
-							if t.gels[dir] == i then
-								local img: Image|nil = nil
-								if i == 1 then
-									img = gel1groundimg
-								elseif i == 2 then
-									img = gel2groundimg
-								elseif i == 3 then
-									img = gel3groundimg
-								elseif i == 4 then
-									img = gel4groundimg
-								end
-									
-								love.graphics.draw(img, math.floor((x-.5-xscrollfrac)*16*scale), math.floor((y-1-yscrollfrac-bounceyoffset)*16*scale), r, scale, scale, 8, 8)
-							end
-						end
-					end
+					draw_tile_gel_overlays(t.gels, math.floor((x - .5 - xscrollfrac) * 16 * scale), math.floor((y - 1 - yscrollfrac - bounceyoffset) * 16 * scale))
 				end
 				
 				if editormode then
@@ -307,39 +276,8 @@ global function drawforeground()
 						end
 					end
 					
-					--Gel overlays!
 					if t.gels then
-						for i = 1, 4 do
-							local dir = "top"
-							local r: number = 0
-							if i == 2 then
-								dir = "right"
-								r = math.pi/2
-							elseif i == 3 then
-								dir = "bottom"
-								r = math.pi
-							elseif i == 4 then
-								dir = "left"
-								r = math.pi*1.5
-							end
-							
-							for i = 1, 4 do
-								if t.gels[dir] == i then
-									local img: Image|nil = nil
-									if i == 1 then
-										img = gel1groundimg
-									elseif i == 2 then
-										img = gel2groundimg
-									elseif i == 3 then
-										img = gel3groundimg
-									elseif i == 4 then
-										img = gel4groundimg
-									end
-										
-									love.graphics.draw(img, math.floor((x-.5-math.fmod(xscroll, 1))*16*scale), math.floor((y-1-math.fmod(yscroll, 1))*16*scale), r, scale, scale, 8, 8)
-								end
-							end
-						end
+						draw_tile_gel_overlays(t.gels, math.floor((x - .5 - math.fmod(xscroll, 1)) * 16 * scale), math.floor((y - 1 - math.fmod(yscroll, 1)) * 16 * scale))
 					end
 				end
 			end

@@ -428,24 +428,26 @@ end
 
 -- physicshandlegroup
 do
+	local real_checkcollision = checkcollision
 	local calls = 0
 	function checkcollision(v, t, h, g, j, i, dt, passed)
 		calls = calls + 1
 		return true, false
 	end
-	local v = {mask = {}, category = 3}
+	local v = {mask = {}, category = 3, x = 0, y = 0, width = 1, height = 1}
 	local u = {
-		a = {active = true, category = 2, mask = {}},
-		b = {active = false, category = 2, mask = {}},
+		a = {active = true, category = 2, mask = {}, x = 0, y = 0, width = 1, height = 1},
+		b = {active = false, category = 2, mask = {}, x = 5, y = 0, width = 1, height = 1},
 	}
 	local hor, ver = handlegroup(1, "enemy", u, v, "player", 0.016, false)
 	check("handlegroup hor", hor == true)
 	check("handlegroup skips inactive", calls == 1)
 	-- same object skipped
 	calls = 0
-	u = { [5] = {active = true, category = 2, mask = {}} }
+	u = { [5] = {active = true, category = 2, mask = {}, x = 0, y = 0, width = 1, height = 1} }
 	hor, ver = handlegroup(5, "player", u, v, "player", 0.016, false)
 	check("handlegroup skip self", calls == 0 and hor == false)
+	checkcollision = real_checkcollision
 end
 
 if select("#", ...) > 0 then

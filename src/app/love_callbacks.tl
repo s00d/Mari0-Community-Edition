@@ -4,6 +4,7 @@ local LoveFrame = require("app.love_frame")
 
 function love.update(dt: any)
 	local dt = dt as number
+	frametime_record(dt)
 	if music then
 		music:update()
 	end
@@ -166,6 +167,12 @@ function love.keypressed(key: any, scancode: any, _: any)
 	
 	if key == "lctrl" and debugbinds then
 		debug.debug()
+		return
+	end
+
+	if key == "f3" and debugbinds then
+		local p50, p95, p99 = frametime_percentiles()
+		print(string.format("frametime ms: p50=%.2f p95=%.2f p99=%.2f", p50 * 1000, p95 * 1000, p99 * 1000))
 		return
 	end
 	

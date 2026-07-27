@@ -51,6 +51,7 @@ function Boot.require_game()
 	require "world.globstate"
 	require "world.bounceutil"
 	require "core.listutil"
+	require "core.frametime"
 	require "util.updateutil"
 	require "physics.late"
 	require "physics.convert"
@@ -61,6 +62,7 @@ function Boot.require_game()
 	require "util.hatutil"
 	require "util.portalutil"
 	require "util.scrollutil"
+	require "util.geldraw"
 	require "util.enemyutil"
 	require "world.spawnregistry"
 	require "world.levelio"
@@ -202,6 +204,8 @@ function Boot.load_media()
 		(_G as {string:any})["default" .. (v as string) .. "img"] = img
 		(_G as {string:any})[(v as string) .. "img"] = img
 	end
+
+	gelgroundimgs = {gel1groundimg, gel2groundimg, gel3groundimg, gel4groundimg}
 	
 	boot_image("mappackback", "mappackback")
 	boot_image("mappacknoicon", "mappacknoicon")

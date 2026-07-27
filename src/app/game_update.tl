@@ -2,6 +2,8 @@
      Loaded via require("app.game_update"); defines global game_update.
 ]]
 
+local blockbounce_delete_scratch: {any} = {}
+
 global function game_update(dt: number)
 	if not objects then return end
 	gdt = dt
@@ -170,7 +172,8 @@ global function game_update(dt: number)
 	end
 	
 	--blockbounce
-	local delete = {}
+	local delete = blockbounce_delete_scratch
+	local ndelete = 0
 	
 	for i, _ in pairs(blockbouncetimer) do
 		if blockbouncetimer[i] < blockbouncetime then
@@ -180,14 +183,19 @@ global function game_update(dt: number)
 				if blockbouncecontent then
 					item(blockbouncecontent[i], blockbouncex[i], blockbouncey[i], blockbouncecontent2[i])
 				end
-				table.insert(delete, i)
+				ndelete = ndelete + 1
+				delete[ndelete] = i
 			end
 		end
 	end
 	
+	for i = ndelete + 1, #delete do
+		delete[i] = nil
+	end
+	
 	remove_indices_desc_multi({blockbouncetimer, blockbouncex, blockbouncey, blockbouncecontent, blockbouncecontent2}, delete)
 	
-	if #delete >= 1 then
+	if ndelete >= 1 then
 		generatespritebatch()
 	end
 	

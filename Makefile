@@ -67,6 +67,9 @@ vendor-rocks: ## Refresh lib/ from LuaRocks pins (dependencies-1.rockspec)
 test: teal ## Run pure-Lua test suite (no Love window)
 	@lua tests/run.lua
 
+test-update-baseline: teal ## Regenerate tests/baseline.json from current perf
+	@UPDATE_BASELINE=1 lua tests/run.lua
+
 test-shaders: check ## Compile all .frag shaders under Love
 	@rm -rf "$(DIST)/shader_smoke"
 	@mkdir -p "$(DIST)/shader_smoke/shaders"

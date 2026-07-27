@@ -8,6 +8,10 @@ global function handlegroup(i: any, h: any, u: {any:Body}, v: Body, j: any, dt: 
 	for g, t in pairs(group) do
 		--    Same object?          Active                 Not masked
 		if (i ~= g or j ~= h) and t.active then
+			-- Broadphase: skip pairs that cannot overlap this frame
+			if not aabb(mover.x, mover.y, mover.width, mover.height, t.x, t.y, t.width, t.height) then
+				-- continue
+			else
 			local mmask = mover.mask
 			local tmask = t.mask
 			if (mmask == nil or (mmask as {number:boolean})[t.category] ~= true) and (tmask == nil or (tmask as {number:boolean})[mover.category] ~= true) then
@@ -18,6 +22,7 @@ global function handlegroup(i: any, h: any, u: {any:Body}, v: Body, j: any, dt: 
 				elseif collision2 then
 					vercollision = true
 				end
+			end
 			end
 		end
 	end
