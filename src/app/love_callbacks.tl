@@ -1,11 +1,12 @@
 --[[ Love callbacks extracted from main.lua ]]
 
+local LoveFrame = require("app.love_frame")
+
 function love.update(dt: any)
 	local dt = dt as number
 	if music then
 		music:update()
 	end
-	realdt = dt
 	local frame_dt = math.min(0.5, dt) --ignore any dt higher than half a second
 	
 	if recording then
@@ -14,9 +15,7 @@ function love.update(dt: any)
 	
 	dt = targetdt as number
 	
-	if skipupdate then
-		steptimer = 0
-		skipupdate = false
+	if not LoveFrame.begin_update() then
 		return
 	end
 	
@@ -46,13 +45,15 @@ function love.update(dt: any)
 	end
 	
 	-- Bullet time scales step accumulation, not per-step dt (see game_update).
-	steptimer = steptimer + frame_dt * speed
+	LoveFrame.add_time(frame_dt * speed)
 	
 	local max_physics_steps = 5
 	local steps = 0
-	while steptimer >= targetdt and steps < max_physics_steps do
+	while LoveFrame.has_pending_step(targetdt) and steps < max_physics_steps do
+		if not LoveFrame.try_step(targetdt) then
+			break
+		end
 		steps = steps + 1
-		steptimer = steptimer - targetdt
 		
 		if frameskip then
 			if (frameskip as number) > skippedframes then
@@ -68,10 +69,10 @@ function love.update(dt: any)
 		-- Prefer Gamestate handlers when registered; legacy branches as fallback
 		local gs_handled = false
 		if Gamestate then
-			local gname = (Gamestate.get as function(): any)()
-			local h = (Gamestate.handlers as {any:any})[gname]
-			if h and (h as {string:any}).update then
-				(Gamestate.update as function(...: any): any)(dt)
+			local gname = Gamestate.get()
+			local h = Gamestate.handlers[gname]
+			if h and h.update then
+				Gamestate.update(dt)
 				gs_handled = true
 			end
 		end
@@ -98,8 +99,8 @@ function love.update(dt: any)
 		--No longer needed
 		--love.window.setTitle("FPS:" .. love.timer.getFPS() .. " - Send feedback/issues to crash@stabyourself.net")
 	end
-	if steps >= max_physics_steps and steptimer >= targetdt then
-		steptimer = 0
+	if steps >= max_physics_steps and LoveFrame.has_pending_step(targetdt) then
+		LoveFrame.clear_debt()
 	end
 end
 
@@ -108,9 +109,9 @@ function love.draw()
 	
 	local gs_handled = false
 	if Gamestate then
-		local h = (Gamestate.handlers as {any:any})[(Gamestate.get as function(): any)()]
-		if h and (h as {string:any}).draw then
-			(Gamestate.draw as function(): any)()
+		local h = Gamestate.handlers[Gamestate.get()]
+		if h and h.draw then
+			Gamestate.draw()
 			gs_handled = true
 		end
 	end

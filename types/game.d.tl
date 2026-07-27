@@ -15,12 +15,21 @@ end
 
 global record GamestateModule
 	current: string
-	handlers: {any:any}
-	register: function(...: any): any
-	set: function(...: any): any
-	get: function(...: any): any
-	update: function(...: any): any
-	draw: function(...: any): any
+	handlers: {string:{string:function}}
+	register: function(string, {string:function})
+	set: function(string)
+	get: function(): string
+	update: function(number)
+	draw: function()
+end
+
+global record LoveFrameModule
+	request_skip_update: function()
+	begin_update: function(): boolean
+	add_time: function(number)
+	try_step: function(number): boolean
+	has_pending_step: function(number): boolean
+	clear_debt: function()
 end
 
 global record LoggerModule
@@ -456,7 +465,6 @@ global testlevel: boolean
 global checkpointx: {number:number}
 global globools: {string:boolean}
 global pipestartx: number
-global dirscale: number
 global vsync: boolean
 global pipeanimationtime: number
 global sonicrainboom: boolean
@@ -644,7 +652,6 @@ global hasHotkey: function(any, any): string|boolean|nil
 global levelscreentimer: number
 global mappackauthor: {any}
 global buttonerror: any
-global steptimer: number
 global magicdns_timer: number
 global magictimer: number
 global scrollingscoretime: number
@@ -760,7 +767,6 @@ global bulletbillstartx: any
 global bulletbillendx: any
 global lakitoendx: any
 global mazeinprogress: boolean
-global skipupdate: boolean
 global livereplaystored: {integer:{any:any}}
 global fontquads: {string:any}
 global delaylist: {string:any}
@@ -1128,7 +1134,6 @@ global regiontoolY: number
 global regiontoolt: string|boolean
 global checkboximg: Image
 global checkboxquad: {any:{any:any}}
-global playedwilhelm: boolean
 global logo: Image
 global logoblood: Image
 global loadingtext: string
@@ -1256,7 +1261,6 @@ global portalbackground: {string:any}
 global powerlinestab: function(): any
 global pushbuttonimg: Image
 global reachedx: function(any)
-global realdt: any
 global rsflipflopimg: Image
 global scoredelay: number
 global scrollsmoothrate: number

@@ -173,7 +173,6 @@ function LoveLoad.run(_: any)
 	height = 14
 	fsaa = 0
 
-	steptimer = 0
 	targetdt = 1 / 60
 
 	touchfrominsidescaling = math.min(desktopsize.width / (width * 16), desktopsize.height / (height * 16))
@@ -254,9 +253,6 @@ function LoveLoad.run(_: any)
 		intro_load()
 	end
 	add("Intro Load")
-
-	local GlobalFreeze = require("core.global_freeze")
-	GlobalFreeze.install_writes_only()
 
 	print("=======================\nDONE!")
 	print("TOTAL: " .. totaltime .. "ms")

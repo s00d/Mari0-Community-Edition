@@ -514,7 +514,7 @@ global function startlevel(levelstart?: any)
 		gamestate = "game"
 		if Gamestate then Gamestate.set("game") end
 	end
-	skipupdate = true
+	(require("app.love_frame") as LoveFrameModule).request_skip_update()
 	
 	--background
 	love.graphics.setBackgroundColor(unpack(background as {any}))

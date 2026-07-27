@@ -61,7 +61,7 @@ global function menu_load()
 	--load 1-1 as background
 	loadbackgroundsafe("1-1.txt")
 	
-	skipupdate = true
+	(require("app.love_frame") as LoveFrameModule).request_skip_update()
 	
 	if (arcade or mkstation) and firstload then
 		firstload = false
@@ -71,6 +71,11 @@ global function menu_load()
 		--	mappack = "portal"
 		end
 		game_load()
+	end
+
+	local GlobalFreeze = require("core.global_freeze")
+	if not GlobalFreeze.is_installed() then
+		GlobalFreeze.install_writes_only()
 	end
 end
 

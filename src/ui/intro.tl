@@ -1,5 +1,7 @@
 --[[ Teal port of root intro.lua ]]
 
+local played_wilhelm = false
+
 global function intro_load()
 	gamestate = "intro"
 	
@@ -9,6 +11,7 @@ global function intro_load()
 	introprogress = 0
 	
 	allowskip = false
+	played_wilhelm = false
 end
 
 global function intro_update(dt: number)
@@ -20,10 +23,10 @@ global function intro_update(dt: number)
 			introprogress = introduration+blackafterintro
 		end
 		
-		if introprogress > 0.5 and playedwilhelm == nil then
+		if introprogress > 0.5 and not played_wilhelm then
 			playsound("stab")
 			
-			playedwilhelm = true
+			played_wilhelm = true
 		end
 		
 		if introprogress == introduration + blackafterintro then

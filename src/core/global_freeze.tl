@@ -1,5 +1,7 @@
 --[[ Post-boot _G guard: block undeclared global writes (reads deferred).
-     Legitimate late writes use rawset(_G, key, value). ]]
+     Legitimate late writes use rawset(_G, key, value).
+     Runtime globals must be assigned before install_writes_only() snapshots _G;
+     per-frame state belongs in module locals (see app.love_callbacks). ]]
 
 local GlobalFreeze = {}
 
@@ -11,6 +13,10 @@ local function snapshot_globals()
 	for k, _ in pairs(g) do
 		allowed[tostring(k)] = true
 	end
+end
+
+function GlobalFreeze.is_installed(): boolean
+	return installed
 end
 
 function GlobalFreeze.install_writes_only()

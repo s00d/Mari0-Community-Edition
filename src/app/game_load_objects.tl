@@ -180,6 +180,7 @@ global function drawplayer(i: any, x: any, y: any, cscale?: any, offsetX?: any, 
 		end
 	end
 	
+	local dirscale: number
 	if (not objects or not playerobjs[i] or playerobjs[i].portalsavailable[1] or playerobjs[i].portalsavailable[2]) then
 		if v.pointingangle > 0 then
 			dirscale = -scale
