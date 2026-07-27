@@ -28,14 +28,15 @@ if not ok_w then
 	return 1
 end
 
--- 1) pick_target / range_range: wall hit clips max range
+-- 1) pick_target / clip_range: wall hit clips max range (with floor fudge)
 do
 	local clip = gravitygun.clip_range
 	check("clip_range no hit", clip(0, 0, 10, 0, 8, false) == 8)
 	check("clip_range far wall", clip(0, 0, 20, 0, 8, true) == 8)
 	local d = clip(0, 0, 3, 0, 8, true)
-	check("clip_range near wall", math.abs(d - 3) < 1e-6, tostring(d))
-	check("clip_range diagonal", math.abs(clip(0, 0, 3, 4, 10, true) - 5) < 1e-6)
+	-- fudge +0.75 so floor-sitting boxes remain reachable
+	check("clip_range near wall fudge", math.abs(d - 3.75) < 1e-6, tostring(d))
+	check("clip_range diagonal", math.abs(clip(0, 0, 3, 4, 10, true) - 5.75) < 1e-6)
 end
 
 -- 2) spring converges monotonically toward target (critically damped)
@@ -107,17 +108,88 @@ do
 	check("release pulling clears beam", obj2.beamed == nil and pl2.gg_pulling == nil)
 end
 
--- registry sanity
+-- 4) registry + default loadout includes all three weapons
 do
 	check("registry portal", Weapons.get("portal") ~= nil and Weapons.get("portal").id == "portal")
-	check("registry gel", Weapons.get("gel") ~= nil)
+	check("registry gelcannon", Weapons.get("gelcannon") ~= nil and Weapons.get("gelcannon").id == "gelcannon")
+	check("registry gel alias", Weapons.get("gel") == Weapons.get("gelcannon"))
 	check("registry gravitygun", Weapons.get("gravitygun") ~= nil)
-	check("switch needs 2+", true) -- structural: switch no-ops on single weapon
-	local pl = { weapons = { "portal", "gravitygun" }, weaponi = 1, weapondelay = {} }
+	check("portal icon path", tostring(Weapons.get("portal").icon):find("portalgun%.png") ~= nil)
+	check("gel icon path", tostring(Weapons.get("gelcannon").icon):find("gelcannon%.png") ~= nil)
+
+	levelweapons = nil
+	playertype = "portal"
+	portalsavailable = { true, true }
+	local loadout = Weapons.default_loadout()
+	check("default has portal", loadout[1] == "portal")
+	check("default has gravitygun", loadout[2] == "gravitygun")
+	check("default has gelcannon", loadout[3] == "gelcannon")
+	check("default len 3", #loadout == 3)
+
+	local pl = { weapons = { "portal", "gravitygun", "gelcannon" }, weaponi = 1, weapondelay = {} }
 	Weapons.switch(pl, 1)
 	check("switch +1", pl.weaponi == 2 and pl.weapons[pl.weaponi] == "gravitygun")
 	Weapons.switch(pl, 1)
+	check("switch to gel", pl.weaponi == 3 and pl.weapons[pl.weaponi] == "gelcannon")
+	Weapons.switch(pl, 1)
 	check("switch wrap", pl.weaponi == 1)
+end
+
+-- 5) pick_target cone finds floor box when ray is tile-clipped short
+do
+	local box = {
+		x = 2.0,
+		y = 1.0,
+		width = 0.75,
+		height = 0.75,
+		grabbable = true,
+		destroying = false,
+		beamed = nil,
+		active = true,
+		speedx = 0,
+		speedy = 0,
+	}
+	objects = { box = { [1] = box } }
+	-- traceline hits floor at 1.0 (before box center ~2.4)
+	traceline = function(sx, sy, ang)
+		return 1, 2, "up", 0, sx + 1.0, sy + 0.2
+	end
+	-- ray probes miss (simulate tile clip preventing ray steps from reaching box)
+	checkrect = function()
+		return {}
+	end
+	love = { mouse = { isDown = function() return true end } }
+	mouseowner = 1
+
+	local pl = {
+		x = 0,
+		y = 0.5,
+		pointingangle = -math.pi / 2, -- aim right
+		playernumber = 1,
+		weapondelay = {},
+		gg_state = "idle",
+		pickup = false,
+	}
+	local t = gravitygun.pick_target(pl)
+	check("pick_target cone finds box", t == box)
+
+	gravitygun.fire(pl, "l")
+	check("fire starts pull", pl.gg_state == "pulling" and pl.gg_pulling == box)
+
+	-- spring until held
+	for _ = 1, 180 do
+		gravitygun.update(pl, 1 / 60)
+		if pl.weapondelay.gravitygun then
+			pl.weapondelay.gravitygun = math.max(0, pl.weapondelay.gravitygun - 1 / 60)
+		end
+	end
+	check("pull becomes held", pl.gg_state == "held" and pl.pickup == box, tostring(pl.gg_state))
+
+	-- clear cooldown then punt
+	pl.weapondelay.gravitygun = 0
+	gravitygun.fire(pl, "l")
+	check("punt releases", pl.gg_state == "idle" and pl.pickup == false)
+	check("punt impulse", (box.speedx or 0) > 5, tostring(box.speedx))
 end
 
 print(string.format("weapon_checks: %s", failed == 0 and "PASS" or ("FAIL x" .. failed)))

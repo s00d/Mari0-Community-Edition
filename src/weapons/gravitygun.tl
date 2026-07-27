@@ -1,8 +1,8 @@
---[[ Gravity gun — ray pick, critically damped spring, hold/punt/drop. ]]
+--[[ Gravity gun — ray/cone pick, critically damped spring, hold/punt/drop. ]]
 
 local MAX_RANGE = 8
-local STEP = 0.25
-local PROBE = 0.35
+local STEP = 0.2
+local PROBE = 0.55
 local HOLD_DIST = 0.3
 local OMEGA = 14
 local GRAB_DIST = 0.45
@@ -11,6 +11,7 @@ local PUNT_IMPULSE = 28
 local SHOVE_IMPULSE = 10
 local PUNT_TIME = 0.45
 local COOLDOWN = 0.15
+local CONE_DOT = 0.72 -- ~44° half-angle; floor-aimed boxes often miss pure tile-clipped rays
 
 -- Pure: critically damped spring step (zeta=1). Exported for tests.
 local function spring_step(pos: number, vel: number, target: number, omega: number, dt: number): number, number
@@ -38,11 +39,12 @@ local function dist2(ax: number, ay: number, bx: number, by: number): number
 end
 
 -- Range clipped by traceline (walls / grills / doors). Pure helper for tests.
+-- Adds a small fudge so boxes sitting on the floor (ray hits tile first) remain reachable.
 local function clip_range(sx: number, sy: number, hx: number, hy: number, maxrange: number, hit: boolean): number
 	if not hit then
 		return maxrange
 	end
-	local d = math.sqrt(dist2(sx, sy, hx, hy))
+	local d = math.sqrt(dist2(sx, sy, hx, hy)) + 0.75
 	if d < maxrange then
 		return d
 	end
@@ -88,6 +90,9 @@ local function release_obj(pl: {string:any}, reason: string)
 		clear_beam(held)
 		if held.parent == pl and held.dropped then
 			(held.dropped as function({string:any}): any)(held)
+		elseif held.parent == pl then
+			held.parent = nil
+			held.active = true
 		end
 		pl.pickup = false
 	end
@@ -98,7 +103,49 @@ local function release_obj(pl: {string:any}, reason: string)
 	pl.gg_vy = 0
 end
 
--- A. pick_target: step along ray with checkrect; clip via traceline
+local function box_usable(obj: {string:any}, pl: {string:any}): boolean
+	if not obj or not obj.grabbable or obj.destroying then
+		return false
+	end
+	if obj.beamed and obj.beamed ~= pl then
+		return false
+	end
+	-- held by someone else via E-pickup
+	if obj.parent and obj.parent ~= pl then
+		return false
+	end
+	return true
+end
+
+-- Cone fallback: nearest grabbable box along aim (survives floor-tile ray clips).
+local function pick_cone(pl: {string:any}, sx: number, sy: number, dx: number, dy: number, maxd: number): {string:any}|nil
+	if not objects or not objects["box"] then
+		return nil
+	end
+	local boxes = objects["box"] as {any:{string:any}}
+	local best: {string:any}|nil = nil
+	local bestd = maxd
+	for _, raw in pairs(boxes) do
+		local obj = raw
+		if box_usable(obj, pl) then
+			local cx = (obj.x as number) + ((obj.width as number) or 0.75) / 2
+			local cy = (obj.y as number) + ((obj.height as number) or 0.75) / 2
+			local tox, toy = cx - sx, cy - sy
+			local d = math.sqrt(tox * tox + toy * toy)
+			if d > 0.05 and d <= bestd then
+				local ndx, ndy = tox / d, toy / d
+				local dot = ndx * dx + ndy * dy
+				if dot >= CONE_DOT then
+					best = obj
+					bestd = d
+				end
+			end
+		end
+	end
+	return best
+end
+
+-- A. pick_target: step along ray with checkrect; cone fallback when tile clip misses boxes
 local function pick_target(pl: {string:any}): {string:any}|nil
 	local sx = (pl.x as number) + 6 / 16
 	local sy = (pl.y as number) + 6 / 16
@@ -118,15 +165,15 @@ local function pick_target(pl: {string:any}): {string:any}|nil
 			local raw = (objects["box"] as {any})[col[2] as integer]
 			if raw then
 				local obj = raw as {string:any}
-				if obj.grabbable and not obj.destroying then
-					if not obj.beamed or obj.beamed == pl then
-						return obj
-					end
+				if box_usable(obj, pl) then
+					return obj
 				end
 			end
 		end
 	end
-	return nil
+
+	-- Floor-aimed cubes: traceline often hits the tile under the box first.
+	return pick_cone(pl, sx, sy, dx, dy, MAX_RANGE)
 end
 
 local function begin_pull(pl: {string:any}, obj: {string:any})
@@ -145,12 +192,19 @@ local function enter_hold(pl: {string:any}, obj: {string:any})
 	pl.gg_pulling = nil
 	pl.pickup = obj
 	obj.beamed = pl
+	obj.parent = pl
 	obj.gravity = 0
 	obj.active = false
+	obj.speedx = 0
+	obj.speedy = 0
 end
 
 local function apply_impulse(obj: {string:any}, pl: {string:any}, strength: number)
 	local dx, dy = aim_dir(pl)
+	obj.parent = nil
+	obj.beamed = nil
+	obj.active = true
+	obj.gravity = nil
 	obj.speedx = ((obj.speedx as number) or 0) + dx * strength
 	obj.speedy = ((obj.speedy as number) or 0) + dy * strength
 	obj.falling = true
@@ -183,23 +237,30 @@ local function fire(pl: {string:any}, button: any)
 	if lmb then
 		if pl.gg_state == "held" and pl.pickup then
 			local obj = pl.pickup as {string:any}
-			clear_beam(obj)
-			obj.active = true
-			apply_impulse(obj, pl, PUNT_IMPULSE)
 			pl.pickup = false
 			pl.gg_state = "idle"
 			pl.gg_pulling = nil
+			pl.gg_vx = 0
+			pl.gg_vy = 0
+			apply_impulse(obj, pl, PUNT_IMPULSE)
 			set_cooldown(pl)
 			return
 		end
-		local obj = pick_target(pl)
-		if obj then
-			begin_pull(pl, obj)
-			set_cooldown(pl)
+		if pl.gg_state == "idle" or pl.gg_state == nil then
+			local obj = pick_target(pl)
+			if obj then
+				begin_pull(pl, obj)
+				set_cooldown(pl)
+			end
 		end
 	elseif rmb then
 		if pl.gg_state == "held" and pl.pickup then
 			release_obj(pl, "drop")
+			set_cooldown(pl)
+			return
+		end
+		if pl.gg_state == "pulling" then
+			release_obj(pl, "cancel")
 			set_cooldown(pl)
 			return
 		end
@@ -208,6 +269,14 @@ local function fire(pl: {string:any}, button: any)
 			apply_impulse(obj, pl, SHOVE_IMPULSE)
 			set_cooldown(pl)
 		end
+	end
+end
+
+-- Hold-LMB keeps trying to acquire a target (press alone often misses floor cubes).
+local function hold(pl: {string:any}, button: any, _: number)
+	local lmb = button == "l" or button == 1
+	if lmb and (pl.gg_state == "idle" or pl.gg_state == nil) then
+		fire(pl, "l")
 	end
 end
 
@@ -228,6 +297,17 @@ local function spring_object(pl: {string:any}, obj: {string:any}, dt: number): n
 	return tx, ty, ox, oy
 end
 
+local function mouse_held_pull(pl: {string:any}): boolean
+	-- Non-mouse players (joy) keep pull until release via RMB / unequip.
+	if pl.playernumber ~= mouseowner then
+		return true
+	end
+	if love and love.mouse and love.mouse.isDown then
+		return love.mouse.isDown(1) == true
+	end
+	return true
+end
+
 local function update(pl: {string:any}, dt: number)
 	local state = (pl.gg_state as string) or "idle"
 
@@ -242,7 +322,7 @@ local function update(pl: {string:any}, dt: number)
 			release_obj(pl, "destroying")
 			return
 		end
-		if pl.playernumber == mouseowner and not love.mouse.isDown(1) then
+		if not mouse_held_pull(pl) then
 			release_obj(pl, "cancel")
 			return
 		end
@@ -288,6 +368,7 @@ return {
 	anim = "portal",
 	cooldown = COOLDOWN,
 	fire = fire,
+	hold = hold,
 	update = update,
 	equip = equip,
 	unequip = unequip,

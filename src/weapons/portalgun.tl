@@ -30,7 +30,7 @@ end
 return {
 	id = "portal",
 	name = "portal gun",
-	icon = "assets/graphics/pedestalgun.png",
+	icon = "assets/graphics/weapons/portalgun.png",
 	anim = "portal",
 	cooldown = 0.2,
 	fire = fire,

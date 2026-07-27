@@ -6,7 +6,8 @@ local gravitygun = require("weapons.gravitygun") as {string:any}
 
 local registry: {string:{string:any}} = {
 	portal = portalgun,
-	gel = gelcannon,
+	gelcannon = gelcannon,
+	gel = gelcannon, -- alias (legacy playertype / levelweapons)
 	gravitygun = gravitygun,
 }
 
@@ -29,6 +30,9 @@ local function current(pl_any: any): {string:any}
 end
 
 local function icon_image(path: string): any
+	if not path then
+		return nil
+	end
 	if icon_cache[path] then
 		return icon_cache[path]
 	end
@@ -46,9 +50,15 @@ end
 local function default_loadout(): {string}
 	if levelweapons and #levelweapons > 0 then
 		local out = {} as {string}
+		local seen: {string:boolean} = {}
 		for i = 1, #levelweapons do
 			local id = levelweapons[i]
-			if registry[id] then
+			-- normalize gel alias
+			if id == "gel" then
+				id = "gelcannon"
+			end
+			if registry[id] and not seen[id] then
+				seen[id] = true
 				table.insert(out, id)
 			end
 		end
@@ -56,14 +66,8 @@ local function default_loadout(): {string}
 			return out
 		end
 	end
-	local list = {} as {string}
-	if playertype == "gelcannon" then
-		table.insert(list, "gel")
-	elseif portalsavailable and (portalsavailable[1] or portalsavailable[2]) then
-		table.insert(list, "portal")
-	end
-	table.insert(list, "gravitygun")
-	return list
+	-- Testing unlock: portal + gravity + gel always available.
+	return { "portal", "gravitygun", "gelcannon" }
 end
 
 local function setup_player(pl_any: any)
@@ -83,6 +87,9 @@ end
 
 local function give(pl_any: any, id: string)
 	local pl = pl_any as {string:any}
+	if id == "gel" then
+		id = "gelcannon"
+	end
 	if not registry[id] or not pl.weapons then
 		return
 	end
@@ -150,8 +157,11 @@ end
 
 local function update(pl_any: any, dt: number)
 	local pl = pl_any as {string:any}
-	if not pl or not pl.weapondelay then
+	if not pl then
 		return
+	end
+	if not pl.weapondelay then
+		pl.weapondelay = {}
 	end
 	local d = pl.weapondelay as {string:number}
 	local tick = dt
@@ -166,9 +176,13 @@ local function update(pl_any: any, dt: number)
 			end
 		end
 	end
+	-- Always tick gravity-gun spring even if another weapon is selected mid-hold
+	-- (unequip should have released; keep as safety if state leaked).
 	local w = current(pl)
 	if w and w.update then
 		(w.update as function({string:any}, number))(pl, dt)
+	elseif pl.gg_state and pl.gg_state ~= "idle" and gravitygun.update then
+		(gravitygun.update as function({string:any}, number))(pl, dt)
 	end
 end
 

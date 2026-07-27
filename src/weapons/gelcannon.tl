@@ -5,15 +5,19 @@ local function fire(pl: {string:any}, button: any)
 		pl.weapondelay = {}
 	end
 	local d = pl.weapondelay as {string:number}
-	if (d.gel or 0) > 0 then
+	if (d.gelcannon or d.gel or 0) > 0 then
 		return
 	end
-	d.gel = gelcannondelay or 0.05
+	local delay = gelcannondelay or 0.05
+	d.gelcannon = delay
+	d.gel = delay
 	local i = 1
 	if button == "r" or button == 2 then
 		i = 2
 	end
-	(pl.shootgel as function({string:any}, any))(pl, i)
+	if pl.shootgel then
+		(pl.shootgel as function({string:any}, any))(pl, i)
+	end
 end
 
 local function hold(pl: {string:any}, button: any, _: number)
@@ -27,9 +31,9 @@ local function unequip(_: {string:any})
 end
 
 return {
-	id = "gel",
+	id = "gelcannon",
 	name = "gel cannon",
-	icon = "assets/graphics/gel1.png",
+	icon = "assets/graphics/weapons/gelcannon.png",
 	anim = "gelcannon",
 	cooldown = gelcannondelay or 0.05,
 	fire = fire,

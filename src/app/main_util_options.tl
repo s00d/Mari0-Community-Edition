@@ -8,8 +8,13 @@ global function saveconfig()
 	local s = ""
 	for i = 1, #(controls as {any}) do
 		s = s .. "playercontrols:" .. i .. ":"
-		local count = 0
+		local keys = {} as {string}
 		for j, _ in pairs(controls[i]) do
+			table.insert(keys, j as string)
+		end
+		table.sort(keys)
+		for ki = 1, #keys do
+			local j = keys[ki]
 			local c = ""
 			for l = 1, #(controls[i][j] as {any}) do
 				c = c .. tostring(controls[i][j][l])
@@ -18,8 +23,7 @@ global function saveconfig()
 				end
 			end
 			s = s .. j .. "-" .. c
-			count = count + 1
-			if count == 12 then
+			if ki == #keys then
 				s = s .. ";"
 			else
 				s = s .. ","
