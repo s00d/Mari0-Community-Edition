@@ -1,15 +1,10 @@
 --[[ config / save / suspend ]]
 
--- Keys written by saveconfig / read by loadconfig (keep in sync).
-global OPTIONS_SCHEMA_KEYS = {
-	"playercontrols", "playercolors", "mariocharacter", "portalhues", "mariohats",
-	"scale", "shader1", "shader2", "volume", "musicvolume", "mouseowner", "mappack",
-	"vsync", "gamefinished", "fullscreen", "fullscreenmode", "reachedworlds",
-}
-
-local OPTION_WRITERS: {string: function(): string} = {}
-
-OPTION_WRITERS["playercontrols"] = function(): string
+global function saveconfig()
+	if CLIENT or SERVER then
+		return
+	end
+	
 	local s = ""
 	for i = 1, #(controls as {any}) do
 		s = s .. "playercontrols:" .. i .. ":"
@@ -30,12 +25,8 @@ OPTION_WRITERS["playercontrols"] = function(): string
 				s = s .. ","
 			end
 		end
-	end
-	return s
-end
-
-OPTION_WRITERS["playercolors"] = function(): string
-	local s = ""
+	end	
+	
 	for i = 1, #mariocolors do
 		s = s .. "playercolors:" .. i .. ":"
 		if #mariocolors[i] > 0 then
@@ -53,30 +44,18 @@ OPTION_WRITERS["playercolors"] = function(): string
 			s = s .. ";"
 		end
 	end
-	return s
-end
-
-OPTION_WRITERS["mariocharacter"] = function(): string
-	local s = ""
+	
 	for i = 1, #(mariocharacter as {any}) do
 		s = s .. "mariocharacter:" .. i .. ":"
 		s = s .. mariocharacter[i]
 		s = s .. ";"
 	end
-	return s
-end
-
-OPTION_WRITERS["portalhues"] = function(): string
-	local s = ""
+	
 	for i = 1, #portalhues do
 		s = s .. "portalhues:" .. i .. ":"
 		s = s .. round(portalhues[i][1], 4) .. "," .. round(portalhues[i][2], 4) .. ";"
 	end
-	return s
-end
-
-OPTION_WRITERS["mariohats"] = function(): string
-	local s = ""
+	
 	for i = 1, #(mariohats as {any}) do
 		s = s .. "mariohats:" .. i
 		if #(mariohats[i] as {any}) > 0 then
@@ -94,61 +73,22 @@ OPTION_WRITERS["mariohats"] = function(): string
 			s = s .. ";"
 		end
 	end
-	return s
-end
-
-OPTION_WRITERS["scale"] = function(): string
-	return "scale:" .. scale .. ";"
-end
-
-OPTION_WRITERS["shader1"] = function(): string
-	return "shader1:" .. shaderlist[currentshaderi1] .. ";"
-end
-
-OPTION_WRITERS["shader2"] = function(): string
-	return "shader2:" .. shaderlist[currentshaderi2] .. ";"
-end
-
-OPTION_WRITERS["volume"] = function(): string
-	return "volume:" .. volumesfx .. ";"
-end
-
-OPTION_WRITERS["musicvolume"] = function(): string
-	return "musicvolume:" .. volumemusic .. ";"
-end
-
-OPTION_WRITERS["mouseowner"] = function(): string
-	return "mouseowner:" .. mouseowner .. ";"
-end
-
-OPTION_WRITERS["mappack"] = function(): string
-	return "mappack:" .. mappack .. ";"
-end
-
-OPTION_WRITERS["vsync"] = function(): string
+	
+	s = s .. "scale:" .. scale .. ";"
+	s = s .. "shader1:" .. shaderlist[currentshaderi1] .. ";"
+	s = s .. "shader2:" .. shaderlist[currentshaderi2] .. ";"
+	s = s .. "volume:" .. volumesfx .. ";"
+	s = s .. "musicvolume:" .. volumemusic .. ";"
+	s = s .. "mouseowner:" .. mouseowner .. ";"
+	s = s .. "mappack:" .. mappack .. ";"
 	if vsync then
-		return "vsync;"
+		s = s .. "vsync;"
 	end
-	return ""
-end
-
-OPTION_WRITERS["gamefinished"] = function(): string
 	if gamefinished then
-		return "gamefinished;"
+		s = s .. "gamefinished;"
 	end
-	return ""
-end
-
-OPTION_WRITERS["fullscreen"] = function(): string
-	return "fullscreen:" .. tostring(fullscreen) .. ";"
-end
-
-OPTION_WRITERS["fullscreenmode"] = function(): string
-	return "fullscreenmode:" .. fullscreenmode .. ";"
-end
-
-OPTION_WRITERS["reachedworlds"] = function(): string
-	local s = ""
+	s = s .. "fullscreen:" .. tostring(fullscreen) .. ";"
+	s = s .. "fullscreenmode:" .. fullscreenmode .. ";"
 	for i, v in pairs(reachedworlds) do
 		s = s .. "reachedworlds:" .. i .. ":"
 		for j = 1, 8 do
@@ -164,162 +104,8 @@ OPTION_WRITERS["reachedworlds"] = function(): string
 			end
 		end
 	end
-	return s
-end
-
-global function saveconfig()
-	if CLIENT or SERVER then
-		return
-	end
-	
-	local s = ""
-	for _, key in ipairs(OPTIONS_SCHEMA_KEYS) do
-		local writer = OPTION_WRITERS[key]
-		if writer then
-			s = s .. writer()
-		end
-	end
 	
 	love.filesystem.write("options.txt", s)
-end
-
-local OPTION_READERS: {string: function({string}): boolean} = {}
-
-OPTION_READERS["playercontrols"] = function(s2: {string}): boolean
-	if controls[tonumber(s2[2]) as integer] == nil then
-		controls[tonumber(s2[2]) as integer] = {}
-	end
-	s3 = strsplit(s2[3], ",")
-	for j = 1, #s3 do
-		s4 = strsplit(s3[j], "-")
-		controls[tonumber(s2[2]) as integer][s4[1]] = {}
-		for k = 2, #s4 do
-			if tonumber(s4[k]) ~= nil then
-				controls[tonumber(s2[2]) as integer][s4[1]][k-1] = tonumber(s4[k]) as number
-			else
-				controls[tonumber(s2[2]) as integer][s4[1]][k-1] = s4[k]
-			end
-		end
-	end
-	players = math.max(players, tonumber(s2[2]) as integer)
-	return true
-end
-
-OPTION_READERS["playercolors"] = function(s2: {string}): boolean
-	if mariocolors[tonumber(s2[2]) as integer] == nil then
-		mariocolors[tonumber(s2[2]) as integer] = {}
-	end
-	s3 = strsplit(s2[3], ",")
-	mariocolors[tonumber(s2[2]) as integer] = {}
-	for i = 1, #s3/3 do
-		mariocolors[tonumber(s2[2]) as integer][i as integer] = {tonumber(s3[(1+(i-1)*3) as integer]) / 255, tonumber(s3[(2+(i-1)*3) as integer]) / 255, tonumber(s3[(3+(i-1)*3) as integer]) / 255}
-	end
-	return true
-end
-
-OPTION_READERS["portalhues"] = function(s2: {string}): boolean
-	if portalhues[tonumber(s2[2]) as integer] == nil then
-		portalhues[tonumber(s2[2]) as integer] = {}
-	end
-	s3 = strsplit(s2[3], ",")
-	portalhues[tonumber(s2[2]) as integer] = {tonumber(s3[1]), tonumber(s3[2])}
-	return true
-end
-
-OPTION_READERS["mariohats"] = function(s2: {string}): boolean
-	local playerno = tonumber(s2[2])
-	mariohats[playerno as integer] = {}
-	if s2[3] == "mariohats" then
-	elseif s2[3] then
-		s3 = strsplit(s2[3], ",")
-		for i = 1, #s3 do
-			local hatno = tonumber(s3[i])
-			mariohats[playerno as integer][i] = hatno
-		end
-	end
-	return true
-end
-
-OPTION_READERS["scale"] = function(s2: {string}): boolean
-	scale = tonumber(s2[2])
-	return true
-end
-
-OPTION_READERS["shader1"] = function(s2: {string}): boolean
-	for i = 1, #shaderlist do
-		if shaderlist[i] == s2[2] then
-			currentshaderi1 = i as integer
-		end
-	end
-	return true
-end
-
-OPTION_READERS["shader2"] = function(s2: {string}): boolean
-	for i = 1, #shaderlist do
-		if shaderlist[i] == s2[2] then
-			currentshaderi2 = i as integer
-		end
-	end
-	return true
-end
-
-OPTION_READERS["volume"] = function(s2: {string}): boolean
-	volumesfx = tonumber(s2[2])
-	love.audio.setVolume( volumesfx )
-	return true
-end
-
-OPTION_READERS["musicvolume"] = function(s2: {string}): boolean
-	volumemusic = tonumber(s2[2])
-	return true
-end
-
-OPTION_READERS["mouseowner"] = function(s2: {string}): boolean
-	mouseowner = tonumber(s2[2]) as integer
-	return true
-end
-
-OPTION_READERS["mappack"] = function(s2: {string}): boolean
-	if love.filesystem.getInfo(mappack_path(s2[2]) .. "/settings.txt") then
-		mappack = s2[2]
-	end
-	return true
-end
-
-OPTION_READERS["gamefinished"] = function(_s2: {string}): boolean
-	gamefinished = true
-	return true
-end
-
-OPTION_READERS["vsync"] = function(_s2: {string}): boolean
-	vsync = true
-	return true
-end
-
-OPTION_READERS["reachedworlds"] = function(s2: {string}): boolean
-	reachedworlds[s2[2]] = {}
-	local s3 = strsplit(s2[3], ",")
-	for i = 1, #s3 do
-		if tonumber(s3[i]) == 1 then
-			reachedworlds[s2[2]][i as integer] = true
-		end
-	end
-	return true
-end
-
-OPTION_READERS["mariocharacter"] = function(s2: {string}): boolean
-	mariocharacter[tonumber(s2[2]) as integer] = s2[3]
-	return true
-end
-
-OPTION_READERS["fullscreen"] = function(s2: {string}): boolean
-	fullscreen = s2[2] == "true"
-	return true
-end
-
-OPTION_READERS["fullscreenmode"] = function(s2: {string}): boolean
-	fullscreenmode = s2[2]
-	return true
 end
 
 global function loadconfig()
@@ -335,9 +121,90 @@ global function loadconfig()
 	
 	for i = 1, #s1-1 do
 		s2 = strsplit(s1[i], ":")
-		local reader = OPTION_READERS[s2[1]]
-		if reader then
-			reader(s2)
+		if s2[1] == "playercontrols" then
+			if controls[tonumber(s2[2]) as integer] == nil then
+				controls[tonumber(s2[2]) as integer] = {}
+			end
+			s3 = strsplit(s2[3], ",")
+			for j = 1, #s3 do
+				s4 = strsplit(s3[j], "-")
+				controls[tonumber(s2[2]) as integer][s4[1]] = {}
+				for k = 2, #s4 do
+					if tonumber(s4[k]) ~= nil then
+						controls[tonumber(s2[2]) as integer][s4[1]][k-1] = tonumber(s4[k]) as number
+					else
+						controls[tonumber(s2[2]) as integer][s4[1]][k-1] = s4[k]
+					end
+				end
+			end
+			players = math.max(players, tonumber(s2[2]) as integer)
+		elseif s2[1] == "playercolors" then
+			if mariocolors[tonumber(s2[2]) as integer] == nil then
+				mariocolors[tonumber(s2[2]) as integer] = {}
+			end
+			s3 = strsplit(s2[3], ",")
+			mariocolors[tonumber(s2[2]) as integer] = {}
+			for i = 1, #s3/3 do
+				mariocolors[tonumber(s2[2]) as integer][i as integer] = {tonumber(s3[(1+(i-1)*3) as integer]) / 255, tonumber(s3[(2+(i-1)*3) as integer]) / 255, tonumber(s3[(3+(i-1)*3) as integer]) / 255}
+			end
+		elseif s2[1] == "portalhues" then
+			if portalhues[tonumber(s2[2]) as integer] == nil then
+				portalhues[tonumber(s2[2]) as integer] = {}
+			end
+			s3 = strsplit(s2[3], ",")
+			portalhues[tonumber(s2[2]) as integer] = {tonumber(s3[1]), tonumber(s3[2])}
+		elseif s2[1] == "mariohats" then
+			local playerno = tonumber(s2[2])
+			mariohats[playerno as integer] = {}
+			if s2[3] and s2[3] ~= "mariohats" then
+				s3 = strsplit(s2[3], ",")
+				for i = 1, #s3 do
+					mariohats[playerno as integer][i] = tonumber(s3[i])
+				end
+			end
+		elseif s2[1] == "scale" then
+			scale = tonumber(s2[2])
+		elseif s2[1] == "shader1" then
+			for i = 1, #shaderlist do
+				if shaderlist[i] == s2[2] then
+					currentshaderi1 = i as integer
+				end
+			end
+		elseif s2[1] == "shader2" then
+			for i = 1, #shaderlist do
+				if shaderlist[i] == s2[2] then
+					currentshaderi2 = i as integer
+				end
+			end
+		elseif s2[1] == "volume" then
+			volumesfx = tonumber(s2[2])
+			love.audio.setVolume( volumesfx )
+		elseif s2[1] == "musicvolume" then
+			volumemusic = tonumber(s2[2])
+		elseif s2[1] == "mouseowner" then
+			mouseowner = tonumber(s2[2]) as integer
+		elseif s2[1] == "mappack" then
+			if love.filesystem.getInfo(mappack_path(s2[2]) .. "/settings.txt") then
+				mappack = s2[2]
+			end
+		elseif s2[1] == "gamefinished" then
+			gamefinished = true
+		elseif s2[1] == "vsync" then
+			vsync = true
+		elseif s2[1] == "reachedworlds" then
+			reachedworlds[s2[2]] = {}
+			local s3 = strsplit(s2[3], ",")
+			for i = 1, #s3 do
+				if tonumber(s3[i]) == 1 then
+					reachedworlds[s2[2]][i as integer] = true
+				end
+			end
+		elseif s2[1] == "mariocharacter" then
+			mariocharacter[tonumber(s2[2]) as integer] = s2[3]
+		elseif s2[1] == "fullscreen" then
+			fullscreen = s2[2] == "true"
+		elseif s2[1] == "fullscreenmode" then
+			fullscreenmode = s2[2]
 		end
 	end
 	
@@ -537,10 +404,7 @@ global function serializetable(t: any)
 						tableexists = true
 					end
 				end
-				
-				if tableexists then
-					
-				else
+				if not tableexists then
 					table.insert(nexttablestodo, v)
 					table.insert(tableindex, v)
 				end
@@ -551,4 +415,3 @@ global function serializetable(t: any)
 end
 
 mouse = {}
-

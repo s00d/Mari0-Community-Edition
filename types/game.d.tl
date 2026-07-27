@@ -1585,7 +1585,6 @@ global runkey: function(any): any
 global saveHotKeys: function(): any
 global saveanimation: function(): any
 global saveconfig: function()
-global OPTIONS_SCHEMA_KEYS: {string}
 global savelevel: function()
 global savemap: function(filename: string, silent?: boolean)
 global savemtobject: function(any, name?: any, file?: any): any

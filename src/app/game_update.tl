@@ -2,8 +2,6 @@
      Loaded via require("app.game_update"); defines global game_update.
 ]]
 
-local ReplayHarness = require("core.replay_harness")
-
 global function game_update(dt: number)
 	if not objects then return end
 	gdt = dt
@@ -72,7 +70,18 @@ global function game_update(dt: number)
 	remove_indices_desc(scrollingtexts, delete)
 	
 	if replaysystem then
-		ReplayHarness.advance_replay_indices(replaydata, replaytimer, replayi, dt)
+		for j = 1, #replaydata do
+			local rep = replaydata[j] as {string: any}
+			local rdata = rep.data as {integer: any}
+			if rdata then
+				replaytimer[j] = replaytimer[j] + dt
+				local idx = replayi[j] as integer
+				while idx < #rdata and ((rdata[idx] as {string: any}).time as number) < replaytimer[j] do
+					idx = idx + 1
+					replayi[j] = idx
+				end
+			end
+		end
 	end
 	
 	--If everyone's dead, just update the players and coinblock timer.
