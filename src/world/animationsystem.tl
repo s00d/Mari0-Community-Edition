@@ -4,11 +4,11 @@ global function animationsystem_load()
 	animationtriggerfuncs = {}
 	animations = {}
 	
-	local dir = love.filesystem.getDirectoryItems("mappacks/" .. mappack .. "/animations")
+	local dir = love.filesystem.getDirectoryItems(mappack_path(mappack) .. "/animations")
 	
 	for i = 1, #dir do
 		if string.sub(dir[i], -4) == "json" then
-			table.insert(animations, animation:new("mappacks/" .. mappack .. "/animations/" .. dir[i], dir[i]))
+			table.insert(animations, animation:new(mappack_path(mappack) .. "/animations/" .. dir[i], dir[i]))
 		end
 	end
 end

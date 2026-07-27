@@ -1244,8 +1244,8 @@ end
 
 global function loadbackground(backgroundlevel: any): any
 	
-	loadcustomimages("mappacks/" .. mappack .. "/graphics")
-	loadcustomsounds("mappacks/" .. mappack .. "/sounds")
+	loadcustomimages(mappack_path(mappack) .. "/graphics")
+	loadcustomsounds(mappack_path(mappack) .. "/sounds")
 	loadcustombackgrounds()
 	loadcustommusics()
 	loadanimatedtiles()
@@ -1271,7 +1271,7 @@ global function loadbackground(backgroundlevel: any): any
 	itemanimations = {}
 	textentities = {}
 	
-	if not love.filesystem.getInfo("mappacks/" .. tostring(mappack) .. "/" .. tostring(backgroundlevel)) then
+	if not love.filesystem.getInfo(mappack_path(tostring(mappack)) .. "/" .. tostring(backgroundlevel)) then
 		return false
 	else
 		loadmap((backgroundlevel as string):sub(1, -5))
@@ -1349,7 +1349,7 @@ global function loadmappacks()
 	
 	local delete = {}
 	for i = 1, #mappacklist do
-		if love.filesystem.getInfo( "mappacks/" .. mappacklist[i] .. "/version.txt") or not love.filesystem.getInfo( "mappacks/" .. mappacklist[i] .. "/settings.txt") then
+		if love.filesystem.getInfo( mappack_path(mappacklist[i]) .. "/version.txt") or not love.filesystem.getInfo( mappack_path(mappacklist[i]) .. "/settings.txt") then
 			table.insert(delete, i)
 		end
 	end
@@ -1365,13 +1365,13 @@ global function loadmappacks()
 	mappackbackground = {}
 	
 	for i = 1, #mappacklist do
-		local iconpath = "mappacks/" .. mappacklist[i] .. "/icon.png"
+		local iconpath = mappack_path(mappacklist[i]) .. "/icon.png"
 		-- SE-era packs sometimes used Thumb.png instead of icon.png
 		if not love.filesystem.getInfo(iconpath) then
-			iconpath = "mappacks/" .. mappacklist[i] .. "/Thumb.png"
+			iconpath = mappack_path(mappacklist[i]) .. "/Thumb.png"
 		end
 		if not love.filesystem.getInfo(iconpath) then
-			iconpath = "mappacks/" .. mappacklist[i] .. "/thumb.png"
+			iconpath = mappack_path(mappacklist[i]) .. "/thumb.png"
 		end
 		if love.filesystem.getInfo(iconpath) then
 			mappackicon[i] = AssetStore.load_image(iconpath)
@@ -1381,8 +1381,8 @@ global function loadmappacks()
 		
 		mappackauthor[i] = ""
 		mappackdescription[i] = ""
-		if love.filesystem.getInfo( "mappacks/" .. mappacklist[i] .. "/settings.txt" ) then		
-			local s = love.filesystem.read( "mappacks/" .. mappacklist[i] .. "/settings.txt" )
+		if love.filesystem.getInfo( mappack_path(mappacklist[i]) .. "/settings.txt" ) then		
+			local s = love.filesystem.read( mappack_path(mappacklist[i]) .. "/settings.txt" )
 			local n, a, d = menu_parse_settings_text(s)
 			if n then mappackname[i] = n end
 			if a then mappackauthor[i] = a end
@@ -1421,7 +1421,7 @@ global function loadonlinemappacks()
 	
 	local delete = {}
 	for i = 1, #onlinemappacklist do
-		if not love.filesystem.getInfo( "mappacks/" .. onlinemappacklist[i] .. "/version.txt") or not love.filesystem.getInfo( "mappacks/" .. onlinemappacklist[i] .. "/settings.txt") then
+		if not love.filesystem.getInfo( mappack_path(onlinemappacklist[i]) .. "/version.txt") or not love.filesystem.getInfo( mappack_path(onlinemappacklist[i]) .. "/settings.txt") then
 			table.insert(delete, i)
 		end
 	end
@@ -1437,16 +1437,16 @@ global function loadonlinemappacks()
 	onlinemappackbackground = {}
 	
 	for i = 1, #onlinemappacklist do
-		if love.filesystem.getInfo( "mappacks/" .. onlinemappacklist[i] .. "/icon.png" ) then
-			onlinemappackicon[i] = AssetStore.load_image("mappacks/" .. onlinemappacklist[i] .. "/icon.png")
+		if love.filesystem.getInfo( mappack_path(onlinemappacklist[i]) .. "/icon.png" ) then
+			onlinemappackicon[i] = AssetStore.load_image(mappack_path(onlinemappacklist[i]) .. "/icon.png")
 		else
 			onlinemappackicon[i] = nil
 		end
 		
 		onlinemappackauthor[i] = nil
 		onlinemappackdescription[i] = nil
-		if love.filesystem.getInfo( "mappacks/" .. onlinemappacklist[i] .. "/settings.txt" ) then		
-			local s = love.filesystem.read( "mappacks/" .. onlinemappacklist[i] .. "/settings.txt" )
+		if love.filesystem.getInfo( mappack_path(onlinemappacklist[i]) .. "/settings.txt" ) then		
+			local s = love.filesystem.read( mappack_path(onlinemappacklist[i]) .. "/settings.txt" )
 			local n, a, d = menu_parse_settings_text(s)
 			if n then onlinemappackname[i] = n end
 			if a then onlinemappackauthor[i] = a end
@@ -1567,8 +1567,8 @@ global function downloadmappacks(): any
 	for i = 1, #maplist do
 		--check if current version is equal or newer
 		local version: number = 0
-		if love.filesystem.getInfo("mappacks/" .. maplist[i] .. "/version.txt") then
-			local data = love.filesystem.read("mappacks/" .. maplist[i] .. "/version.txt")
+		if love.filesystem.getInfo(mappack_path(maplist[i]) .. "/version.txt") then
+			local data = love.filesystem.read(mappack_path(maplist[i]) .. "/version.txt")
 			if data then
 				version = tonumber(data) or 0
 			end
@@ -1581,11 +1581,11 @@ global function downloadmappacks(): any
 			currentdownload = i
 			downloadcount = #maplist
 			
-			if love.filesystem.getInfo("mappacks/" .. maplist[i] .. "/") then
-				love.filesystem.remove("mappacks/" .. maplist[i] .. "/")
+			if love.filesystem.getInfo(mappack_path(maplist[i]) .. "/") then
+				love.filesystem.remove(mappack_path(maplist[i]) .. "/")
 			end
 			
-			love.filesystem.createDirectory("mappacks/" .. maplist[i])
+			love.filesystem.createDirectory(mappack_path(maplist[i]))
 			local onlinedata, code = http.request("http://server.stabyourself.net/mari0/index2.php?mode=getmap&get=" .. maplist[i])
 			
 			if code == 200 then
@@ -1614,7 +1614,7 @@ global function downloadmappacks(): any
 						love.graphics.present()
 						loadingonlinemappacks = false
 						
-						local target = "mappacks/" .. maplist[i] .. "/" .. (split2[2] as string):match("([^/]-)$")
+						local target = mappack_path(maplist[i]) .. "/" .. (split2[2] as string):match("([^/]-)$")
 						
 						local tries = 0
 						success = false
@@ -1630,7 +1630,7 @@ global function downloadmappacks(): any
 					end
 				end
 				if success then
-					love.filesystem.write( "mappacks/" .. maplist[i] .. "/version.txt", tostring(versionlist[i]))
+					love.filesystem.write( mappack_path(maplist[i]) .. "/version.txt", tostring(versionlist[i]))
 				end
 			else
 				success = false
@@ -1639,13 +1639,13 @@ global function downloadmappacks(): any
 		
 		--Delete stuff and stuff.
 		if not success then
-			if love.filesystem.getInfo("mappacks/" .. maplist[i] .. "/") then
-				local list = love.filesystem.getDirectoryItems("mappacks/" .. maplist[i] .. "/")
+			if love.filesystem.getInfo(mappack_path(maplist[i]) .. "/") then
+				local list = love.filesystem.getDirectoryItems(mappack_path(maplist[i]) .. "/")
 				for j = 1, #list do
-					love.filesystem.remove("mappacks/" .. maplist[i] .. "/" .. list[j])
+					love.filesystem.remove(mappack_path(maplist[i]) .. "/" .. list[j])
 				end
 				
-				love.filesystem.remove("mappacks/" .. maplist[i] .. "/")
+				love.filesystem.remove(mappack_path(maplist[i]) .. "/")
 			end
 			downloaderror = true
 			break
@@ -2257,40 +2257,40 @@ end
 
 global function delete_mappack(pack: any): any
 	
-	if not love.filesystem.getInfo("mappacks/" .. (pack as string) .. "/") then
+	if not love.filesystem.getInfo(mappack_path(pack as string) .. "/") then
 		return false
 	end
 	
-	local list = love.filesystem.getDirectoryItems("mappacks/" .. (pack as string) .. "/")
+	local list = love.filesystem.getDirectoryItems(mappack_path(pack as string) .. "/")
 	for i = 1, #list do
-		love.filesystem.remove("mappacks/" .. (pack as string) .. "/" .. list[i])
+		love.filesystem.remove(mappack_path(pack as string) .. "/" .. list[i])
 	end
 	
-	love.filesystem.remove("mappacks/" .. (pack as string) .. "/")
+	love.filesystem.remove(mappack_path(pack as string) .. "/")
 end
 
 global function createmappack()
 	local i = 1
-	while love.filesystem.getInfo("mappacks/custom_mappack_" .. i .. "/") do
+	while love.filesystem.getInfo(mappack_path("custom_mappack_" .. i) .. "/") do
 		i = i + 1
 	end
 	
 	mappack = "custom_mappack_" .. i
 	
-	love.filesystem.createDirectory("mappacks/" .. tostring(mappack) .. "/")
+	love.filesystem.createDirectory(mappack_path(tostring(mappack)) .. "/")
 	
 	local s = ""
 	s = s .. "name=new mappack" .. "\n"
 	s = s .. "author=you" .. "\n"
 	s = s .. "description=the newest best  mappack?" .. "\n"
 	
-	love.filesystem.write("mappacks/" .. mappack .. "/settings.txt", s)
+	love.filesystem.write(mappack_path(mappack) .. "/settings.txt", s)
 	
 	--Create folders for all sorts of stuff.
 	local folderlist = {"animated", "animations", "backgrounds", "enemies", "graphics", "levelscreens", "music", "sounds"}
 	
 	for _, v in pairs(folderlist as {any:any}) do
-		love.filesystem.createDirectory("mappacks/" .. tostring(mappack) .. "/" .. tostring(v) .. "/")
+		love.filesystem.createDirectory(mappack_path(tostring(mappack)) .. "/" .. tostring(v) .. "/")
 	end
 end
 
@@ -2330,7 +2330,7 @@ global function selectworld()
 	
 	selectworldexists = {}
 	for i = 1, 8 do
-		if love.filesystem.getInfo("mappacks/" .. tostring(mappack) .. "/" .. i .. "-1.txt") then
+		if love.filesystem.getInfo(mappack_level_path(tostring(mappack), i, 1)) then
 			selectworldexists[i] = true
 		end
 	end
@@ -2397,7 +2397,7 @@ end
 
 global function convertmappack(name: any)
 	local oldmappackpath = "toconvert/" .. (name as string) .. "/"
-	local newmappackpath = "mappacks/" .. (name as string) .. "/"
+	local newmappackpath = mappack_path(name as string) .. "/"
 	mappack = name as string
 	
 	local _ = 1

@@ -348,10 +348,10 @@ global function loadcustombackgrounds()
 	custombackgroundimg = {}
 	custombackgroundwidth = {}
 	custombackgroundheight = {}
-	local fl = love.filesystem.getDirectoryItems("mappacks/" .. mappack .. "/backgrounds")
+	local fl = love.filesystem.getDirectoryItems(mappack_path(mappack) .. "/backgrounds")
 	
 	for i = 1, #fl do
-		local v = "mappacks/" .. mappack .. "/backgrounds/" .. fl[i]
+		local v = mappack_path(mappack) .. "/backgrounds/" .. fl[i]
 		
 		if love.filesystem.getInfo(v, "file") and v ~= ".DS_STORE" and v ~= ".DS_S" then
 			if string.sub(v, -5, -5) == "1" then
@@ -389,10 +389,10 @@ end
 global function loadlevelscreens()
 	levelscreens = {}
 	
-	local fl = love.filesystem.getDirectoryItems("mappacks/" .. mappack .. "/levelscreens")
+	local fl = love.filesystem.getDirectoryItems(mappack_path(mappack) .. "/levelscreens")
 	
 	for i = 1, #fl do
-		local v = "mappacks/" .. mappack .. "/levelscreens/" .. fl[i]
+		local v = mappack_path(mappack) .. "/levelscreens/" .. fl[i]
 		if love.filesystem.getInfo(v, "file") then
 			table.insert(levelscreens, string.lower(string.sub(fl[i], 1, -5)))
 		end
@@ -401,7 +401,7 @@ end
 
 global function loadcustommusics()
 	musiclist = {"none.ogg", "overworld.ogg", "underground.ogg", "castle.ogg", "underwater.ogg", "starmusic.ogg"}
-	local fl = love.filesystem.getDirectoryItems("mappacks/" .. mappack .. "/music")
+	local fl = love.filesystem.getDirectoryItems(mappack_path(mappack) .. "/music")
 	custommusics = {}
 	
 	for i = 1, #fl do
@@ -441,17 +441,17 @@ global function loadanimatedtiles()
 	animatedtilecount = 0
 	animatedtiles = {}
 	loadfolder("assets/graphics/animated")
-	loadfolder("mappacks/" .. mappack .. "/animated")
+	loadfolder(mappack_path(mappack) .. "/animated")
 end
 
 global function loadcustomtiles()
-	if love.filesystem.getInfo("mappacks/" .. mappack .. "/tiles.png") then
+	if love.filesystem.getInfo(mappack_path(mappack) .. "/tiles.png") then
 		customtiles = true
-		customtilesimg = AssetStore.load_image("mappacks/" .. mappack .. "/tiles.png")
+		customtilesimg = AssetStore.load_image(mappack_path(mappack) .. "/tiles.png")
 		local imgwidth, imgheight = customtilesimg:getWidth(), customtilesimg:getHeight()
 		local width = math.floor(imgwidth/17)
 		local height = math.floor(imgheight/17)
-		local imgdata = love.image.newImageData("mappacks/" .. mappack .. "/tiles.png")
+		local imgdata = love.image.newImageData(mappack_path(mappack) .. "/tiles.png")
 		
 		for y = 1, height do
 			for x = 1, width do
@@ -468,7 +468,7 @@ global function loadcustomtiles()
 end
 
 global function loadmodcustomtiles()
-	local files = love.filesystem.getDirectoryItems("mappacks/" .. mappack .. "/tiles")
+	local files = love.filesystem.getDirectoryItems(mappack_path(mappack) .. "/tiles")
 	for i,j in ipairs(files) do
 		print(i,j)
 		if string.sub(j, -4) ~= ".png" then
@@ -481,11 +481,11 @@ global function loadmodcustomtiles()
 		modcustomtilesimg = {}
 		modcustomtilecount = {}
 		for i = 1, modcustomtiles as integer do
-			modcustomtilesimg[i] = AssetStore.load_image("mappacks/" .. mappack .. "/tiles/" .. files[i]) as Image
+			modcustomtilesimg[i] = AssetStore.load_image(mappack_path(mappack) .. "/tiles/" .. files[i]) as Image
 			local imgwidth, imgheight = modcustomtilesimg[i]:getWidth(), modcustomtilesimg[i]:getHeight()
 			local width = math.floor(imgwidth/17)
 			local height = math.floor(imgheight/17)
-			local imgdata = love.image.newImageData("mappacks/" .. mappack .. "/tiles/" .. files[i])
+			local imgdata = love.image.newImageData(mappack_path(mappack) .. "/tiles/" .. files[i])
 			
 			for y = 1, height do
 				for x = 1, width do

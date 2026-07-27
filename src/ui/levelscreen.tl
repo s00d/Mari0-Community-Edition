@@ -28,11 +28,11 @@ global function levelscreen_load(reason: any, levelarg?: any)
 			respawnsublevel = mariosublevel or 0
 			
 			--check if next level doesn't exist
-			if mariosublevel > 0 and not love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. tostring(marioworld) .. "-" .. tostring(mariolevel) .. "_" .. mariosublevel .. ".txt") then
+			if mariosublevel > 0 and not love.filesystem.getInfo(mappack_level_path(mappack, marioworld, mariolevel, mariosublevel)) then
 				gamestate = "mappackfinished"
 				blacktime = gameovertime
 				music:play("princessmusic.ogg")
-			elseif not love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. tostring(marioworld) .. "-" .. tostring(mariolevel) .. ".txt") then
+			elseif not love.filesystem.getInfo(mappack_level_path(mappack, marioworld, mariolevel)) then
 				gamestate = "mappackfinished"
 				blacktime = gameovertime
 				music:play("princessmusic.ogg")

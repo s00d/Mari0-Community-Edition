@@ -21,7 +21,7 @@ music = ({
 
 
 global function getfilepath(name: any): any
-	local musicpaths = {"assets/sounds/", "mappacks/" .. mappack .. "/music/"}
+	local musicpaths = {"assets/sounds/", mappack_path(mappack) .. "/music/"}
 	
 	for i = 1, #musicpaths do
 		if love.filesystem.getInfo(musicpaths[i] .. (name as string), "file") then

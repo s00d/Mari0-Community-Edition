@@ -234,8 +234,8 @@ function editor_load()
 	local mappackname = ""
 	local mappackauthor = ""
 	local mappackdescription = ""
-	if love.filesystem.getInfo("mappacks/" .. mappack .. "/settings.txt") then
-		local data = (love.filesystem.read("mappacks/" .. mappack .. "/settings.txt") or "") as string
+	if love.filesystem.getInfo(mappack_path(mappack) .. "/settings.txt") then
+		local data = (love.filesystem.read(mappack_path(mappack) .. "/settings.txt") or "") as string
 		local split1 = strsplit(data, "\n")
 		for i = 1, #split1 do
 			local split2 = strsplit(split1[i], "=") as {string}
@@ -2248,13 +2248,13 @@ function createnewanimation()
 	s.actions = {}
 	
 	local i = 1
-	while love.filesystem.getInfo("mappacks/" .. mappack .. "/animations/animation" .. i .. ".json") do
+	while love.filesystem.getInfo(mappack_path(mappack) .. "/animations/animation" .. i .. ".json") do
 		i = i + 1
 	end
-	love.filesystem.createDirectory("mappacks/" .. mappack .. "/animations/")
-	love.filesystem.write("mappacks/" .. mappack .. "/animations/animation" .. i .. ".json", JSON.encode(s, { indent = true }))
+	love.filesystem.createDirectory(mappack_path(mappack) .. "/animations/")
+	love.filesystem.write(mappack_path(mappack) .. "/animations/animation" .. i .. ".json", JSON.encode(s, { indent = true }))
 	
-	table.insert(animations as {any}, animation:new("mappacks/" .. mappack .. "/animations/animation" .. i .. ".json", "animation" .. i .. ".json"))
+	table.insert(animations as {any}, animation:new(mappack_path(mappack) .. "/animations/animation" .. i .. ".json", "animation" .. i .. ".json"))
 	
 	currentanimation = #animations
 	
@@ -2370,8 +2370,8 @@ function loadmtobjects()
 	multitileobjects = {}
 	multitileobjectnames = nil
 	multitileobjectnames = {}
-	if love.filesystem.getInfo("mappacks/" .. mappack .. "/objects.txt") then
-		local data = ((love.filesystem.read("mappacks/" .. mappack .. "/objects.txt")) or "") as string
+	if love.filesystem.getInfo(mappack_path(mappack) .. "/objects.txt") then
+		local data = ((love.filesystem.read(mappack_path(mappack) .. "/objects.txt")) or "") as string
 		if #data > 0 then
 			data = string.sub(data, 1, -2)
 			--print(data)
@@ -2409,8 +2409,8 @@ end
 function loadmtgroups()
 	multitilegroups = nil
 	multitilegroups = {}
-	if love.filesystem.getInfo("mappacks/" .. mappack .. "/groups.txt") then
-		local data = ((love.filesystem.read("mappacks/" .. mappack .. "/groups.txt")) or "") as string
+	if love.filesystem.getInfo(mappack_path(mappack) .. "/groups.txt") then
+		local data = ((love.filesystem.read(mappack_path(mappack) .. "/groups.txt")) or "") as string
 		if #data > 0 then
 			data = string.sub(data, 1, -2)
 			local split1 = strsplit(data, "\n")
@@ -2888,7 +2888,7 @@ function getmaps()
 	local worlds: number = 0
 	local levels: number = 0
 	local sublevels: number = 0
-	local files = love.filesystem.getDirectoryItems("mappacks/" .. mappack)
+	local files = love.filesystem.getDirectoryItems(mappack_path(mappack))
 	editor_filter_map_files(files)
 	table.sort(files, mapsort)
 	for i = 1, #files do
@@ -2903,8 +2903,8 @@ function getmaps()
 			mapbuttons["plus" .. worlds .. "-" .. levels].starty = yadd+19
 			yadd = yadd + 10
 			local mapkey = worlds .. "-" .. levels .. "_" .. (sublevels or 0)
-			if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. worlds .. "-" .. levels .. ".png") then
-				mapbuttons[mapkey] = guielement:new("button", 4, yadd+21, AssetStore.load_image("mappacks/" .. mappack .. "/" .. worlds .. "-" .. levels .. ".png"), mapnumberclick, 0, {worlds, levels})
+			if love.filesystem.getInfo(mappack_path(mappack) .. "/" .. level_name(worlds, levels) .. ".png") then
+				mapbuttons[mapkey] = guielement:new("button", 4, yadd+21, AssetStore.load_image(mappack_path(mappack) .. "/" .. level_name(worlds, levels) .. ".png"), mapnumberclick, 0, {worlds, levels})
 			else
 				mapbuttons[mapkey] = guielement:new("button", 4, yadd+21, "no preview", mapnumberclick, 0, {worlds, levels})
 			end
@@ -2931,8 +2931,8 @@ function getmaps()
 			mapbuttons["text" .. worlds .. "-" .. levels .. "_" .. sublevels] = guielement:new("text", 4, yadd+26, "sub " .. sublevels, {0.5, 0.5, 0.5})
 			mapbuttons["text" .. worlds .. "-" .. levels .. "_" .. sublevels].starty = yadd+26
 			local _ = 50
-			if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. worlds .. "-" .. levels .. "_" .. sublevels ..".png") then
-				mapbuttons[worlds .. "-" .. levels .. "_" .. sublevels] = guielement:new("button", 54, yadd+21, AssetStore.load_image("mappacks/" .. mappack .. "/" .. worlds .. "-" .. levels .. "_" .. sublevels .. ".png"), mapnumberclick, 0, {worlds, levels, sublevels})
+			if love.filesystem.getInfo(mappack_path(mappack) .. "/" .. worlds .. "-" .. levels .. "_" .. sublevels ..".png") then
+				mapbuttons[worlds .. "-" .. levels .. "_" .. sublevels] = guielement:new("button", 54, yadd+21, AssetStore.load_image(mappack_path(mappack) .. "/" .. level_name(worlds, levels, sublevels) .. ".png"), mapnumberclick, 0, {worlds, levels, sublevels})
 				mapbuttons[worlds .. "-" .. levels .. "_" .. sublevels].starty = yadd+21
 			else
 				mapbuttons[worlds .. "-" .. levels .. "_" .. sublevels] = guielement:new("button", 54, yadd+21, "no preview", mapnumberclick, 0, {worlds, levels, sublevels})
@@ -3030,15 +3030,15 @@ end
 					s = s .. "_" .. k
 				end
 				
-				if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. s .. ".txt", "file") then
+				if love.filesystem.getInfo(mappack_level_path(mappack, i, j, k), "file") then
 					if k ~= 0 then
 						mapbuttons["text" .. i .. "-" .. j .. "_" .. k] = guielement:new("text", 4, yadd+26, "sub " .. k, {0.5, 0.5, 0.5})
 						mapbuttons["text" .. i .. "-" .. j .. "_" .. k].starty = yadd+26
 						xadd = 50
 					end
 					
-					if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. s .. ".png", "file") then
-						mapbuttons[i .. "-" .. j .. "_" .. k] = guielement:new("button", 4+xadd, yadd+21, AssetStore.load_image("mappacks/" .. mappack .. "/" .. s .. ".png"), mapnumberclick, 0, {i, j, k})
+					if love.filesystem.getInfo(mappack_path(mappack) .. "/" .. level_name(i, j, k) .. ".png", "file") then
+						mapbuttons[i .. "-" .. j .. "_" .. k] = guielement:new("button", 4+xadd, yadd+21, AssetStore.load_image(mappack_path(mappack) .. "/" .. level_name(i, j, k) .. ".png"), mapnumberclick, 0, {i, j, k})
 					else
 						mapbuttons[i .. "-" .. j .. "_" .. k] = guielement:new("button", 4+xadd, yadd+21, "no preview", mapnumberclick, 0, {i, j, k})
 					end
@@ -3293,20 +3293,20 @@ function editor_mousepressed_left(x: number, y: number)
 						guielements["renamebar"].func = function(): any
 							if guielements["renamebar"].value ~= "" then
 								guielements["renamebar"].value = string.gsub((guielements["renamebar"].value as string), "=", " ")
-								renameline("mappacks/" .. mappack .. "/objects.txt",(tile as number)+1,guielements["renamebar"].value)
+								renameline(mappack_path(mappack) .. "/objects.txt",(tile as number)+1,guielements["renamebar"].value)
 							end
 							guielements["renamebar"].active = false
 							loadmtobjects()
 							return nil
 						end
 					elseif mtbutton == 2 then
-						moveline("mappacks/" .. mappack .. "/objects.txt",(tile as number)+1,"up")
+						moveline(mappack_path(mappack) .. "/objects.txt",(tile as number)+1,"up")
 						loadmtobjects()
 					elseif mtbutton == 3 then
-						moveline("mappacks/" .. mappack .. "/objects.txt",(tile as number)+1,"down")
+						moveline(mappack_path(mappack) .. "/objects.txt",(tile as number)+1,"down")
 						loadmtobjects()
 					elseif mtbutton == 4 then
-						deleteline("mappacks/" .. mappack .. "/objects.txt", (tile as number)+1)
+						deleteline(mappack_path(mappack) .. "/objects.txt", (tile as number)+1)
 						if guielements["renamebar"] and guielements["renamebar"].active then
 							guielements["renamebar"].active = false
 						end
@@ -3583,13 +3583,13 @@ function editor_keypressed(key: string)
 				local name = group[1][1]
 				
 				--Deletes any group corresponding to the tile
-				if love.filesystem.getInfo("mappacks/" .. mappack .. "/groups.txt") then
-					local txt = ((love.filesystem.read("mappacks/" .. mappack .. "/groups.txt")) or "") as string
+				if love.filesystem.getInfo(mappack_path(mappack) .. "/groups.txt") then
+					local txt = ((love.filesystem.read(mappack_path(mappack) .. "/groups.txt")) or "") as string
 					local s = strsplit(txt, "\n")
 					for i = 1, #s do
 						local s2 = strsplit(s[i], "=")
 						if s2[1] == name then
-							deleteline("mappacks/" .. mappack .. "/groups.txt", i) --Just to guarantee
+							deleteline(mappack_path(mappack) .. "/groups.txt", i) --Just to guarantee
 							break
 						end
 					end
@@ -3647,13 +3647,13 @@ function editor_keypressed(key: string)
 				else
 					if tile and tile <= tilelistcount+1 then
 						local name = tostring(tile)
-						if love.filesystem.getInfo("mappacks/" .. mappack .. "/groups.txt") then
-							local txt = ((love.filesystem.read("mappacks/" .. mappack .. "/groups.txt")) or "") as string
+						if love.filesystem.getInfo(mappack_path(mappack) .. "/groups.txt") then
+							local txt = ((love.filesystem.read(mappack_path(mappack) .. "/groups.txt")) or "") as string
 							local s = strsplit(txt, "\n")
 							for i = 1, #s do
 								local s2 = strsplit(s[i], "=")
 								if s2[1] == name then
-									deleteline("mappacks/" .. mappack .. "/groups.txt", i)
+									deleteline(mappack_path(mappack) .. "/groups.txt", i)
 									break
 								end
 							end
@@ -4122,14 +4122,14 @@ end
 
 function loadHotKeys()
 	hotkeys = {}
-	if love.filesystem.getInfo("mappacks/" .. mappack .. "/hotkeys.txt") then
-		local data = (love.filesystem.read("mappacks/" .. mappack .. "/hotkeys.txt") or "") as string
+	if love.filesystem.getInfo(mappack_path(mappack) .. "/hotkeys.txt") then
+		local data = (love.filesystem.read(mappack_path(mappack) .. "/hotkeys.txt") or "") as string
 		hotkeys = editor_hotkeys_parse(data)
 	end
 end
 
 function saveHotKeys()
-	love.filesystem.write("mappacks/" .. mappack .. "/hotkeys.txt", editor_hotkeys_serialize(hotkeys) as string)
+	love.filesystem.write(mappack_path(mappack) .. "/hotkeys.txt", editor_hotkeys_serialize(hotkeys) as string)
 end
 
 function savesettings()
@@ -4143,10 +4143,10 @@ function savesettings()
 		s = s .. "lives=" .. (mariolivecount as integer) .. "\n"
 	end
 	
-	love.filesystem.createDirectory( "mappacks" )
-	love.filesystem.createDirectory( "mappacks/" .. mappack )
+	love.filesystem.createDirectory("mappacks")
+	love.filesystem.createDirectory( mappack_path(mappack) )
 	
-	love.filesystem.write("mappacks/" .. mappack .. "/settings.txt", s)
+	love.filesystem.write(mappack_path(mappack) .. "/settings.txt", s)
 	notice.new("Saved settings!", notice.white, 2)
 end
 
@@ -4162,8 +4162,8 @@ function savemtobject(objecttable: {{any}}, name: string|nil, file: string|nil)
 	
 	local data: string = ""
 	local datalines: {string} = {}
-	if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. file .. ".txt") then
-		data = (love.filesystem.read("mappacks/" .. mappack .. "/" .. file .. ".txt") or "") as string
+	if love.filesystem.getInfo(mappack_path(mappack) .. "/" .. file .. ".txt") then
+		data = (love.filesystem.read(mappack_path(mappack) .. "/" .. file .. ".txt") or "") as string
 	else
 		data = ""
 	end
@@ -4190,7 +4190,7 @@ function savemtobject(objecttable: {{any}}, name: string|nil, file: string|nil)
 	data = string.sub(data, 1, -2)
 	data = string.gsub(data, "mtobjsize", m .. " * " .. n)
 	data = data .. "\n"
-	love.filesystem.write("mappacks/" .. mappack .. "/" .. file .. ".txt", data)
+	love.filesystem.write(mappack_path(mappack) .. "/" .. file .. ".txt", data)
 	mtjustsaved = 1
 end
 

@@ -2,7 +2,6 @@
 
 require "world.level"
 require "assets.spritebatch_util"
-require "world.paths"
 
 global function game_load(suspended?: any)
 	

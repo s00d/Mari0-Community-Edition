@@ -12,7 +12,7 @@ global function enemies_load()
 	loaddelayed = {}
 	
 	local fl = love.filesystem.getDirectoryItems("assets/enemies/")
-	local fl2 = love.filesystem.getDirectoryItems("mappacks/" .. mappack .. "/enemies/")
+	local fl2 = love.filesystem.getDirectoryItems(mappack_path(mappack) .. "/enemies/")
 	
 	local realfl = {}
 	
@@ -21,7 +21,7 @@ global function enemies_load()
 	end
 	
 	for i = 1, #fl2 do
-		table.insert(realfl, "mappacks/" .. mappack .. "/enemies/" .. fl2[i]) --MAPPACK ENEMIES
+		table.insert(realfl, mappack_path(mappack) .. "/enemies/" .. fl2[i]) --MAPPACK ENEMIES
 	end
 	
 	for i = 1, #realfl do
