@@ -163,7 +163,52 @@ do
 	check("side bounce", ok == true and obj.speedx > 0 and obj.speedy <= -horbouncespeedy)
 end
 
--- 8) hook body follow + detach
+-- 8) beamed box:update must NOT zero spring velocity (Fix A regression)
+do
+	_G.boxfriction = 20
+	_G.boxfrictionair = 0
+	_G.mapheight = 15
+	_G.adduserect = function(x, y, w, h, _)
+		return { x = x, y = y }
+	end
+	_G.boximg = "boximg"
+	_G.boxquad = { [1] = "bq" }
+	package.loaded["entities.box"] = nil
+	local ok_box = pcall(require, "entities.box")
+	check("load box for beamed hold", ok_box)
+	if ok_box then
+		local crate = {
+			x = 1,
+			y = 1,
+			width = 12 / 16,
+			height = 12 / 16,
+			speedx = 8,
+			speedy = -6,
+			falling = false,
+			beamed = {},
+			parent = nil,
+			funnel = false,
+			infunnel = false,
+			pushed = false,
+			userect = { x = 1, y = 1 },
+			gravity = 0,
+			rotation = 0,
+			destroying = false,
+			portaledframe = false,
+		}
+		box.update(crate, 1 / 60)
+		check("beamed box keeps speedx", crate.speedx == 8, tostring(crate.speedx))
+		check("beamed box keeps speedy", crate.speedy == -6, tostring(crate.speedy))
+		check("beamed box gravity 0", crate.gravity == 0)
+		-- Ground friction must not eat held spring either
+		crate.falling = false
+		crate.speedx = 10
+		box.update(crate, 0.5)
+		check("beamed box no ground friction", crate.speedx == 10, tostring(crate.speedx))
+	end
+end
+
+-- 9) hook body follow + detach
 do
 	local body = { x = 3, y = 4, width = 1, height = 1, active = true }
 	local pl = {

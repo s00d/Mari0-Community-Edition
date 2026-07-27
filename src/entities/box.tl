@@ -63,9 +63,15 @@ function box:init(x: number, y: number)
 end
 
 function box:update(dt: number): boolean
+	local beamed = self.beamed and not self.parent
 	local friction = boxfrictionair
 	if self.falling == false then
 		friction = boxfriction
+	end
+	-- Held by GG: spring owns velocity; do not friction/zero it (pre-Fix-A teleport model needed zeroing).
+	if beamed then
+		friction = 0
+		self.gravity = 0
 	end
 	
 	--Funnels and fuck
@@ -96,13 +102,6 @@ function box:update(dt: number): boolean
 	end
 	
 	self.rotation = 0
-
-	-- gravity-gun beam: stay in physics loop with gravity=0 (spring runs in weapon update)
-	if self.beamed and not self.parent then
-		self.gravity = 0
-		self.speedx = 0
-		self.speedy = 0
-	end
 	
 	if self.parent then
 		local parent = self.parent as Entity
