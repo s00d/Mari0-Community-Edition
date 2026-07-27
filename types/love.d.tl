@@ -432,6 +432,8 @@ global record love
 
 	record math
 		random: function(...: number): number
+		fmod: function(number, number): number
+		mod: function(number, number): number
 		setRandomSeed: function(seed: number)
 		newRandomGenerator: function(...: any): any
 	end

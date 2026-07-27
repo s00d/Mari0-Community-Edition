@@ -78,7 +78,7 @@ global function game_keypressed(key: any)
 			if pausemenuoptions[pausemenuselected as integer] == "resume" then
 				pausemenuopen = false
 				saveconfig()
-					love.audio.play(paused as any)
+					love.audio.play(paused)
 			elseif pausemenuoptions[pausemenuselected as integer] == "suspend" then
 				suspendprompt = true
 				pausemenuselected2 = 1
@@ -92,7 +92,7 @@ global function game_keypressed(key: any)
 		elseif key == "escape" then
 			pausemenuopen = false
 			saveconfig()
-				love.audio.play(paused as any)
+				love.audio.play(paused)
 		elseif (key == "right" or key == "d") then
 			if pausemenuoptions[pausemenuselected as integer] == "music volume" then
 				volumemusic = math.min(1, volumemusic + 0.1)
@@ -176,7 +176,7 @@ global function game_keypressed(key: any)
 			return
 		elseif not editormode and not everyonedead then
 			pausemenuopen = true
-			paused = love.audio.pause() as any
+			paused = love.audio.pause()
 			playsound("pause")
 		end
 	end

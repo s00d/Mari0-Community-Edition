@@ -49,8 +49,9 @@ function LoveLoad.run(arg: any)
 	versionstring = "version 1.0se"
 	debugprints = false
 
-	rawset(math as any, "mod", math.fmod)
-	rawset(math as any, "random", love.math.random)
+	local math_ext = math as {string:any}
+	math_ext.mod = math.fmod
+	math_ext.random = love.math.random
 
 	lastline = debug.getinfo(1).currentline
 	starttime = love.timer.getTime()
@@ -159,7 +160,7 @@ function LoveLoad.run(arg: any)
 	editordebug = DEBUG
 	skipintro = DEBUG
 	skiplevelscreen = DEBUG
-	debugbinds = DEBUG as any
+	debugbinds = DEBUG
 	frameskip = false
 
 	replaysystem = false

@@ -1809,7 +1809,7 @@ global function menu_keypressed(key: any)
 			end
 		end
 	elseif gamestate == "onlinemenu" then
-		if (CLIENT as any) == false and (SERVER as any) == false then
+		if CLIENT == false and SERVER == false then
 			if key == "c" then
 				client_load()
 			elseif key == "s" then
@@ -2566,7 +2566,12 @@ global function loadmapold(path: any): any
 					local entextra: {any} = {}
 					if #spl2 >= 2 then
 						for subent = 2, #spl2 do
-							local n = tonumber(spl2[subent] as string); table.insert(entextra, n or (spl2[subent] as any))
+							local n = tonumber(spl2[subent] as string)
+							if n ~= nil then
+								table.insert(entextra, n)
+							else
+								table.insert(entextra, spl2[subent])
+							end
 						end
 					end
 					entextra = convertentity(entextra) as {any}

@@ -34,8 +34,8 @@ end
 
 global record BootModule
 	setup_core_helpers: function()
-	setup_services: function(any, any): any, any, any, any, any, any
-	run_early: function(any, any): any, any, any, any, any, any
+	setup_services: function(any, any): LoggerModule, AssetStore, GamestateModule, World, AssetStore, World
+	run_early: function(any, any): LoggerModule, AssetStore, GamestateModule, World, AssetStore, World
 	require_game: function()
 	load_media: function()
 	run_load: function()
@@ -106,7 +106,8 @@ global Boot: BootModule
 
 -- Runtime globals for LuaRocks modules (loaded in main / Boot)
 global JSON: JSONModule
-global sha1: any
+global type OsExecuteLib = {string: function(string): boolean|number}
+global sha1: function(string): string
 
 -- Entity records live in src/entities/*.tl (global record). Keep ambient helpers.
 
@@ -248,7 +249,7 @@ global coinmap: {any:{any:any}}
 global smbtilecount: integer
 global portaltilecount: integer
 global customtilecount: integer
-global modcustomtiles: integer
+global modcustomtiles: integer|boolean
 global modcustomtilecount: {integer:number}
 global music: MusicPlayer
 global musicname: string
@@ -547,7 +548,7 @@ global spawnrestrictions: {{number}}
 global gamefinished: boolean
 global frameskip: any
 global mkstation: boolean
-global SERVER: string
+global SERVER: string|boolean
 global BLOCKDELIMITER: {any:string}
 global airslidefactor: number
 global mariocombo: {any}
@@ -857,7 +858,7 @@ global mazegates: {any}
 global testlevelworld: number
 global testlevellevel: number
 global font2quads: {string:any}
-global debugbinds: any
+global debugbinds: boolean
 global portal_pair_offsets: function(any, any): number, number, number, number
 global maxyspeed: number
 global overwrittenimages: {string}
@@ -866,7 +867,7 @@ global defaultsoundslist: {string:any}
 global overwrittensounds: {string}
 global directionsquad: {number:any}
 global starttime: number
-global CLIENT: string
+global CLIENT: string|boolean
 global s1: {string}
 global s2: {string}
 global s3: {string}
@@ -1085,7 +1086,7 @@ global endmusicstopdelay: number
 global drainspeed: number
 global rainboomframes: number
 global konamilength: number
-global konamihash: any
+global konamihash: string
 global maximumbulletbills: number
 global funnelspeed: number
 global funnelminspeed: number

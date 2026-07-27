@@ -272,7 +272,7 @@ global function openSaveFolder(subfolder: string|nil): boolean --By Slime
 	end
 	
 	-- returns true if successfully opened folder
-	return cmdstr ~= nil and (os.execute((cmdstr as string):format(path)) as any) == successval
+	return cmdstr ~= nil and (os as OsExecuteLib)["execute"]((cmdstr as string):format(path)) == successval
 end
 
 global function getupdate(): boolean

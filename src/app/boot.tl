@@ -10,18 +10,18 @@ function Boot.setup_core_helpers()
 	require("core.tableutil")
 end
 
-function Boot.setup_services(debugprints: any, music_type: any): any, any, any, any, any, any
-	local LoggerMod = require("app.logger") as any
-	(LoggerMod as LoggerModule).set_level(debugprints and "debug" or "info")
-	local AssetStoreMod = require("assets.store") as any
-	local GamestateMod = require("app.gamestate") as any
-	local WorldMod = require("world.session") as any
-	local assets = (AssetStoreMod as AssetStore).new((music_type or "stream") as string)
-	local session = (WorldMod as World).new()
+function Boot.setup_services(debugprints: any, music_type: any): LoggerModule, AssetStore, GamestateModule, World, AssetStore, World
+	local LoggerMod = require("app.logger") as LoggerModule
+	LoggerMod.set_level(debugprints and "debug" or "info")
+	local AssetStoreMod = require("assets.store") as AssetStore
+	local GamestateMod = require("app.gamestate") as GamestateModule
+	local WorldMod = require("world.session") as World
+	local assets = AssetStoreMod.new((music_type or "stream") as string)
+	local session = WorldMod.new()
 	return LoggerMod, AssetStoreMod, GamestateMod, WorldMod, assets, session
 end
 
-function Boot.run_early(debugprints: any, music_type: any): any, any, any, any, any, any
+function Boot.run_early(debugprints: any, music_type: any): LoggerModule, AssetStore, GamestateModule, World, AssetStore, World
 	Boot.setup_core_helpers()
 	local LoggerMod, AssetStoreMod, GamestateMod, WorldMod, assets, session = Boot.setup_services(debugprints, music_type)
 	rawset(_G, "Logger", LoggerMod)
@@ -30,8 +30,8 @@ function Boot.run_early(debugprints: any, music_type: any): any, any, any, any, 
 	rawset(_G, "World", WorldMod)
 	rawset(_G, "assets", assets)
 	rawset(_G, "session", session)
-	(LoggerMod as LoggerModule).info("Loading Mari0 SE!")
-	(LoggerMod as LoggerModule).info("=======================")
+	LoggerMod.info("Loading Mari0 SE!")
+	LoggerMod.info("=======================")
 	return LoggerMod, AssetStoreMod, GamestateMod, WorldMod, assets, session
 end
 
@@ -70,7 +70,7 @@ function Boot.require_game()
 	require "physics.portal"
 	require "physics.handlegroup"
 	require "physics.update"
-	sha1 = require "sha1"
+	sha1 = require("sha1") as function(string): string
 	-- camera kept for API compatibility; attach/detach unused (scrollutil handles view)
 	require "app.camera"
 	

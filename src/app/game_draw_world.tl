@@ -726,7 +726,7 @@ global function game_draw_objects()
 					end
 
 					if v.static == false and (v.active or v.portaloverride) and v.portalable ~= false then
-						if not v.customscissor and (portal as any) ~= false then -- portal any|bool
+						if not v.customscissor and portal_raw ~= false then
 							love.graphics.setScissor((currentscissor as {number})[1], (currentscissor as {number})[2], (currentscissor as {number})[3], (currentscissor as {number})[4])
 							local px, py, pw, ph, pr, pad = v.x, v.y, v.width, v.height, v.rotation, v.animationdirection
 							local _d1: any

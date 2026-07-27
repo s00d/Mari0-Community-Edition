@@ -193,7 +193,7 @@ function love.keypressed(key: any, scancode: any, isrepeat: any)
 			s = s .. tostring(konamitable[i])
 		end
 		
-		if (sha1 as function(string): any)(s) == (konamihash as any) then --Before you wonder how dumb this is; This used to be a different code than konami because I thought it'd be fun to make people figure it out before they can tell others how to easily unlock cheats (without editing files). It wasn't, really.
+		if sha1(s) == konamihash then --Before you wonder how dumb this is; This used to be a different code than konami because I thought it'd be fun to make people figure it out before they can tell others how to easily unlock cheats (without editing files). It wasn't, really.
 			playsound("konami")
 			gamefinished = true
 			saveconfig()

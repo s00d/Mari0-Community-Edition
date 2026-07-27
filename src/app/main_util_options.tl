@@ -142,7 +142,7 @@ global function loadconfig()
 				controls[tonumber(s2[2]) as integer][s4[1]] = {}
 				for k = 2, #s4 do
 					if tonumber(s4[k]) ~= nil then
-						controls[tonumber(s2[2]) as integer][s4[1]][k-1] = tonumber(s4[k]) as any
+						controls[tonumber(s2[2]) as integer][s4[1]][k-1] = tonumber(s4[k]) as number
 					else
 						controls[tonumber(s2[2]) as integer][s4[1]][k-1] = s4[k]
 					end
@@ -397,7 +397,7 @@ global function continuegame()
 		elseif split2[1] == "f" and mariolivecount ~= false then
 			mariolives[tonumber(split2[2]) as integer] = tonumber(split2[3]) as number
 		elseif split2[1] == "g" then
-			mariosizes[tonumber(split2[2]) as integer] = tonumber(split2[3]) as any
+			mariosizes[tonumber(split2[2]) as integer] = tonumber(split2[3]) as number
 		elseif split2[1] == "h" then
 			mappack = split2[2]
 		end
