@@ -1,6 +1,6 @@
 --[[ Teal port of root animationsystem.lua ]]
 
-global function animationsystem_load(...: any): any
+global function animationsystem_load()
 	animationtriggerfuncs = {}
 	animations = {}
 	
@@ -13,8 +13,7 @@ global function animationsystem_load(...: any): any
 	end
 end
 
-global function animationsystem_update(...: any): any
-	local dt = ...
+global function animationsystem_update(dt: number)
 	if not editormode then
 		for i, v in ipairs(animations) do
 			local anim = v as Dyn
@@ -23,7 +22,7 @@ global function animationsystem_update(...: any): any
 	end
 end
 
-global function animationsystem_draw(...: any): any
+global function animationsystem_draw()
 	if not editormode then
 		for i, v in ipairs(animations) do
 			local anim = v as Dyn

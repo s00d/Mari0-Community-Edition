@@ -1,7 +1,6 @@
 -- Block-bounce lookup: tilekey -> bounce index (truthy also usable as skip set).
 
-global function build_blockbounce_lookup(...: any): any
-	local blockbouncex, blockbouncey = ...
+global function build_blockbounce_lookup(blockbouncex: {any:any}, blockbouncey: {any:any}): {any:any}
 	local t = {}
 	local by = blockbouncey as {any:any}
 	for i, x in pairs(blockbouncex as {any:any}) do

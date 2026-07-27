@@ -182,8 +182,8 @@ global record AssetStore is {any}
 	new: function(string|nil): AssetStore
 	register_image: function(AssetStore, string, string)
 	register_sound: function(AssetStore, string, string)
-	get_image: function(AssetStore, string): any
-	get_sound: function(AssetStore, string): any
+	get_image: function(AssetStore, string): Image
+	get_sound: function(AssetStore, string): Source
 	override_image: function(AssetStore, string, string)
 	override_sound: function(AssetStore, string, string)
 	restore_image_defaults: function(AssetStore)

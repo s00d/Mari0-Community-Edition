@@ -4094,7 +4094,7 @@ function emptySelection()
 	generatespritebatch()
 end
 
-function getSelectedTiles(): any
+function getSelectedTiles(): {{any}}
 	local lx1: number = 0
 	local ly1: number = 0
 	local lx2: number = 0

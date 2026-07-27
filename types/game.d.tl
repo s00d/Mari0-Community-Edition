@@ -1277,16 +1277,16 @@ global zgbooltriggerquad: {any}
 -- Cross-module function stubs (implementations in src/)
 global aabb: function(ax: number, ay: number, awidth: number, aheight: number, bx: number, by: number, bwidth: number, bheight: number): boolean
 global aabt: function(number, number, number, number, number, number, number, number, any): boolean|nil
-global add: function(...: any): any
+global add: function(any)
 global addanimationaction: function(...: any): any
 global addanimationcondition: function(...: any): any
 global addanimationtrigger: function(...: any): any
 global addpoints: function(...: any): any
 global adjustcollside: function(any, any): any
-global animationsystem_draw: function(...: any): any
-global animationsystem_load: function(...: any): any
-global animationsystem_update: function(...: any): any
-global build_blockbounce_lookup: function(...: any): any
+global animationsystem_draw: function()
+global animationsystem_load: function()
+global animationsystem_update: function(number)
+global build_blockbounce_lookup: function({any:any}, {any:any}): {any:any}
 global callcollision: function(any, Entity, any, Entity, any, any): any
 global changebackground: function(...: any): any
 global changecharacter: function(...: any): any
@@ -1299,7 +1299,7 @@ global changemusic: function(...: any): any
 global changenewmapsize: function(...: any): any
 global changepastemode: function(...: any): any
 global changeportalgun: function(...: any): any
-global changescale: function(...: any): any
+global changescale: function(s: number, init?: boolean)
 global changespriteset: function(...: any): any
 global checkcollision: function(Entity, Entity, any, any, any, any, number, any): boolean, boolean
 global checkforemances: function(dt: number, v: Entity, speedx?: number, speedy?: number)
@@ -1393,14 +1393,14 @@ global frommapstab: function(...: any): any
 
 global game_update: function(...: any): any
 global getquadprops: function(ImageData, number, number): {string:any}
-global properprint: function(s: any, x: any, y: any, sc?: any): any
+global properprint: function(s: any, x: number, y: number, sc?: number)
 global print_r: function(any, any): any
-global openSaveFolder: function(any): any
-global dbprint: function(...: any): any
+global openSaveFolder: function(string|nil): boolean
+global dbprint: function(...: any)
 global keypromptenter: function(any, ...: any): any
-global loadcustombackgrounds: function(...: any): any
-global loadcustommusics: function(...: any): any
-global loadcustomtiles: function(...: any): any
+global loadcustombackgrounds: function()
+global loadcustommusics: function()
+global loadcustomtiles: function()
 global game_draw: function(...: any): any
 global game_draw_debug: function(...: any): any
 global game_draw_fx: function(...: any): any
@@ -1425,14 +1425,14 @@ global generateentitylist: function(...: any): any
 global generatespritebatch: function(...: any): any
 global getAngleFrame: function(number, number): any
 global getPortal: function(x: number, y: number, dir?: any): any...
-global getSelectedTiles: function(...: any): {{any}}
+global getSelectedTiles: function(): {{any}}
 global getTiles: function(...: any): {{any}}
 global getaveragecolor: function(...: any): number, number, number
 global getentityhighlight: function(...: any): any
 global getfilepath: function(any): any
 global getmaps: function(...: any): any
 global getportalposition: function(...: any): any...
-global getupdate: function(...: any): any
+global getupdate: function(): boolean
 global givelive: function(...: any): any
 global globintCH: function(...: any): any
 global globintSH: function(...: any): any
@@ -1451,7 +1451,7 @@ global intro_mousepressed: function(...: any): any
 global intro_update: function(...: any): any
 global item: function(i: any, x: number, y: number, size?: any)
 global joingame: function(...: any): any
-global keyprompt_update: function(...: any): any
+global keyprompt_update: function()
 global keypromptstart: function(...: any): any
 global leftkey: function(...: any): any
 global level_count_tile_entries: function(t: {any}, multipledelimiter: string): number
@@ -1468,21 +1468,21 @@ global levelscreen_update: function(...: any): any
 global livesdecrease: function(...: any): any
 global livesincrease: function(...: any): any
 global loadHotKeys: function(...: any): any
-global loadanimatedtiles: function(...: any): any
+global loadanimatedtiles: function()
 global loadbackground: function(...: any): any
 global loadbackgroundsafe: function(...: any): any
 global loadcharacter: function(...: any): any
 global loadconfig: function(...: any): any
-global loadcustomimages: function(...: any): any
-global loadcustomsounds: function(...: any): any
+global loadcustomimages: function(string)
+global loadcustomsounds: function(string)
 global loadenemy: function(...: any): any
 global loadhat: function(...: any): any
 global loadlevel: function(level: string|number): boolean
-global loadlevelscreens: function(...: any): any
+global loadlevelscreens: function()
 global loadmap: function(filename: string, createobjects?: boolean): boolean
 global loadmapold: function(...: any): any
 global loadmappacks: function(...: any): any
-global loadmodcustomtiles: function(...: any): any
+global loadmodcustomtiles: function()
 global loadmtgroups: function(...: any): any
 global loadmtobjects: function(...: any): any
 global loadonlinemappacks: function(...: any): any
@@ -1520,7 +1520,7 @@ global movedownanimationguiline: function(string, animationguiline)
 global moveline: function(...: any): any
 global moveoutportal: function(...: any): any
 global moveupanimationguiline: function(string, animationguiline)
-global newRecoloredImage: function(...: any): any
+global newRecoloredImage: function(string, {{number}}, {{number}}): Image|nil
 global newlevel: function(...: any): any
 global nextcharacter: function(...: any): any
 global nextlevel: function(...: any): any

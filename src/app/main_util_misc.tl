@@ -1,7 +1,6 @@
 --[[ scale / print / custom media / helpers ]]
 
-global function loadcustomimages(...: any): any
-	local path = select(1, ...) as string
+global function loadcustomimages(path: string)
 	-- Restore image defaults via AssetStore, then apply mappack overrides.
 	assets:restore_image_defaults()
 	for _, s in ipairs(imagelist) do
@@ -67,8 +66,7 @@ global function loadcustomimages(...: any): any
 	portaltilecount = width*height
 end
 
-global function loadcustomsounds(...: any): any
-	local path = select(1, ...) as string
+global function loadcustomsounds(path: string)
 	assets:restore_sound_defaults()
 	for _, id in ipairs(soundstoload) do
 		if assets.sounds[id] then
@@ -101,8 +99,7 @@ global function loadcustomsounds(...: any): any
 	end
 end
 
-global function changescale(...: any): any
-	local s, init = ...
+global function changescale(s: number, init?: boolean)
 	scale = s as number
 	
 	if not init then
@@ -157,11 +154,10 @@ global function changescale(...: any): any
 	end
 end
 
-global function newRecoloredImage(...: any): any
-	local path, tablein, tableout = ...
-	local tin = tablein as {any}
-	local tout = tableout as {any}
-	local imagedata = love.image.newImageData( path as string )
+global function newRecoloredImage(path: string, tablein: {{number}}, tableout: {{number}}): Image|nil
+	local tin = tablein
+	local tout = tableout
+	local imagedata = love.image.newImageData(path)
 	local width, height = imagedata:getWidth(), imagedata:getHeight()
 	
 	for y = 0, height-1 do
@@ -212,7 +208,7 @@ global function getaveragecolor(...: any): number, number, number
 	return r, g, b
 end
 
-global function keyprompt_update(...: any): any
+global function keyprompt_update()
 	if keyprompt then
 		local js = love.joystick.getJoysticks()
 		for i = 1, prompt.joysticks do
@@ -252,7 +248,7 @@ global function print_r(t: any, indent: any): any --Not by me
 	end
 end
 
-global function openSaveFolder(subfolder: any): any --By Slime
+global function openSaveFolder(subfolder: string|nil): boolean --By Slime
 	local path = love.filesystem.getSaveDirectory()
 	path = subfolder and path.."/"..(subfolder as string) or path
 	
@@ -280,7 +276,7 @@ global function openSaveFolder(subfolder: any): any --By Slime
 	return cmdstr ~= nil and (os.execute((cmdstr as string):format(path)) as any) == successval
 end
 
-global function getupdate(...: any): any
+global function getupdate(): boolean
 	local onlinedata, code = http.request("http://server.stabyourself.net/mari0/?mode=mappacks")
 	if code ~= 200 then
 		return false
@@ -304,7 +300,7 @@ global function getupdate(...: any): any
 	return false
 end
 
-global function properprint(s: any, x: any, y: any, sc?: any): any
+global function properprint(s: any, x: number, y: number, sc?: number)
 	local scale = (sc or scale) as number
 	local startx = x as number
 	local xx = x as number
@@ -356,7 +352,7 @@ global function properprintbackground(...: any): any
 	end
 end
 
-global function loadcustombackgrounds(...: any): any
+global function loadcustombackgrounds()
 	custombackgrounds = {}
 
 	custombackgroundimg = {}
@@ -400,7 +396,7 @@ global function loadcustombackgrounds(...: any): any
 	end
 end
 
-global function loadlevelscreens(...: any): any
+global function loadlevelscreens()
 	levelscreens = {}
 	
 	local fl = love.filesystem.getDirectoryItems("mappacks/" .. mappack .. "/levelscreens")
@@ -413,7 +409,7 @@ global function loadlevelscreens(...: any): any
 	end
 end
 
-global function loadcustommusics(...: any): any
+global function loadcustommusics()
 	musiclist = {"none.ogg", "overworld.ogg", "underground.ogg", "castle.ogg", "underwater.ogg", "starmusic.ogg"}
 	local fl = love.filesystem.getDirectoryItems("mappacks/" .. mappack .. "/music")
 	custommusics = {}
@@ -427,16 +423,16 @@ global function loadcustommusics(...: any): any
 	end
 end
 
-global function loadanimatedtiles(...: any): any
+global function loadanimatedtiles()
 	if animatedtilecount then
 		for i = 1, animatedtilecount do
 			tilequads[i + 10000] = nil
 		end
 	end
 	
-	local function loadfolder(folder: any)
+	local function loadfolder(folder: string)
 		local i = 1
-		local fold = folder as string
+		local fold = folder
 		while love.filesystem.getInfo(fold .. "/" .. i .. ".png") do
 			local v = fold .. "/" .. i .. ".png"
 			if love.filesystem.getInfo(v, "file") and string.sub(v, -4) == ".png" then
@@ -458,7 +454,7 @@ global function loadanimatedtiles(...: any): any
 	loadfolder("mappacks/" .. mappack .. "/animated")
 end
 
-global function loadcustomtiles(...: any): any
+global function loadcustomtiles()
 	if love.filesystem.getInfo("mappacks/" .. mappack .. "/tiles.png") then
 		customtiles = true
 		customtilesimg = AssetStore.load_image("mappacks/" .. mappack .. "/tiles.png")
@@ -481,7 +477,7 @@ global function loadcustomtiles(...: any): any
 	end
 end
 
-global function loadmodcustomtiles(...: any): any
+global function loadmodcustomtiles()
 	local files = love.filesystem.getDirectoryItems("mappacks/" .. mappack .. "/tiles")
 	for i,j in ipairs(files) do
 		print(i,j)
@@ -516,7 +512,8 @@ global function loadmodcustomtiles(...: any): any
 	end
 end
 
-global function dbprint(x: any): any --debugprint; set debugprints=true to enable
+global function dbprint(...: any) --debugprint; set debugprints=true to enable
+	local x = ...
 	if Logger then
 		Logger.debug(x)
 	elseif debugprints then
@@ -524,8 +521,7 @@ global function dbprint(x: any): any --debugprint; set debugprints=true to enabl
 	end
 end
 
-global function add(...: any): any
-	local desc = ...
+global function add(desc: any)
 	print(tostring(desc or "") .. "\n" .. tostring(round((love.timer.getTime()-starttime)*1000)) .. "ms\tlines " .. tostring((lastline as number)+1) .. " - " .. tostring(debug.getinfo(2).currentline-1) .. "\n")
 	lastline = debug.getinfo(2).currentline as number
 	totaltime = totaltime + round((love.timer.getTime()-starttime)*1000)

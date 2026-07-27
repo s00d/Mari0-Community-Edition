@@ -49,7 +49,7 @@ function AssetStore:register_sound(id: string, path: string)
 	}
 end
 
-function AssetStore:get_image(id: string): any
+function AssetStore:get_image(id: string): Image
 	ensure_love()
 	local e = self.images[id]
 	if not e then
@@ -58,10 +58,10 @@ function AssetStore:get_image(id: string): any
 	if not e.object then
 		e.object = love.graphics.newImage(e.path)
 	end
-	return e.object
+	return e.object as Image
 end
 
-function AssetStore:get_sound(id: string): any
+function AssetStore:get_sound(id: string): Source
 	ensure_love()
 	local e = self.sounds[id]
 	if not e then
@@ -70,7 +70,7 @@ function AssetStore:get_sound(id: string): any
 	if not e.object then
 		e.object = love.audio.newSource(e.path, self.music_type)
 	end
-	return e.object
+	return e.object as Source
 end
 
 function AssetStore:override_image(id: string, path: string)
