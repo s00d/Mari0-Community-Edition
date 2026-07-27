@@ -1,4 +1,4 @@
---[[ Gravity gun — ray/cone pick, critically damped spring, hold/punt/drop. ]]
+--[[ Gravity gun — grab boxes OR solid map tiles, spring-drag on LMB, RMB punt as ball. ]]
 
 local MAX_RANGE = 8
 local STEP = 0.2
@@ -9,9 +9,11 @@ local GRAB_DIST = 0.45
 local REACH_LIMIT = 10
 local PUNT_IMPULSE = 28
 local SHOVE_IMPULSE = 10
-local PUNT_TIME = 0.45
-local COOLDOWN = 0.15
-local CONE_DOT = 0.72 -- ~44° half-angle; floor-aimed boxes often miss pure tile-clipped rays
+local PUNT_TIME = 0.55
+local COOLDOWN = 0.12
+local CONE_DOT = 0.72
+
+local ball_quad: any = nil
 
 -- Pure: critically damped spring step (zeta=1). Exported for tests.
 local function spring_step(pos: number, vel: number, target: number, omega: number, dt: number): number, number
@@ -38,8 +40,7 @@ local function dist2(ax: number, ay: number, bx: number, by: number): number
 	return dx * dx + dy * dy
 end
 
--- Range clipped by traceline (walls / grills / doors). Pure helper for tests.
--- Adds a small fudge so boxes sitting on the floor (ray hits tile first) remain reachable.
+-- Range clipped by traceline. Floor fudge keeps near-wall boxes reachable.
 local function clip_range(sx: number, sy: number, hx: number, hy: number, maxrange: number, hit: boolean): number
 	if not hit then
 		return maxrange
@@ -84,7 +85,6 @@ local function release_obj(pl: {string:any}, reason: string)
 	if pulling then
 		clear_beam(pulling)
 	end
-	-- pickup may be false (legacy) — treat as empty
 	if pickup then
 		local held = pickup as {string:any}
 		clear_beam(held)
@@ -110,14 +110,108 @@ local function box_usable(obj: {string:any}, pl: {string:any}): boolean
 	if obj.beamed and obj.beamed ~= pl then
 		return false
 	end
-	-- held by someone else via E-pickup
 	if obj.parent and obj.parent ~= pl then
 		return false
 	end
 	return true
 end
 
--- Cone fallback: nearest grabbable box along aim (survives floor-tile ray clips).
+-- Portal-anchored tiles must not be yanked out from under a portal.
+local function tile_blocked_by_portal(x: number, y: number): boolean
+	if not playerobjs then
+		return false
+	end
+	local n = players or 0
+	for i = 1, n do
+		local v = playerobjs[i] and playerobjs[i].portal
+		if v then
+			local zv = v as {string:any}
+			local x1 = zv.x1 as number
+			local y1 = zv.y1 as number
+			local x2 = zv.x2 as number
+			local y2 = zv.y2 as number
+			if (x == x1 and y == y1) or (x == x2 and y == y2) then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+local function tile_can_grab(cox: number, coy: number): boolean
+	if not inmap or not inmap(cox, coy) then
+		return false
+	end
+	if not map or not map[cox] or not map[cox][coy] then
+		return false
+	end
+	local tid = map[cox][coy][1] as number
+	if not tid or tid == 1 then
+		return false
+	end
+	if not tilequads or not tilequads[tid] then
+		return false
+	end
+	local tq = tilequads[tid]
+	local coll = tq.getproperty and (tq:getproperty("collision", cox, coy) as boolean)
+	if not coll then
+		return false
+	end
+	if tq.getproperty and tq:getproperty("invisible", cox, coy) then
+		return false
+	end
+	if tile_blocked_by_portal(cox, coy) then
+		return false
+	end
+	return true
+end
+
+-- Pull a solid map tile out into a physics box (prop), clear the cell.
+-- Exported for tests.
+local function extract_tile(cox: number, coy: number): {string:any}|nil
+	if not tile_can_grab(cox, coy) then
+		return nil
+	end
+	if not box or not box.new then
+		return nil
+	end
+	local tid = map[cox][coy][1] as number
+	local tq = tilequads[tid]
+
+	map[cox][coy][1] = 1
+	if objects and objects["tile"] then
+		objects["tile"][tilekey(cox, coy)] = nil
+	end
+	if init_map_cell_gels then
+		init_map_cell_gels(map[cox][coy])
+	end
+	if checkportalremove then
+		checkportalremove(cox, coy)
+	end
+	if generatespritebatch then
+		generatespritebatch(0, 0)
+	end
+
+	local prop = (box.new as function(any, number, number): {string:any})(box, cox, coy)
+	prop.gg_from_tile = true
+	prop.gg_tileid = tid
+	if tq then
+		local tqa = tq as {string:any}
+		prop.graphic = tqa.image or prop.graphic
+		if tqa.quad then
+			prop.quad = (tqa.quad as function({string:any}): any)(tqa)
+		end
+		prop.offsetX = 8
+		prop.offsetY = 0
+		prop.quadcenterX = 8
+		prop.quadcenterY = 8
+	end
+	if objects and objects["box"] then
+		table.insert(objects["box"] as {any}, prop)
+	end
+	return prop
+end
+
 local function pick_cone(pl: {string:any}, sx: number, sy: number, dx: number, dy: number, maxd: number): {string:any}|nil
 	if not objects or not objects["box"] then
 		return nil
@@ -145,8 +239,8 @@ local function pick_cone(pl: {string:any}, sx: number, sy: number, dx: number, d
 	return best
 end
 
--- A. pick_target: step along ray with checkrect; cone fallback when tile clip misses boxes
-local function pick_target(pl: {string:any}): {string:any}|nil
+-- Entity-only pick (no tile extract). Used for shove.
+local function pick_entity(pl: {string:any}): {string:any}|nil
 	local sx = (pl.x as number) + 6 / 16
 	local sy = (pl.y as number) + 6 / 16
 	local ang = pl.pointingangle as number
@@ -171,9 +265,32 @@ local function pick_target(pl: {string:any}): {string:any}|nil
 			end
 		end
 	end
-
-	-- Floor-aimed cubes: traceline often hits the tile under the box first.
 	return pick_cone(pl, sx, sy, dx, dy, MAX_RANGE)
+end
+
+-- Grab pick: entities first, else extract aimed solid tile into a prop.
+local function pick_target(pl: {string:any}): {string:any}|nil
+	local ent = pick_entity(pl)
+	if ent then
+		return ent
+	end
+
+	local sx = (pl.x as number) + 6 / 16
+	local sy = (pl.y as number) + 6 / 16
+	local ang = pl.pointingangle as number
+	local cox, coy, _, _, hx, hy = traceline(sx, sy, ang, nil)
+	if cox == false or cox == nil or coy == false or coy == nil then
+		return nil
+	end
+	local cx = cox as number
+	local cy = coy as number
+	if dist2(sx, sy, hx as number, hy as number) > MAX_RANGE * MAX_RANGE then
+		return nil
+	end
+	if not tile_can_grab(cx, cy) then
+		return nil
+	end
+	return extract_tile(cx, cy)
 end
 
 local function begin_pull(pl: {string:any}, obj: {string:any})
@@ -199,6 +316,23 @@ local function enter_hold(pl: {string:any}, obj: {string:any})
 	obj.speedy = 0
 end
 
+local function apply_ball_look(obj: {string:any})
+	obj.gg_ball = true
+	if portalprojectileimg and love and love.graphics and love.graphics.newQuad then
+		obj.graphic = portalprojectileimg
+		if not ball_quad then
+			local w = (portalprojectileimg.getWidth and portalprojectileimg:getWidth()) or 12
+			local h = (portalprojectileimg.getHeight and portalprojectileimg:getHeight()) or 12
+			ball_quad = love.graphics.newQuad(0, 0, w, h, w, h)
+		end
+		obj.quad = ball_quad
+		obj.offsetX = 6
+		obj.offsetY = 6
+		obj.quadcenterX = 6
+		obj.quadcenterY = 6
+	end
+end
+
 local function apply_impulse(obj: {string:any}, pl: {string:any}, strength: number)
 	local dx, dy = aim_dir(pl)
 	obj.parent = nil
@@ -209,6 +343,7 @@ local function apply_impulse(obj: {string:any}, pl: {string:any}, strength: numb
 	obj.speedy = ((obj.speedy as number) or 0) + dy * strength
 	obj.falling = true
 	obj.punttimer = PUNT_TIME
+	apply_ball_look(obj)
 end
 
 local function on_cooldown(pl: {string:any}): boolean
@@ -227,6 +362,16 @@ local function set_cooldown(pl: {string:any})
 	(pl.weapondelay as {string:number}).gravitygun = COOLDOWN
 end
 
+local function held_object(pl: {string:any}): {string:any}|nil
+	if pl.gg_state == "held" and pl.pickup then
+		return pl.pickup as {string:any}
+	end
+	if pl.gg_state == "pulling" and pl.gg_pulling then
+		return pl.gg_pulling as {string:any}
+	end
+	return nil
+end
+
 local function fire(pl: {string:any}, button: any)
 	if on_cooldown(pl) then
 		return
@@ -235,17 +380,7 @@ local function fire(pl: {string:any}, button: any)
 	local rmb = button == "r" or button == 2
 
 	if lmb then
-		if pl.gg_state == "held" and pl.pickup then
-			local obj = pl.pickup as {string:any}
-			pl.pickup = false
-			pl.gg_state = "idle"
-			pl.gg_pulling = nil
-			pl.gg_vx = 0
-			pl.gg_vy = 0
-			apply_impulse(obj, pl, PUNT_IMPULSE)
-			set_cooldown(pl)
-			return
-		end
+		-- LMB only acquires; drag continues while held. Never punt on LMB.
 		if pl.gg_state == "idle" or pl.gg_state == nil then
 			local obj = pick_target(pl)
 			if obj then
@@ -254,25 +389,27 @@ local function fire(pl: {string:any}, button: any)
 			end
 		end
 	elseif rmb then
-		if pl.gg_state == "held" and pl.pickup then
-			release_obj(pl, "drop")
-			set_cooldown(pl)
-			return
-		end
-		if pl.gg_state == "pulling" then
-			release_obj(pl, "cancel")
-			set_cooldown(pl)
-			return
-		end
-		local obj = pick_target(pl)
+		-- RMB = punt/launch as circular projectile while holding; else short shove.
+		local obj = held_object(pl)
 		if obj then
-			apply_impulse(obj, pl, SHOVE_IMPULSE)
+			pl.pickup = false
+			pl.gg_pulling = nil
+			pl.gg_state = "idle"
+			pl.gg_vx = 0
+			pl.gg_vy = 0
+			apply_impulse(obj, pl, PUNT_IMPULSE)
+			set_cooldown(pl)
+			return
+		end
+		local shove = pick_entity(pl)
+		if shove then
+			apply_impulse(shove, pl, SHOVE_IMPULSE)
 			set_cooldown(pl)
 		end
 	end
 end
 
--- Hold-LMB keeps trying to acquire a target (press alone often misses floor cubes).
+-- Hold-LMB keeps trying to acquire while idle.
 local function hold(pl: {string:any}, button: any, _: number)
 	local lmb = button == "l" or button == 1
 	if lmb and (pl.gg_state == "idle" or pl.gg_state == nil) then
@@ -298,7 +435,6 @@ local function spring_object(pl: {string:any}, obj: {string:any}, dt: number): n
 end
 
 local function mouse_held_pull(pl: {string:any}): boolean
-	-- Non-mouse players (joy) keep pull until release via RMB / unequip.
 	if pl.playernumber ~= mouseowner then
 		return true
 	end
@@ -347,11 +483,46 @@ local function update(pl: {string:any}, dt: number)
 			release_obj(pl, "stolen")
 			return
 		end
+		-- LMB release drops (HL2-style hold-to-carry).
+		if not mouse_held_pull(pl) then
+			release_obj(pl, "drop")
+			return
+		end
 		spring_object(pl, obj, dt)
 		if dist2(obj.x as number, obj.y as number, pl.x as number, pl.y as number) > REACH_LIMIT * REACH_LIMIT then
 			release_obj(pl, "outofreach")
 		end
 	end
+end
+
+local function world_to_screen(wx: number, wy: number): number, number
+	local xs = (xscroll as number) or 0
+	local ys = (yscroll as number) or 0
+	local sc = (scale as number) or 1
+	return math.floor((wx - xs) * 16 * sc), math.floor((wy - ys - 0.5) * 16 * sc)
+end
+
+local function draw(pl: {string:any})
+	local state = (pl.gg_state as string) or "idle"
+	if state ~= "pulling" and state ~= "held" then
+		return
+	end
+	local objn = held_object(pl)
+	if objn == nil or not love or not love.graphics then
+		return
+	end
+	local obj = objn as {string:any}
+	local sx = (pl.x as number) + 6 / 16
+	local sy = (pl.y as number) + 6 / 16
+	local ox = (obj.x as number) + ((obj.width as number) or 0.75) / 2
+	local oy = (obj.y as number) + ((obj.height as number) or 0.75) / 2
+	local x1, y1 = world_to_screen(sx, sy)
+	local x2, y2 = world_to_screen(ox, oy)
+	love.graphics.setColor(0.35, 0.85, 1.0, 0.85)
+	love.graphics.setLineWidth(((scale as number) or 1) * 1.5)
+	love.graphics.line(x1, y1, x2, y2)
+	love.graphics.circle("fill", x2, y2, ((scale as number) or 1) * 2.5)
+	love.graphics.setColor(1, 1, 1, 1)
 end
 
 local function equip(_: {string:any})
@@ -370,11 +541,15 @@ return {
 	fire = fire,
 	hold = hold,
 	update = update,
+	draw = draw,
 	equip = equip,
 	unequip = unequip,
 	spring_step = spring_step,
 	clip_range = clip_range,
 	release_obj = release_obj,
 	pick_target = pick_target,
+	pick_entity = pick_entity,
+	extract_tile = extract_tile,
+	tile_can_grab = tile_can_grab,
 	MAX_RANGE = MAX_RANGE,
 }

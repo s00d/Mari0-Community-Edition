@@ -294,6 +294,15 @@ global function game_draw_fx()
 
 	love.graphics.setColor(1, 1, 1)
 
+	-- Gravity-gun beam (and any weapon overlays)
+	if Weapons then
+		for pl = 1, players do
+			if playerobjs[pl] and not playerobjs[pl].dead then
+				Weapons.draw(playerobjs[pl])
+			end
+		end
+	end
+
 	--nothing to see here
 	for _, v in pairs(rainbooms) do
 		v:draw()

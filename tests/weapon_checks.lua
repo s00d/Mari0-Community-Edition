@@ -1,5 +1,6 @@
 --[[
-  Headless weapon system checks: pick_target range clip, spring convergence, release paths.
+  Headless weapon system checks: pick_target range clip, spring convergence, release paths,
+  tile extract → prop, LMB grab / RMB punt-as-ball.
   Run via: lua tests/run.lua  (or make test)
 ]]
 
@@ -34,7 +35,6 @@ do
 	check("clip_range no hit", clip(0, 0, 10, 0, 8, false) == 8)
 	check("clip_range far wall", clip(0, 0, 20, 0, 8, true) == 8)
 	local d = clip(0, 0, 3, 0, 8, true)
-	-- fudge +0.75 so floor-sitting boxes remain reachable
 	check("clip_range near wall fudge", math.abs(d - 3.75) < 1e-6, tostring(d))
 	check("clip_range diagonal", math.abs(clip(0, 0, 3, 4, 10, true) - 5.75) < 1e-6)
 end
@@ -51,7 +51,6 @@ do
 	for _ = 1, 180 do
 		pos, vel = spring_step(pos, vel, target, omega, dt)
 		local err = math.abs(pos - target)
-		-- allow tiny numerical noise; require overall progress every few steps
 		if err > prev_err + 1e-4 then
 			mono = false
 			break
@@ -100,7 +99,6 @@ do
 	end
 	check("release 8 reasons clear", all_ok)
 
-	-- also pulling-only path
 	local obj2 = { beamed = nil, gravity = 0 }
 	local pl2 = { pickup = false, gg_pulling = obj2, gg_state = "pulling", gg_vx = 0, gg_vy = 0 }
 	obj2.beamed = pl2
@@ -135,7 +133,7 @@ do
 	check("switch wrap", pl.weaponi == 1)
 end
 
--- 5) pick_target cone finds floor box when ray is tile-clipped short
+-- 5) pick_target cone finds floor box; LMB pulls; RMB punts as ball
 do
 	local box = {
 		x = 2.0,
@@ -150,11 +148,9 @@ do
 		speedy = 0,
 	}
 	objects = { box = { [1] = box } }
-	-- traceline hits floor at 1.0 (before box center ~2.4)
 	traceline = function(sx, sy, ang)
 		return 1, 2, "up", 0, sx + 1.0, sy + 0.2
 	end
-	-- ray probes miss (simulate tile clip preventing ray steps from reaching box)
 	checkrect = function()
 		return {}
 	end
@@ -176,7 +172,6 @@ do
 	gravitygun.fire(pl, "l")
 	check("fire starts pull", pl.gg_state == "pulling" and pl.gg_pulling == box)
 
-	-- spring until held
 	for _ = 1, 180 do
 		gravitygun.update(pl, 1 / 60)
 		if pl.weapondelay.gravitygun then
@@ -185,11 +180,170 @@ do
 	end
 	check("pull becomes held", pl.gg_state == "held" and pl.pickup == box, tostring(pl.gg_state))
 
-	-- clear cooldown then punt
+	-- LMB while held must NOT punt
 	pl.weapondelay.gravitygun = 0
 	gravitygun.fire(pl, "l")
-	check("punt releases", pl.gg_state == "idle" and pl.pickup == false)
-	check("punt impulse", (box.speedx or 0) > 5, tostring(box.speedx))
+	check("lmb while held keeps hold", pl.gg_state == "held" and pl.pickup == box)
+
+	-- RMB punts as ball
+	pl.weapondelay.gravitygun = 0
+	gravitygun.fire(pl, "r")
+	check("rmb punt releases", pl.gg_state == "idle" and pl.pickup == false)
+	check("rmb punt impulse", (box.speedx or 0) > 5, tostring(box.speedx))
+	check("rmb punt ball look", box.gg_ball == true)
+end
+
+-- 6) extract_tile clears map cell and spawns prop box
+do
+	local spawned = nil
+	box = {
+		new = function(_, x, y)
+			spawned = {
+				x = x - 14 / 16,
+				y = y - 12 / 16,
+				width = 12 / 16,
+				height = 12 / 16,
+				grabbable = true,
+				destroying = false,
+				speedx = 0,
+				speedy = 0,
+				cox = x,
+				coy = y,
+			}
+			return spawned
+		end,
+	}
+	map = {
+		[5] = {
+			[3] = { 42 },
+		},
+	}
+	mapwidth, mapheight = 20, 15
+	inmap = function(x, y)
+		return x >= 1 and x <= mapwidth and y >= 1 and y <= mapheight
+	end
+	tilekey = function(x, y)
+		return x * 1000 + y
+	end
+	objects = { tile = { [tilekey(5, 3)] = { x = 4, y = 2 } }, box = {} }
+	tilequads = {
+		[42] = {
+			image = "fakeimg",
+			quadobj = "fakequad",
+			getproperty = function(_, s)
+				if s == "collision" then
+					return true
+				end
+				if s == "invisible" then
+					return false
+				end
+				return false
+			end,
+			quad = function(self)
+				return self.quadobj
+			end,
+		},
+		[1] = {
+			getproperty = function()
+				return false
+			end,
+		},
+	}
+	init_map_cell_gels = function() end
+	generatespritebatch = function() end
+	checkportalremove = function() end
+	playerobjs = {}
+	players = 0
+
+	check("tile_can_grab solid", gravitygun.tile_can_grab(5, 3) == true)
+	check("tile_can_grab air", gravitygun.tile_can_grab(1, 1) == false)
+
+	local prop = gravitygun.extract_tile(5, 3)
+	check("extract_tile returns prop", prop == spawned)
+	check("extract_tile clears map", map[5][3][1] == 1)
+	check("extract_tile removes tile obj", objects.tile[tilekey(5, 3)] == nil)
+	check("extract_tile inserts box", objects.box[1] == spawned)
+	check("extract_tile marks from_tile", spawned.gg_from_tile == true and spawned.gg_tileid == 42)
+	check("extract_tile uses tile graphic", spawned.graphic == "fakeimg" and spawned.quad == "fakequad")
+end
+
+-- 7) pick_target extracts tile when no box in ray
+do
+	local spawned = nil
+	box = {
+		new = function(_, x, y)
+			spawned = {
+				x = x - 14 / 16,
+				y = y - 12 / 16,
+				width = 12 / 16,
+				height = 12 / 16,
+				grabbable = true,
+				destroying = false,
+				speedx = 0,
+				speedy = 0,
+			}
+			return spawned
+		end,
+	}
+	map = { [4] = { [2] = { 7 } } }
+	mapwidth, mapheight = 20, 15
+	inmap = function(x, y)
+		return x >= 1 and x <= mapwidth and y >= 1 and y <= mapheight
+	end
+	tilekey = function(x, y)
+		return x * 1000 + y
+	end
+	objects = { tile = { [tilekey(4, 2)] = {} }, box = {} }
+	tilequads = {
+		[7] = {
+			image = "brick",
+			quadobj = "bq",
+			getproperty = function(_, s)
+				return s == "collision"
+			end,
+			quad = function(self)
+				return self.quadobj
+			end,
+		},
+	}
+	init_map_cell_gels = function() end
+	generatespritebatch = function() end
+	checkportalremove = function() end
+	playerobjs = {}
+	players = 0
+	traceline = function(sx, sy)
+		return 4, 2, "left", 0, sx + 2, sy
+	end
+	checkrect = function()
+		return {}
+	end
+
+	local pl = {
+		x = 0,
+		y = 1,
+		pointingangle = -math.pi / 2,
+		playernumber = 1,
+		weapondelay = {},
+		gg_state = "idle",
+		pickup = false,
+	}
+	love = { mouse = { isDown = function() return true end } }
+	mouseowner = 1
+
+	local t = gravitygun.pick_target(pl)
+	check("pick_target extracts tile", t == spawned)
+	check("pick tile cleared cell", map[4][2][1] == 1)
+
+	gravitygun.fire(pl, "l")
+	-- already extracted by pick_target above; fire picks again on empty — re-seed
+	map[4][2][1] = 7
+	objects.tile[tilekey(4, 2)] = {}
+	pl.gg_state = "idle"
+	pl.gg_pulling = nil
+	pl.weapondelay.gravitygun = 0
+	spawned = nil
+	gravitygun.fire(pl, "l")
+	check("fire lmb grabs tile prop", pl.gg_state == "pulling" and pl.gg_pulling ~= nil, tostring(pl.gg_state))
 end
 
 print(string.format("weapon_checks: %s", failed == 0 and "PASS" or ("FAIL x" .. failed)))
