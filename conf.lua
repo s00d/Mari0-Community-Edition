@@ -14,7 +14,8 @@ function love.conf(t)
 	t.author = "Stabyourself.net / Community"
 	t.identity = "mari0_se"
 	t.highdpi = true
-	t.renderers = {"metal", "vulkan", "opengl"}
+	t.graphics = t.graphics or {}
+	t.graphics.renderers = {"metal", "vulkan", "opengl"}
 	t.modules.physics = false
 	-- Create window early so errhand/graphics never run headless (segfault guard).
 	t.window = t.window or {}
