@@ -64,6 +64,8 @@ function Boot.require_game()
 	require "util.enemyutil"
 	require "world.spawnregistry"
 	require "world.levelio"
+	require "world.entity_remap"
+	require "world.mappack_convert"
 	require "util.userectutil"
 	require "physics.collision"
 	require "physics.checkrect"

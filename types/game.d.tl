@@ -1412,10 +1412,18 @@ global collisionscalls: function(any, Entity, any, Entity, any, any): any
 global configdecrease: function()
 global configincrease: function()
 global continuegame: function()
-global convertentity: function(any): any
+global convertentity: function(any, {string:any}|nil): {any}, string|nil
+global convert_level_text: function(string, {string:any}|nil): string|nil, string|nil
+global convert_mappack_fs: function(string, string, {string:any}, {string:any}|nil): {string:any}|nil, string|nil
 global convertfromstandard: function(Entity, number, number): number, number
 global convertmappack: function(any)
 global converttostandard: function(Entity, number, number): number, number
+global validate_remap: function({string:any}|nil): {string}
+global remap_kind: function(number): string
+global ENEMY_REMAP: {number:string}
+global VARIANT_REMAP: {number:{string:any}}
+global PASS_THROUGH: {number:boolean}
+global OLD_ENTITY_NAMES: {string}
 global count_spawn_handlers: function({any:any}): number
 global createdialogbox: function(any, any)
 global creategame: function()
