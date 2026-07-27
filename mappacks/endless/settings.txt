@@ -1,0 +1,5 @@
+name=endless climb
+author=community
+description=procedural spelunky-style rooms. climb forever - seed shows in HUD/console.
+endless=true
+lives=3
