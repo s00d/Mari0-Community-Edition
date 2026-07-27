@@ -22,10 +22,18 @@ function love.run(): function()|nil
 	DISK_COLOR_MAX = 255
 	MUSIC_SOURCE_TYPE = "stream"
 
-	love.math.setRandomSeed(os.time())
-	for _ = 1, 2 do
-		love.math.random()
+	local Rng = require("core.rng")
+	local debug_seed: number|nil = nil
+	if arg then
+		for i = 1, #arg do
+			local a = arg[i] as string
+			local seed_str = a:match("^%-%-seed=(%d+)$") or a:match("^%-%-seed%-(%d+)$")
+			if seed_str then
+				debug_seed = tonumber(seed_str)
+			end
+		end
 	end
+	Rng.install(debug_seed)
 	
 	love.load(arg)
 
