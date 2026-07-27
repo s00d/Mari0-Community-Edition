@@ -1266,6 +1266,19 @@ function mario:update_controls(dt: number): boolean
 		else
 			self:underwatermovement(dt)
 		end
+
+		-- character ability ticks
+		if self.char then
+			if self.char.morphball then
+				self:morph_update(dt)
+			end
+			if self.char.wallcling then
+				self:wallcling_update(dt)
+			end
+			if self.bombcd then
+				self.bombcd = math.max(0, self.bombcd - dt)
+			end
+		end
 		
 		--RACCOON STUFF
 		if self:has_raccoon() and self.size == 2 then
@@ -1336,6 +1349,13 @@ function mario:update_controls(dt: number): boolean
 			self:movement(dt)
 		else
 			self:underwatermovement(dt)
+		end
+		if self.char then
+			if self.char.morphball then self:morph_update(dt) end
+			if self.char.wallcling then self:wallcling_update(dt) end
+			if self.bombcd then
+				self.bombcd = math.max(0, self.bombcd - dt)
+			end
 		end
 	end
 	return false
@@ -3530,6 +3550,8 @@ function mario:use(xcenter: number, ycenter: number)
 	local col, _ = userect(xcenter-usesquaresize/2, ycenter-usesquaresize/2, usesquaresize, usesquaresize)
 	if #col > 0 then
 		(col[1] as Entity):used(self.playernumber)
+	elseif self.char and self.char.bomb then
+		self:place_bomb()
 	end
 end
 
@@ -3613,6 +3635,39 @@ function mario:duck(ducking: any) --goose
 	else
 		self.ducking = ducking as boolean
 	end
+
+	-- Samus morph ball: shrink to 0.75² instead of tall duck
+	if self.char and self.char.morphball then
+		if self.ducking and not self.morphed then
+			self.morphed = true
+			self.morph_prev_w = self.width
+			self.morph_prev_h = self.height
+			self.width = 0.75
+			self.height = 0.75
+			self.y = self.y + ((self.morph_prev_h as number) - 0.75)
+			self.jumpforcemul = 0
+			self.rollangle = 0
+			return
+		elseif (not self.ducking) and self.morphed then
+			-- exit only if clear above
+			local clear = true
+			if checkrect then
+				local hits = checkrect(self.x, self.y - 0.75, self.width, 0.75, {"exclude", self}, true)
+				clear = #hits == 0
+			end
+			if clear then
+				self.morphed = false
+				self.height = self.morph_prev_h or 1.5
+				self.width = self.morph_prev_w or 0.75
+				self.y = self.y - (self.height - 0.75)
+				self.jumpforcemul = 1
+				self.rotation = 0
+			else
+				self.ducking = true
+				return
+			end
+		end
+	end
 	
 	if self.ducking then
 		self.raccoonspinframe = false
@@ -3625,6 +3680,63 @@ function mario:duck(ducking: any) --goose
 		self.height = 24/16
 		self.quadcenterY = self.char.bigquadcenterY
 		self.offsetY = self.char.bigoffsetY
+	end
+end
+
+function mario:morph_update(dt: number)
+	if not self.morphed then
+		return
+	end
+	self.rollangle = ((self.rollangle as number) or 0) + ((self.speedx as number) or 0) * dt * 6
+	self.rotation = self.rollangle
+	if not downkey(self.playernumber) then
+		self:duck(false)
+	end
+end
+
+function mario:wallcling_update(dt: number)
+	local _: number = dt
+	if not self.char or not self.char.wallcling or not self.falling then
+		self.clinging = false
+		return
+	end
+	local side = 0
+	if checkrect then
+		if #checkrect(self.x - 0.1, self.y, 0.1, self.height, {"exclude", self}, true) > 0 then
+			side = -1
+		elseif #checkrect(self.x + self.width, self.y, 0.1, self.height, {"exclude", self}, true) > 0 then
+			side = 1
+		end
+	end
+	if side ~= 0 and ((side < 0 and leftkey(self.playernumber)) or (side > 0 and rightkey(self.playernumber))) then
+		self.clinging = true
+		self.speedy = math.min(self.speedy, 2.5)
+		self.animationstate = "cling"
+		if upkey(self.playernumber) then
+			self.speedy = -((jumpforce as number) or 16) * 0.9
+			self.speedx = -side * 8
+			self.clinging = false
+			self.jumping = true
+			self.falling = true
+		end
+	else
+		self.clinging = false
+	end
+end
+
+function mario:place_bomb()
+	if not self.char or not self.char.bomb then
+		return
+	end
+	if self.bombcd and (self.bombcd as number) > 0 then
+		return
+	end
+	self.bombcd = 2.5
+	if bomb and bomb.new and objects and objects["bomb"] then
+		table.insert(objects["bomb"] as {any}, (bomb.new as function(any, number, number): any)(bomb, self.x, self.y))
+		if playsound then
+			playsound("fireball")
+		end
 	end
 end
 

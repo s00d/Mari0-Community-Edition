@@ -135,6 +135,7 @@ function Boot.require_game()
 	require "entities.screenboundary"
 	require "entities.bulletbill"
 	require "entities.fireball"
+	require "entities.bomb"
 	require "entities.gravityball"
 	require "entities.hook"
 	require "ui.gui"

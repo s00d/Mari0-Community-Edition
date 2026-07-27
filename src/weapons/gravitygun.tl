@@ -46,6 +46,9 @@ local function restore_entity(obj: {string:any})
 	if not obj then
 		return
 	end
+	if obj.gg_grabbed or obj.beamed then
+		obj.gg_was_grabbed = true
+	end
 	local saved = obj.gg_saved as {string:any}|nil
 	if saved ~= nil then
 		local s = saved as {string:any}

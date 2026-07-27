@@ -90,7 +90,14 @@ function hook:hitstuff(a: any, b: Entity)
 	end
 
 	if a == "enemy" or a == "bowser" then
-		(hs.reel_target_to as function({string:any}, {string:any}))(pl, b as {string:any})
+		local bag = b as {string:any}
+		if bag.hookanchor then
+			local ax = self.x + self.width / 2
+			local ay = self.y + self.height / 2
+			(hs.attach_body as function({string:any}, {string:any}, number, number))(pl, bag, ax, ay)
+		else
+			(hs.reel_target_to as function({string:any}, {string:any}))(pl, bag)
+		end
 		self.destroy = true
 		self.state = "dead"
 		self.active = false

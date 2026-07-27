@@ -5,6 +5,7 @@
 require "core.stringutil"
 require "app.variables"
 require "world.levelio"
+require "world.endless_enemies"
 
 local ROOM_W: integer = 16
 local ROOM_H: integer = 15
@@ -378,6 +379,20 @@ global function endless_generate(seed: number, templates: {{any:any}}, opts: {an
 	local grid, path, start_pos, end_pos = random_walk(rng, cols, rows)
 	endless_assign_rooms(grid, templates, start_pos, end_pos, rng)
 	local map, coinmap, mw, mh = endless_stitch(grid, room_w, room_h, rng)
+
+	-- budget-populate unique enemies per room (deterministic)
+	local pc = (players as number) or 1
+	for cy = 1, rows do
+		for cx = 1, cols do
+			local cell = grid[cx][cy]
+			local tmpl = cell.template as {any:any}
+			local kind = endless_room_kind_from_name((tmpl.name as string) or "room")
+			local depth = cy
+			local ox = (cx - 1) * room_w
+			local oy = (cy - 1) * room_h
+			endless_populate(map, ox, oy, room_w, room_h, kind, depth, rng, pc)
+		end
+	end
 
 	local body = level_serialize_maptiles(map, coinmap, mw, mh, 1)
 	local cd = CATEGORYDELIMITER[1]

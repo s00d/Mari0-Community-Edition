@@ -3,6 +3,7 @@
 rawset(_G, "enemy", rawget(_G, "enemy") or {})
 
 require("weapons.punt")
+require("entities.enemymoves")
 
 function enemy.new(_: enemy, x: number, y: number, t: string, a: any): enemy
 	local self = setmetatable({}, { __index = enemy }) as enemy
@@ -302,361 +303,8 @@ function enemy:update(dt: number): boolean
 		end
 	end	
 	
-	if self.movement == "truffleshuffle" then
-		if self.speedx > 0 then
-			if self.speedx > self.truffleshufflespeed then
-				self.speedx = self.speedx - self.truffleshuffleacceleration*dt*2
-				if self.speedx < self.truffleshufflespeed then
-					self.speedx = self.truffleshufflespeed
-				end
-			elseif self.speedx < self.truffleshufflespeed then
-				self.speedx = self.speedx + self.truffleshuffleacceleration*dt*2
-				if self.speedx > self.truffleshufflespeed then
-					self.speedx = self.truffleshufflespeed
-				end
-			end
-		else
-			if self.speedx < -self.truffleshufflespeed then
-				self.speedx = self.speedx + self.truffleshuffleacceleration*dt*2
-				if self.speedx > -self.truffleshufflespeed then
-					self.speedx = -self.truffleshufflespeed
-				end
-			elseif self.speedx > -self.truffleshufflespeed then
-				self.speedx = self.speedx - self.truffleshuffleacceleration*dt*2
-				if self.speedx < -self.truffleshufflespeed then
-					self.speedx = -self.truffleshufflespeed
-				end
-			end
-		end
-		
-		if self.turnaroundoncliff and self.falling == false then
-			--check if nothing below
-			local x = math.floor(self.x + self.width/2+1)
-			local y = math.floor(self.y + self.height+1.5)
-			if inmap(x, y) and tilequads[map[x][y][1]]:getproperty("collision", x, y) == false and ((inmap(x+.5, y) and tilequads[map[math.ceil(x+.5)][y][1]]:getproperty("collision", math.ceil(x+.5), y)) or (inmap(x-.5, y) and tilequads[map[math.floor(x-.5)][y][1]]:getproperty("collision", math.floor(x-.5), y))) then
-				if self.speedx < 0 then
-					self.x = x-self.width/2
-				else
-					self.x = x-1-self.width/2
-				end
-				self.speedx = -self.speedx
-			end
-		end
-		
-	elseif self.movement == "shell" then
-		if self.small then
-			if self.wakesup then
-				if math.abs(self.speedx) < 0.0001 then
-					self.resettimer = self.resettimer + dt
-					if self.resettimer > self.resettime then
-						self.offsetY = self.startoffsetY
-						self.quadcenterY = self.startquadcenterY
-						self.quad = self.quadgroup[self.animationstart]
-						self.small = false
-						self.speedx = -self.truffleshufflespeed
-						self.resettimer = 0
-						self.upsidedown = false
-						self.kickedupsidedown = false
-						self.movement = self.firstmovement
-						self.animationtype = self.firstanimationtype
-						
-						if self.chasemarioonwakeup then
-							local px = playerobjs[getclosestplayer(self.x)].x as number
-							if px > self.x then
-								self.speedx = -self.speedx
-							end
-						end
-					elseif self.resettimer > self.resettime-self.wiggletime then
-						self.wiggletimer = self.wiggletimer + dt
-						while self.wiggletimer > self.wiggledelay do
-							self.wiggletimer = self.wiggletimer - self.wiggledelay
-							if self.wiggleleft then
-								self.x = self.x + 1/16
-							else
-								self.x = self.x - 1/16
-							end
-							self.wiggleleft = not self.wiggleleft
-						end
-					end
-				else
-					self.resettimer = 0
-				end
-			end
-		end
-		
-	elseif self.movement == "follow" then
-		local nearestplayer = 1
-		while playerobjs[nearestplayer] and playerobjs[nearestplayer].dead do
-			nearestplayer = nearestplayer + 1
-		end
-		
-		if playerobjs[nearestplayer] then
-			local nearestplayerx = playerobjs[nearestplayer].x
-			for i = 2, players do
-				local v = playerobjs[i]
-				if v.x > nearestplayerx and not v.dead then
-					nearestplayer = i
-				end
-			end
-			
-			nearestplayerx = nearestplayerx + playerobjs[nearestplayer].speedx*self.distancetime
-			
-			local distance = math.abs(self.x - nearestplayerx)
-			
-			--check if too far in wrong direction
-			if (not self.direction or self.direction == "left") and self.x < nearestplayerx-self.followspace then
-				self.direction = "right"
-				self.animationdirection = "right"
-			elseif self.direction == "right" and self.x > nearestplayerx+self.followspace then
-				self.direction = "left"
-				self.animationdirection = "left"
-			end
-			
-			if self.direction == "right" then
-				if self.nofollowspeedup then
-					self.speedx = self.followspeed or 2
-				else
-					self.speedx = math.max((self.followspeed or 2), round((distance-3)*2))
-				end
-			else
-				self.speedx = -(self.followspeed or 2)
-			end
-		end
-	elseif self.movement == "piston" then
-		self.pistontimer = self.pistontimer + dt
-		
-		if self.pistonstate == "extending" then		
-			--move X
-			if self.x > self.startx + self.pistondistx then
-				self.x = self.x - self.pistonspeedx*dt
-				if self.x < self.startx + self.pistondistx then
-					self.x = self.startx + self.pistondistx
-				end
-			elseif self.x < self.startx + self.pistondistx then
-				self.x = self.x + self.pistonspeedx*dt
-				if self.x > self.startx + self.pistondistx then
-					self.x = self.startx + self.pistondistx
-				end
-			end
-			
-			--move Y
-			if self.y > self.starty + self.pistondisty then
-				self.y = self.y - self.pistonspeedy*dt
-				if self.y < self.starty + self.pistondisty then
-					self.y = self.starty + self.pistondisty
-				end
-			elseif self.y < self.starty + self.pistondisty then
-				self.y = self.y + self.pistonspeedy*dt
-				if self.y > self.starty + self.pistondisty then
-					self.y = self.starty + self.pistondisty
-				end
-			end
-			
-			if self.x == self.startx + self.pistondistx and self.y == self.starty + self.pistondisty and not self.spawnallow then
-				self.spawnallow = true
-				self.spawnenemytimer = self.spawnenemydelay
-			end
-			
-			if self.pistontimer > self.pistonextendtime then
-				self.pistontimer = 0
-				self.spawnallow = false
-				self.pistonstate = "retracting"
-			end
-			
-			
-		else --retracting			
-			--move X
-			if self.x > self.startx then
-				self.x = self.x - self.pistonspeedx*dt
-				if self.x < self.startx then
-					self.x = self.startx
-				end
-			elseif self.x < self.startx then
-				self.x = self.x + self.pistonspeedx*dt
-				if self.x > self.startx then
-					self.x = self.startx
-				end
-			end
-			
-			--move Y
-			if self.y > self.starty then
-				self.y = self.y - self.pistonspeedy*dt
-				if self.y < self.starty then
-					self.y = self.starty
-				end
-			elseif self.y < self.starty then
-				self.y = self.y + self.pistonspeedy*dt
-				if self.y > self.starty then
-					self.y = self.starty
-				end
-			end
-			
-			if self.inactiveonretracted and self.x == self.startx and self.y == self.starty then
-				self.active = false
-			end
-			
-			if self.pistontimer > self.pistonretracttime then
-				local playernear = false
-				for i = 1, players do
-					local v = playerobjs[i]
-					if inrange(v.x+v.width/2, self.x+self.width/2-(self.dontpistondist or 3), self.x+self.width/2+(self.dontpistondist or 3)) then
-						playernear = true
-					end
-				end
-				
-				if not self.dontpistonnearplayer or not playernear then
-					self.pistontimer = 0
-					self.pistonstate = "extending"
-					self.active = true
-				end
-			end
-		end
-	elseif self.movement == "wiggle" then
-		if self.speedx < 0 then
-			if self.x < self.startx-self.wiggledistance then
-				self.speedx = self.wigglespeed or 1
-			end
-		elseif self.speedx > 0 then
-			if self.x > self.startx then
-				self.speedx = -self.wigglespeed or 1
-			end
-		else
-			self.speedx = self.wigglespeed or 1
-		end
-		
-	elseif self.movement == "verticalwiggle" then
-		if self.speedy < 0 then
-			if self.y < self.starty-self.verticalwiggledistance then
-				self.speedy = self.verticalwigglespeed or 1
-			end
-		elseif self.speedy > 0 then
-			if self.y > self.starty then
-				self.speedy = -self.verticalwigglespeed or 1
-			end
-		else
-			self.speedy = self.verticalwigglespeed or 1
-		end
-		
-	elseif self.movement == "rocket" then
-		if self.y > self.starty+(self.rocketdistance or 15) and self.speedy > 0 then
-			self.y = self.starty+(self.rocketdistance or 15)
-			
-			self.speedy = -math.sqrt(2*(self.gravity or yacceleration)*(self.rocketdistance or 15))
-		end
-		
-		if self.speedy < 0 then
-			self.upsidedown = false
-		else
-			self.upsidedown = true
-		end
-		
-	elseif self.movement == "squid" then
-		local closestplayer = 1
-		local closestdist = math.sqrt((playerobjs[1].x-self.x)^2+(playerobjs[1].y-self.y)^2)
-		for i = 2, players do
-			local v = playerobjs[i]
-			local dist = math.sqrt((v.x-self.x)^2+(v.y-self.y)^2)
-			if dist < closestdist then
-				closestdist = dist
-				closestplayer = i
-			end
-		end
-		
-		if self.squidstate == "idle" then
-			self.speedy = self.squidfallspeed
-			
-			--get if change state to upward
-			if (self.y+self.speedy*dt) + self.height + 0.0625 >= (playerobjs[closestplayer].y - (24/16 - playerobjs[closestplayer].height)) then
-				self.squidstate = "upward"
-				self.upx = self.x
-				self.speedx = 0
-				self.speedy = 0
-				
-				if self.animationtype == "squid" then
-					self.quad = self.quadgroup[2]
-				end
-				
-				--get if to change direction
-				if true then--math.random(2) == 1 then
-					if self.direction == "right" then
-						if self.x > playerobjs[closestplayer].x then
-							self.direction = "left"
-						end
-					else
-						if self.x < playerobjs[closestplayer].x then
-							self.direction = "right"
-						end
-					end
-				end
-			end
-			
-		elseif self.squidstate == "upward" then
-			if self.direction == "right" then
-				self.speedx = self.speedx + self.squidacceleration*dt
-				if self.speedx > self.squidxspeed then
-					self.speedx = self.squidxspeed
-				end
-			else
-				self.speedx = self.speedx - self.squidacceleration*dt
-				if self.speedx < -self.squidxspeed then
-					self.speedx = -self.squidxspeed
-				end
-			end
-			
-			self.speedy = self.speedy - self.squidacceleration*dt
-			
-			if self.speedy < -self.squidupspeed then
-				self.speedy = -self.squidupspeed
-			end
-			
-			if math.abs(self.x - self.upx) >= (self.squidhordistance or 2) then
-				self.squidstate = "downward"
-				self.downy = self.y
-				self.speedx = 0
-			end
-			
-		elseif self.squidstate == "downward" then
-			self.speedy = self.squidfallspeed
-			if self.y > self.downy + self.squiddowndistance then
-				self.squidstate = "idle"
-			end
-			
-			if self.animationtype == "squid" then
-				self.quad = self.quadgroup[1]
-			end
-		end
-		
-	elseif self.movement == "targety" then
-		if self.y > self.targety then
-			self.y = self.y - self.targetyspeed*dt
-			if self.y < self.targety then
-				self.y = self.targety
-			end
-		elseif self.y < self.targety then
-			self.y = self.y + self.targetyspeed*dt
-			if self.y > self.targety then
-				self.y = self.targety
-			end
-		end
-	elseif self.movement == "flyvertical" then
-		self.flyingtimer = self.flyingtimer + dt
-		
-		while self.flyingtimer > (self.flyingtime or 7) do
-			self.flyingtimer = self.flyingtimer - (self.flyingtime or 7)
-		end
-		
-		local newy = (self:func(self.flyingtimer/(self.flyingtime or 7)) as number)*(self.flyingdistance or 7.5) + (self.starty as number)
-		self.y = newy
-	elseif self.movement == "flyhorizontal" then
-		self.flyingtimer = self.flyingtimer + dt
-		
-		while self.flyingtimer > (self.flyingtime or 7) do
-			self.flyingtimer = self.flyingtimer - (self.flyingtime or 7)
-		end
-		
-		local newx = (self:func(self.flyingtimer/(self.flyingtime or 7)) as number)*(self.flyingdistance or 7.5) + (self.startx as number)
-		self.x = newx
-	end
+	-- movement dispatch (entities.enemymoves)
+	enemymove_dispatch(self, dt)
 	
 	if self.jumps then
 		self.jumptimer = self.jumptimer + dt
@@ -871,6 +519,14 @@ function enemy:shotted(dir: any, below: any, high: any, fireball: any, star: any
 			self.health = self.health - 1
 			return
 		end
+	end
+
+	if self.movement == "hop" then
+		enemymove_splitter_die(self)
+	end
+	-- latcher: freeze/shot while latched clears latch
+	if self.latchedto then
+		self.latchedto = nil
 	end
 	
 	if self.givecoinwhenshot then
@@ -1158,6 +814,10 @@ function enemy:leftcollide(a: any, b: Entity, c: any, d: any): boolean
 			hitblock(b.cox, b.coy, self, true)
 		end
 	end
+
+	if self.movement == "charge" then
+		enemymove_charger_wall(self, a, b)
+	end
 	
 	if self.movement == "truffleshuffle" then
 		self.speedx = self.truffleshufflespeed
@@ -1213,6 +873,10 @@ function enemy:rightcollide(a: any, b: Entity, c: any, d: any): boolean
 		if (self.breakblockside == "sides" or self.breakblockside == "right") and a == "tile" then
 			hitblock(b.cox, b.coy, self, true)
 		end
+	end
+
+	if self.movement == "charge" then
+		enemymove_charger_wall(self, a, b)
 	end
 	
 	if self.movement == "truffleshuffle" then
@@ -1304,6 +968,10 @@ function enemy:floorcollide(a: any, b: Entity, c: any, d: any): boolean
 		self.speedx = 0
 		self.kickedupsidedown = false
 	end
+
+	if self.movement == "slam" then
+		enemymove_thwomp_floor(self)
+	end
 	
 	self.falling = false
 end
@@ -1325,6 +993,9 @@ function enemy:startfall()
 end
 
 function enemy:stomp(x: any, b: Entity): any
+	if self.movement == "bones" and not self.bonesdown then
+		return enemymove_drybones_stomp(self)
+	end
 	if self.stompable then
 		if self.stomphealth then
 			if self.stomphealth > 1 then
@@ -1382,6 +1053,9 @@ function enemy:stomp(x: any, b: Entity): any
 				self.killsenemies = false
 			end
 		else
+			if self.movement == "hop" then
+				enemymove_splitter_die(self)
+			end
 			self.active = false
 			if self.stompanimation then
 				self.quad = self.quadgroup[self.stompedframe]

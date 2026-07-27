@@ -1007,6 +1007,81 @@ global record enemy is Entity, Body
 	wigglespeed: number
 	wiggletime: number
 	wiggletimer: number
+	-- endless / unique AI
+	turretstate: string
+	turrettimer: number
+	turretrange: number
+	turretcone: number
+	turretwindup: number
+	turretburst: number
+	turretburstdelay: number
+	turretcooldown: number
+	turretshots: number
+	gg_was_grabbed: boolean
+	beamed: any
+	gg_grabbed: boolean
+	sinetimer: number
+	sineamp: number
+	sinefreq: number
+	sinespeed: number
+	shyspeed: number
+	shyaccel: number
+	shycone: number
+	shycover: boolean
+	drawalpha: number
+	bonesdown: boolean
+	bonestimer: number
+	bonesrevive: number
+	frozen: boolean
+	quadno: number
+	slamstate: string
+	slamtimer: number
+	slamtrigger: number
+	slamaccel: number
+	slammax: number
+	slamrest: number
+	slamrise: number
+	chargestate: string
+	chargetimer: number
+	chargedir: number
+	chargeaggro: number
+	chargewindup: number
+	chargespeed: number
+	chargestun: number
+	hoptimer: number
+	hopforce: number
+	hopdelay: number
+	hopdrift: number
+	splitlevel: number
+	splitcount: number
+	splitscale: number
+	customscale: number
+	trapcd: number
+	trapreach: number
+	trapcooldown: number
+	trapspeed: number
+	hovercd: number
+	hoverspeed: number
+	hoveraccel: number
+	hoverkeep: number
+	hoverfire: number
+	hoverlead: number
+	shotspeed: number
+	latchedto: any
+	latchtimer: number
+	latchdrain: number
+	latchspeed: number
+	latchshake: number
+	latchwindow: number
+	latchcd: number
+	lastdir: number
+	shakes: number
+	shakewin: number
+	hookanchor: boolean
+	grabbable: boolean
+	killsonsides: boolean
+	killsontop: boolean
+	kills: boolean
 	x: number
 	y: number
 	init: function(self: enemy, x: number, y: number, t: string, extra?: any)
@@ -1194,6 +1269,37 @@ global record fireball is Entity, Body
 	explode: function(fireball)
 	emancipate: function(fireball): any
 	new: function(fireball, number, number, any, any): fireball
+end
+
+global record bomb is Entity, Body
+	active: boolean
+	category: number
+	drawable: boolean
+	fuse: number
+	graphic: any
+	gravity: number
+	gravitydirection: number
+	height: number
+	mask: {boolean}
+	offsetX: number
+	offsetY: number
+	quad: any
+	quadcenterX: number
+	quadcenterY: number
+	rotation: number
+	speedx: number
+	speedy: number
+	static: boolean
+	width: number
+	x: number
+	y: number
+	init: function(bomb, number, number)
+	update: function(bomb, number): boolean
+	leftcollide: function(bomb, any, Entity): boolean
+	rightcollide: function(bomb, any, Entity): boolean
+	floorcollide: function(bomb, any, Entity): boolean
+	ceilcollide: function(bomb, any, Entity): boolean
+	new: function(bomb, number, number): bomb
 end
 
 global record gravityball is Body
@@ -1714,6 +1820,13 @@ global record mario is Entity, Body
 	drawable: boolean
 	drawhat: boolean
 	ducking: boolean
+	morphed: boolean
+	morph_prev_w: number
+	morph_prev_h: number
+	rollangle: number
+	jumpforcemul: number
+	clinging: boolean
+	bombcd: number
 	emancipatecheck: boolean
 	falling: boolean
 	fireanimationtimer: number
@@ -1864,6 +1977,9 @@ global record mario is Entity, Body
 	dropbox: function(mario)
 	cubeemancipate: function(mario): any
 	duck: function(mario, any)
+	morph_update: function(mario, number)
+	wallcling_update: function(mario, number)
+	place_bomb: function(mario)
 	pipe: function(mario, number, number, any, any)
 	savereplaydata: function(mario)
 	flag: function(mario)

@@ -39,6 +39,10 @@ global record Character
 	duckoffsetY: number
 	rundelay: number
 	raccoon: boolean
+	morphball: boolean
+	wallcling: boolean
+	bomb: boolean
+	recoil: boolean
 	nopointing: boolean
 	dbljmppls: boolean
 	-- Optional per-character physics (Quote / Cave Story). When set, mario.tl prefers these over globals.

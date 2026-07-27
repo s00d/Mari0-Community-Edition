@@ -51,8 +51,18 @@ local function fire(pl: {string:any}, button: any)
 	if target ~= nil then
 		local t = target as {string:any}
 		if t.gg_group == "enemy" and not t.freezeimmune and not t.dead and not t.shot then
-			t.kill = true
-			t.drawable = false
+			if t.latchedto then
+				t.latchedto = nil
+			end
+			-- soft-freeze drybones collapse: pause revive without deleting
+			if t.movement == "bones" and t.bonesdown then
+				t.frozen = true
+				t.kill = true
+				t.drawable = false
+			else
+				t.kill = true
+				t.drawable = false
+			end
 			if iceblock and iceblock.new and objects and objects["iceblock"] then
 				table.insert(objects["iceblock"] as {any},
 					(iceblock.new as function(any, {string:any}): any)(iceblock, t))

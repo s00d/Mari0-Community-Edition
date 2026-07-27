@@ -151,6 +151,28 @@ local function fire(pl_any: any, button: any)
 	if w and w.fire then
 		(w.fire as function({string:any}, any))(pl, button)
 	end
+	-- Quote recoil: shot kickback
+	local ch = pl.char as Character|nil
+	if ch ~= nil then
+		local char = ch as Character
+		if char.recoil and w then
+			local aimmod = require("weapons.aim") as {string:any}
+			local aim = aimmod.aim as function({string:any}): number, number, number, number, number
+			local _, _, dx, dy = aim(pl)
+			local RECOIL: {string:number} = {
+				portal = 1.5,
+				gravitygun = 2.0,
+				freezeray = 1.0,
+				gelcannon = 0.4,
+				hookshot = 1.2,
+				lightgun = 0.8,
+			}
+			local r = RECOIL[(w.id as string) or ""] or 1.0
+			pl.speedx = ((pl.speedx as number) or 0) - dx * r
+			pl.speedy = ((pl.speedy as number) or 0) - dy * r
+			pl.falling = true
+		end
+	end
 end
 
 local function hold(pl_any: any, button: any, dt: number)

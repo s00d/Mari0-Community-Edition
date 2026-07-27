@@ -191,6 +191,15 @@ global endless_generate_for_mappack: function(string, number|nil): {any:any}
 global endless_parse_room_name: function(string): string, {string:boolean}, string
 global endless_copy_cell: function(MapCell): MapCell
 global endless_generate: function(number, {{any:any}}, {any:any}|nil): {any:any}
+global ENDLESS_ENEMIES: {string:{string:any}}
+global endless_populate: function({number:{number:MapCell}}, number, number, number, number, string, number, {any:any}, number|nil): {string}
+global endless_room_kind_from_name: function(string): string
+global ENEMY_MOVES: {string:function(enemy, number)}
+global enemymove_dispatch: function(enemy, number)
+global enemymove_drybones_stomp: function(enemy): boolean
+global enemymove_splitter_die: function(enemy): boolean
+global enemymove_thwomp_floor: function(enemy)
+global enemymove_charger_wall: function(enemy, any, Entity|nil)
 global endless_path_connected: function({{number}}): boolean
 global endless_no_deadlock: function({{number}}, integer): boolean
 global endless_get_templates: function(string): {{any:any}}
