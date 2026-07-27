@@ -470,6 +470,7 @@ global record love
 	textinput: function(text: any)
 	mousepressed: function(...: any)
 	mousereleased: function(...: any)
+	mousemoved: function(any, any, any, any)
 	wheelmoved: function(x: any, y: any)
 	joystickpressed: function(joystick: any, button: any)
 	joystickreleased: function(joystick: any, button: any)

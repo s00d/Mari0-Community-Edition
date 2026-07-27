@@ -128,6 +128,15 @@ global width: number
 global height: number
 global fullscreen: boolean
 global fullscreenmode: string
+-- UI input (prefer Ctx.ui later; globals for now)
+global ui_input_mode: string
+global mouseui_x: number
+global mouseui_y: number
+global screen_to_ui: function(number, number): number, number
+global ui_set_input_mode: function(string)
+global ui_note_mouse_move: function(number, number, number, number): boolean
+global ui_note_kbd: function()
+global menu_mousemoved: function(number, number)
 global record DesktopSize
 	width: number
 	height: number

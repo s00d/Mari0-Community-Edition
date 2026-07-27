@@ -207,6 +207,7 @@ function love.keypressed(key: any, scancode: any, _: any)
 	end
 	
 	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" then
+		ui_note_kbd()
 		table.insert(konamitable, key as string)
 		table.remove(konamitable, 1)
 		local s = ""
@@ -265,6 +266,15 @@ function love.wheelmoved(_: any, y: any)
 	end
 end
 
+function love.mousemoved(x: any, y: any, dx: any, dy: any)
+	if not ui_note_mouse_move(dx as number, dy as number, x as number, y as number) then
+		return
+	end
+	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "options" then
+		menu_mousemoved(mouseui_x, mouseui_y)
+	end
+end
+
 function love.mousepressed(...: any)
 	local x, y, button = ...
 	local x = x as number
@@ -274,13 +284,7 @@ function love.mousepressed(...: any)
 	elseif button == 2 then button = "r"
 	elseif button == 3 then button = "m"
 	end
-	if fullscreen then
-		if fullscreenmode == "full" then
-			x, y = x/(desktopsize.width/(width*16*scale)), y/(desktopsize.height/(height*16*scale))
-		else
-			x, y = x/(touchfrominsidescaling/scale), y/(touchfrominsidescaling/scale)-touchfrominsidemissing/2
-		end
-	end
+	x, y = screen_to_ui(x, y)
 	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" then
 		menu_mousepressed(x, y, button)
 	elseif gamestate == "game" then
@@ -340,7 +344,7 @@ function love.mousereleased(...: any)
 	elseif button == 2 then button = "r"
 	elseif button == 3 then button = "m"
 	end
-	x, y = desktopsize.width/(width*16*scale)*x, desktopsize.height/(height*16*scale)*y
+	x, y = screen_to_ui(x, y)
 	if gamestate == "menu" or gamestate == "options" then
 		menu_mousereleased(x, y, button)
 	elseif gamestate == "game" then
@@ -365,6 +369,7 @@ function love.joystickpressed(joystick: any, button: any)
 		if keyprompt then
 			keypromptenter("joybutton", joystick, button)
 		elseif gamestate == "menu" or gamestate == "options" then
+			ui_note_kbd()
 			menu_joystickpressed(joystick, button)
 		elseif gamestate == "game" then
 			game_joystickpressed(joystick, button)

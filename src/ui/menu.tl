@@ -2135,6 +2135,11 @@ global function menu_mousepressed(_: any, _: any, _: any)
 
 end
 
+global function menu_mousemoved(_: number, _: number)
+	
+
+end
+
 global function menu_mousereleased(_: any, _: any, _: any)
 	
 
