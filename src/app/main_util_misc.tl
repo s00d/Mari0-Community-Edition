@@ -144,6 +144,9 @@ global function changescale(s: number, init?: boolean)
 	
 	if generatespritebatch then
 		generatespritebatch(0, 0)
+		if updatespritebatch then
+			updatespritebatch()
+		end
 	end
 end
 

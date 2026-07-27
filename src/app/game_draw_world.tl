@@ -480,13 +480,17 @@ global function game_draw_props()
 	love.graphics.setColor(1, 1, 1)
 	--Bubbles
 	for _, w in pairs(bubbles) do
-		w:draw()
+		if onscreen(w.x, w.y, 0.5, 0.5) then
+			w:draw()
+		end
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--miniblocks
 	for _, v in pairs(miniblocks) do
-		v:draw()
+		if onscreen(v.x, v.y, 0.5, 0.5) then
+			v:draw()
+		end
 	end
 
 	--emancipateanimations

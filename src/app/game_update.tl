@@ -709,5 +709,8 @@ global function game_update(dt: number)
 			(v as mario):updateangle()
 		end
 	end
+
+	-- AE coalesce: flush spritebatch once per frame after all dirty marks.
+	updatespritebatch()
 end
 

@@ -1241,6 +1241,7 @@ global function loadbackgroundsafe(background: any): any
 	end
 	
 	generatespritebatch(0, 0)
+	updatespritebatch()
 end
 
 global function loadbackground(backgroundlevel: any): any

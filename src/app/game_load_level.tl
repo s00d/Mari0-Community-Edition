@@ -451,6 +451,7 @@ global function loadlevel(level: string|number): boolean
 	
 	spritebatch_portal_catchup = false
 	generatespritebatch(0, 0)
+	updatespritebatch()
 	if session then session:sync_session_from_globals() end
 	return needs_to_be_saved
 end
@@ -511,6 +512,7 @@ global function changemapwidth(width: number)
 	end
 	
 	generatespritebatch(0, 0)
+	updatespritebatch()
 end
 
 global function changemapheight(height: number)
@@ -542,6 +544,7 @@ global function changemapheight(height: number)
 	end
 	
 	generatespritebatch(0, 0)
+	updatespritebatch()
 end
 
 global function invalidate_spritebatch_after_portal_teleport()
@@ -551,7 +554,28 @@ global function invalidate_spritebatch_after_portal_teleport()
 	spritebatch_portal_catchup = true
 end
 
+-- AE-style coalesce: mark dirty; flush once via updatespritebatch (end of game_update).
 global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
+	spritebatch_dirty = true
+	spritebatch_pending_dx = scroll_dx
+	spritebatch_pending_dy = scroll_dy
+end
+
+global function updatespritebatch()
+	if rawget(_G, "prof_push") == nil then
+		rawset(_G, "prof_push", function(_: string) end)
+		rawset(_G, "prof_pop", function(_: string|nil) end)
+	end
+	if not spritebatch_dirty then
+		return
+	end
+	spritebatch_dirty = false
+	local scroll_dx: integer = (spritebatch_pending_dx as integer) or 0
+	local scroll_dy: integer = (spritebatch_pending_dy as integer) or 0
+	spritebatch_pending_dx = 0
+	spritebatch_pending_dy = 0
+
+	prof_push("generatespritebatch")
 	local xtodraw: number = 0
 	if (mapwidth as number) < width+1 then
 		xtodraw = math.ceil(mapwidth as number)
@@ -901,6 +925,7 @@ global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
 			scroll_hides = xtodraw as integer
 		end
 		spritebatch_orphan_slots = (spritebatch_orphan_slots or 0) + scroll_hides
+		prof_pop("generatespritebatch")
 		return
 	end
 
@@ -923,6 +948,7 @@ global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
 	draw_view(view, xtodraw as integer, row_count as integer)
 	spritebatchX[1] = flooredxscroll as integer
 	spritebatchY[1] = flooredyscroll as integer
+	prof_pop("generatespritebatch")
 end
 
 

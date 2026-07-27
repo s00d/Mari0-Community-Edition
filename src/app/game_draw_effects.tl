@@ -90,7 +90,9 @@ global function game_draw_fx()
 
 	--particles
 	for _, w in pairs(portalparticles) do
-		w:draw()
+		if onscreen(w.x, w.y, 0.5, 0.5) then
+			w:draw()
+		end
 	end
 
 	love.graphics.setColor(1, 1, 1)
@@ -123,7 +125,9 @@ global function game_draw_fx()
 
 	--BLOCK DEBRIS
 	for _, v in pairs(blockdebristable as {any:Entity}) do
-		v:draw()
+		if onscreen(v.x, v.y, 0.5, 0.5) then
+			v:draw()
+		end
 	end
 
 	local _: number|nil
