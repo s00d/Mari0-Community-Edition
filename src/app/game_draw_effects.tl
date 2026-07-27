@@ -4,111 +4,111 @@ global function game_draw_fx()
 	love.graphics.setColor(1, 1, 1)
 
 	--bowser
-	for j, w in pairs(objects["bowser"]) do
+	for _, w in pairs(objects["bowser"]) do
 		w:draw()
 	end
 
 	--Geldispensers
-	for j, w in pairs(objects["geldispenser"]) do
+	for _, w in pairs(objects["geldispenser"]) do
 		w:draw()
 	end
 
 	--Cubedispensers
-	for j, w in pairs(objects["cubedispenser"]) do
+	for _, w in pairs(objects["cubedispenser"]) do
 		w:draw()
 	end
 
 	--Funnels
-	for j, w in pairs(objects["funnel"]) do
+	for _, w in pairs(objects["funnel"]) do
 		w:draw()
 	end
 
 	--Emancipationgrills
-	for j, w in pairs(emancipationgrills) do
+	for _, w in pairs(emancipationgrills) do
 		w:draw()
 	end
 
 	--Doors
-	for j, w in pairs(objects["door"]) do
+	for _, w in pairs(objects["door"]) do
 		w:draw()
 	end
 
 	--Wallindicators
-	for j, w in pairs(objects["wallindicator"]) do
+	for _, w in pairs(objects["wallindicator"]) do
 		w:draw()
 	end
 
 	--Tiletriggers
-	for j, w in pairs(objects["animatedtiletrigger"]) do
+	for _, w in pairs(objects["animatedtiletrigger"]) do
 		w:draw()
 	end
 
 	--Delayers
-	for j, w in pairs(objects["delayer"]) do
+	for _, w in pairs(objects["delayer"]) do
 		w:draw()
 	end
 
 	--Walltimers
-	for j, w in pairs(objects["walltimer"]) do
+	for _, w in pairs(objects["walltimer"]) do
 		w:draw()
 	end
 
 	--Notgates
-	for j, w in pairs(objects["notgate"]) do
+	for _, w in pairs(objects["notgate"]) do
 		w:draw()
 	end
 
 	--RSFlipflops
-	for j, w in pairs(objects["rsflipflop"]) do
+	for _, w in pairs(objects["rsflipflop"]) do
 		w:draw()
 	end
 
 	--Orgates
-	for j, w in pairs(objects["orgate"]) do
+	for _, w in pairs(objects["orgate"]) do
 		w:draw()
 	end
 
 	--Andgates
-	for j, w in pairs(objects["andgate"]) do
+	for _, w in pairs(objects["andgate"]) do
 		w:draw()
 	end
 
 	--Musicentities
-	for j, w in pairs(objects["musicentity"]) do
+	for _, w in pairs(objects["musicentity"]) do
 		w:draw()
 	end
 
 	--Squarewaves
-	for j, w in pairs(objects["squarewave"]) do
+	for _, w in pairs(objects["squarewave"]) do
 		w:draw()
 	end
 
 	--Squarewaves
-	for j, w in pairs(objects["actionblock"]) do
+	for _, w in pairs(objects["actionblock"]) do
 		w:draw()
 	end
 
 	--particles
-	for j, w in pairs(portalparticles) do
+	for _, w in pairs(portalparticles) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 
 	--portals
-	for i, v in pairs(portals) do
+	for _, v in pairs(portals) do
 		v:draw()
 	end		
 
 	love.graphics.setColor(1, 1, 1)
 
 	--COINBLOCKanimation
-	for i, v in pairs(coinblockanimations) do
+	for i, _ in pairs(coinblockanimations) do
 		love.graphics.draw(coinblockanimationimg, coinblockanimationquads[coinblockanimations[i].frame as integer], math.floor((coinblockanimations[i].x - xscroll)*16*scale), math.floor(((coinblockanimations[i].y-yscroll)*16-8)*scale), 0, scale, scale, 4, 54)
 	end
 
 	--SCROLLING SCORE
-	for i, v in pairs(scrollingscores) do
+	for i, _ in pairs(scrollingscores) do
 		if type(scrollingscores[i].i) == "number" then
 			properprint2(scrollingscores[i].i, math.floor((scrollingscores[i].x-0.4)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale))
 		elseif scrollingscores[i].i == "1up" then
@@ -117,19 +117,19 @@ global function game_draw_fx()
 	end
 
 	--SCROLLING TEXT
-	for i, v in pairs(scrollingtexts as {any:Entity}) do
+	for _, v in pairs(scrollingtexts as {any:Entity}) do
 		v:draw()
 	end
 
 	--BLOCK DEBRIS
-	for i, v in pairs(blockdebristable as {any:Entity}) do
+	for _, v in pairs(blockdebristable as {any:Entity}) do
 		v:draw()
 	end
 
-	local minex: number|nil
-	local miney: number|nil
-	local minecox: number|nil
-	local minecoy: number|nil = nil, nil, nil, nil
+	local _: number|nil
+	local _: number|nil
+	local _: number|nil
+	local _: number|nil = nil, nil, nil, nil
 
 	--PORTAL UI STUFF
 	if levelfinished == false then
@@ -282,14 +282,14 @@ global function game_draw_fx()
 	end
 
 	--Portal projectile
-	for i, v in pairs(portalprojectiles) do
+	for _, v in pairs(portalprojectiles) do
 		v:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 
 	--nothing to see here
-	for i, v in pairs(rainbooms) do
+	for _, v in pairs(rainbooms) do
 		v:draw()
 	end
 
@@ -317,7 +317,7 @@ global function game_draw_seethrough_portals()
 	
 	currentscissor = {0, 0,width*16*scale, height*16*scale}
 	
-	for k, v in pairs(portals) do
+	for _, v in pairs(portals) do
 		local pv = v as Dyn
 		if v.x1 and v.x2 then
 			for i = 1, 2 do

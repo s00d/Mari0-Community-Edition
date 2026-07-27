@@ -9,7 +9,7 @@ global function saveconfig()
 	for i = 1, #(controls as {any}) do
 		s = s .. "playercontrols:" .. i .. ":"
 		local count = 0
-		for j, k in pairs(controls[i]) do
+		for j, _ in pairs(controls[i]) do
 			local c = ""
 			for l = 1, #(controls[i][j] as {any}) do
 				c = c .. tostring(controls[i][j][l])
@@ -415,10 +415,10 @@ global function serializetable(t: any)
 	tableindex = {}
 	repeat
 		nexttablestodo = {}
-		for i, v in pairs(tablestodo as {any:any}) do
+		for _, v in pairs(tablestodo as {any:any}) do
 			if type(v) == "table" then
 				local tableexists = false
-				for j, k in pairs(tableindex as {any:any}) do
+				for _, k in pairs(tableindex as {any:any}) do
 					if k == v then
 						tableexists = true
 					end

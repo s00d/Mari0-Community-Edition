@@ -227,10 +227,8 @@ global function shootportal(plnumber: any, i: any, sourcex: any, sourcey: any, d
 		portaldelay[plnumber as number] = portalgundelay
 	end
 	
-	local otheri = 1
 	local color = playerobjs[plnumber].portal2color
 	if i == 1 then
-		otheri = 2
 		color = playerobjs[plnumber].portal1color
 	end
 	

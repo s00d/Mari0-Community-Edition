@@ -19,7 +19,7 @@ function regiondrag:init(x: number, y: number, width, height)
 	self.grabbed = 0
 end
 
-function regiondrag:update(dt: number)
+function regiondrag:update(_: number)
 	if self.grabbed ~= 0 then
 		local mx, my = mouse.getPosition()
 		local oldx, oldy, oldwidth, oldheight, oldgrabbed = self.x, self.y, self.width, self.height, self.grabbed
@@ -146,7 +146,7 @@ function regiondrag:draw()
 	end
 end
 
-function regiondrag:mousepressed(x, y, button): any
+function regiondrag:mousepressed(x, y, _): any
 	for i = 1, 5 do
 		if self:inhighlight(mouse.getX(), mouse.getY(), i) then
 			self.grabbed = i
@@ -164,7 +164,7 @@ function regiondrag:mousepressed(x, y, button): any
 	end
 end
 
-function regiondrag:mousereleased(x, y, button)
+function regiondrag:mousereleased(_, _, _)
 	self.grabbed = 0
 end
 

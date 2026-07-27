@@ -953,10 +953,10 @@ function enemy:customtimeraction(action: any, arg: any): any
 			if not (act[2] and act[3]) then return end
 			if globintCH(act[2],  string.sub(realaction as string, 1, -5), act[3]) then --coding practice, using string.sub the same way Maurice did
 				local a1 = args[1] as {any}
-				local a2 = args[2] as {any}
+				local _ = args[2] as {any}
 				self:customtimeraction(a1[1], a1[2])
 			else
-				local a1 = args[1] as {any}
+				local _ = args[1] as {any}
 				local a2 = args[2] as {any}
 				self:customtimeraction(a2[1], a2[2])
 			end
@@ -964,16 +964,16 @@ function enemy:customtimeraction(action: any, arg: any): any
 			print(globools[act[2] as string])
 			if globools[act[2] as string] then
 				local a1 = args[1] as {any}
-				local a2 = args[2] as {any}
+				local _ = args[2] as {any}
 				self:customtimeraction(a1[1], a1[2])
 			else
-				local a1 = args[1] as {any}
+				local _ = args[1] as {any}
 				local a2 = args[2] as {any}
 				self:customtimeraction(a2[1], a2[2])
 			end
 		elseif realaction == "simultaneous" then
 			table.remove(act, 1)
-			for i, v in ipairs(act as {any}) do
+			for _, v in ipairs(act as {any}) do
 				local vv = v as {any}
 				self:customtimeraction(vv[1], vv[2])
 			end
@@ -1020,7 +1020,7 @@ function enemy:func(i: any): number -- 0-1 in please
 	return (-math.cos((i as number)*math.pi*2)+1)/2
 end
 
-function enemy:globalcollide(a: any, b: Entity, c: any, d: any, dir: any): boolean
+function enemy:globalcollide(a: any, b: Entity, _: any, _: any, dir: any): boolean
 	if a == "tile" then
 		if not self.resistsspikes then
 			dir = twistdirection(self.gravitydirection, dir)
@@ -1530,7 +1530,7 @@ function enemy:emancipate(): any
 	end
 end
 
-function enemy:laser(guns: any, pewpew: any)
+function enemy:laser(_: any, _: any)
 	if not self.laserresistant then
 		self:shotted()
 	end
@@ -1547,7 +1547,7 @@ end
 
 function enemy:getspawnedenemies(): number
 	local count = 0
-	for i, v in pairs(self.spawnedenemies as {any:enemy}) do
+	for _, v in pairs(self.spawnedenemies as {any:enemy}) do
 		if not v.dead then
 			count = count + 1
 		end

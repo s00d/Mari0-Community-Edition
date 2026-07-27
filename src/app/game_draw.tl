@@ -60,7 +60,7 @@ global function game_draw()
 	
 	game_draw_debug()
 	
-	for i, v in pairs(dialogboxes) do
+	for _, v in pairs(dialogboxes) do
 		v:draw()
 	end
 	

@@ -31,8 +31,8 @@ end
 
 function notgate:link(): any|nil
 	while #self.r > 3 do
-		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w]) do
+		for _, w in pairs(outputs) do
+			for _, v in pairs(objects[w]) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -50,7 +50,7 @@ function notgate:addoutput(a, t)
 	table.insert(self.outtable, {a, t} as {any})
 end
 
-function notgate:update(dt: number)
+function notgate:update(_: number)
 	if self.initial then
 		self.initial = false
 		self:input("off", "in")

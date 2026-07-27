@@ -121,8 +121,8 @@ function platform:update(dt: number): boolean
 	--GET FALL SPEED
 	
 	if self.dir == "fall" then
-		for i, v in ipairs(checktable) do
-			for j, w in pairs(objects[v] as {any:Body}) do
+		for _, v in ipairs(checktable) do
+			for _, w in pairs(objects[v] as {any:Body}) do
 				if inrange(w.x, self.x-w.width, self.x+self.width) and inrange(w.y + w.height, self.y - 0.1, self.y + 0.1) then
 					numberofobjects = numberofobjects + 1
 				end
@@ -134,8 +134,8 @@ function platform:update(dt: number): boolean
 	
 	local nextx, nexty = self.x + self.speedx*dt, self.y + self.speedy*dt
 	
-	for i, v in ipairs(checktable) do
-		for j, w in pairs(objects[v] as {any:Body}) do
+	for _, v in ipairs(checktable) do
+		for _, w in pairs(objects[v] as {any:Body}) do
 			if inrange(w.x, self.x-w.width, self.x+self.width) and inrange(w.y + w.height, self.y - 0.1, self.y + 0.1) then
 				checkforemances(dt, w, self.speedx, self.speedy)
 				local newx = w.x + self.speedx*dt
@@ -170,25 +170,25 @@ function platform:draw()
 	end
 end
 
-function platform:rightcollide(a: any, b: Entity): any
+function platform:rightcollide(_: any, _: Entity): any
 	return false
 end
 
-function platform:leftcollide(a: any, b: Entity): any
+function platform:leftcollide(_: any, _: Entity): any
 	return false
 end
 
-function platform:ceilcollide(a: any, b: Entity): any
+function platform:ceilcollide(_: any, _: Entity): any
 	if self.dir == "justright" then
 		self.speedx = platformbonusspeed
 	end
 	return false
 end
 
-function platform:floorcollide(a: any, b: Entity): any
+function platform:floorcollide(_: any, _: Entity): any
 	return false
 end
 
-function platform:passivecollide(a: any, b: Entity): any
+function platform:passivecollide(_: any, _: Entity): any
 	return false
 end

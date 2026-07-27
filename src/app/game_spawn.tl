@@ -51,7 +51,7 @@ global function spawnenemy(x: number, y: number)
 	if session then session:bind_globals() end
 end
 
-global function givelive(id: any, t: Entity)
+global function givelive(_: any, t: Entity)
 	
 	if mariolivecount ~= false then
 		for i = 1, players do

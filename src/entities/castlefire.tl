@@ -40,7 +40,7 @@ function castlefire:init(x: number, y: number, r)
 		end
 	end
 	
-	for i = 1, self.length do
+	for _ = 1, self.length do
 		local temp = castlefirefire:new()
 		table.insert(objects["castlefirefire"], temp)
 		table.insert(self.child, temp)

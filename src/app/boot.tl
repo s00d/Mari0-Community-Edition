@@ -189,7 +189,7 @@ function Boot.load_media()
 	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "musicentity", "smbtiles", "portaltiles",
 	"animatedtiletrigger", "delayer", "title", "menuselect"}
 	
-	for i, v in ipairs(imagelist) do
+	for _, v in ipairs(imagelist) do
 		local path = "assets/graphics/DEFAULT/" .. v .. ".png"
 		assets:register_image(v, path)
 		local img = assets:get_image(v)
@@ -244,7 +244,7 @@ function Boot.load_media()
 	local imgwidth, imgheight = entitiesimg:getWidth(), entitiesimg:getHeight()
 	local width = math.floor(imgwidth/17)
 	local height = math.floor(imgheight/17)
-	local imgdata = love.image.newImageData("assets/graphics/entities.png")
+	local _ = love.image.newImageData("assets/graphics/entities.png")
 	
 	for y = 1, height do
 		for x = 1, width do
@@ -532,7 +532,7 @@ function Boot.load_media()
 	overwrittensounds = {}	
 	soundlist = {}
 	
-	for i, v in ipairs(soundstoload) do
+	for _, v in ipairs(soundstoload) do
 		assets:register_sound(v, "assets/sounds/" .. v .. ".ogg")
 		local src = assets:get_sound(v) as SoundSource
 		soundlist[v] = {}
@@ -616,7 +616,7 @@ function Boot.run_load()
 	Boot.load_media()
 	shaders:init()
 	add("Shaders init")
-	for i, v in ipairs(dlclist) do
+	for _, v in ipairs(dlclist) do
 		delete_mappack(v)
 	end
 

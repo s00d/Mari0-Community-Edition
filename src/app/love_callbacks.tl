@@ -34,7 +34,7 @@ function love.update(dt: any)
 		end
 		
 		if speed > 0 then
-			for i, v in pairs(soundlist) do
+			for _, v in pairs(soundlist) do
 				v.source:setPitch( speed )
 			end
 			music.pitch = speed
@@ -82,7 +82,7 @@ function love.update(dt: any)
 			end
 		end
 		
-		for i, v in pairs(guielements) do
+		for _, v in pairs(guielements) do
 			v:update(dt as number)
 		end
 		
@@ -136,7 +136,7 @@ function love.draw()
 	end
 end
 
-function love.keypressed(key: any, scancode: any, isrepeat: any)
+function love.keypressed(key: any, scancode: any, _: any)
 	-- Layout-independent: scancode is physical key position (Love 11)
 	if type(scancode) == "string" then
 		key = scancode
@@ -168,7 +168,7 @@ function love.keypressed(key: any, scancode: any, isrepeat: any)
 		return
 	end
 
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		if v:keypress(string.lower(key as string)) then
 			return
 		end
@@ -234,7 +234,7 @@ function love.textinput(text: any)
 	end
 end
 
-function love.wheelmoved(x: any, y: any)
+function love.wheelmoved(_: any, y: any)
 	if (y as number) > 0 then
 		love.mousepressed(love.mouse.getX(), love.mouse.getY(), "wu")
 	elseif (y as number) < 0 then
@@ -267,9 +267,9 @@ function love.mousepressed(...: any)
 	end
 	
 	if animationguilines and editormenuopen and not changemapwidthmenu and not guielements["animationselectdrop"].extended then
-		local b = false
-		for i, v in pairs(animationguilines) do
-			for k, w in pairs(v as {any:any}) do
+		local _ = false
+		for _, v in pairs(animationguilines) do
+			for _, w in pairs(v as {any:any}) do
 				if (w as guielement):haspriority() then
 					(w as guielement):click(x, y, button)
 					return
@@ -282,8 +282,8 @@ function love.mousepressed(...: any)
 			addanimationconditionbutton:click(x, y, button)
 			addanimationactionbutton:click(x, y, button)
 			
-			for i, v in pairs(animationguilines) do
-				for k, w in pairs(v as {any:any}) do						
+			for _, v in pairs(animationguilines) do
+				for _, w in pairs(v as {any:any}) do						
 					if (w as guielement):click(x, y, button) then
 						return
 					end
@@ -292,7 +292,7 @@ function love.mousepressed(...: any)
 		end
 	end
 	
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		if v.priority then
 			if v:click(x, y, button) then
 				return
@@ -300,7 +300,7 @@ function love.mousepressed(...: any)
 		end
 	end
 	
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		if not v.priority then
 			if v:click(x, y, button) then
 				return
@@ -324,7 +324,7 @@ function love.mousereleased(...: any)
 		game_mousereleased(x, y, button)
 	end
 	
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		v:unclick(x, y, button)
 	end
 end
@@ -427,7 +427,7 @@ end
 -- love.gamepadreleased = love.joystickreleased
 -- love.gamepadaxis = love.joystickaxis
 
-function love.focus(f: any)
+function love.focus(_: any)
 	--[[if not f and gamestate == "game"and not editormode and not levelfinished and not everyonedead  then
 		pausemenuopen = true
 		paused = love.audio.pause()

@@ -31,8 +31,8 @@ end
 
 function groundlight:link(): any|nil
 	while #self.r > 3 do
-		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w]) do
+		for _, w in pairs(outputs) do
+			for _, v in pairs(objects[w]) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end

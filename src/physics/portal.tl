@@ -6,7 +6,7 @@ global function inportal(self: Entity): boolean
 	if self.mask[2] then
 		return
 	end
-	for i, v in pairs(portals) do
+	for _, v in pairs(portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 			local portal1Y = v.y1 as number
 			local portal2Y = v.y2 as number
@@ -48,7 +48,7 @@ global function inportal(self: Entity): boolean
 end
 
 global function checkportalHOR(self: Entity, nextY: number): boolean --handles horizontal (up- and down facing) portal teleportation
-	for i, v in pairs(portals) do
+	for _, v in pairs(portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 		
 			local portal1xplus = 0
@@ -83,9 +83,9 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 				local exitportalY: number
 				local exitportalfacing: any
 				local entryportalxplus: number = 0
-				local entryportalyplus: number = 0
+				local _: number = 0
 				local exitportalxplus: number = 0
-				local exitportalyplus: number = 0
+				local _: number = 0
 				if (v.x1 == math.floor(self.x+1) or (v.x1 as number)+portal1xplus == math.floor(self.x+1)) and inrange(portal1Y, self.y+self.height/2, nextY+self.height/2) then
 					entryportalX = v.x1 as number
 					entryportalY = v.y1 as number
@@ -158,7 +158,7 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 end
 
 global function checkportalVER(self: Entity, nextX: number): boolean --handles vertical (left- and right facing) portal teleportation
-	for i, v in pairs(portals) do
+	for _, v in pairs(portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 			local portal1yplus = 0
 			local portal2yplus = 0
@@ -189,9 +189,9 @@ global function checkportalVER(self: Entity, nextX: number): boolean --handles v
 				local exitportalX: number
 				local exitportalY: number
 				local exitportalfacing: any
-				local entryportalxplus: number = 0
+				local _: number = 0
 				local entryportalyplus: number = 0
-				local exitportalxplus: number = 0
+				local _: number = 0
 				local exitportalyplus: number = 0
 				if (v.y1 == math.floor(self.y+1) or (v.y1 as number)+portal1yplus == math.floor(self.y+1)) and inrange(portal1X, self.x+self.width/2, nextX+self.width/2) then
 					entryportalX = v.x1 as number

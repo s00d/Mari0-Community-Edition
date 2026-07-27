@@ -50,7 +50,7 @@ global function game_update(dt: number)
 	--SCROLLING SCORES
 	local delete = {}
 	
-	for i, v in pairs(scrollingscores) do
+	for i, _ in pairs(scrollingscores) do
 		if scrollingscores[i]:update(dt) == true then
 			table.insert(delete, i)
 		end
@@ -62,7 +62,7 @@ global function game_update(dt: number)
 	--SCROLLING TEXTS
 	local delete = {}
 	
-	for i, v in pairs(scrollingtexts as {any:Entity}) do
+	for i, _ in pairs(scrollingtexts as {any:Entity}) do
 		if scrollingtexts[i]:update(dt) == true then
 			table.insert(delete, i)
 		end
@@ -84,7 +84,7 @@ global function game_update(dt: number)
 	
 	--If everyone's dead, just update the players and coinblock timer.
 	if everyonedead then
-		for i, v in pairs(playerobjs) do
+		for _, v in pairs(playerobjs) do
 			v:update(dt)
 		end
 		
@@ -129,7 +129,7 @@ global function game_update(dt: number)
 			
 			if mariotime <= 0 then
 				mariotime = 0
-				for i, v in pairs(playerobjs) do
+				for _, v in pairs(playerobjs) do
 					v:die("time")
 				end
 			end
@@ -161,7 +161,7 @@ global function game_update(dt: number)
 	
 	--check if updates are blocked for whatever reason
 	if noupdate then
-		for i, v in pairs(playerobjs) do --But update players anyway.
+		for _, v in pairs(playerobjs) do --But update players anyway.
 			v:update(dt)
 		end
 		return
@@ -170,7 +170,7 @@ global function game_update(dt: number)
 	--blockbounce
 	local delete = {}
 	
-	for i, v in pairs(blockbouncetimer) do
+	for i, _ in pairs(blockbouncetimer) do
 		if blockbouncetimer[i] < blockbouncetime then
 			blockbouncetimer[i] = blockbouncetimer[i] + dt
 			if blockbouncetimer[i] > blockbouncetime then
@@ -190,7 +190,7 @@ global function game_update(dt: number)
 	end
 	
 	--coinblocktimer things
-	for i, v in pairs(coinblocktimers as {any:{any}}) do
+	for _, v in pairs(coinblocktimers as {any:{any}}) do
 		if (v[3] as number) > 0 then
 			v[3] = (v[3] as number) - dt
 		end
@@ -383,7 +383,7 @@ global function game_update(dt: number)
 					fastestplayer = playerobjs[i]
 				end
 			end
-			local dummy, speedy = converttostandard(fastestplayer, fastestplayer.speedx, fastestplayer.speedy)
+			local _, speedy = converttostandard(fastestplayer, fastestplayer.speedx, fastestplayer.speedy)
 			if fastestplayer.y-yscroll < upscrollborder then
 				local minspeed = (fastestplayer.y-yscroll-upscrollborder)*yscrollingrate
 				yscroll = yscroll+math.min(speedy, minspeed)*dt
@@ -531,7 +531,7 @@ global function game_update(dt: number)
 	end
 	
 	--portal update
-	for i, v in pairs(portals) do
+	for _, v in pairs(portals) do
 		v:update(dt)
 	end
 	
@@ -540,7 +540,7 @@ global function game_update(dt: number)
 	while portalparticletimer > portalparticletime do
 		portalparticletimer = portalparticletimer - portalparticletime
 		
-		for i, v in pairs(portals) do
+		for _, v in pairs(portals) do
 			if (v as {string:any}).facing1 and (v as {string:number}).x1 and (v as {string:number}).y1 then
 				local x1: number = 0
 				local y1: number = 0
@@ -669,7 +669,7 @@ global function game_update(dt: number)
 	end
 	
 	--Update pointing angle of players
-	for i, v in pairs(objects.player) do
+	for _, v in pairs(objects.player) do
 		if not v.disableaiming then
 			(v as mario):updateangle()
 		end

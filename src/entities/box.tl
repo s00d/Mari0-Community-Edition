@@ -133,7 +133,7 @@ function box:update(dt: number): boolean
 	end
 end
 
-function box:globalcollide(a: any, b: Entity, c: any, d: any, dir: any): boolean
+function box:globalcollide(a: any, _: Entity, _: any, _: any, dir: any): boolean
 	if a == "platform" or a == "seesawplatform" then
 		if dir == "floor" then
 			if self.jumping and self.speedy < -jumpforce + 0.1 then

@@ -15,7 +15,7 @@ end
 
 global function animationsystem_update(dt: number)
 	if not editormode then
-		for i, v in ipairs(animations) do
+		for _, v in ipairs(animations) do
 			local anim = v as Dyn
 			(anim["update"] as function(any, any))(v, dt)
 		end
@@ -24,7 +24,7 @@ end
 
 global function animationsystem_draw()
 	if not editormode then
-		for i, v in ipairs(animations) do
+		for _, v in ipairs(animations) do
 			local anim = v as Dyn
 			(anim["draw"] as function(any))(v)
 		end

@@ -472,7 +472,7 @@ global function reachedx(currentx: any)
 	end--]]
 end
 
-global function properprint2(s: any, x: number, y: number, ...: any)
+global function properprint2(s: any, x: number, y: number, _: any)
 	
 	for i = 1, string.len(tostring(s)) do
 		if fontquads[string.sub(s as string, i, i)] then
@@ -544,13 +544,13 @@ global function updatesizes()
 end
 
 global function updateranges()
-	for i, v in pairs(objects["laser"]) do
+	for _, v in pairs(objects["laser"]) do
 		(v as Entity):updaterange()
 	end
-	for i, v in pairs(objects["lightbridge"]) do
+	for _, v in pairs(objects["lightbridge"]) do
 		(v as Entity):updaterange()
 	end
-	for i, v in pairs(objects["funnel"]) do
+	for _, v in pairs(objects["funnel"]) do
 		(v as Entity):updaterange()
 	end
 end

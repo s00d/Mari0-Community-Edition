@@ -9,7 +9,7 @@ function tile.new(_: tile, ...: any): tile
 	return self
 end
 
-function tile:init(x: number, y: number, slant)
+function tile:init(x: number, y: number, _)
 	self.cox = x+1
 	self.coy = y+1
 	self.x = x

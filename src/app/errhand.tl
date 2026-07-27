@@ -29,7 +29,7 @@ function love.errhand(msg)
 		end
 	end
 
-	for m,p in ipairs(err) do
+	for _,p in ipairs(err) do
 		print(p)
 	end
 	--error_printer(msg, 2)
@@ -54,14 +54,14 @@ function love.errhand(msg)
 		love.mouse.setGrabbed(false)
 	end
 	if love.joystick and love.joystick.getJoysticks then -- Stop all joystick vibrations.
-		for i,v in ipairs(love.joystick.getJoysticks()) do
+		for _,v in ipairs(love.joystick.getJoysticks()) do
 			v:setVibration()
 		end
 	end
 	if love.audio then love.audio.stop() end
 	love.graphics.reset()
 	love.graphics.setBackgroundColor(89 / 255, 157 / 255, 220 / 255)
-	local font = love.graphics.setNewFont(scale*7)
+	local _ = love.graphics.setNewFont(scale*7)
 
 	love.graphics.setColor(1, 1, 1, 1)
 
@@ -92,7 +92,7 @@ function love.errhand(msg)
 	while true do
 		love.event.pump()
 
-		for e, a, b, c in love.event.poll() do
+		for e, a, _, _ in love.event.poll() do
 			if e == "quit" then
 				return
 			end

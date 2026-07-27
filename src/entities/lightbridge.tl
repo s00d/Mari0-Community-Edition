@@ -47,8 +47,8 @@ end
 
 function lightbridge:link()
 	while #self.r > 3 do
-		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w] as {any:Entity}) do
+		for _, w in pairs(outputs) do
+			for _, v in pairs(objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -102,7 +102,7 @@ function lightbridge:updaterange()
 	--save old gel values
 	local gels: {number:Dyn} = {}
 	
-	for i, v in pairs(self.childtable) do
+	for _, v in pairs(self.childtable) do
 		local v = v as Entity
 		local vg = v.gels as Dyn
 		if vg["top"] then
@@ -116,7 +116,7 @@ function lightbridge:updaterange()
 		end
 	end	
 	
-	for i, v in pairs(self.childtable) do
+	for _, v in pairs(self.childtable) do
 		local v = v as Entity
 		v.destroy = true
 	end
@@ -178,7 +178,7 @@ function lightbridge:updaterange()
 		end
 		
 		--doors
-		for i, v in pairs(objects["door"] as {any:Entity}) do
+		for _, v in pairs(objects["door"] as {any:Entity}) do
 			if v.active then
 				if v.dir == "ver" then
 					if x == v.cox and (y == v.coy or y == v.coy-1) then
@@ -195,8 +195,8 @@ function lightbridge:updaterange()
 	
 	--Restore gels! yay!
 	--crosscheck childtable with gels to see any matching shit
-	for j, w in pairs(self.childtable) do
-		for i, v in pairs(gels) do
+	for _, w in pairs(self.childtable) do
+		for _, v in pairs(gels) do
 			if (v["x"] as number) == w.cox and (v["y"] as number) == w.coy then
 				local d = v["dir"] as string
 				if d == "left" or d == "right" then
@@ -292,7 +292,7 @@ function lightbridgebody:pushstuff()
 	end
 end
 
-function lightbridgebody:update(dt: number): boolean
+function lightbridgebody:update(_: number): boolean
 	if self.destroy then
 		return true
 	else

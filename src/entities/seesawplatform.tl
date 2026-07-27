@@ -37,11 +37,11 @@ function seesawplatform:init(x: number, y: number, size, callback, side)
 end
 
 function seesawplatform:update(dt: number): boolean
-	local previousX = self.x
-	local previousY = self.y
+	local _ = self.x
+	local _ = self.y
 	
 	local checktable: {string} = {}
-	for i, v in ipairs(enemies) do
+	for _, v in ipairs(enemies) do
 		if objects[v] then
 			table.insert(checktable, v)
 		end
@@ -50,8 +50,8 @@ function seesawplatform:update(dt: number): boolean
 	
 	local numberofobjects = 0
 	
-	for i, v in ipairs(checktable) do
-		for j, w in pairs(objects[v]) do
+	for _, v in ipairs(checktable) do
+		for _, w in pairs(objects[v]) do
 			if not w.jumping and inrange(w.x, self.x-w.width, self.x+self.width) then
 				if inrange(w.y, self.y - w.height - 0.1, self.y - w.height + 0.1) then
 					numberofobjects = numberofobjects + 1
@@ -91,18 +91,18 @@ function seesawplatform:draw()
 	end
 end
 
-function seesawplatform:rightcollide(a: any, b: Entity): any
+function seesawplatform:rightcollide(_: any, _: Entity): any
 	return false
 end
 
-function seesawplatform:leftcollide(a: any, b: Entity): any
+function seesawplatform:leftcollide(_: any, _: Entity): any
 	return false
 end
 
-function seesawplatform:ceilcollide(a: any, b: Entity): any
+function seesawplatform:ceilcollide(_: any, _: Entity): any
 	return false
 end
 
-function seesawplatform:floorcollide(a: any, b: Entity): any
+function seesawplatform:floorcollide(_: any, _: Entity): any
 	return false
 end

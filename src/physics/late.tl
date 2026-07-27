@@ -19,7 +19,7 @@ local PREROTATE_SET: {string:boolean} = {
 	squid = true,
 }
 
-global function prerotatecall(a: any, b: any): boolean
+global function prerotatecall(a: any, _: any): boolean
 	return PREROTATE_SET[a as string] == true
 end
 

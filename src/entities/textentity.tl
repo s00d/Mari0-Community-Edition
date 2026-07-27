@@ -106,8 +106,8 @@ end
 
 function textentity:link(): any|nil
 	while #self.r > 3 do
-		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w] as {any:any}) do
+		for _, w in pairs(outputs) do
+			for _, v in pairs(objects[w] as {any:any}) do
 				local ent = v as Entity
 				if tonumber(self.r[3] as string) == ent.cox and tonumber(self.r[4] as string) == ent.coy then
 					(ent.addoutput as function(Entity, any, any): any)(ent, self, self.r[2])
@@ -137,7 +137,7 @@ function textentity:input(t, input): any
 	return nil
 end
 
-function textentity:update(dt: number)
+function textentity:update(_: number)
 	self.pass = true
 	if self.hasaprefix then
 		for i, j in pairs(self.boolcache) do
@@ -159,8 +159,8 @@ function textentity:update(dt: number)
 			end
 		end
 		for i, j in pairs(self.glintcache) do
-			if globints[i] ~= j[1] then
-				self.textsplit[j[2] as number] = globints[i]
+			if globints[i as string] ~= j[1] then
+				self.textsplit[j[2] as number] = globints[i as string]
 				self.glintcache[i][1] = self.textsplit[j[2] as number]
 				self.pass = false
 			end

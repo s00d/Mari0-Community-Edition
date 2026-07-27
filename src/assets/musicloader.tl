@@ -95,13 +95,13 @@ function music:stop(name: any, fast: any)
 end
 
 function music:update()
-	for filepath, source in pairs(self.loaded) do
+	for _, source in pairs(self.loaded) do
 		source:setPitch(self.pitch)
 	end
 end
 
-function music:setVolume(n)
-	for i, v in pairs(self.loaded) do
+function music:setVolume(_)
+	for _, v in pairs(self.loaded) do
 		v:setVolume(volumemusic or 1)
 	end
 end

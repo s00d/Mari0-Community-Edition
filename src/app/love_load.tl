@@ -44,7 +44,7 @@ function LoveLoad.install_mouse()
 	_G.mouse = mouse
 end
 
-function LoveLoad.run(arg: any)
+function LoveLoad.run(_: any)
 	marioversion = 1107
 	versionstring = "version 1.0se"
 	debugprints = false
@@ -77,7 +77,7 @@ function LoveLoad.run(arg: any)
 
 	magicdns_session_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	magicdns_session = ""
-	for i = 1, 8 do
+	for _ = 1, 8 do
 		local rand = math.random(string.len(magicdns_session_chars))
 		magicdns_session = magicdns_session .. string.sub(magicdns_session_chars, rand, rand)
 	end

@@ -1032,7 +1032,7 @@ for i = 1, #typelist do
 	animationstrings[typelist[i] ] = {}
 end
 
-for i, v in pairs(toenter as {any:Dyn}) do
+for _, v in pairs(toenter as {any:Dyn}) do
 	animationlist[v.name as string] = v.t
 	table.insert(animationstrings[v.t.t as string], v.t.nicename as string)
 end
@@ -1041,7 +1041,7 @@ function animationguiline:init(tabl: any, t2: any)
 	self.t = tabl as {any:any}
 	self.type = t2 as string
 	
-	local x = 0
+	local _ = 0
 	self.elements = {}
 	self.elements[1] = {} as animationguielement
 	local start = 1
@@ -1077,7 +1077,7 @@ function animationguiline:init(tabl: any, t2: any)
 	
 	local tid = 1
 	if (animationlist as Dyn)[self.t[1]] then
-		for i, raw in ipairs(((animationlist as Dyn)[self.t[1]] as {string:any}).entries as {any}) do
+		for _, raw in ipairs(((animationlist as Dyn)[self.t[1]] as {string:any}).entries as {any}) do
 			local v = raw as {string:any}
 			local temp = {} as animationguielement
 			
@@ -1301,7 +1301,7 @@ function animationguiline:submenuchange(value, id): any
 end
 
 function animationguiline:haspriority(): any
-	for i, v in pairs(self.elements as {any:any}) do
+	for _, v in pairs(self.elements as {any:any}) do
 		if (v as animationguielement).gui then
 			if (v as animationguielement).gui.priority then
 				return true

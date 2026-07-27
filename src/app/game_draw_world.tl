@@ -222,7 +222,7 @@ global function drawlevel()
 	end
 	
 	--itemanimations
-	for j, w in pairs(itemanimations) do
+	for _, w in pairs(itemanimations) do
 		w:draw()
 	end
 	
@@ -230,7 +230,7 @@ global function drawlevel()
 	
 	love.graphics.setColor(1, 1, 1)
 	--textentities
-	for j, w in pairs(textentities) do
+	for _, w in pairs(textentities) do
 		w:draw()
 	end
 end
@@ -378,7 +378,7 @@ end
 global function game_draw_props()
 	love.graphics.setColor(1, 1, 1)
 	--vines
-	for j, w in pairs(objects["vine"]) do
+	for _, w in pairs(objects["vine"]) do
 		w:draw()
 	end
 
@@ -386,38 +386,38 @@ global function game_draw_props()
 	--warpzonetext
 	if displaywarpzonetext then
 		properprint("welcome to warp zone!", (mapwidth-14-1/16-xscroll)*16*scale, (5.5-yscroll)*16*scale)
-		for i, v in ipairs(warpzonenumbers as {any}) do
+		for _, v in ipairs(warpzonenumbers as {any}) do
 			properprint((v as {any})[3], math.floor(((v as {any})[1] as number)-xscroll-1-9/16)*16*scale, (((v as {any})[2] as number)-3-yscroll)*16*scale)
 		end
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--platforms
-	for j, w in pairs(objects["platform"]) do
+	for _, w in pairs(objects["platform"]) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--scaffolds
-	for j, w in pairs(objects["scaffold"]) do
+	for _, w in pairs(objects["scaffold"]) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--seesawplatforms
-	for j, w in pairs(objects["seesawplatform"]) do
+	for _, w in pairs(objects["seesawplatform"]) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--seesaws
-	for j, w in pairs(seesaws) do
+	for _, w in pairs(seesaws) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--springs
-	for j, w in pairs(objects["spring"]) do
+	for _, w in pairs(objects["spring"]) do
 		w:draw()
 	end
 
@@ -479,90 +479,90 @@ global function game_draw_props()
 	end
 	love.graphics.setColor(1, 1, 1)
 	--Panels
-	for j, w in pairs(objects["panel"]) do
+	for _, w in pairs(objects["panel"]) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--Fireworks
-	for j, w in pairs(fireworks) do
+	for _, w in pairs(fireworks) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--Buttons
-	for j, w in pairs(objects["button"]) do
+	for _, w in pairs(objects["button"]) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--Pushbuttons
-	for j, w in pairs(objects["pushbutton"]) do
+	for _, w in pairs(objects["pushbutton"]) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 
 	--hardlight bridges
-	for j, w in pairs(objects["lightbridgebody"]) do
+	for _, w in pairs(objects["lightbridgebody"]) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 
 	--lightbridge
-	for j, w in pairs(objects["lightbridge"]) do
+	for _, w in pairs(objects["lightbridge"]) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--laser
-	for j, w in pairs(objects["laser"]) do
+	for _, w in pairs(objects["laser"]) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--laserdetector
-	for j, w in pairs(objects["laserdetector"]) do
+	for _, w in pairs(objects["laserdetector"]) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--Groundlights
-	for j, w in pairs(objects["groundlight"]) do
+	for _, w in pairs(objects["groundlight"]) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--Faithplates
-	for j, w in pairs(objects["faithplate"]) do
+	for _, w in pairs(objects["faithplate"]) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--Bubbles
-	for j, w in pairs(bubbles) do
+	for _, w in pairs(bubbles) do
 		w:draw()
 	end
 
 	love.graphics.setColor(1, 1, 1)
 	--miniblocks
-	for i, v in pairs(miniblocks) do
+	for _, v in pairs(miniblocks) do
 		v:draw()
 	end
 
 	--emancipateanimations
-	for i, v in pairs(emancipateanimations) do
+	for _, v in pairs(emancipateanimations) do
 		v:draw()
 	end
 
 	--emancipationfizzles
-	for i, v in pairs(emancipationfizzles) do
+	for _, v in pairs(emancipationfizzles) do
 		v:draw()
 	end
 
 	--pedestals
-	for i, v in pairs(pedestals) do
+	for _, v in pairs(pedestals) do
 		v:draw()
 	end
 
@@ -574,7 +574,7 @@ global function game_draw_objects()
 	--OBJECTS
 	for j, w in pairs(objects) do	
 		if j ~= "tile" then
-			for i, v in pairs(w) do
+			for _, v in pairs(w) do
 				if v.drawable and v.graphic and v.quad then
 					love.graphics.setScissor()
 					love.graphics.setColor(1, 1, 1)

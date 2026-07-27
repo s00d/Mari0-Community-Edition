@@ -45,8 +45,8 @@ end
 
 function laser:link()
 	while #self.r > 3 do
-		for j, w in pairs(outputs as {any:any}) do
-			for i, v in pairs(objects[w] as {any:Entity}) do
+		for _, w in pairs(outputs as {any:any}) do
+			for _, v in pairs(objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -74,7 +74,7 @@ function laser:input(t, input)
 	end
 end
 
-function laser:update(dt: number)
+function laser:update(_: number)
 	if self.framestart < 2 then
 		self.framestart = self.framestart + 1
 		return
@@ -218,14 +218,14 @@ function laser:updateoutputs()
 		end
 	end
 	
-	for i, v in pairs(self.outtable as {any:Entity}) do
+	for _, v in pairs(self.outtable as {any:Entity}) do
 		v:clear()
 	end
 end
 
-function laser:checktile(x, y, dir)
+function laser:checktile(x, y, _)
 	--check if block is a detector
-	for i, v in pairs(objects["laserdetector"] as {any:Entity}) do
+	for _, v in pairs(objects["laserdetector"] as {any:Entity}) do
 		--if (dir == "left" and v.dir == "right") or (dir == "right" and v.dir == "left") or (dir == "up" and v.dir == "down") or (dir == "down" and v.dir == "up") then
 			if x == v.cox and y == v.coy and (v.cox ~= self.r[4] or v.coy ~= self.r[5]) then
 				table.insert(self.outtable, v)
@@ -363,7 +363,7 @@ function laser:updaterange()
 		end
 		
 		--doors
-		for i, v in pairs(objects["door"] as {any:Entity}) do
+		for _, v in pairs(objects["door"] as {any:Entity}) do
 			if v.active then
 				if v.dir == "ver" then
 					if x == v.cox and (y == v.coy or y == v.coy-1) then

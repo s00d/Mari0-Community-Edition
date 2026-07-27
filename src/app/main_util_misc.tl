@@ -324,7 +324,7 @@ global function properprint(s: any, x: number, y: number, sc?: number)
 	end
 end
 
-global function properprintbackground(s: any, x: any, y: any, include?: any, color?: any, sc?: any)
+global function properprintbackground(s: any, x: any, y: any, include?: any, _?: any, sc?: any)
 	local scale = (sc or scale) as number
 	local startx = x as number
 	local xx = x as number

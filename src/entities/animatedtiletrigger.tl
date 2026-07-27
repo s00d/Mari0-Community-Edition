@@ -42,8 +42,8 @@ end
 
 function animatedtiletrigger:link(): any|nil
 	while #self.r > 3 do
-		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w]) do
+		for _, w in pairs(outputs) do
+			for _, v in pairs(objects[w]) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -67,7 +67,7 @@ function animatedtiletrigger:draw()
 	end
 end
 
-function animatedtiletrigger:input(t, input): any
+function animatedtiletrigger:input(t, _): any
 	for x = (self.regionX as number)+1, (self.regionX as number) + (self.regionwidth as number) do
 		for y = (self.regionY as number)+1, (self.regionY as number) + (self.regionheight as number) do
 			if animatedtimers[x] and animatedtimers[x][y] then

@@ -25,11 +25,6 @@ end
 
 function portal:createportal(i: number, cox: any, coy: any, side: any, tendency: any)
 	if cox and tendency then
-		local otheri = 1
-		if i == 1 then
-			otheri = 2
-		end
-		
 		moveoutportal(i)
 	
 		--remove the portal temporarily so that it doesn't obstruct itself
@@ -192,7 +187,7 @@ function portal:draw()
 				offsetx, offsety = 5, -8
 			end
 			
-			local glowalpha = 100
+			local _ = 100
 			if self.x2 and self.x1 then
 				--portal glow
 				love.graphics.setColor(1, 1, 1, (80 - math.abs(self.portalframe-3)*10)/255)

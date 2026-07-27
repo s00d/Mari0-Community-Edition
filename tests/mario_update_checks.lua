@@ -20,10 +20,17 @@ local f = assert(io.open(root .. "/src/entities/mario.tl", "r"))
 local src = f:read("*a")
 f:close()
 
+local function has_dt_param(name)
+	return src:find("function mario:" .. name .. "(dt", 1, true) ~= nil
+		or src:find("function mario:" .. name .. "(_dt", 1, true) ~= nil
+end
+
 local function extract_fn(name)
-	-- Allow Teal typed params: (dt) or (dt: number) / (dt: number): ret
-	local pat = "function mario:" .. name .. "%(dt[^)]*%)[^\n]*\n(.-)\nfunction mario:"
-	local body = src:match(pat)
+	-- Allow Teal typed params: (dt) or (dt: number) / (_dt: number): ret
+	local body = src:match("function mario:" .. name .. "%(dt[^)]*%)[^\n]*\n(.-)\nfunction mario:")
+	if not body then
+		body = src:match("function mario:" .. name .. "%(_dt[^)]*%)[^\n]*\n(.-)\nfunction mario:")
+	end
 	return body
 end
 
@@ -46,12 +53,12 @@ local phase_methods = {
 }
 
 for _, name in ipairs(phase_methods) do
-	check("mario:" .. name .. " exists", src:find("function mario:" .. name .. "(dt", 1, true) ~= nil)
+	check("mario:" .. name .. " exists", has_dt_param(name))
 	check("update calls " .. name, update_body and update_body:find("self:" .. name .. "%(dt%)", 1, false) ~= nil)
 end
 
 -- zones are gated by controlsenabled: called from controls, not update
-check("mario:update_zones exists", src:find("function mario:update_zones(dt", 1, true) ~= nil)
+check("mario:update_zones exists", has_dt_param("update_zones"))
 check("update does not call zones directly", update_body and not update_body:find("self:update_zones%(dt%)", 1, false))
 
 local controls = extract_fn("update_controls")

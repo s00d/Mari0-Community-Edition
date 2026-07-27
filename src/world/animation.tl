@@ -100,15 +100,15 @@ function animation:decode(s)
 	
 	local animationjson = JSON.decode(s as string)
 
-	for i, v in ipairs((animationjson as {string:any}).triggers as {{any}}) do
+	for _, v in ipairs((animationjson as {string:any}).triggers as {{any}}) do
 		self:addtrigger(v)
 	end
 	
-	for i, v in ipairs((animationjson as {string:any}).conditions as {{any}}) do
+	for _, v in ipairs((animationjson as {string:any}).conditions as {{any}}) do
 		self:addcondition(v)
 	end
 	
-	for i, v in ipairs((animationjson as {string:any}).actions as {{any}}) do
+	for _, v in ipairs((animationjson as {string:any}).actions as {{any}}) do
 		self:addaction(v)
 	end
 end
@@ -139,7 +139,7 @@ end
 
 function animation:update(dt: number)
 	--check my triggers for triggering, yo
-	for i, v in ipairs(self.triggers as {{any}}) do
+	for _, v in ipairs(self.triggers as {{any}}) do
 		if v[1] == "mapload" then
 			if self.firstupdate then
 				self:trigger()
@@ -465,13 +465,13 @@ function animation:update(dt: number)
 			elseif v[1] == "dotoint" then
 				globintSH(v[2],v[3],self:decodenuminput(v[4]))
 			elseif v[1] == "dotoallbool" then
-				for i, n in pairs(globools) do
+				for i, _ in pairs(globools) do
 					if string.sub(tostring(i), 1, string.len(v[2] as string)) == v[2] then 
 						globoolSH(i,v[3])
 					end
 				end
 			elseif v[1] == "dotoallint" then
-				for i, n in pairs(globints) do
+				for i, _ in pairs(globints) do
 					if string.sub(tostring(i), 1, string.len(v[2] as string)) == v[2] then 
 						globintSH(i,v[3],self:decodenuminput(v[4]))
 					end
@@ -492,7 +492,7 @@ function animation:trigger()
 		--check conditions
 		local pass = true
 		
-		for i, v in ipairs(self.conditions as {{any}}) do
+		for _, v in ipairs(self.conditions as {{any}}) do
 			if v[1] == "noprevsublevel" then
 				if prevsublevel then
 					pass = false
@@ -550,6 +550,6 @@ function animation:decodenuminput(x: any): number
 	elseif string.sub(x as string,1,2) == "g:" then
 		return (((_G as {string:any})[string.sub(x as string,3)]) as number) or 0
 	else
-		return ((globints[x] as number) or 0) as number
+		return ((globints[x as string] as number) or 0) as number
 	end
 end

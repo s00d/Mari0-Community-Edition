@@ -187,7 +187,7 @@ function rightclickmenu:draw()
 	--background
 	love.graphics.rectangle("fill", self.x*scale, self.y*scale, rightclickwidth*scale, ((rightclickcellheight+rightclickcellspacing)*#self.elements+1)*scale)
 	
-	for i, v in pairs(self.t as {any:any}) do
+	for _, v in pairs(self.t as {any:any}) do
 		local entry = v as Dyn
 		if type(entry[1]) == "table" then
 			local arr = entry as {guielement}
@@ -265,7 +265,7 @@ function rightclickmenu:textinput(text: any)
 	end
 end
 
-function rightclickmenu:linkcallback(self: rightclickmenu, t: any, rem: any)
+function rightclickmenu:linkcallback(_: rightclickmenu, t: any, rem: any)
 	if rem then
 		removelink(self.tx, self.ty, t)
 	else
@@ -273,11 +273,11 @@ function rightclickmenu:linkcallback(self: rightclickmenu, t: any, rem: any)
 	end
 end
 
-function rightclickmenu:regioncallback(self: rightclickmenu, t: any)
+function rightclickmenu:regioncallback(_: rightclickmenu, t: any)
 	startregion(self.tx, self.ty, t)
 end
 
-function rightclickmenu:directioncallback(self: rightclickmenu, y: any, x: any)
+function rightclickmenu:directioncallback(_: rightclickmenu, y: any, x: any)
 	local arr = self.t[y as integer] as {guielement}
 	for i = 1, #arr do
 		arr[i].bordercolor = {0.5, 0.5, 0.5}

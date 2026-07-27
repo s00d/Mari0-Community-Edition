@@ -74,7 +74,7 @@ function regiontrigger:init(x: number, y: number, r)
 	self.out = "off"
 end
 
-function regiontrigger:update(dt: number)
+function regiontrigger:update(_: number)
 	local col = checkrect(self.regionX, self.regionY, self.regionwidth, self.regionheight, self.checktable)
 	
 	if self.out == "off" and #col > 0 then

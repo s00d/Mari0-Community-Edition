@@ -462,7 +462,7 @@ global function loadlevel(level: string|number): boolean
 		
 		if astartx then
 			local add = -6/16
-			for j, v in ipairs(spawns as {any}) do
+			for _, v in ipairs(spawns as {any}) do
 				local sv = v as {string:any}
 				if sv.x == astartx and sv.y == astarty then
 					add = add + mul
@@ -584,7 +584,7 @@ global function changemapheight(height: number)
 	
 	mapheight = height
 	
-	for i, v in pairs(objects["screenboundary"] as {any:any}) do
+	for _, v in pairs(objects["screenboundary"] as {any:any}) do
 		(v as Entity).height = 1000+(mapheight as number)
 	end
 	
@@ -657,7 +657,7 @@ global function generatespritebatch()
 	for y = 0, ytodraw+1 do
 		for x = 1, xtodraw do
 			if inmap(flooredxscroll+x, math.min(flooredyscroll+y+1, mapheight as number)) then
-				local bounceyoffset = 0
+				local _ = 0
 				
 				local draw = true
 				local coy = math.min(flooredyscroll+y+1, mapheight as number)
@@ -755,7 +755,7 @@ end
 
 global function hitrightside()
 	if haswarpzone then
-		for i, v in pairs(objects["enemy"] as {any:any}) do
+		for _, v in pairs(objects["enemy"] as {any:any}) do
 			if (v as Entity).t == "plant" then	
 				(v as Entity).kill = true
 			end

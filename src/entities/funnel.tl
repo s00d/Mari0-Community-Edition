@@ -65,8 +65,8 @@ end
 
 function funnel:link()
 	while #self.r > 3 do
-		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w] as {any:Entity}) do
+		for _, w in pairs(outputs) do
+			for _, v in pairs(objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -107,7 +107,7 @@ function funnel:update(dt: number)
 		local width: number = 0
 		local height: number = 0
 		
-		for i, v in pairs(self.funneltable as {any:Entity}) do
+		for _, v in pairs(self.funneltable as {any:Entity}) do
 			if v.dir == "right" then
 				x = v.x-1
 				y = v.y-1
@@ -231,7 +231,7 @@ function funnel:draw()
 			endimg = excursionfunnelend2img
 		end
 		
-		for i, v in pairs(self.funneltable as {any:Entity}) do
+		for _, v in pairs(self.funneltable as {any:Entity}) do
 			if v.dir == "right" then
 				local progress = v.timer/v.rangex
 				if self.reverse == 1 then
@@ -419,7 +419,7 @@ function funnel:updaterange()
 		end
 		
 		--doors
-		for i, v in pairs(objects["door"] as {any:Entity}) do
+		for _, v in pairs(objects["door"] as {any:Entity}) do
 			if v.active then
 				local secondx, secondy = x, y
 				if dir == "right" then
@@ -463,7 +463,7 @@ function funnel:updaterange()
 		table.insert(self.funneltable as {any}, dummy)
 		
 		if not self.lastblock or (self.lastblock[1] == x+rangex and self.lastblock[2] == y+rangey) then
-			for i, v in pairs(self.funneltable as {any:Entity}) do
+			for _, v in pairs(self.funneltable as {any:Entity}) do
 				v.timer = (math.abs(v.rangex as number)+math.abs(v.rangey as number)) as number
 			end
 		end	
@@ -484,7 +484,7 @@ function funnel:input(t: any, input: any)
 		
 		self.input1state = t
 		
-		for i, v in pairs(self.funneltable as {any:Entity}) do
+		for _, v in pairs(self.funneltable as {any:Entity}) do
 			v.timer = 0
 		end
 	elseif input == "power" then

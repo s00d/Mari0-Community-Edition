@@ -191,7 +191,7 @@ end
 
 -- Parse a full level string into map/coinmap/dimensions (no LÖVE / no entities).
 global function level_parse_tiles_only(s: string): LevelTilesParse|nil, string|nil
-	local v, mapheight, t, s2, blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign = level_split_file_contents(s)
+	local v, mapheight, t, s2, _, layerdelimiter, _, multipledelimiter, equalsign = level_split_file_contents(s)
 	mapheight = mapheight or 15
 	local entries = level_count_tile_entries(t, multipledelimiter)
 	if math_mod(entries, mapheight) ~= 0 then
@@ -220,7 +220,7 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 	end
 	local s = love.filesystem.read( "mappacks/" .. (mappack as string) .. "/" .. filename .. ".txt" )
 	
-	local v, parsed_height, t, s2, blockdelimiter, layerdelimiter, categorydelimiter, multipledelimiter, equalsign = level_split_file_contents(s as string)
+	local _, parsed_height, t, s2, _, layerdelimiter, _, multipledelimiter, equalsign = level_split_file_contents(s as string)
 	mapheight = parsed_height
 	
 	map = {}
@@ -278,12 +278,12 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 				coin = true
 			end
 			
-			for j = 1, tonumber(r[2]) do
+			for _ = 1, tonumber(r[2]) do
 				if coin then
 					coinmap[x][y] = true
 				end
 			
-				if (tonumber(r[1]) > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) and tonumber(r[1]) <= 10000) or tonumber(r[1]) > 10000+animatedtilecount then
+				if (tonumber(r[1]) > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0) and tonumber(r[1]) <= 10000) or tonumber(r[1]) > 10000+animatedtilecount then
 					r[1] = "1"
 				end
 				
@@ -310,7 +310,7 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 				coinmap[x][y] = true
 			end
 			
-			if (tonumber(r[1]) > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) and tonumber(r[1]) <= 10000) or tonumber(r[1]) > 10000+animatedtilecount then
+			if (tonumber(r[1]) > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0) and tonumber(r[1]) <= 10000) or tonumber(r[1]) > 10000+animatedtilecount then
 				r[1] = "1"
 			end
 			
@@ -382,8 +382,8 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 	
 	if createobjects then
 		--Add links
-		for i, v in pairs(objects) do
-			for j, w in pairs(v) do
+		for _, v in pairs(objects) do
+			for _, w in pairs(v) do
 				if w.link then
 					w:link()
 				end
@@ -391,12 +391,12 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 		end
 		
 		--emancipation links
-		for i, v in pairs(emancipationgrills) do
+		for _, v in pairs(emancipationgrills) do
 			v:link()
 		end
 		
 		--textlinks
-		for i, v in pairs(textentities) do
+		for _, v in pairs(textentities) do
 			v:link()
 		end
 	end
@@ -574,12 +574,12 @@ global function renderpreview(): ImageData
 	local out = love.image.newImageData(mapwidth, height+1)
 	
 	--find startpoint
-	local startx, starty = 3, 13
+	local starty = 13
 	
 	for x = 1, mapwidth do
 		for y = 1, mapheight do
 			if map[x][y][2] and entitylist[map[x][y][2]] and entitylist[map[x][y][2]].t == "spawn" then
-				startx, starty = x as integer, y as integer
+				starty = y as integer
 				break
 			end
 		end

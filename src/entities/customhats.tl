@@ -26,7 +26,7 @@ end
 
 local files = love.filesystem.getDirectoryItems("hats")
 
-for i, v in ipairs(files) do
+for _, v in ipairs(files) do
 	if string.sub(v, -3, -1) == "txt" then
 		loadhat("hats/" .. v)
 	end

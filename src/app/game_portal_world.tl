@@ -48,7 +48,7 @@ global function modifyportalwalls()
 	end
 	
 	--remove conflicting portalwalls (only exist when both portals exists!)
-	for a, b in pairs(portals) do
+	for _, b in pairs(portals) do
 		for j = 1, 2 do
 			local otherj = 1
 			if j == 1 then
@@ -56,10 +56,6 @@ global function modifyportalwalls()
 			end
 			for c, d in pairs(portals) do
 				for i = 1, 2 do
-					local otheri = 1
-					if i == 1 then
-						otheri = 2
-					end
 					--B.J PORTAL WILL REMOVE WALLS OF D.OTHERJ, SO B.OTHERJ MUST EXIST
 					
 					if ((b as {string:any})["x" .. j] as number) and ((b as {string:any})["x" .. otherj] as number) and ((d as {string:any})["x" .. i] as number) then
@@ -150,7 +146,7 @@ global function modifyportaltiles(x: any, y: any, xplus: any, yplus: any, port: 
 	end
 end
 
-global function getportalposition(i: any, xin: any, yin: any, sidein: any, tendency: any, mirexc?: any): number|boolean, number|nil, string|nil
+global function getportalposition(_: any, xin: any, yin: any, sidein: any, tendency: any, mirexc?: any): number|boolean, number|nil, string|nil
 	local x = xin as number
 	local y = yin as number
 	local side = sidein as string
@@ -234,9 +230,9 @@ global function getportalposition(i: any, xin: any, yin: any, sidein: any, tende
 	return false
 end
 
-global function getTile(x: number, y: number, portalable?: any, portalcheck?: any, facing?: any, ignoregrates?: any, dir?: any, mirexc?: any): any, any --returns masktable value of block (As well as the ID itself as second return parameter) also includes a portalcheck and returns false if a portal is on that spot.
+global function getTile(x: number, y: number, _?: any, portalcheck?: any, facing?: any, ignoregrates?: any, _?: any, mirexc?: any): any, any --returns masktable value of block (As well as the ID itself as second return parameter) also includes a portalcheck and returns false if a portal is on that spot.
 	if portalcheck then
-		for i, v in pairs(portals) do
+		for _, v in pairs(portals) do
 			--Get the extra block of each portal
 			local portal1xplus, portal1yplus, portal2xplus, portal2yplus = portal_pair_offsets(v.facing1, v.facing2)
 			
@@ -255,7 +251,7 @@ global function getTile(x: number, y: number, portalable?: any, portalcheck?: an
 	end
 	
 	--check for tubes
-	for i, v in pairs(objects["geldispenser"]) do
+	for _, v in pairs(objects["geldispenser"]) do
 		if (x == v.cox or x == v.cox+1) and (y == v.coy or y == v.coy+1) then
 			if portalcheck then
 				return false
@@ -265,7 +261,7 @@ global function getTile(x: number, y: number, portalable?: any, portalcheck?: an
 		end
 	end
 	
-	for i, v in pairs(objects["cubedispenser"]) do
+	for _, v in pairs(objects["cubedispenser"]) do
 		if (x == v.cox or x == v.cox+1) and (y == v.coy or y == v.coy+1) then
 			if portalcheck then
 				return false
@@ -334,7 +330,7 @@ global function getTile(x: number, y: number, portalable?: any, portalcheck?: an
 end
 
 global function getPortal(x: number, y: number, dir?: any): number|boolean, number|nil, any, any, any, any, any, any --returns the block where you'd come out when you'd go in the argument's block
-	for i, v in pairs(portals) do
+	for _, v in pairs(portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 			--Get the extra block of each portal
 			local portal1xplus, portal1yplus, portal2xplus, portal2yplus = portal_pair_offsets(v.facing1, v.facing2)
@@ -471,7 +467,7 @@ end
 global function moveoutportal(_i?: any) --pushes objects out of the portal i in.
 	for i, v in pairs(objects) do
 		if i ~= "tile" and i ~= "portalwall" then
-			for j, w in pairs(v) do
+			for _, w in pairs(v) do
 				if w.active and w.static == false then
 					local p1: any = nil
 					local p2: any = nil
@@ -508,24 +504,24 @@ global function moveoutportal(_i?: any) --pushes objects out of the portal i in.
 	end
 end
 
-global function traceline(sourcex: number, sourcey: number, radians: number, reportal?: any): number|boolean, number|boolean, string|boolean, number|boolean, number, number
-	local portalx: number = 0
-	local portaly: number = 0
-	local portalfacing: any = false
+global function traceline(sourcex: number, sourcey: number, radians: number, _?: any): number|boolean, number|boolean, string|boolean, number|boolean, number, number
+	local _: number = 0
+	local _: number = 0
+	local _: any = false
 	local currentblock: {number} = {}
 	local x, y = sourcex, sourcey
 	currentblock[1] = math.floor(x)
 	currentblock[2] = math.floor(y+1)
 		
 	local emancecollide = false
-	for i, v in pairs(emancipationgrills) do
+	for _, v in pairs(emancipationgrills) do
 		if v:getTileInvolved(currentblock[1]+1, currentblock[2]) then
 			emancecollide = true
 		end
 	end
 	
 	local doorcollide = false
-	for i, v in pairs(objects["door"]) do
+	for _, v in pairs(objects["door"]) do
 		if v.dir == "hor" then
 			if v.open == false and (v.cox == currentblock[1] or v.cox == currentblock[1]+1) and v.coy == currentblock[2] then
 				doorcollide = true
@@ -593,16 +589,16 @@ global function traceline(sourcex: number, sourcey: number, radians: number, rep
 			currentblock[1] = currentblock[1]-1
 		end
 		
-		local collide, tileno = getTile(currentblock[1]+1, currentblock[2])
+		local collide, _ = getTile(currentblock[1]+1, currentblock[2])
 		local emancecollide = false
-		for i, v in pairs(emancipationgrills) do
+		for _, v in pairs(emancipationgrills) do
 			if v:getTileInvolved(currentblock[1]+1, currentblock[2]) then
 				emancecollide = true
 			end
 		end
 		
 		local doorcollide = false
-		for i, v in pairs(objects["door"]) do
+		for _, v in pairs(objects["door"]) do
 			if v.dir == "hor" then
 				if v.open == false and (v.cox == currentblock[1] or v.cox == currentblock[1]+1) and v.coy == currentblock[2] then
 					doorcollide = true
@@ -657,7 +653,7 @@ global function traceline(sourcex: number, sourcey: number, radians: number, rep
 end
 
 global function checkportalremove(x: any, y: any)
-	for i, v in pairs(portals) do
+	for _, v in pairs(portals) do
 		--Get the extra block of each portal
 		local portal1xplus, portal1yplus, portal2xplus, portal2yplus = portal_pair_offsets(v.facing1, v.facing2)
 		

@@ -39,7 +39,7 @@ function rocketlauncher:fire(): boolean
 	--count all bullet bills
 	
 	local count = 0
-	for i, v in pairs(objects["enemy"]) do
+	for _, v in pairs(objects["enemy"]) do
 		if v.t == "bulletbill" then
 			count = count + 1
 		end

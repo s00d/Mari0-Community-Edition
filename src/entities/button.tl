@@ -74,7 +74,7 @@ function button:update(_dt: number)
 	
 	for j = 1, #colls, 2 do
 		local add = true
-		for i, v in pairs(self.pressings) do
+		for _, v in pairs(self.pressings) do
 			if objects[colls[j]][colls[j+1]] == v then
 				add = false
 			end
@@ -106,7 +106,7 @@ function button:update(_dt: number)
 	
 	table.sort(delete, function(a: integer, b: integer): boolean return a > b end)
 	
-	for i, v in ipairs(delete) do
+	for _, v in ipairs(delete) do
 		if self.pressings[v].onbutton then
 			self.pressings[v]:onbutton(false)
 		end

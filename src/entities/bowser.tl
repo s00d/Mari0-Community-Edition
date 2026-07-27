@@ -171,7 +171,7 @@ function bowser:newtargetx(dir: any)
 end
 
 function bowser:shotted(...: any): any
-	local dir = ...
+	local _ = ...
 	self.hp = self.hp - 1
 	if self.hp == 0 then
 		self:firedeath()
@@ -198,19 +198,19 @@ function bowser:firedeath(...: any)
 	end
 end
 
-function bowser:leftcollide(a: any, b: Entity): any
+function bowser:leftcollide(a: any, _: Entity): any
 	if a == "player" then
 		return false
 	end
 end
 
-function bowser:rightcollide(a: any, b: Entity): any
+function bowser:rightcollide(a: any, _: Entity): any
 	if a == "player" then
 		return false
 	end
 end
 
-function bowser:ceilcollide(a: any, b: Entity): any
+function bowser:ceilcollide(a: any, _: Entity): any
 	if a == "player" then
 		return false
 	end
@@ -220,7 +220,7 @@ function bowser:startfall()
 
 end
 
-function bowser:floorcollide(a: any, b: Entity): any
+function bowser:floorcollide(a: any, _: Entity): any
 	if self.jump then
 		self.jump = false
 		self.timer = 0
@@ -234,7 +234,7 @@ function bowser:startfall()
 	self.jump = true
 end
 
-function bowser:emancipate(a: any): any
+function bowser:emancipate(_: any): any
 	self:shotted()
 	return nil
 end

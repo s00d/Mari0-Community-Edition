@@ -68,7 +68,7 @@ global function checkcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: 
 	return hadhorcollision, hadvercollision
 end
 
-global function trianglevercollision(v: Entity, t: Entity, h: any, g: any, j: any, i: any, dt: number): any
+global function trianglevercollision(v: Entity, t: Entity, _: any, g: any, j: any, i: any, dt: number): any
 	if v.floorcollide then
 		if v:floorcollide(j, v, g, i) ~= false then
 			if v.speedy then
@@ -98,7 +98,7 @@ global function trianglepassivecollision(v: Entity, t: Entity, h: any, g: any, j
 	trianglevercollision(v, t, h, g, j, i, dt)
 end
 
-global function passivecollision(v: Entity, t: Entity, h: any, g: any, j: any, i: any, dt: number): boolean
+global function passivecollision(v: Entity, t: Entity, h: any, g: any, j: any, i: any, _: number): boolean
 	if v.passivecollide then
 		v:passivecollide(h, t, i, g)
 		if t.passivecollide then
@@ -125,7 +125,7 @@ global function passivecollision(v: Entity, t: Entity, h: any, g: any, j: any, i
 	return false
 end
 
-global function horcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: any, dt: number): boolean
+global function horcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: any, _: number): boolean
 	if v.speedx < 0 then
 		--move object RIGHT (because it was moving left)
 		
@@ -190,7 +190,7 @@ global function horcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: an
 	return false
 end
 
-global function vercollision(v: Entity, t: Entity, h: any, g: any, j: any, i: any, dt: number): boolean
+global function vercollision(v: Entity, t: Entity, h: any, g: any, j: any, i: any, _: number): boolean
 	if v.speedy < 0 then
 		--move object DOWN (because it was moving up)
 		if collisionexists("floor", t) then

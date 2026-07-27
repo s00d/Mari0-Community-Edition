@@ -918,7 +918,7 @@ function mario:update_animation(dt: number): boolean
 	return false
 end
 
-function mario:update_funnels(dt: number)
+function mario:update_funnels(_dt: number)
 	--Funnels and fuck
 	if self.funnel and not self.infunnel then
 		self:enteredfunnel(true)
@@ -1004,7 +1004,7 @@ function mario:update_springs(dt: number): boolean
 	return false
 end
 
-function mario:update_world_pickups(dt: number)
+function mario:update_world_pickups(_dt: number)
 	--coins
 	if not editormode then
 		local x = math.floor(self.x+self.width/2)+1
@@ -1056,7 +1056,7 @@ function mario:update_replay(dt: number)
 	
 end
 
-function mario:update_gravity(dt: number)
+function mario:update_gravity(_dt: number)
 	if self.jumping then
 		if self.underwater then
 			self.gravity = uwyaccelerationjumping
@@ -1090,7 +1090,7 @@ function mario:update_fire_animation(dt: number)
 	end
 end
 
-function mario:update_zones(dt: number)
+function mario:update_zones(_dt: number)
 	if firestartx then
 		if self.x >= (firestartx as number) - 1 then
 			firestarted = true
@@ -1368,7 +1368,7 @@ function mario:movement(dt: number)
 		local x = round(self.x+self.width/2+.5)
 		local y = round(self.y+self.height+1)
 		
-		for i, v in pairs(objects["lightbridgebody"]) do
+		for _, v in pairs(objects["lightbridgebody"]) do
 			if x == v.cox and y == v.coy and v.gels.top then
 				orangegel = true
 			end
@@ -2251,7 +2251,7 @@ function mario:bluegel(dir: any): boolean
 	end
 end
 
-function mario:stompenemy(a: any, b: Entity, c: any, d: any, side: any)
+function mario:stompenemy(_: any, b: Entity, _: any, _: any, side: any)
 	if not b then
 		return
 	end
@@ -2622,7 +2622,7 @@ function mario:ceilcollide(a: any, b: Entity, c: any, d: any): boolean
 		end
 	elseif a == "tile" then
 		local x, y = b.cox, b.coy
-		local r = map[x][y]
+		local _ = map[x][y]
 		
 		--check if it's an invisible block
 		if tilequads[map[x][y][1]]:getproperty("invisible", x, y) then
@@ -2831,7 +2831,7 @@ function mario:passivecollide(a: any, b: Entity, c: any, d: any): boolean
 	self:rightcollide(a, b, c, d)
 end
 
-function mario:starcollide(a: any, b: Entity, c: any, d: any): boolean
+function mario:starcollide(a: any, b: Entity, _: any, _: any): boolean
 	--enemies that die
 	if a == "enemy" then
 		b:shotted("right", nil, nil, false, true)
@@ -2922,7 +2922,7 @@ function mario:grabvine(b: Entity)
 end
 
 global function hitblock(x: number, y: number, t: any, koopa?: any): any
-	for i, v in pairs(portals) do
+	for _, v in pairs(portals) do
 		if v.x1 and v.x2 and v.y1 and v.y2 then
 			local x1 = v.x1 as number
 			local y1 = v.y1 as number
@@ -3119,7 +3119,7 @@ global function hitblock(x: number, y: number, t: any, koopa?: any): any
 		end
 		
 		--kill enemies on top
-		for j, w in pairs(objects["enemy"]) do
+		for _, w in pairs(objects["enemy"]) do
 			if not w.notkilledfromblocksbelow then
 				local centerX = w.x + w.width/2
 				if inrange(centerX, x-1, x, true) and y-1 == w.y+w.height then
@@ -3138,7 +3138,7 @@ global function hitblock(x: number, y: number, t: any, koopa?: any): any
 		end
 		
 		--make items jump
-		for j, w in pairs(objects["enemy"]) do
+		for _, w in pairs(objects["enemy"]) do
 			if w.jumpsfromblocksbelow then
 				local centerX = w.x + w.width/2
 				if inrange(centerX, x-1, x, true) and y-1 == w.y+w.height then
@@ -3230,7 +3230,7 @@ global function destroyblock(x: number, y: number): any
 	generatespritebatch()
 end
 
-function mario:faithplate(dir: any)
+function mario:faithplate(_: any)
 	self.animationstate = "jumping"
 	self.falling = true
 	self:setquad()
@@ -3379,7 +3379,7 @@ global function getAngleFrame(angle: number, rotation: number): any
 	return angleframe
 end
 
-function mario:emancipate(a: any): any
+function mario:emancipate(_: any): any
 	self:removeportals()
 	
 	local delete = {}
@@ -3394,7 +3394,7 @@ function mario:emancipate(a: any): any
 	return nil
 end
 
-function mario:removeportals(i: any): any
+function mario:removeportals(_: any): any
 	local portal = self.portal as portal
 	if (self.portalsavailable[1] and portal.x1) or (self.portalsavailable[2] and portal.x2) then
 		playsound("portalfizzle")
@@ -3424,7 +3424,7 @@ function mario:use(xcenter: number, ycenter: number)
 		end
 	end
 	
-	local col, i = userect(xcenter-usesquaresize/2, ycenter-usesquaresize/2, usesquaresize, usesquaresize)
+	local col, _ = userect(xcenter-usesquaresize/2, ycenter-usesquaresize/2, usesquaresize, usesquaresize)
 	if #col > 0 then
 		(col[1] as Entity):used(self.playernumber)
 	end
@@ -3664,7 +3664,7 @@ function mario:axe()
 		playerobjs[i]:removeportals()
 	end
 	
-	for i, v in pairs(objects["platform"]) do
+	for i, _ in pairs(objects["platform"]) do
 		objects["platform"][i] = nil
 	end
 
@@ -3750,16 +3750,13 @@ function mario:fire()
 	if (not noupdate and self.animation ~= "grow1" and self.animation ~= "grow2") and self.controlsenabled and self.size == 3 and self.ducking == false then
 		if self.fireballcount < maxfireballs then
 			local dir = "right"
-			local mul = 1
 			if (self.portalsavailable[1] or self.portalsavailable[2]) then
 				if self.pointingangle > 0 then
 					dir = "left"
-					mul = -1
 				end
 			else
 				if self.animationdirection == "left" then
 					dir = "left"
-					mul = -1
 				end
 			end
 			
@@ -3841,12 +3838,12 @@ function mario:portaled(dir: any)
 		self.rainboomallowed = false
 		playsound("rainboom")
 		
-		for i, v in pairs(objects["enemy"]) do
+		for _, v in pairs(objects["enemy"]) do
 			v:shotted()
 			if (v as enemy).t ~= "bowser" then
 				addpoints(firepoints[(v as {string:any}).t] or 100, v.x, v.y)
 			else
-				for i = 1, 6 do
+				for _ = 1, 6 do
 					v:shotted()
 				end
 			end

@@ -37,7 +37,7 @@ function animatedquad:init(imgpath, s, number)
 		table.remove(self.delays, 1)
 		table.remove(self.delays, 1)
 	else
-		for i, v in ipairs(self.properties) do
+		for _, v in ipairs(self.properties) do
 			local vv = v as {any:any}
 			if self.props.collision ~= vv.collision or self.props.portalable ~= vv.portalable then
 				self.cache = {}
@@ -69,7 +69,7 @@ function animatedquad:updateproperties()
 	
 	if self.cache then
 		if oldcol ~= self.props.collision then
-			for i, v in ipairs(self.cache) do
+			for _, v in ipairs(self.cache) do
 				local vv = v as {any:any}
 				local x = vv.x
 				local y = vv.y
@@ -83,7 +83,7 @@ function animatedquad:updateproperties()
 		end
 		
 		if oldportalable ~= self.props.portalable then
-			for i, v in ipairs(self.cache) do
+			for _, v in ipairs(self.cache) do
 				local vv = v as {any:any}
 				local x = vv.x
 				local y = vv.y

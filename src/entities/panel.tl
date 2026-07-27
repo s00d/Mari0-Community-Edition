@@ -53,8 +53,8 @@ end
 
 function panel:link(): any|nil
 	while #self.t > 3 do
-		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w] as {any:Entity}) do
+		for _, w in pairs(outputs) do
+			for _, v in pairs(objects[w] as {any:Entity}) do
 				if tonumber(self.t[3]) == v.cox and tonumber(self.t[4]) == v.coy then
 					v:addoutput(self, self.t[2])
 				end

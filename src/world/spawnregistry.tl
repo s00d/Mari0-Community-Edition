@@ -44,45 +44,45 @@ MAP_SPAWN_HANDLERS["warppipe"] = function(x: number, y: number, r: {any})
 	table.insert(warpzonenumbers, {x, y, r[3]})
 end
 
-MAP_SPAWN_HANDLERS["manycoins"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["manycoins"] = function(x: number, y: number, _: {any})
 	map[x][y][3] = 7
 end
 
-MAP_SPAWN_HANDLERS["flag"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["flag"] = function(x: number, y: number, _: {any})
 	flagx = x-1
 	flagy = y
 end
 
-MAP_SPAWN_HANDLERS["firestart"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["firestart"] = function(x: number, _: number, _: {any})
 	firestartx = x
 end
 
-MAP_SPAWN_HANDLERS["flyingfishstart"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["flyingfishstart"] = function(x: number, _: number, _: {any})
 	flyingfishstartx = x -- keep legacy single-zone vars for compatibility
 	table.insert(flyingfishstarts, x)
 end
 
-MAP_SPAWN_HANDLERS["flyingfishend"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["flyingfishend"] = function(x: number, _: number, _: {any})
 	flyingfishendx = x
 	table.insert(flyingfishends, x)
 end
 
-MAP_SPAWN_HANDLERS["bulletbillstart"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["bulletbillstart"] = function(x: number, _: number, _: {any})
 	bulletbillstartx = x
 	table.insert(bulletbillstarts, x)
 end
 
-MAP_SPAWN_HANDLERS["bulletbillend"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["bulletbillend"] = function(x: number, _: number, _: {any})
 	bulletbillendx = x
 	table.insert(bulletbillends, x)
 end
 
-MAP_SPAWN_HANDLERS["axe"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["axe"] = function(x: number, y: number, _: {any})
 	axex = x
 	axey = y
 end
 
-MAP_SPAWN_HANDLERS["lakitoend"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["lakitoend"] = function(x: number, _: number, _: {any})
 	lakitoendx = x
 end
 
@@ -114,13 +114,13 @@ MAP_SPAWN_HANDLERS["checkpoint"] = function(x: number, y: number, r: {any})
 	table.insert(objects["checkpoints"], checkpoint:new(x, y, r) as Entity)
 end
 
-MAP_SPAWN_HANDLERS["mazestart"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["mazestart"] = function(x: number, _: number, _: {any})
 	if not tablecontains(mazestarts, x) then
 		table.insert(mazestarts, x)
 	end
 end
 
-MAP_SPAWN_HANDLERS["mazeend"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["mazeend"] = function(x: number, _: number, _: {any})
 	if not tablecontains(mazeends, x) then
 		table.insert(mazeends, x)
 	end
@@ -230,7 +230,7 @@ MAP_SPAWN_HANDLERS["scaffold"] = function(x: number, y: number, r: {any})
 	table.insert(objects["scaffold"], scaffold:new(x, y, r) as Entity)
 end
 
-MAP_SPAWN_HANDLERS["box"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["box"] = function(x: number, y: number, _: {any})
 	table.insert(objects["box"], box:new(x, y) as Entity)
 end
 
@@ -242,7 +242,7 @@ MAP_SPAWN_HANDLERS["portal2"] = function(x: number, y: number, r: {any})
 	table.insert(objects["portalent"], portalent:new(x, y, 2, r) as Entity)
 end
 
-MAP_SPAWN_HANDLERS["spring"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["spring"] = function(x: number, y: number, _: {any})
 	table.insert(objects["spring"], spring:new(x, y) as Entity)
 end
 
@@ -250,7 +250,7 @@ MAP_SPAWN_HANDLERS["seesaw"] = function(x: number, y: number, r: {any})
 	table.insert(seesaws, seesaw:new(x, y, r) as Entity)
 end
 
-MAP_SPAWN_HANDLERS["ceilblocker"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["ceilblocker"] = function(x: number, _: number, _: {any})
 	table.insert(objects["ceilblocker"], ceilblocker:new(x) as Entity)
 end
 
@@ -278,7 +278,7 @@ MAP_SPAWN_HANDLERS["pedestal"] = function(x: number, y: number, r: {any})
 	table.insert(pedestals, pedestal:new(x, y, r) as Entity)
 end
 
-MAP_SPAWN_HANDLERS["actionblock"] = function(x: number, y: number, r: {any})
+MAP_SPAWN_HANDLERS["actionblock"] = function(x: number, y: number, _: {any})
 	table.insert(objects["actionblock"], actionblock:new(x, y) as Entity)
 end
 
@@ -306,47 +306,47 @@ ENEMY_SPAWN_HANDLERS["cheepcheep"] = function(x: number, y: number, r: {any}, al
 	return true
 end
 
-ENEMY_SPAWN_HANDLERS["bowser"] = function(x: number, y: number, r: {any}, allowenemy?: boolean): boolean
+ENEMY_SPAWN_HANDLERS["bowser"] = function(x: number, y: number, _: {any}, _?: boolean): boolean
 	objects["bowser"][1] = bowser:new(x, y-1/16)
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["castlefire"] = function(x: number, y: number, r: {any}, allowenemy?: boolean): boolean
+ENEMY_SPAWN_HANDLERS["castlefire"] = function(x: number, y: number, r: {any}, _?: boolean): boolean
 	table.insert(objects["castlefire"], castlefire:new(x, y, r) as Entity)
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["platform"] = function(x: number, y: number, r: {any}, allowenemy?: boolean): boolean
+ENEMY_SPAWN_HANDLERS["platform"] = function(x: number, y: number, r: {any}, _?: boolean): boolean
 	table.insert(objects["platform"], platform:new(x, y, r) as Entity) --Platform
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["platformfall"] = function(x: number, y: number, r: {any}, allowenemy?: boolean): boolean
+ENEMY_SPAWN_HANDLERS["platformfall"] = function(x: number, y: number, r: {any}, _?: boolean): boolean
 	table.insert(objects["platform"], platform:new(x, y, {0, 0, r[3]}, "fall") as Entity) --Platform fall
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["platformbonus"] = function(x: number, y: number, r: {any}, allowenemy?: boolean): boolean
+ENEMY_SPAWN_HANDLERS["platformbonus"] = function(x: number, y: number, _: {any}, _?: boolean): boolean
 	table.insert(objects["platform"], platform:new(x, y, {0, 0, 3}, "justright") as Entity)
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["bulletbill"] = function(x: number, y: number, r: {any}, allowenemy?: boolean): boolean
+ENEMY_SPAWN_HANDLERS["bulletbill"] = function(x: number, y: number, _: {any}, _?: boolean): boolean
 	table.insert(rocketlaunchers, rocketlauncher:new(x, y) as Entity)
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["geldispenser"] = function(x: number, y: number, r: {any}, allowenemy?: boolean): boolean
+ENEMY_SPAWN_HANDLERS["geldispenser"] = function(x: number, y: number, r: {any}, _?: boolean): boolean
 	table.insert(objects["geldispenser"], geldispenser:new(x, y, r) as Entity)
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["upfire"] = function(x: number, y: number, r: {any}, allowenemy?: boolean): boolean
+ENEMY_SPAWN_HANDLERS["upfire"] = function(x: number, y: number, r: {any}, _?: boolean): boolean
 	table.insert(objects["upfire"], upfire:new(x, y, r) as Entity)
 	return false
 end
 
-ENEMY_SPAWN_HANDLERS["panel"] = function(x: number, y: number, r: {any}, allowenemy?: boolean): boolean
+ENEMY_SPAWN_HANDLERS["panel"] = function(x: number, y: number, r: {any}, _?: boolean): boolean
 	table.insert(objects["panel"], panel:new(x-1, y-1, r) as Entity)
 	return false
 end
@@ -362,7 +362,7 @@ ITEM_SPAWN_HANDLERS["powerup"] = function(x: number, y: number, size: any)
 	end
 end
 
-ITEM_SPAWN_HANDLERS["vine"] = function(x: number, y: number, size: any)
+ITEM_SPAWN_HANDLERS["vine"] = function(x: number, y: number, _: any)
 	table.insert(objects["vine"], vine:new(x, y) as Entity)
 end
 

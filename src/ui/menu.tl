@@ -6,7 +6,7 @@ global function menu_load()
 	editormode = false
 	gamestate = "menu"
 	
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		v.active = false
 	end
 	
@@ -2111,37 +2111,37 @@ global function menu_keypressed(key: any)
 	end
 end
 
-global function menu_keyreleased(key: any)
+global function menu_keyreleased(_: any)
 	
 
 end
 
-global function menu_mousepressed(x: any, y: any, button: any)
+global function menu_mousepressed(_: any, _: any, _: any)
 	
 
 end
 
-global function menu_mousereleased(x: any, y: any, button: any)
+global function menu_mousereleased(_: any, _: any, _: any)
 	
 
 end
 
-global function menu_joystickpressed(joystick: any, button: any)
+global function menu_joystickpressed(_: any, _: any)
 	
 
 end
 
-global function menu_joystickreleased(joystick: any, button: any)
+global function menu_joystickreleased(_: any, _: any)
 	
 
 end
 
-global function menu_joystickaxis(joystick: any, axis: any, value: any, stickmoved: any, shouldermoved: any)
+global function menu_joystickaxis(_: any, _: any, _: any, _: any, _: any)
 	
 
 end
 
-global function menu_joystickhat(joystick: any, hat: any, direction: any)
+global function menu_joystickhat(_: any, _: any, _: any)
 	
 
 end
@@ -2285,7 +2285,7 @@ global function createmappack()
 	--Create folders for all sorts of stuff.
 	local folderlist = {"animated", "animations", "backgrounds", "enemies", "graphics", "levelscreens", "music", "sounds"}
 	
-	for i, v in pairs(folderlist as {any:any}) do
+	for _, v in pairs(folderlist as {any:any}) do
 		love.filesystem.createDirectory("mappacks/" .. tostring(mappack) .. "/" .. tostring(v) .. "/")
 	end
 end
@@ -2396,14 +2396,14 @@ global function convertmappack(name: any)
 	local newmappackpath = "mappacks/" .. (name as string) .. "/"
 	mappack = name as string
 	
-	local cw = 1
-	local cl = 1
-	local cs = 0
+	local _ = 1
+	local _ = 1
+	local _ = 0
 	
 	mapheight = 15
 	
 	love.filesystem.createDirectory(newmappackpath)
-	for i, v in ipairs({"animated/", "animations/", "backgrounds/", "assets/enemies/", "assets/graphics/", "levelscreens/", "music/"} as {string}) do
+	for _, v in ipairs({"animated/", "animations/", "backgrounds/", "assets/enemies/", "assets/graphics/", "levelscreens/", "music/"} as {string}) do
 		love.filesystem.createDirectory(newmappackpath .. v)
 	end
 	
@@ -2467,7 +2467,7 @@ global function convertmappack(name: any)
 		customtilesimg = nil
 	end
 	
-	for i, v in ipairs(love.filesystem.getDirectoryItems(oldmappackpath)) do
+	for _, v in ipairs(love.filesystem.getDirectoryItems(oldmappackpath)) do
 		if v:find("^%d+%-%d+.txt$") or v:find("^%d+%-%d+_%d+.txt$") then -- file is in format world-level.txt or world-level_sub.txt
 			if loadmapold(oldmappackpath .. v) then
 				bgi = 1
@@ -2550,7 +2550,7 @@ global function loadmapold(path: any): any
 				mapwidth = math.floor(#mapsplit/15)
 				local x = 0
 				local y = 1
-				for j, w in ipairs(mapsplit as {any}) do
+				for _, w in ipairs(mapsplit as {any}) do
 					local spl2 = strsplit(w, "-")
 					x = x + 1
 					if x == mapwidth + 1 then
@@ -2702,7 +2702,7 @@ global function convertentity(entin_in: any): any
 					if entin[i] == "link" then
 						local linktype = ""
 						local toskip = linkcount
-							for j, v in pairs(rcmenu as {any:{string:any}}) do
+							for _, v in pairs(rcmenu as {any:{string:any}}) do
 								if v.t == "linkbutton" then
 									if toskip == 0 then
 										linktype = v.link as string

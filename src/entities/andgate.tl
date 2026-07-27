@@ -31,8 +31,8 @@ end
 
 function andgate:link(): any|nil
 	while #self.r > 3 do
-		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w]) do
+		for _, w in pairs(outputs) do
+			for _, v in pairs(objects[w]) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 					self.inputstate[tonumber(self.r[2])] = "off"
@@ -51,7 +51,7 @@ function andgate:addoutput(a, t)
 	table.insert(self.outtable, {a, t} as {any})
 end
 
-function andgate:update(dt: number)
+function andgate:update(_: number)
 	if self.initial then
 		self.initial = false
 	end
@@ -85,7 +85,7 @@ function andgate:input(t, input): any
 		end
 		
 		local pass = "on"
-		for i, v in pairs(self.inputstate) do
+		for _, v in pairs(self.inputstate) do
 			if v ~= "on" then
 				pass = "off"
 			end

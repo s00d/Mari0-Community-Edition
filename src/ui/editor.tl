@@ -310,7 +310,7 @@ function editor_load()
 	addanimationactionbutton.textcolor = {0, 0.8, 0}
 	
 	local args = {}
-	for i, v in ipairs(animations) do
+	for _, v in ipairs(animations) do
 		table.insert(args, string.sub(v.name as string, 1, -6))
 	end
 	guielements["animationselectdrop"] = guielement:new("dropdown", 15, 20, 15, selectanimation, 1, unpack(args))
@@ -408,8 +408,8 @@ function editor_update(dt: number)
 	end
 	
 	if animationguilines then
-		for i, v in pairs(animationguilines) do
-			for k, w in ipairs(v) do
+		for _, v in pairs(animationguilines) do
+			for _, w in ipairs(v) do
 				w:update(dt)
 			end
 		end
@@ -429,7 +429,7 @@ function editor_update_rightclick(dt: number)
 	end
 end
 
-function editor_update_keyscroll(dt: number)
+function editor_update_keyscroll(_: number)
 --key scroll
 	if editormenuopen == false then
 		if not (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
@@ -487,27 +487,13 @@ function editor_update_modifiers()
 	end
 end
 
-function editor_update_closed(dt: number)
+function editor_update_closed(_: number)
 	if editorstate == "lightdraw" then
 		if love.mouse.isDown("l") then
-			local emx, emy = mouse.getPosition()
+			local _, _ = mouse.getPosition()
 			local currentx, currenty = getMouseTile(mousex, mousey+8*scale)
 			
 			if lightdrawX and (currentx ~= lightdrawX or currenty ~= lightdrawY) then
-				
-				local xdir = 0
-				if currentx > lightdrawX then
-					xdir = 1
-				elseif currentx < lightdrawX then
-					xdir = -1
-				end
-				
-				local ydir = 0
-				if currenty > lightdrawY then
-					ydir = 1
-				elseif currenty < lightdrawY then
-					ydir = -1
-				end
 				
 				--fill in the gaps
 				local x, y = lightdrawX, lightdrawY
@@ -696,7 +682,7 @@ function editor_update_closed(dt: number)
 					ct = ct-22
 				end
 				currenttile = math.max(1, ct)
-				currenttile = math.min(currenttile, smbtilecount + portaltilecount + customtilecount + (modcustomtilecount[modcustomtiles] or 0))
+				currenttile = math.min(currenttile, smbtilecount + portaltilecount + customtilecount + (modcustomtilecount[modcustomtiles as integer] or 0))
 			end
 			love.mouse.setPosition(middlemode[2] as number, middlemode[3] as number)
 		end
@@ -705,7 +691,7 @@ end
 
 function editor_update_main(dt: number)
 	if love.mouse.isDown("l") then
-		local emx, emy = mouse.getPosition()
+		local _, _ = mouse.getPosition()
 		if mousey >= minimapy*scale and mousey < (minimapy+minimapheight*2+4)*scale then
 			if mousex >= minimapx*scale and mousex < (minimapx+394)*scale then
 				--HORIZONTAL
@@ -797,7 +783,7 @@ function editor_update_tiles(dt: number)
 	end
 end
 
-function editor_update_objects(dt: number)
+function editor_update_objects(_: number)
 	multitilesoffset = (guielements["objectscrollbar"].value as number) * objectscrollbarheight * scale
 	if guielements["renamebar"].active then
 		guielements["renamebar"].y = objectsguiarea[2]+1-multitilesoffset/scale + (guielements["renamebar"].tile*17)
@@ -1076,16 +1062,16 @@ function editor_draw_linking(mx: number, my: number)
 		local cox, coy = getMouseTile(mx, my+8*scale)
 		
 		local table1: {any} = {}
-		for i, v in pairs(outputsi) do
+		for _, v in pairs(outputsi) do
 			table.insert(table1, v)
 		end
 		
 		for x = math.floor(xscroll), math.floor(xscroll)+width+1 do
 			for y = math.floor(yscroll), math.floor(yscroll)+height+1 do
-				for i, v in ipairs(table1) do
+				for _, v in ipairs(table1) do
 					if inmap(x, y) and #map[x][y] > 1 and map[x][y][2] == v then							
-						local r = map[x][y]
-						local drawline = false
+						local _ = map[x][y]
+						local _ = false
 						
 						if cox == x and coy == y and tablecontains(outputsi, map[x][y][2]) then
 							love.graphics.setColor(1, 1, 0.6, 1)
@@ -1392,7 +1378,7 @@ function editor_draw_menu_changewidth()
 	guielements["mapwidthcancel"].x, guielements["mapwidthcancel"].y = width*8+65, mapy+h+4
 end
 
-function editor_draw_menu_tiles(emx: number, emy: number)
+function editor_draw_menu_tiles(_: number, _: number)
 	
 	--TILES
 	love.graphics.setColor(1, 1, 1)
@@ -1419,9 +1405,9 @@ function editor_draw_menu_tiles(emx: number, emy: number)
 			end
 		else
 			--ENTITIES
-			for i, v in ipairs(entitylistitems) do
+			for _, v in ipairs(entitylistitems) do
 				properprint(v.t, (5)*scale, (v.entries[1].y+30)*scale-tilesoffset)
-				for j, k in ipairs(v.entries) do
+				for _, k in ipairs(v.entries) do
 					local hotkey = hasHotkey(2, k.i)
 					love.graphics.draw(entityquads[k.i].image, entityquads[k.i].quad, (k.x+5)*scale, (k.y+38)*scale-tilesoffset, 0, scale, scale)
 					if hotkey then
@@ -1589,7 +1575,7 @@ function editor_draw_menu_tiles(emx: number, emy: number)
 			--Generate property string
 			for i = 1, #propertytable do
 				local addspaces = ""
-				for i = 1, -(string.len(propertytable[i]) - longestpropertylength) do
+				for _ = 1, -(string.len(propertytable[i]) - longestpropertylength) do
 					addspaces = addspaces .. " "
 				end
 				s = s .. addspaces .. propertytable[i] .. "|"
@@ -1609,7 +1595,7 @@ function editor_draw_menu_tiles(emx: number, emy: number)
 	love.graphics.setColor(1, 1, 1)
 end
 
-function editor_draw_menu_main(emx: number, emy: number)
+function editor_draw_menu_main(_: number, _: number)
 
 	--MINIMAP
 	love.graphics.setColor(1, 1, 1)
@@ -1680,7 +1666,7 @@ function editor_draw_menu_maps()
 	local scroll = (guielements["mapscrollbar"].value as number) * mapsymissing
 	love.graphics.setScissor(mapbuttonarea[1]*scale, mapbuttonarea[2]*scale, (mapbuttonarea[3]-mapbuttonarea[1])*scale, (mapbuttonarea[4]-mapbuttonarea[2])*scale)
 	
-	for i, v in pairs(mapbuttons) do
+	for _, v in pairs(mapbuttons) do
 		v.y = v.starty - scroll
 		v:draw()
 	end
@@ -1710,16 +1696,16 @@ function editor_draw_menu_tools()
 
 end
 
-function editor_draw_menu_animations(emx: number, emy: number)
+function editor_draw_menu_animations(_: number, _: number)
 	if #animations > 0 then
 		love.graphics.setScissor(animationguiarea[1]*scale, animationguiarea[2]*scale, (animationguiarea[3]-animationguiarea[1])*scale, (animationguiarea[4]-animationguiarea[2])*scale)
 		local completeheight = 14+#animationguilines.triggers*13+12+#animationguilines.conditions*13+12+#animationguilines.actions*13
 		local offy = math.max(0, (guielements["animationsscrollbarver"].value as number)/1*(completeheight-(animationguiarea[4]-animationguiarea[2])))
 		local completewidth = 0
-		for i, v in pairs(animationguilines) do
-			for k, w in ipairs(v) do
+		for _, v in pairs(animationguilines) do
+			for _, w in ipairs(v) do
 				local width = 32+animationlineinset
-				for j, z in ipairs(w.elements) do
+				for j, _ in ipairs(w.elements) do
 					width = width + w.elements[j].width
 				end
 				if width > completewidth then
@@ -1742,7 +1728,7 @@ function editor_draw_menu_animations(emx: number, emy: number)
 		properprint("triggers:", (animationguiarea[1]+13+offx)*scale, y*scale)
 		y = y + 10
 		
-		for i, v in ipairs(animationguilines.triggers) do
+		for _, v in ipairs(animationguilines.triggers) do
 			v:draw((animationguiarea[1]+animationlineinset+offx), y)
 			y = y + 13
 		end
@@ -1755,7 +1741,7 @@ function editor_draw_menu_animations(emx: number, emy: number)
 		properprint("conditions:", (animationguiarea[1]+13+offx)*scale, y*scale)
 		y = y + 10
 		
-		for i, v in ipairs(animationguilines.conditions) do
+		for _, v in ipairs(animationguilines.conditions) do
 			v:draw((animationguiarea[1]+animationlineinset+offx), y)
 			y = y + 13
 		end
@@ -1768,14 +1754,14 @@ function editor_draw_menu_animations(emx: number, emy: number)
 		properprint("actions:", (animationguiarea[1]+13+offx)*scale, y*scale)
 		y = y + 10
 		
-		for i, v in ipairs(animationguilines.actions) do
+		for _, v in ipairs(animationguilines.actions) do
 			v:draw((animationguiarea[1]+animationlineinset+offx), y)
 			y = y + 13
 		end
 		
-		for i, v in pairs(animationguilines) do
-			for k, w in ipairs(v) do
-				for anotherletter, fuck in pairs(w.elements as {any:any}) do
+		for _, v in pairs(animationguilines) do
+			for _, w in ipairs(v) do
+				for _, fuck in pairs(w.elements as {any:any}) do
 					if (fuck as animationguielement).gui and not (fuck as animationguielement).gui.priority then
 						(fuck as animationguielement).gui:draw()
 					end
@@ -1790,7 +1776,7 @@ function editor_draw_menu_animations(emx: number, emy: number)
 	end
 end
 
-function editor_draw_menu_objects(emx: number, emy: number)
+function editor_draw_menu_objects(_: number, _: number)
 	love.graphics.setScissor(objectsguiarea[1]*scale, objectsguiarea[2]*scale, (objectsguiarea[3]-objectsguiarea[1])*scale, (objectsguiarea[4]-objectsguiarea[2])*scale)
 	
 	local mtbutton = getmtbutton(love.mouse.getX())
@@ -1845,21 +1831,21 @@ function editor_draw_chrome()
 		end
 
 		--GUI priority
-		for i, v in pairs(guielements) do
+		for _, v in pairs(guielements) do
 			if v.priority and v.active then
 				v:draw()
 			end
 		end
 	else
-		for i, v in ipairs({"tabmain", "tabtiles", "tabtools", "tabmaps", "tabanimations", "tabobjects", "autoscrollcheckbox"} as {string}) do
+		for _, v in ipairs({"tabmain", "tabtiles", "tabtools", "tabmaps", "tabanimations", "tabobjects", "autoscrollcheckbox"} as {string}) do
 			guielements[v]:draw()
 		end
 	end
 
 	if editorstate == "animations" and editormenuopen and not changemapwidthmenu then
-		for i, v in pairs(animationguilines) do
-			for k, w in ipairs(v) do
-				for anotherletter, fuck in pairs(w.elements as {any:any}) do
+		for _, v in pairs(animationguilines) do
+			for _, w in ipairs(v) do
+				for _, fuck in pairs(w.elements as {any:any}) do
 					if (fuck as animationguielement).gui and (fuck as animationguielement).gui.priority then
 						(fuck as animationguielement).gui:draw()
 					end
@@ -1886,10 +1872,10 @@ function maintab()
 	end
 
 	editorstate = "main"
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		v.active = false
 	end
-	for i, v in pairs(mapbuttons) do
+	for _, v in pairs(mapbuttons) do
 		v.active = false
 	end
 	
@@ -1945,7 +1931,7 @@ function tilestab()
 	end
 
 	editorstate = "tiles"
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		v.active = false
 	end
 	
@@ -1972,7 +1958,7 @@ function tilestab()
 	guielements["tilesentities"].active = true
 	guielements["tilesenemies"].active = true
 	
-	for i, v in pairs(mapbuttons) do
+	for _, v in pairs(mapbuttons) do
 		v.active = false
 	end
 end
@@ -1986,7 +1972,7 @@ function toolstab()
 	end
 
 	editorstate = "tools"
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		v.active = false
 	end
 	
@@ -2023,7 +2009,7 @@ function toolstab()
 		guielements["secretcheckbox"].active = true
 	end
 	
-	for i, v in pairs(mapbuttons) do
+	for _, v in pairs(mapbuttons) do
 		v.active = false
 	end
 end
@@ -2037,7 +2023,7 @@ function mapstab()
 	end
 
 	editorstate = "maps"
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		v.active = false
 	end
 	
@@ -2060,7 +2046,7 @@ function mapstab()
 	
 	guielements["mapscrollbar"].active = true
 	
-	for i, v in pairs(mapbuttons) do
+	for _, v in pairs(mapbuttons) do
 		v.active = true
 	end
 end
@@ -2074,7 +2060,7 @@ function animationstab()
 	end
 
 	editorstate = "animations"
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		v.active = false
 	end
 	
@@ -2099,7 +2085,7 @@ function animationstab()
 	
 	generateanimationgui()
 	
-	for i, v in pairs(mapbuttons) do
+	for _, v in pairs(mapbuttons) do
 		v.active = false
 	end
 end
@@ -2113,7 +2099,7 @@ function objectstab()
 	end
 
 	editorstate = "objects"
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		v.active = false
 	end
 	
@@ -2133,7 +2119,7 @@ function objectstab()
 	guielements["objectscrollbar"].active = true	
 	objectscrollbarheight = math.max(0, math.ceil((#multitileobjects-1))*17 - 1 - (17*9) - 12)
 	
-	for i, v in pairs(mapbuttons) do
+	for _, v in pairs(mapbuttons) do
 		v.active = false
 	end
 end
@@ -2147,7 +2133,7 @@ function powerlinestab()
 	end
 
 	editorstate = "lightdrawcustomize"
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		v.active = false
 	end
 	
@@ -2163,7 +2149,7 @@ function powerlinestab()
 		guielements["drawtool" .. i].active = true
 	end
 	
-	for i, v in pairs(mapbuttons) do
+	for _, v in pairs(mapbuttons) do
 		v.active = false
 	end
 end
@@ -2173,7 +2159,7 @@ function fromanimationstab()
 end
 
 function frommapstab()
-	for i, v in pairs(mapbuttons) do
+	for _, v in pairs(mapbuttons) do
 		v.active = false
 	end
 end
@@ -2215,7 +2201,7 @@ function generateentitylist()
 	
 	--calculate X and Y positions..
 	local yadd = -3
-	for i, v in ipairs(entitylistitems) do
+	for _, v in ipairs(entitylistitems) do
 		table.sort(v.entries, function(a: entitylistitem, b: entitylistitem): boolean return a.t < b.t end)
 		
 		--Category name space
@@ -2242,15 +2228,15 @@ function generateanimationgui()
 
 	animationguilines = {}
 	animationguilines.triggers = {}
-	for i, v in pairs(animations[currentanimation].triggers as {any:any}) do
+	for _, v in pairs(animations[currentanimation].triggers as {any:any}) do
 		table.insert(animationguilines.triggers, animationguiline:new(v, "trigger"))
 	end
 	animationguilines.conditions = {}
-	for i, v in pairs(animations[currentanimation].conditions as {any:any}) do
+	for _, v in pairs(animations[currentanimation].conditions as {any:any}) do
 		table.insert(animationguilines.conditions, animationguiline:new(v, "condition"))
 	end
 	animationguilines.actions = {}
-	for i, v in pairs(animations[currentanimation].actions as {any:any}) do
+	for _, v in pairs(animations[currentanimation].actions as {any:any}) do
 		table.insert(animationguilines.actions, animationguiline:new(v, "action"))
 	end
 end
@@ -2277,7 +2263,7 @@ end
 
 function updateanimationdropdown()	
 	local args = {}
-	for i, v in ipairs(animations) do
+	for _, v in ipairs(animations) do
 		table.insert(args, string.sub(v.name as string, 1, -6))
 	end
 	
@@ -2325,7 +2311,7 @@ function saveanimation()
 	local out: {string:{{any}}} = {}
 	
 	local typelist = {"triggers", "conditions", "actions"}
-	for h, w in ipairs(typelist) do
+	for _, w in ipairs(typelist) do
 		out[w] = {}
 		for i, v in ipairs((animationguilines[w]) as {animationguiline}) do
 			out[w][i] = {}
@@ -2456,7 +2442,7 @@ function loadmtgroups()
 end
 
 function openchangewidth()
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		v.active = false
 	end
 	
@@ -2614,13 +2600,13 @@ function tilesall()
 	
 	animatedtilelist = false
 	tileliststart = 1
-	tilelistcount = smbtilecount + portaltilecount + customtilecount + (modcustomtilecount[modcustomtiles] or 0)  -1
+	tilelistcount = smbtilecount + portaltilecount + customtilecount + (modcustomtilecount[modcustomtiles as integer] or 0)  -1
 	
 	if editentities or editenemies then
 		currenttile = 1
 	end
 	
-	tilescrollbarheight = math.max(0, math.ceil((smbtilecount + portaltilecount + customtilecount + (modcustomtilecount[modcustomtiles] or 0))/22)*17 - 1 - (17*9) - 12)
+	tilescrollbarheight = math.max(0, math.ceil((smbtilecount + portaltilecount + customtilecount + (modcustomtilecount[modcustomtiles as integer] or 0))/22)*17 - 1 - (17*9) - 12)
 	editentities = false
 	editenemies = false
 end
@@ -2680,13 +2666,13 @@ function tilescustom()
 	
 	animatedtilelist = false
 	tileliststart = smbtilecount + portaltilecount + 1
-	tilelistcount = customtilecount + (modcustomtilecount[modcustomtiles] or 0) - 1
+	tilelistcount = customtilecount + (modcustomtilecount[modcustomtiles as integer] or 0) - 1
 	
 	if editentities or editenemies then
 		currenttile = 1
 	end
 	
-	tilescrollbarheight = math.max(0,  math.ceil((customtilecount + (modcustomtilecount[modcustomtiles] or 0))/22)*17 - 1 - (17*9) - 12)
+	tilescrollbarheight = math.max(0,  math.ceil((customtilecount + (modcustomtilecount[modcustomtiles as integer] or 0))/22)*17 - 1 - (17*9) - 12)
 	editentities = false
 	editenemies = false
 end
@@ -2787,7 +2773,7 @@ function placetile(x: number, y: number, t: any, ent: any, preventMultiTile: any
 		end
 		
 	else
-		local t = map[cox][coy]
+		local _ = map[cox][coy]
 		if editenemies == false and entitylist[currenttile].t == "remove" then --removing tile
 			for i = 2, #map[cox][coy] do
 				map[cox][coy][i] = nil
@@ -2822,11 +2808,11 @@ end
 
 function editorclose()
 	editormenuopen = false
-	for i, v in pairs(guielements) do
+	for _, v in pairs(guielements) do
 		v.active = false
 	end
 	if mapbuttons then
-		for i, v in pairs(mapbuttons) do
+		for _, v in pairs(mapbuttons) do
 			v.active = false
 		end
 	end
@@ -2944,7 +2930,7 @@ function getmaps()
 			end
 			mapbuttons["text" .. worlds .. "-" .. levels .. "_" .. sublevels] = guielement:new("text", 4, yadd+26, "sub " .. sublevels, {0.5, 0.5, 0.5})
 			mapbuttons["text" .. worlds .. "-" .. levels .. "_" .. sublevels].starty = yadd+26
-			local xadd = 50
+			local _ = 50
 			if love.filesystem.getInfo("mappacks/" .. mappack .. "/" .. worlds .. "-" .. levels .. "_" .. sublevels ..".png") then
 				mapbuttons[worlds .. "-" .. levels .. "_" .. sublevels] = guielement:new("button", 54, yadd+21, AssetStore.load_image("mappacks/" .. mappack .. "/" .. worlds .. "-" .. levels .. "_" .. sublevels .. ".png"), mapnumberclick, 0, {worlds, levels, sublevels})
 				mapbuttons[worlds .. "-" .. levels .. "_" .. sublevels].starty = yadd+21
@@ -3095,7 +3081,7 @@ function editor_mousepressed(x: number, y: number, button: any)
 	end
 	
 	if mapbuttons then
-		for i, v in pairs(mapbuttons) do
+		for _, v in pairs(mapbuttons) do
 			v:click(x, y, button)
 		end
 	end
@@ -3332,7 +3318,7 @@ function editor_mousepressed_left(x: number, y: number)
 	end
 end
 
-function editor_mousepressed_wheel_up(x: number, y: number)
+function editor_mousepressed_wheel_up(_: number, _: number)
 	if not editormenuopen then
 		if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
 			brush[1] = math.min(brushmax, brush[1]+1)
@@ -3375,7 +3361,7 @@ function editor_mousepressed_wheel_up(x: number, y: number)
 			if (currenttile as number) > 0 and (currenttile as number) <= 10000 then
 				currenttile = (currenttile as number) - 1
 				if (currenttile as number) == 0 then
-					currenttile = smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0)
+					currenttile = smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0)
 				end
 			else
 				currenttile = (currenttile as number) - 1
@@ -3388,7 +3374,7 @@ function editor_mousepressed_wheel_up(x: number, y: number)
 	
 end
 
-function editor_mousepressed_wheel_down(x: number, y: number)
+function editor_mousepressed_wheel_down(_: number, _: number)
 	if not editormenuopen then
 		if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
 			brush[1] = math.max(1, brush[1]-1)
@@ -3428,9 +3414,9 @@ function editor_mousepressed_wheel_down(x: number, y: number)
 				-- end
 			-- end
 		else
-			if (currenttile as number) <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) then
+			if (currenttile as number) <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0) then
 				currenttile = (currenttile as number) + 1
-				if (currenttile as number) > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles] or 0) then
+				if (currenttile as number) > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0) then
 					currenttile = 1
 				end
 			else
@@ -3536,7 +3522,7 @@ function editor_mousereleased(x: number, y: number, button: any)
 				tilesenemies()
 				currenttile = map[cox][coy][2]
 				local ok = false
-				for i, v in ipairs(enemies as {string}) do
+				for _, v in ipairs(enemies as {string}) do
 					if v == currenttile then
 						ok = true
 					end
@@ -3552,8 +3538,8 @@ function editor_mousereleased(x: number, y: number, button: any)
 	vprev = 0
 	
 	if animationguilines and editormenuopen and not changemapwidthmenu then
-		for i, v in pairs(animationguilines) do
-			for k, w in ipairs(v) do					
+		for _, v in pairs(animationguilines) do
+			for _, w in ipairs(v) do					
 				w:unclick(x, y, button)
 			end
 		end
@@ -3563,8 +3549,8 @@ end
 function editor_keypressed(key: string)
 	if selectionwidth then
 		if key == "delete" then
-			local x, y = round(selectionx/scale), round(selectiony/scale)
-			local width, height = round(selectionwidth/scale), round(selectionheight/scale)
+			local _, _ = round(selectionx/scale), round(selectiony/scale)
+			local _, _ = round(selectionwidth/scale), round(selectionheight/scale)
 			
 			local selectionlist = selectiongettiles(selectionx, selectiony, selectionwidth, selectionheight)
 			
@@ -3714,8 +3700,8 @@ function editor_keypressed(key: string)
 	end
 	
 	if animationguilines then
-		for i, v in pairs(animationguilines) do
-			for k, w in ipairs(v) do
+		for _, v in pairs(animationguilines) do
+			for _, w in ipairs(v) do
 				w:keypressed(key)
 			end
 		end
@@ -3821,8 +3807,8 @@ function editor_textinput(text: string)
 	-- end
 
 	if animationguilines then
-		for i, v in pairs(animationguilines) do
-			for k, w in ipairs(v) do
+		for _, v in pairs(animationguilines) do
+			for _, w in ipairs(v) do
 				w:textinput(text)
 			end
 		end
@@ -3892,7 +3878,7 @@ function toggledrawalllinks(var: any)
 	guielements["linktoolkindabutnotreally"].var = drawalllinks
 end
 
-function togglecustombackground(var: any)
+function togglecustombackground(_: any)
 	if custombackground then
 		custombackground = false
 	else
@@ -3939,7 +3925,7 @@ function changepastemode(var: any)
 	guielements["pastemodedropdown"].var = pastemode
 end
 
-function togglecustomforeground(var: any)
+function togglecustomforeground(_: any)
 	if customforeground then
 		customforeground = false
 	else
@@ -4264,7 +4250,7 @@ function moveline(file: string, line: any, direction: string): boolean|nil
 		linetmp2 = split1[changeto as integer] as string
 	end
 	
-	for i, v in ipairs(split1) do
+	for i, _ in ipairs(split1) do
 		if i == linenum then
 			newdata = newdata .. linetmp2 .. "\n"
 		elseif i == changeto then
@@ -4286,7 +4272,7 @@ function deleteline(file: string, line: any): boolean|nil
 	data = string.sub(data, 1, -2)
 	local newdata = ""
 	local split1 = strsplit(data, "\n")
-	for i, v in ipairs(split1) do
+	for i, _ in ipairs(split1) do
 		if i ~= linenum then
 			newdata = newdata .. (split1[i] as string) .. "\n"
 		end
@@ -4304,7 +4290,7 @@ function renameline(file: string, line: any, newName: string): boolean|nil
 	data = string.sub(data, 1, -2)
 	local newdata = ""
 	local split1 = strsplit(data, "\n")
-	for i, v in ipairs(split1) do
+	for i, _ in ipairs(split1) do
 		if i == linenum then
 			local split2 = strsplit(split1[i], "=") as {string}
 			newdata = newdata .. (newName as string) .. "=" .. (split2[#split2] as string) .. "\n"
@@ -4325,7 +4311,7 @@ function changeline(file: string, linenumber: any, newstring: string): boolean|n
 	data = string.sub(data, 1, -2)
 	local newdata = ""
 	local split1 = strsplit(data, "\n")
-	for i, v in ipairs(split1) do
+	for i, _ in ipairs(split1) do
 		if i ~= linenum then
 			newdata = newdata .. (split1[i] as string) .. "\n"
 		else
@@ -4623,7 +4609,7 @@ function selectionbutton()
 end
 
 function selectionstart()
-	local emx, emy = mouse.getPosition()
+	local _, _ = mouse.getPosition()
 	selectionx = mousex
 	selectiony = mousey
 	
@@ -4631,7 +4617,7 @@ function selectionstart()
 end
 
 function selectionend()
-	local emx, emy = mouse.getPosition()
+	local _, _ = mouse.getPosition()
 	selectionwidth = mousex - selectionx
 	selectionheight = mousey - selectiony
 	

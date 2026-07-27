@@ -90,8 +90,8 @@ end
 
 function scaffold:link(): any|nil
 	while #self.r > 3 do
-		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w]) do
+		for _, w in pairs(outputs) do
+			for _, v in pairs(objects[w]) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -159,8 +159,8 @@ function scaffold:update(dt: number): boolean
 		local checktable: {string} = {"player", "enemy", "box"}
 		local nextx, nexty = self.x + self.speedx*dt, self.y + self.speedy*dt
 
-		for i, v in ipairs(checktable) do
-			for j, w in pairs(objects[v] as {any:Body}) do
+		for _, v in ipairs(checktable) do
+			for _, w in pairs(objects[v] as {any:Body}) do
 				if inrange(w.x, self.x-w.width, self.x+self.width) and inrange(w.y + w.height, self.y - 0.1, self.y + 0.1) then
 					local newx = w.x + self.speedx*dt
 					local newy = nexty - w.height
@@ -251,25 +251,25 @@ function scaffold:draw()
 	end
 end
 
-function scaffold:rightcollide(a: any, b: Entity): boolean
+function scaffold:rightcollide(_: any, _: Entity): boolean
 	return false
 end
 
-function scaffold:leftcollide(a: any, b: Entity): boolean
+function scaffold:leftcollide(_: any, _: Entity): boolean
 	return false
 end
 
-function scaffold:ceilcollide(a: any, b: Entity): boolean
+function scaffold:ceilcollide(_: any, _: Entity): boolean
 	if self.dir == "justright" then
 		self.speedx = platformbonusspeed
 	end
 	return false
 end
 
-function scaffold:floorcollide(a: any, b: Entity): boolean
+function scaffold:floorcollide(_: any, _: Entity): boolean
 	return false
 end
 
-function scaffold:passivecollide(a: any, b: Entity): boolean
+function scaffold:passivecollide(_: any, _: Entity): boolean
 	return false
 end

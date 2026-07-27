@@ -41,7 +41,7 @@ function emancipationgrill:init(x: number, y: number, r: any)
 		self.destroy = true
 	end
 	
-	for i, v in pairs(emancipationgrills as {any:Entity}) do
+	for _, v in pairs(emancipationgrills as {any:Entity}) do
 		local a, b = v:getTileInvolved(self.x, self.y)
 		if a and b == self.dir then
 			self.destroy = true
@@ -107,8 +107,8 @@ end
 
 function emancipationgrill:link()
 	while #self.r > 3 do
-		for j, w in pairs(outputs) do
-			for i, v in pairs(objects[w] as {any:Entity}) do
+		for _, w in pairs(outputs) do
+			for _, v in pairs(objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -127,7 +127,7 @@ function emancipationgrill:update(dt: number): boolean
 	end
 
 	local particles = self.particles
-	for i, v in pairs(particles.i as {any:number}) do
+	for i, _ in pairs(particles.i as {any:number}) do
 		(particles.i as {any:number})[i] = (particles.i as {any:number})[i] + emanceparticlespeed/(self.range/16/scale)*dt*(particles.speed as {any:number})[i]
 		while (particles.i as {any:number})[i] > 1 do
 			(particles.i as {any:number})[i] = (particles.i as {any:number})[i]-1

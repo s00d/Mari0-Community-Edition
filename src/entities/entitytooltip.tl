@@ -17,7 +17,7 @@ function entitytooltip:init(ent)
 	self.ent = ent as EntityListEntry
 end
 
-function entitytooltip:update(dt: number)
+function entitytooltip:update(_: number)
 	self.x = math.min(mouse.getX(), width*16*scale-(twidth+4)*scale)
 	self.y = math.max(0, mouse.getY()-(theight+4)*scale)
 end

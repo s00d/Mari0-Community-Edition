@@ -151,10 +151,10 @@ global function game_draw_player_markers()
 									img = portaltilesimg
 								elseif tilenumber <= smbtilecount+portaltilecount+customtilecount then
 									img = customtilesimg
-								elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[modcustomtiles] then
-									for i = 1, modcustomtiles do
-										if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i] then
-											img = modcustomtilesimg[i]
+								elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[modcustomtiles as integer] then
+									for i = 1, modcustomtiles as integer do
+										if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i as integer] then
+											img = modcustomtilesimg[i as integer]
 											break
 										end
 									end
@@ -183,8 +183,8 @@ global function game_draw_debug()
 	if physicsdebug or incognito then
 		local lw = love.graphics.getLineWidth()
 		love.graphics.setLineWidth(1)
-		for i, v in pairs(objects) do
-			for j, k in pairs(v) do
+		for _, v in pairs(objects) do
+			for _, k in pairs(v) do
 				if k.width then
 					if xscroll >= k.x-width and k.x+k.width > xscroll then
 						if k.active then
@@ -207,7 +207,7 @@ global function game_draw_debug()
 	--Use region debug
 	if userectdebug then
 		love.graphics.setColor(1, 1, 1, 0.4)
-		for i, k in pairs(userects) do
+		for _, k in pairs(userects) do
 			local rect = k as {any:any}
 			love.graphics.rectangle("fill", ((rect.x as number)-xscroll)*16*scale, ((rect.y as number)-yscroll-.5)*16*scale, (rect.width as number)*16*scale, (rect.height as number)*16*scale)
 		end
@@ -217,7 +217,7 @@ global function game_draw_debug()
 	
 	--portalwalldebug
 	if portalwalldebug then
-		for j, v in pairs(portals) do
+		for _, v in pairs(portals) do
 			for k = 1, 2 do
 				for i = 1, 6 do
 					if objects["portalwall"][v.number .. "-" .. k .. "-" .. i] then

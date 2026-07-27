@@ -105,7 +105,7 @@ function portalprojectile:update(dt: number): boolean
 end
 
 function portalprojectile:draw()
-	for i, v in pairs(self.particles) do
+	for _, v in pairs(self.particles) do
 		v:draw()
 	end
 	
@@ -122,7 +122,7 @@ function portalprojectileparticle.new(_: portalprojectileparticle, x: number, y:
 	return self
 end
 
-function portalprojectileparticle:init(x: number, y: number, color, r, g, b)
+function portalprojectileparticle:init(x: number, y: number, color, _, _, _)
 	self.x = x
 	self.y = y
 	self.color = color as {number}
@@ -161,7 +161,7 @@ end
 
 function portalprojectile:createportal()
 	if self.mirror then
-		local portalobj, i, cox, coy, side, tendency, x, y = unpack(self.payload as {any})
+		local portalobj, i, _, _, side, _, _, _ = unpack(self.payload as {any})
 		local p = portalobj as portal
 		portaldelay[p.number] = 0
 		
