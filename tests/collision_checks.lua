@@ -221,7 +221,7 @@ end
 
 -- Regression: down-portal top floor is height=0 portalwall. Mario above it
 -- (no current AABB overlap) must still collide via handlegroup→checkcollision.
--- Current-position AABB broadphase wrongly skipped this and Mario fell through.
+-- Swept AABB (+ epsilon for zero-size) keeps broadphase without fall-through.
 do
 	yacceleration = 40
 	local W, H = 12 / 16, 12 / 16
@@ -245,11 +245,27 @@ do
 		speedx = 0,
 		speedy = 4,
 	}
+	local dt = 1 / 60
 	check(
 		"portalwall top: current aabb miss",
 		aabb(mario.x, mario.y, mario.width, mario.height, wall.x, wall.y, wall.width, wall.height) == false
 	)
-	local hor, ver = handlegroup(1, "portalwall", { top = wall }, mario, "player", 1 / 60, false)
+	-- Broadphase predicate: swept mover vs epsilon-expanded zero-height wall.
+	local smx = mario.x + math.min(0, mario.speedx * dt)
+	local smy = mario.y + math.min(0, mario.speedy * dt)
+	local smw = mario.width + math.abs(mario.speedx * dt)
+	local smh = mario.height + math.abs(mario.speedy * dt)
+	local ety, eth = wall.y - 1 / 32, 1 / 16
+	check(
+		"portalwall top: swept broadphase hits",
+		aabb(smx, smy, smw, smh, wall.x, ety, wall.width, eth) == true
+	)
+	-- Far wall must remain culled.
+	check(
+		"portalwall far: swept broadphase misses",
+		aabb(smx, smy, smw, smh, wall.x, 20 - 1 / 32, wall.width, eth) == false
+	)
+	local hor, ver = handlegroup(1, "portalwall", { top = wall }, mario, "player", dt, false)
 	check("portalwall top: handlegroup catches fall", hor == false and ver == true, "hor=" .. tostring(hor) .. " ver=" .. tostring(ver))
 	check("portalwall top: stands on wall", math.abs(mario.y - (wall.y - H)) < 1e-9, "y=" .. mario.y)
 	check("portalwall top: stops falling", mario.speedy == 0, "speedy=" .. tostring(mario.speedy))
