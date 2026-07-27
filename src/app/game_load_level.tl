@@ -3,6 +3,22 @@
 require "world.level"
 require "assets.spritebatch_util"
 
+local record FreeSpriteBatchSlot
+	slot_id: integer
+	tilenumber: integer
+	foreground: boolean
+end
+
+local spritebatch_free: {integer: {FreeSpriteBatchSlot}} = {}
+local spritebatch_free_len: {integer: integer} = {}
+
+local function clear_spritebatch_free_pools()
+	for batch_id in pairs(spritebatch_free) do
+		spritebatch_free[batch_id] = nil
+		spritebatch_free_len[batch_id] = nil
+	end
+end
+
 global function game_load(suspended?: any)
 	
 	checkpointx = {}
@@ -665,17 +681,61 @@ global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
 		return (x - 1) * 16 * scale, (y * 16 - 8) * scale
 	end
 
+	local function release_cell_slot(cell: SpriteBatchViewCell)
+		local batch_id = cell.batch_id
+		local slot_id = cell.slot_id
+		if slot_id == nil or batch_id == nil then
+			return
+		end
+		local pool = spritebatch_free[batch_id]
+		local len = spritebatch_free_len[batch_id] or 0
+		if pool == nil then
+			pool = {}
+			spritebatch_free[batch_id] = pool
+		end
+		len = len + 1
+		pool[len] = {
+			slot_id = slot_id,
+			tilenumber = cell.tilenumber,
+			foreground = cell.foreground,
+		} as FreeSpriteBatchSlot
+		spritebatch_free_len[batch_id] = len
+		cell.slot_id = nil
+		cell.batch_id = nil
+	end
+
 	local function hide_cell_slot(maybe_cell: SpriteBatchViewCell|nil)
 		if maybe_cell == nil then
 			return
 		end
-		local cell = maybe_cell as SpriteBatchViewCell
-		if cell.slot_id == nil or cell.batch_id == nil then
-			return
+		release_cell_slot(maybe_cell as SpriteBatchViewCell)
+	end
+
+	local function acquire_spritebatch_slot(
+		batch_id: integer,
+		batch: SpriteBatch,
+		cell: SpriteBatchViewCell,
+		quad: any,
+		screen_x: number,
+		screen_y: number
+	): integer
+		local pool = spritebatch_free[batch_id]
+		local len = spritebatch_free_len[batch_id] or 0
+		if pool and len > 0 then
+			for i = len, 1, -1 do
+				local entry = pool[i] as FreeSpriteBatchSlot
+				if entry.tilenumber == cell.tilenumber and entry.foreground == cell.foreground then
+					pool[i] = pool[len]
+					pool[len] = nil
+					len = len - 1
+					spritebatch_free_len[batch_id] = len
+					batch:set(entry.slot_id, screen_x, screen_y, 0, scale, scale)
+					spritebatch_orphan_slots = math.max(0, (spritebatch_orphan_slots or 0) - 1)
+					return entry.slot_id
+				end
+			end
 		end
-		get_batch(cell.batch_id):set(cell.slot_id, 0, 0, 0, 0, 0)
-		cell.slot_id = nil
-		cell.batch_id = nil
+		return batch:add(quad, screen_x, screen_y, 0, scale, scale) as integer
 	end
 
 	local function place_view_cell(maybe_cell: SpriteBatchViewCell|nil, screen_x: number, screen_y: number)
@@ -689,9 +749,9 @@ global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
 			batch:set(cell.slot_id, screen_x, screen_y, 0, scale, scale)
 		else
 			if cell.slot_id ~= nil then
-				hide_cell_slot(cell)
+				release_cell_slot(cell)
 			end
-			cell.slot_id = batch:add(quad, screen_x, screen_y, 0, scale, scale)
+			cell.slot_id = acquire_spritebatch_slot(batch_id, batch, cell, quad, screen_x, screen_y)
 			cell.batch_id = batch_id
 		end
 	end
@@ -708,6 +768,7 @@ global function generatespritebatch(scroll_dx: integer, scroll_dy: integer)
 	end
 
 	local function clear_all_spritebatches()
+		clear_spritebatch_free_pools()
 		smbspritebatch:clear()
 		smbspritebatchfront:clear()
 		portalspritebatch:clear()
