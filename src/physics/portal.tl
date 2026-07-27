@@ -8,6 +8,32 @@ local function portal_spritebatch_after_teleport(self: Entity)
 	end
 end
 
+-- Grid-Y match for inportal; up/down use the same detection planes as checkportalHOR.
+local function inportal_y_match(facing: any, portalY: number, gridY: number, portalYplus: number): boolean
+	if portalYplus ~= 0 then
+		return gridY == portalY + portalYplus
+	end
+	if facing == "up" then
+		return gridY == portalY - 1 or gridY == portalY
+	elseif facing == "down" then
+		return gridY == portalY + 1
+	end
+	return gridY == portalY
+end
+
+local function inportal_x_match(portalX: number, gridX: number, portalXplus: number): boolean
+	return gridX == portalX or gridX == portalX + portalXplus
+end
+
+local function hor_portal_velocity_ok(facing: any, speedy: number): boolean
+	if facing == "up" then
+		return speedy >= 0
+	elseif facing == "down" then
+		return speedy <= 0
+	end
+	return true
+end
+
 global function inportal(self: Entity): boolean
 	if self.mask[2] then
 		return
@@ -24,31 +50,55 @@ global function inportal(self: Entity): boolean
 			local x = math.floor(self.x+self.width/2)+1
 			local y = math.floor(self.y+self.height/2)+1
 			
-			if (x == portal1X or x == portal1X + portal1xplus) and (y == portal1Y or y == portal1Y + portal1yplus) then
-				local entryportalX = v.x1 as number
-				local entryportalY = v.y1 as number
-				local entryportalfacing = v.facing1
+			local portal1match = inportal_x_match(portal1X, x, portal1xplus)
+				and inportal_y_match(v.facing1, portal1Y, y, portal1yplus)
+			local portal2match = inportal_x_match(portal2X, x, portal2xplus)
+				and inportal_y_match(v.facing2, portal2Y, y, portal2yplus)
+			
+			if portal1match or portal2match then
+				local useportal1: boolean
+				if portal1match and portal2match then
+					local portal1ok = hor_portal_velocity_ok(v.facing1, self.speedy)
+					local portal2ok = hor_portal_velocity_ok(v.facing2, self.speedy)
+					if portal1ok and not portal2ok then
+						useportal1 = true
+					elseif portal2ok and not portal1ok then
+						useportal1 = false
+					else
+						useportal1 = portal1match
+					end
+				else
+					useportal1 = portal1match
+				end
 				
-				local exitportalX = v.x2 as number
-				local exitportalY = v.y2 as number
-				local exitportalfacing = v.facing2
+				local entryportalfacing = useportal1 and v.facing1 or v.facing2
+				if not hor_portal_velocity_ok(entryportalfacing, self.speedy) then
+					goto inportal_continue
+				end
 				
-				self.x, self.y, self.speedx, self.speedy, self.rotation = portalcoords(self.x, self.y, self.speedx, self.speedy, self.width, self.height, self.rotation, self.animationdirection, entryportalX, entryportalY, entryportalfacing, exitportalX, exitportalY, exitportalfacing, self, true)
+				local entryportalX: number
+				local entryportalY: number
+				local exitportalX: number
+				local exitportalY: number
+				local exitportalfacing: any
+				if useportal1 then
+					entryportalX = v.x1 as number
+					entryportalY = v.y1 as number
+					exitportalX = v.x2 as number
+					exitportalY = v.y2 as number
+					exitportalfacing = v.facing2
+				else
+					entryportalX = v.x2 as number
+					entryportalY = v.y2 as number
+					exitportalX = v.x1 as number
+					exitportalY = v.y1 as number
+					exitportalfacing = v.facing1
+				end
+				
+				self.x, self.y, self.speedx, self.speedy, self.rotation = portalcoords(self.x, self.y, self.speedx, self.speedy, self.width, self.height, self.rotation, self.animationdirection, entryportalX, entryportalY, entryportalfacing, exitportalX, exitportalY, exitportalfacing, self, useportal1)
 				portal_spritebatch_after_teleport(self)
-
-			elseif (x == portal2X or x == portal2X + portal2xplus) and (y == portal2Y or y == portal2Y + portal2yplus) then
-				local entryportalX = v.x2 as number
-				local entryportalY = v.y2 as number
-				local entryportalfacing = v.facing2
-				
-				local exitportalX = v.x1 as number
-				local exitportalY = v.y1 as number
-				local exitportalfacing = v.facing1
-				
-				self.x, self.y, self.speedx, self.speedy, self.rotation = portalcoords(self.x, self.y, self.speedx, self.speedy, self.width, self.height, self.rotation, self.animationdirection, entryportalX, entryportalY, entryportalfacing, exitportalX, exitportalY, exitportalfacing, self)
-				portal_spritebatch_after_teleport(self)
-
 			end
+			::inportal_continue::
 		end
 	end
 	

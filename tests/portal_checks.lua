@@ -246,4 +246,91 @@ do
 	check("HOR down-under not on platform top", self.y > 10)
 end
 
+-- inportal: rising below platform must not snap to up portal on same tile
+do
+	portals = {
+		{
+			x1 = 5, y1 = 7, facing1 = "up",
+			x2 = 5, y2 = 7, facing2 = "down",
+		},
+	}
+	local w, h = 12 / 16, 12 / 16
+	local self = {
+		mask = {}, x = 4.2, y = 6.0, width = w, height = h,
+		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
+	}
+	local ybefore = self.y
+	inportal(self)
+	check("inportal same-tile no early up snap", self.y == ybefore)
+end
+
+-- inportal: down entry on same tile when centered at detection plane
+do
+	portals = {
+		{
+			x1 = 5, y1 = 7, facing1 = "up",
+			x2 = 5, y2 = 7, facing2 = "down",
+		},
+	}
+	local w, h = 12 / 16, 12 / 16
+	local self = {
+		mask = {}, x = 4.2, y = 7.0, width = w, height = h,
+		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
+	}
+	inportal(self)
+	-- down->up on same tile exits above platform (center y ~ 7.075)
+	check("inportal down entry fires at plane", self.y < 7.0)
+end
+
+-- inportal: distant linked exit when rising into down portal under platform
+do
+	portals = {
+		{
+			x1 = 18, y1 = 20, facing1 = "up",
+			x2 = 5, y2 = 7, facing2 = "down",
+		},
+	}
+	local w, h = 12 / 16, 12 / 16
+	local self = {
+		mask = {}, x = 4.2, y = 7.0, width = w, height = h,
+		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
+	}
+	inportal(self)
+	check("inportal down-under uses linked exit", self.y > 15)
+end
+
+-- physics-order sim: jump from below platform through down portal at (5,7)
+do
+	portals = {
+		{
+			x1 = 18, y1 = 20, facing1 = "up",
+			x2 = 5, y2 = 7, facing2 = "down",
+		},
+	}
+	function checkrect()
+		return {}
+	end
+	local w, h = 12 / 16, 12 / 16
+	local self = {
+		mask = {}, x = 4.2, y = 9.0, width = w, height = h,
+		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
+		jumping = true, falling = false,
+	}
+	local teleported = false
+	for _ = 1, 20 do
+		local nextY = self.y + self.speedy / 60
+		if checkportalHOR(self, nextY) then
+			teleported = true
+			break
+		end
+		self.y = nextY
+		inportal(self)
+		if self.y > 15 then
+			teleported = true
+			break
+		end
+	end
+	check("jump sim reaches linked exit", teleported and self.y > 15)
+end
+
 return failed
