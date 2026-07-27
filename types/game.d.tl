@@ -1484,6 +1484,10 @@ global level_decode_tile_tokens: function(t: {any}, mapwidth: number, mapheight:
 global level_delimiters: function(v: integer): string, string, string, string, string
 global level_detect_format_version: function(string): integer
 global level_filename: function(world: number|string, level: number|string, sublevel?: number): string
+global mappack_path: function(name: string): string
+global mappack_level_path: function(mappack_name: string, world: number|string, level: number|string, sublevel?: number): string
+global level_name: function(world: number|string, level: number|string, sublevel?: number): string
+global create_tile_spritebatches: function()
 global level_parse_tiles_only: function(s: string): LevelTilesParse|nil, string|nil
 global level_serialize_maptiles: function(map: {number:{number:MapCell}}, coinmap: {number:{number:any}}, mapwidth: number, mapheight: number, v: integer): string
 global level_split_file_contents: function(s: string): integer, number, {string}, {string}, string, string, string, string, string
@@ -1579,6 +1583,7 @@ global runkey: function(any): any
 global saveHotKeys: function(): any
 global saveanimation: function(): any
 global saveconfig: function()
+global OPTIONS_SCHEMA_KEYS: {string}
 global savelevel: function()
 global savemap: function(filename: string, silent?: boolean)
 global savemtobject: function(any, name?: any, file?: any): any

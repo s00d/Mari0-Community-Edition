@@ -4,7 +4,7 @@ local Input = {}
 
 function Input.pressed(player: integer, action: string): boolean
 	if controls and controls[player] and controls[player][action] then
-		return checkkey(controls[player][action])
+		return checkkey(controls[player][action]) as boolean
 	end
 	return false
 end

@@ -1,6 +1,7 @@
 --[[ game_load level / map lifecycle ]]
 
 require "world.level"
+require "assets.spritebatch_util"
 
 global function game_load(suspended?: any)
 	
@@ -261,24 +262,7 @@ global function loadlevel(level: string|number): boolean
 		end
 		
 		
-		smbspritebatch = love.graphics.newSpriteBatch( smbtilesimg, 10000 )
-		smbspritebatchfront = love.graphics.newSpriteBatch( smbtilesimg, 10000 )
-		portalspritebatch = love.graphics.newSpriteBatch( portaltilesimg, 10000 )
-		portalspritebatchfront = love.graphics.newSpriteBatch( portaltilesimg, 10000 )
-		if customtiles then
-			customspritebatch = love.graphics.newSpriteBatch( customtilesimg, 10000 )
-			customspritebatchfront = love.graphics.newSpriteBatch( customtilesimg, 10000 )
-		end
-		if modcustomtiles then
-			modcustomspritebatch = {}
-			modcustomspritebatchfront = {}
-			for i = 1, modcustomtiles as number do
-				modcustomspritebatch[i as number] = love.graphics.newSpriteBatch( modcustomtilesimg[i as number], 10000 )
-				modcustomspritebatchfront[i as number] = love.graphics.newSpriteBatch( modcustomtilesimg[i as number], 10000 )
-			end
-		end
-		spritebatchX = {}
-		spritebatchY = {}
+		create_tile_spritebatches()
 	end
 	
 	

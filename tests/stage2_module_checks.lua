@@ -24,6 +24,7 @@ require("core.stringutil")
 require("app.variables")
 require("world.levelio")
 require("world.paths")
+require("app.main_util_options")
 
 check("mappack_path", mappack_path("smb") == "mappacks/smb")
 check("level_name", level_name(1, 1) == "1-1")
@@ -31,7 +32,7 @@ check("mappack_level_path", mappack_level_path("smb", 1, 1) == "mappacks/smb/1-1
 
 do
 	local Io = require("world.io")
-	local fixture = "3;1*3,3c;timelimit=100"
+	local fixture = "2;1*3,3c;timelimit=100"
 	local parsed = Io.parse_tiles(fixture)
 	check("io parse", parsed ~= nil)
 	if parsed then
@@ -42,12 +43,12 @@ end
 
 do
 	local keys = OPTIONS_SCHEMA_KEYS
-	check("options schema keys", type(keys) == "table" and #keys == 16, tostring(#keys))
+	check("options schema keys", type(keys) == "table" and #keys == 17, tostring(#keys))
 	local seen = {}
 	for _, k in ipairs(keys) do
 		seen[k] = true
 	end
-	check("options unique", #keys == 16)
+	check("options unique", #keys == 17)
 end
 
 return failed

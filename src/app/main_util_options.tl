@@ -1,5 +1,12 @@
 --[[ config / save / suspend ]]
 
+-- Keys written by saveconfig / read by loadconfig (keep in sync).
+global OPTIONS_SCHEMA_KEYS = {
+	"playercontrols", "playercolors", "mariocharacter", "portalhues", "mariohats",
+	"scale", "shader1", "shader2", "volume", "musicvolume", "mouseowner", "mappack",
+	"vsync", "gamefinished", "fullscreen", "fullscreenmode", "reachedworlds",
+}
+
 global function saveconfig()
 	if CLIENT or SERVER then
 		return

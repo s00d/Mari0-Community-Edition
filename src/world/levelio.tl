@@ -2,6 +2,8 @@
 -- Globals, mappack format, tile/entity encoding, and LOVE_COLOR_MAX are unchanged.
 -- Pure helpers below are safe to exercise without LÖVE.
 
+require "assets.spritebatch_util"
+
 
 local unpack = rawget(_G, "unpack") or table.unpack
 local math_mod = math.fmod
@@ -226,24 +228,7 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 	map = {}
 	unstatics = {}
 	
-	smbspritebatch = love.graphics.newSpriteBatch( smbtilesimg, 10000 )
-	smbspritebatchfront = love.graphics.newSpriteBatch( smbtilesimg, 10000 )
-	portalspritebatch = love.graphics.newSpriteBatch( portaltilesimg, 10000 )
-	portalspritebatchfront = love.graphics.newSpriteBatch( portaltilesimg, 10000 )
-	if customtiles then
-		customspritebatch = love.graphics.newSpriteBatch( customtilesimg, 10000 )
-		customspritebatchfront = love.graphics.newSpriteBatch( customtilesimg, 10000 )
-	end
-	if modcustomtiles then
-		modcustomspritebatch = {}
-		modcustomspritebatchfront = {}
-		for i = 1, modcustomtiles do
-			modcustomspritebatch[i as integer] = love.graphics.newSpriteBatch( modcustomtilesimg[i as integer], 10000 )
-			modcustomspritebatchfront[i] = love.graphics.newSpriteBatch( modcustomtilesimg[i], 10000 )
-		end
-	end
-	spritebatchX = {}
-	spritebatchY = {}
+	create_tile_spritebatches()
 	
 	--get mapwidth
 	local entries = level_count_tile_entries(t, multipledelimiter)
