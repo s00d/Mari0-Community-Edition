@@ -119,8 +119,19 @@ global function inportal(self: Entity): boolean
 					exitportalfacing = v.facing1
 				end
 				
-				self.x, self.y, self.speedx, self.speedy, self.rotation = portalcoords(self.x, self.y, self.speedx, self.speedy, self.width, self.height, self.rotation, self.animationdirection, entryportalX, entryportalY, entryportalfacing, exitportalX, exitportalY, exitportalfacing, self, useportal1)
-				portal_spritebatch_after_teleport(self)
+				local testx, testy, testspeedx, testspeedy, testrotation = portalcoords(self.x, self.y, self.speedx, self.speedy, self.width, self.height, self.rotation, self.animationdirection, entryportalX, entryportalY, entryportalfacing, exitportalX, exitportalY, exitportalfacing, self, true)
+				if #checkrect(testx, testy, self.width, self.height, {"exclude", self}, false) == 0 then
+					self.x, self.y, self.speedx, self.speedy, self.rotation = testx, testy, testspeedx, testspeedy, testrotation
+					portal_spritebatch_after_teleport(self)
+					if (entryportalfacing == "down" and exitportalfacing == "up") or (entryportalfacing == "up" and exitportalfacing == "down") then
+					else
+						self.jumping = false
+						self.falling = true
+					end
+					if self.portaled then
+						self:portaled(exitportalfacing)
+					end
+				end
 			end
 			::inportal_continue::
 		end
@@ -476,7 +487,8 @@ global function portalcoords(x: number, y: number, speedx: number, speedy: numbe
 		
 	elseif (entryportalfacing == "down" and exitportalfacing == "up") then --down -> up
 		newx = x + (exitportalX - entryportalX) + 1
-		newy = exitportalY + directrange - 1
+		-- Mirror up->down: exit center at up detection plane (exitportalY-1), not inside ceiling tile.
+		newy = exitportalY - directrange
 		
 	elseif (entryportalfacing == "down" and exitportalfacing == "left") then --down -> left
 		newy = exitportalY - relativerange*(2-height) - height/2

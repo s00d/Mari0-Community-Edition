@@ -73,7 +73,51 @@ do
 	check("R->R speedy same", sy == 1)
 end
 
--- portalcoords: up -> right swaps axes
+-- portalcoords: down -> up places center at up detection plane, not inside ceiling tile
+do
+	local w, h = 12 / 16, 12 / 16
+	local x, y = 4.2, 7.625 -- center y=8 at down portal y=7 plane
+	local nx, ny = portalcoords(
+		x, y, 0, -6, w, h, 0, "right",
+		5, 7, "down",
+		18, 20, "up",
+		nil, true
+	)
+	local centerY = ny + h / 2
+	local upPlane = 20 - 1
+	check("D->U floor exit at up plane", almost(centerY, upPlane), "centerY=" .. centerY)
+	check("D->U floor exit not inside tile", centerY <= upPlane)
+end
+
+-- portalcoords: down -> up same-tile exit below ceiling, not embedded in portal row
+do
+	local w, h = 12 / 16, 12 / 16
+	local nx, ny = portalcoords(
+		4.2, 7.625, 0, -6, w, h, 0, "right",
+		5, 7, "down",
+		5, 7, "up",
+		nil, true
+	)
+	local centerY = ny + h / 2
+	local upPlane = 7 - 1
+	check("D->U same-tile at up plane", almost(centerY, upPlane), "centerY=" .. centerY)
+	check("D->U same-tile not in portal row", centerY < 7)
+end
+
+-- portalcoords: deeper down entry exits proportionally below up plane
+do
+	local w, h = 12 / 16, 12 / 16
+	local nx, ny = portalcoords(
+		4.2, 8.125, 0, -6, w, h, 0, "right",
+		5, 7, "down",
+		18, 20, "up",
+		nil, true
+	)
+	local centerY = ny + h / 2
+	local upPlane = 19
+	check("D->U deep entry below up plane", centerY < upPlane, "centerY=" .. centerY)
+end
+
 do
 	local w, h = 1, 1
 	local nx, ny, sx, sy, rot = portalcoords(
@@ -317,8 +361,8 @@ do
 		speedx = 0, speedy = -6, rotation = 0, animationdirection = "right",
 	}
 	inportal(self)
-	check("inportal down-under uses linked exit", self.y > 10)
-	check("inportal down-under not platform top snap", self.y > 8.5)
+	check("inportal down-under uses linked exit", self.y > 8.5)
+	check("inportal down-under not platform top snap", self.y > 8.0)
 end
 
 -- physics-order sim: jump from below platform through down portal at (5,7)
@@ -350,16 +394,16 @@ do
 		self.y = nextY
 		local ymid = self.y
 		inportal(self)
-		if self.y ~= ymid and self.y < 10 then
+		if self.y ~= ymid and self.y < 8.5 then
 			earlySnap = true
 		end
-		if self.y > 10 then
+		if self.y > 8.5 then
 			teleported = true
 			break
 		end
 	end
 	check("jump sim no early inportal snap", not earlySnap)
-	check("jump sim reaches linked exit", teleported and self.y > 10)
+	check("jump sim reaches linked exit", teleported and self.y > 8.5)
 	check("jump sim not stuck before portal plane", self.y > 8.5 or self.y < 7.5)
 end
 
