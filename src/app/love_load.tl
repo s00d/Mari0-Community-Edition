@@ -191,8 +191,10 @@ function LoveLoad.run(_: any)
 
 	love.graphics.setBackgroundColor(0, 0, 0)
 
-	fontimage = love.graphics.newImage("assets/graphics/font.png")
-	fontimageback = love.graphics.newImage("assets/graphics/fontback.png")
+	assets:register_image("font", "assets/graphics/font.png")
+	assets:register_image("fontback", "assets/graphics/fontback.png")
+	fontimage = assets:get_image("font")
+	fontimageback = assets:get_image("fontback")
 	fontglyphs = "0123456789abcdefghijklmnopqrstuvwxyz.:/,\"C-_A* !{}?'()+=><#%"
 	fontquads = {}
 	for i = 1, string.len(fontglyphs) do
@@ -218,12 +220,14 @@ function LoveLoad.run(_: any)
 	loadingtext = loadingtexts[math.random(#loadingtexts)]
 
 	if mariocharacter[1] == "rainbow dash-unfinished" then
-		logo = love.graphics.newImage("assets/graphics/stabyourselfdash.png")
-		logoblood = love.graphics.newImage("assets/graphics/stabyourselfblooddash.png")
+		assets:register_image("logo", "assets/graphics/stabyourselfdash.png")
+		assets:register_image("logoblood", "assets/graphics/stabyourselfblooddash.png")
 	else
-		logo = love.graphics.newImage("assets/graphics/stabyourself.png")
-		logoblood = love.graphics.newImage("assets/graphics/stabyourselfblood.png")
+		assets:register_image("logo", "assets/graphics/stabyourself.png")
+		assets:register_image("logoblood", "assets/graphics/stabyourselfblood.png")
 	end
+	logo = assets:get_image("logo")
+	logoblood = assets:get_image("logoblood")
 
 	local logoscale = scale
 	if logoscale <= 1 then

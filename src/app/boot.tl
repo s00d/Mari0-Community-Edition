@@ -184,6 +184,11 @@ end
 function Boot.load_media()
 	--IMAGES-- (via AssetStore; still exported as legacy *img globals)
 	overwrittenimages = {}
+	local function boot_image(id: string, global_name: string)
+		local path = "assets/graphics/" .. id .. ".png"
+		assets:register_image(id, path)
+		rawset(_G, global_name, assets:get_image(id))
+	end
 	imagelist = {"blockdebris", "coinblockanimation", "coinanimation", "coinblock", "coin", "axe", "spring", "toad", "peach", "platform", 
 	"platformbonus", "scaffold", "seesaw", "vine", "bowser", "decoys", "box", "flag", "castleflag", "bubble", "fizzle", "emanceparticle", "emanceside", "doorpiece", "doorcenter", 
 	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
@@ -199,12 +204,11 @@ function Boot.load_media()
 		(_G as {string:any})[(v as string) .. "img"] = img
 	end
 	
-	mappackback = love.graphics.newImage("assets/graphics/mappackback.png")
-	mappacknoicon = love.graphics.newImage("assets/graphics/mappacknoicon.png")
-	mappackoverlay = love.graphics.newImage("assets/graphics/mappackoverlay.png")
-	mappackhighlight = love.graphics.newImage("assets/graphics/mappackhighlight.png")
-	
-	mappackscrollbar = love.graphics.newImage("assets/graphics/mappackscrollbar.png")
+	boot_image("mappackback", "mappackback")
+	boot_image("mappacknoicon", "mappacknoicon")
+	boot_image("mappackoverlay", "mappackoverlay")
+	boot_image("mappackhighlight", "mappackhighlight")
+	boot_image("mappackscrollbar", "mappackscrollbar")
 	
 	--tiles
 	tilequads = {}
@@ -241,7 +245,7 @@ function Boot.load_media()
 	portaltilecount = width*height
 	
 	--add entities
-	entitiesimg = love.graphics.newImage("assets/graphics/entities.png")
+	boot_image("entities", "entitiesimg")
 	entityquads = {}
 	local imgwidth, imgheight = entitiesimg:getWidth(), entitiesimg:getHeight()
 	local width = math.floor(imgwidth/17)
@@ -256,16 +260,16 @@ function Boot.load_media()
 	end
 	entitiescount = width*height
 	
-	fontimage2 = love.graphics.newImage("assets/graphics/smallfont.png")
+	boot_image("smallfont", "fontimage2")
 	numberglyphs = "012458"
 	font2quads = {}
 	for i = 1, 6 do
 		font2quads[string.sub(numberglyphs, i, i)] = love.graphics.newQuad((i-1)*4, 0, 4, 8, 24, 8)
 	end
 	
-	oneuptextimage = love.graphics.newImage("assets/graphics/oneuptext.png")
+	boot_image("oneuptext", "oneuptextimage")
 	
-	linktoolpointerimg = love.graphics.newImage("assets/graphics/linktoolpointer.png")
+	boot_image("linktoolpointer", "linktoolpointerimg")
 	
 	blockdebrisquads = {} as {any:{any:any}}
 	for y = 1, 4 do
@@ -326,7 +330,7 @@ function Boot.load_media()
 		seesawquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 64, 16)
 	end
 	
-	playerselectimg = love.graphics.newImage("assets/graphics/playerselectarrow.png")
+	boot_image("playerselectarrow", "playerselectimg")
 	
 	starquad = {} as {any:any}
 	for i = 1, 4 do
@@ -449,7 +453,7 @@ function Boot.load_media()
 	boxquad = {love.graphics.newQuad(0, 0, 12, 12, 32, 16), love.graphics.newQuad(16, 0, 12, 12, 32, 16)}
 	
 	--eh
-	rainboomimg = love.graphics.newImage("assets/graphics/rainboom.png")
+	boot_image("rainboom", "rainboomimg")
 	rainboomquad = {}
 	for x = 1, 7 do
 		for y = 1, 7 do
@@ -458,17 +462,17 @@ function Boot.load_media()
 	end
 	
 	--magic!
-	magicimg = love.graphics.newImage("assets/graphics/magic.png")
+	boot_image("magic", "magicimg")
 	magicquad = {}
 	for x = 1, 6 do
 		magicquad[x] = love.graphics.newQuad((x-1)*9, 0, 9, 9, 54, 9)
 	end
 	
 	--GUI
-	checkboximg = love.graphics.newImage("assets/graphics/checkbox.png")
+	boot_image("checkbox", "checkboximg")
 	checkboxquad = {{love.graphics.newQuad(0, 0, 9, 9, 18, 18), love.graphics.newQuad(9, 0, 9, 9, 18, 18)}, {love.graphics.newQuad(0, 9, 9, 9, 18, 18), love.graphics.newQuad(9, 9, 9, 9, 18, 18)}}
 	
-	dropdownarrowimg = love.graphics.newImage("assets/graphics/dropdownarrow.png")
+	boot_image("dropdownarrow", "dropdownarrowimg")
 	
 	--portals
 	portalquad = {}
@@ -476,17 +480,17 @@ function Boot.load_media()
 		portalquad[i] = love.graphics.newQuad(0, i*4, 32, 4, 32, 28)
 	end
 	
-	portalparticleimg = love.graphics.newImage("assets/graphics/portalparticle.png")
-	portalcrosshairimg = love.graphics.newImage("assets/graphics/portalcrosshair.png")
-	portaldotimg = love.graphics.newImage("assets/graphics/portaldot.png")
-	portalprojectileimg = love.graphics.newImage("assets/graphics/portalprojectile.png")
-	portalprojectileparticleimg = love.graphics.newImage("assets/graphics/portalprojectileparticle.png")
-	portalbackgroundimg = love.graphics.newImage("assets/graphics/portalbackground.png")
+	boot_image("portalparticle", "portalparticleimg")
+	boot_image("portalcrosshair", "portalcrosshairimg")
+	boot_image("portaldot", "portaldotimg")
+	boot_image("portalprojectile", "portalprojectileimg")
+	boot_image("portalprojectileparticle", "portalprojectileparticleimg")
+	boot_image("portalbackground", "portalbackgroundimg")
 	
 	--Menu shit
-	huebarimg = love.graphics.newImage("assets/graphics/huehuehuebar.png")
-	huebarmarkerimg = love.graphics.newImage("assets/graphics/huebarmarker.png")
-	volumesliderimg = love.graphics.newImage("assets/graphics/volumeslider.png")
+	boot_image("huehuehuebar", "huebarimg")
+	boot_image("huebarmarker", "huebarmarkerimg")
+	boot_image("volumeslider", "volumesliderimg")
 	
 	--Portal props	
 	buttonquad = {love.graphics.newQuad(0, 0, 32, 5, 64, 5), love.graphics.newQuad(32, 0, 32, 5, 64, 5)}
@@ -500,7 +504,7 @@ function Boot.load_media()
 		walltimerquad[i] = love.graphics.newQuad((i-1)*16, 0, 16, 16, 160, 16)
 	end
 	
-	directionsimg = love.graphics.newImage("assets/graphics/directions.png")
+	boot_image("directions", "directionsimg")
 	directionsquad = {}
 	for x = 1, 6 do
 		directionsquad[x] = love.graphics.newQuad((x-1)*7, 0, 7, 7, 42, 7)
@@ -515,7 +519,7 @@ function Boot.load_media()
 	
 	gelquad = {love.graphics.newQuad(0, 0, 12, 12, 36, 12), love.graphics.newQuad(12, 0, 12, 12, 36, 12), love.graphics.newQuad(24, 0, 12, 12, 36, 12)}
 	
-	gradientimg = love.graphics.newImage("assets/graphics/gradient.png");gradientimg:setFilter("linear", "linear")
+	boot_image("gradient", "gradientimg"); gradientimg:setFilter("linear", "linear")
 	
 	panelquad = {}
 	for x = 1, 2 do

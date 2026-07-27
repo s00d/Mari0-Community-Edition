@@ -118,6 +118,28 @@ function AssetStore:export_image_globals(ids: {string})
 	end
 end
 
+-- mappack → character folder → DEFAULT graphics chain (disk path, no LÖVE object).
+function AssetStore:resolve_path(filename: string, mappack_dir: string, character_dir: string|nil): string
+	if love and love.filesystem.getInfo(mappack_dir .. "/" .. filename) then
+		return mappack_dir .. "/" .. filename
+	end
+	if character_dir and love.filesystem.getInfo(character_dir .. "/" .. filename) then
+		return character_dir .. "/" .. filename
+	end
+	return AssetStore.GRAPHICS .. "DEFAULT/" .. filename
+end
+
+function AssetStore:resolve_image_data(filename: string, mappack_dir: string, character_dir: string|nil): ImageData
+	ensure_love()
+	return love.image.newImageData(self:resolve_path(filename, mappack_dir, character_dir))
+end
+
+function AssetStore:release_scope(scope: string)
+	if scope == "mappack" then
+		self:restore_image_defaults()
+	end
+end
+
 function AssetStore.load_image(path: string): Image|nil
 	ensure_love()
 	return love.graphics.newImage(path)

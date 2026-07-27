@@ -2,7 +2,7 @@
 
 global function loadcustomimages(path: string)
 	-- Restore image defaults via AssetStore, then apply mappack overrides.
-	assets:restore_image_defaults()
+	assets:release_scope("mappack")
 	for _, s in ipairs(imagelist) do
 		(_G as {string:any})[s .. "img"] = assets:get_image(s)
 	end
@@ -30,11 +30,7 @@ global function loadcustomimages(path: string)
 	local width = math.floor(imgwidth/17)
 	local height = math.floor(imgheight/17)
 	local imgdata: ImageData
-	if love.filesystem.getInfo(path .. "/smbtiles.png") then
-		imgdata = love.image.newImageData(path .. "/smbtiles.png")
-	else
-		imgdata = love.image.newImageData("assets/graphics/DEFAULT/smbtiles.png")
-	end
+	imgdata = assets:resolve_image_data("smbtiles.png", path, nil)
 	
 	for y = 1, height do
 		for x = 1, width do
@@ -50,11 +46,7 @@ global function loadcustomimages(path: string)
 	local width = math.floor(imgwidth/17)
 	local height = math.floor(imgheight/17)
 	local imgdata: ImageData
-	if love.filesystem.getInfo(path .. "/portaltiles.png") then
-		imgdata = love.image.newImageData(path .. "/portaltiles.png")
-	else
-		imgdata = love.image.newImageData("assets/graphics/DEFAULT/portaltiles.png")
-	end
+	imgdata = assets:resolve_image_data("portaltiles.png", path, nil)
 	
 	for y = 1, height do
 		for x = 1, width do

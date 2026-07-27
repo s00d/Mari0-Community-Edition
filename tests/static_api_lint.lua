@@ -258,7 +258,7 @@ local media_hits = 0
 for _, path in ipairs(files) do
 	local rel = path:sub(#root + 2)
 	if rel:match("%.tl$") then
-		local allowed = rel:match("^src/assets/") or rel == "src/app/boot.tl" or rel == "src/app/love_load.tl"
+		local allowed = rel:match("^src/assets/")
 		if not allowed then
 			local f = io.open(path, "r")
 			if f then

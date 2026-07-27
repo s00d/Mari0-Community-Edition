@@ -213,6 +213,9 @@ global record AssetStore
 	restore_sound_defaults: function(AssetStore)
 	restore_defaults: function(AssetStore)
 	export_image_globals: function(AssetStore, {string})
+	resolve_path: function(AssetStore, string, string, string|nil): string
+	resolve_image_data: function(AssetStore, string, string, string|nil): ImageData
+	release_scope: function(AssetStore, string)
 	load_image: function(string): Image|nil
 	load_image_data: function(ImageData): Image|nil
 	load_sound: function(string, string): Source|nil
