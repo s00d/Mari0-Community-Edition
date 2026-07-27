@@ -2,8 +2,7 @@
      Loaded via require("app.game_update"); defines global game_update.
 ]]
 
-global function game_update(...: any): any
-	local dt = (... as number)
+global function game_update(dt: number)
 	if not objects then return end
 	dt = dt * speed
 	gdt = dt

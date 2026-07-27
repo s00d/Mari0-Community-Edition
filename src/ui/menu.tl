@@ -1,6 +1,6 @@
 --[[ Menu UI (Teal port of root menu.lua). ]]
 
-global function menu_load(...: any): any
+global function menu_load()
 	loadconfig()
 	love.audio.stop()
 	editormode = false
@@ -220,7 +220,7 @@ global function menu_update(dt: number)
 	end
 end
 
-global function menu_draw(...: any): any
+global function menu_draw()
 	--GUI LIBRARY?! Never heard of that.
 	--I'm not proud of this at all; But I'm even lazier than not proud. Seriously, don't take this as an example of what to do.
 	
@@ -265,7 +265,7 @@ global function menu_draw(...: any): any
 	love.graphics.translate(0, yoffset*scale)
 end
 
-global function menu_draw_title(...: any): any
+global function menu_draw_title()
 	love.graphics.draw(titleimg, 40*scale, 24*scale, 0, scale, scale)
 	
 	if updatenotification then
@@ -350,7 +350,7 @@ global function menu_draw_title(...: any): any
 	
 end
 
-global function menu_draw_mappackmenu(...: any): any
+global function menu_draw_mappackmenu()
 	--background
 	love.graphics.setColor(0, 0, 0, 0.4)
 	love.graphics.rectangle("fill", 21*scale, 16*scale, 218*scale, 200*scale)
@@ -668,7 +668,7 @@ global function menu_draw_mappackmenu(...: any): any
 	end
 end
 
-global function menu_draw_options(...: any): any
+global function menu_draw_options()
 	love.graphics.setColor(0, 0, 0, 0.8)
 	love.graphics.rectangle("fill", 21*scale, 16*scale, 218*scale, 200*scale)
 	
@@ -1201,8 +1201,8 @@ global function menu_draw_options(...: any): any
 end
 
 
-global function loadbackgroundsafe(...: any): any
-	local background = ...
+global function loadbackgroundsafe(background: any): any
+	
 	if loadbackground(background) == false then
 		map = {}
 		coinmap = {}
@@ -1238,8 +1238,8 @@ global function loadbackgroundsafe(...: any): any
 	generatespritebatch()
 end
 
-global function loadbackground(...: any): any
-	local backgroundlevel = ...
+global function loadbackground(backgroundlevel: any): any
+	
 	loadcustomimages("mappacks/" .. mappack .. "/graphics")
 	loadcustomsounds("mappacks/" .. mappack .. "/sounds")
 	loadcustombackgrounds()
@@ -1296,7 +1296,7 @@ global function loadbackground(...: any): any
 	love.graphics.setBackgroundColor(background)
 end
 
-global function updatescroll(...: any): any
+global function updatescroll()
 	--check if current focus is completely onscreen
 	if inrange(mappackselection, 1+mappackscroll, 3+mappackscroll, true) == false then
 		if mappackselection < 1+mappackscroll then --above window
@@ -1307,7 +1307,7 @@ global function updatescroll(...: any): any
 	end
 end
 
-global function onlineupdatescroll(...: any): any
+global function onlineupdatescroll()
 	--check if current focus is completely onscreen
 	if inrange(onlinemappackselection, 1+onlinemappackscroll, 3+onlinemappackscroll, true) == false then
 		if onlinemappackselection < 1+onlinemappackscroll then --above window
@@ -1318,7 +1318,7 @@ global function onlineupdatescroll(...: any): any
 	end
 end
 
-global function toconvertupdatescroll(...: any): any
+global function toconvertupdatescroll()
 	--check if current focus is completely onscreen
 	if inrange(toconvertmappackselection, 1+toconvertmappackscroll, 3+toconvertmappackscroll, true) == false then
 		if toconvertmappackselection < 1+toconvertmappackscroll then --above window
@@ -1329,7 +1329,7 @@ global function toconvertupdatescroll(...: any): any
 	end
 end
 
-global function mappacks(...: any): any
+global function mappacks()
 	if mappackhorscroll == 0 then
 		loadmappacks()
 	elseif mappackhorscroll == 1 then
@@ -1339,7 +1339,7 @@ global function mappacks(...: any): any
 	end
 end
 
-global function loadmappacks(...: any): any
+global function loadmappacks()
 	mappacktype = "local"
 	mappacklist = love.filesystem.getDirectoryItems( "mappacks" )
 	
@@ -1410,7 +1410,7 @@ global function loadmappacks(...: any): any
 	mappackscrollsmooth = mappackscroll
 end
 
-global function loadonlinemappacks(...: any): any
+global function loadonlinemappacks()
 	mappacktype = "online"
 	downloadmappacks()
 	onlinemappacklist = love.filesystem.getDirectoryItems( "mappacks" )
@@ -1471,7 +1471,7 @@ global function loadonlinemappacks(...: any): any
 	onlinemappackscrollsmooth = onlinemappackscroll
 end
 
-global function loadtoconvertmappacks(...: any): any
+global function loadtoconvertmappacks()
 	mappacktype = "toconvert"
 	toconvertmappacklist = love.filesystem.getDirectoryItems( "toconvert" )
 	
@@ -1524,7 +1524,7 @@ global function loadtoconvertmappacks(...: any): any
 	toconvertmappackscrollsmooth = toconvertmappackscroll
 end
 
-global function downloadmappacks(...: any): any
+global function downloadmappacks(): any
 	downloaderror = false
 	local onlinedata, code = http.request("http://server.stabyourself.net/mari0/index2.php?mode=mappacks")
 	
@@ -1653,8 +1653,8 @@ global function downloadmappacks(...: any): any
 	return true
 end
 
-global function menu_keypressed(...: any): any
-	local key = ...
+global function menu_keypressed(key: any)
+	
 	if gamestate == "menu" then --PLEASE don't use this menu system as an example. It's fucking awful. But you knew that.
 		if selectworldopen then
 			if (key == "right" or key == "d") then
@@ -2111,38 +2111,38 @@ global function menu_keypressed(...: any): any
 	end
 end
 
-global function menu_keyreleased(...: any): any
-	local key = ...
+global function menu_keyreleased(key: any)
+	
 
 end
 
-global function menu_mousepressed(...: any): any
-	local x, y, button = ...
+global function menu_mousepressed(x: any, y: any, button: any)
+	
 
 end
 
-global function menu_mousereleased(...: any): any
-	local x, y, button = ...
+global function menu_mousereleased(x: any, y: any, button: any)
+	
 
 end
 
-global function menu_joystickpressed(...: any): any
-	local joystick, button = ...
+global function menu_joystickpressed(joystick: any, button: any)
+	
 
 end
 
-global function menu_joystickreleased(...: any): any
-	local joystick, button = ...
+global function menu_joystickreleased(joystick: any, button: any)
+	
 
 end
 
-global function menu_joystickaxis(...: any): any
-	local joystick, axis, value, stickmoved, shouldermoved = ...
+global function menu_joystickaxis(joystick: any, axis: any, value: any, stickmoved: any, shouldermoved: any)
+	
 
 end
 
-global function menu_joystickhat(...: any): any
-	local joystick, hat, direction = ...
+global function menu_joystickhat(joystick: any, hat: any, direction: any)
+	
 
 end
 
@@ -2190,7 +2190,7 @@ global function keypromptenter(t: any, ...: any): any
 	end
 end
 
-global function keypromptstart(...: any): any
+global function keypromptstart()
 	keyprompt = true
 	buttonerror = false
 	axiserror = false
@@ -2221,8 +2221,8 @@ global function keypromptstart(...: any): any
 	end
 end
 
-global function downloadfile(...: any): any
-	local url, target, checksum = ...
+global function downloadfile(url: any, target: any, checksum: any): any
+	
 	local data, code = http.request(url as string)
 	
 	if code ~= 200 then
@@ -2242,7 +2242,7 @@ global function downloadfile(...: any): any
 	end
 end
 
-global function reset_mappacks(...: any): any
+global function reset_mappacks()
 	delete_mappack("smb")
 	delete_mappack("portal")
 	
@@ -2251,8 +2251,8 @@ global function reset_mappacks(...: any): any
 	playsound("oneup")
 end
 
-global function delete_mappack(...: any): any
-	local pack = ...
+global function delete_mappack(pack: any): any
+	
 	if not love.filesystem.getInfo("mappacks/" .. (pack as string) .. "/") then
 		return false
 	end
@@ -2265,7 +2265,7 @@ global function delete_mappack(...: any): any
 	love.filesystem.remove("mappacks/" .. (pack as string) .. "/")
 end
 
-global function createmappack(...: any): any
+global function createmappack()
 	local i = 1
 	while love.filesystem.getInfo("mappacks/custom_mappack_" .. i .. "/") do
 		i = i + 1
@@ -2290,7 +2290,7 @@ global function createmappack(...: any): any
 	end
 end
 
-global function resetconfig(...: any): any
+global function resetconfig()
 	defaultconfig()
 	
 	changescale(scale)
@@ -2303,7 +2303,7 @@ global function resetconfig(...: any): any
 	loadbackgroundsafe("1-1.txt")
 end
 
-global function selectworld(...: any): any
+global function selectworld()
 	if not reachedworlds[mappack] then
 		game_load()
 	end
@@ -2332,7 +2332,7 @@ global function selectworld(...: any): any
 	end
 end
 
-global function previouscharacter(...: any): any
+global function previouscharacter()
 	--get current character
 	local char: any
 	for i = 1, #characterlist do
@@ -2351,7 +2351,7 @@ global function previouscharacter(...: any): any
 	end
 end
 
-global function nextcharacter(...: any): any
+global function nextcharacter()
 	--get current character
 	local char: any
 	for i = 1, #characterlist do
@@ -2370,8 +2370,8 @@ global function nextcharacter(...: any): any
 	end
 end
 
-global function changecharacter(...: any): any
-	local i = (... as integer)
+global function changecharacter(i: any)
+	
 	mariocharacter[skinningplayer] = characterlist[i as integer]
 	
 	--change colors

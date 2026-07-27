@@ -1290,7 +1290,7 @@ global animationsystem_update: function(number)
 global build_blockbounce_lookup: function({any:any}, {any:any}): {any:any}
 global callcollision: function(any, Entity, any, Entity, any, any): any
 global changebackground: function(...: any): any
-global changecharacter: function(...: any): any
+global changecharacter: function(any)
 global changeforeground: function(...: any): any
 global changelevelscreen: function(...: any): any
 global changeline: function(...: any): any
@@ -1324,20 +1324,20 @@ global converttostandard: function(Entity, number, number): number, number
 global count_spawn_handlers: function({any:any}): number
 global createdialogbox: function(any, any)
 global creategame: function(...: any): any
-global createmappack: function(...: any): any
+global createmappack: function()
 global createnewanimation: function(...: any): any
 global decreasetimelimit: function(...: any): any
 global defaultbackground: function(...: any): any
 global defaultconfig: function()
-global delete_mappack: function(...: any): any
+global delete_mappack: function(any): any
 global deleteanimationguiline: function(string, animationguiline)
 global deleteline: function(...: any): any
 global destroyblock: function(number, number): any
 global dispatch_enemy_entity_spawn: function(t: string, x: number, y: number, r: {any}, allowenemy?: boolean): boolean
 global dispatch_map_entity_spawn: function(t: string, x: number, y: number, r: {any}, createobjects?: boolean, editormode?: boolean)
 global downkey: function(any): any
-global downloadfile: function(...: any): any
-global downloadmappacks: function(...: any): any
+global downloadfile: function(any, any, any): any
+global downloadmappacks: function(): any
 global drawforeground: function()
 global drawlevel: function()
 global drawlevel_tiles: function(any, any)
@@ -1392,7 +1392,7 @@ global fromanimationstab: function(...: any): any
 global fromlightdrawcustomizetab: function(...: any): any
 global frommapstab: function(...: any): any
 
-global game_update: function(...: any): any
+global game_update: function(number)
 global getquadprops: function(ImageData, number, number): {string:any}
 global properprint: function(s: any, x: number, y: number, sc?: number)
 global print_r: function(any, any): any
@@ -1453,7 +1453,7 @@ global intro_update: function(number)
 global item: function(i: any, x: number, y: number, size?: any)
 global joingame: function(...: any): any
 global keyprompt_update: function()
-global keypromptstart: function(...: any): any
+global keypromptstart: function()
 global leftkey: function(any): any
 global level_count_tile_entries: function(t: {any}, multipledelimiter: string): number
 global level_decode_tile_tokens: function(t: {any}, mapwidth: number, mapheight: number, layerdelimiter: string, multipledelimiter: string): {number:{number:MapCell}}, {number:{number:boolean}}
@@ -1470,8 +1470,8 @@ global livesdecrease: function(...: any): any
 global livesincrease: function(...: any): any
 global loadHotKeys: function(...: any): any
 global loadanimatedtiles: function()
-global loadbackground: function(...: any): any
-global loadbackgroundsafe: function(...: any): any
+global loadbackground: function(any): any
+global loadbackgroundsafe: function(any): any
 global loadcharacter: function(string): Character|boolean
 global loadconfig: function()
 global loadcustomimages: function(string)
@@ -1482,13 +1482,13 @@ global loadlevel: function(level: string|number): boolean
 global loadlevelscreens: function()
 global loadmap: function(filename: string, createobjects?: boolean): boolean
 global loadmapold: function(...: any): any
-global loadmappacks: function(...: any): any
+global loadmappacks: function()
 global loadmodcustomtiles: function()
 global loadmtgroups: function(...: any): any
 global loadmtobjects: function(...: any): any
-global loadonlinemappacks: function(...: any): any
+global loadonlinemappacks: function()
 global loadstate: function(...: any): any
-global loadtoconvertmappacks: function(...: any): any
+global loadtoconvertmappacks: function()
 global lobby_draw: function(...: any): any
 global lobby_load: function(...: any): any
 global lobby_update: function(...: any): any
@@ -1498,22 +1498,22 @@ global magicdns_keep: function(...: any): any
 global magicdns_make: function(...: any): any
 global magicdns_remove: function(...: any): any
 global mapnumberclick: function(...: any): any
-global mappacks: function(...: any): any
+global mappacks: function()
 global mapwidthapply: function(...: any): any
 global mapwidthcancel: function(...: any): any
-global menu_draw: function(...: any): any
-global menu_draw_mappackmenu: function(...: any): any
-global menu_draw_options: function(...: any): any
-global menu_draw_title: function(...: any): any
-global menu_joystickaxis: function(...: any): any
-global menu_joystickhat: function(...: any): any
-global menu_joystickpressed: function(...: any): any
-global menu_joystickreleased: function(...: any): any
-global menu_keypressed: function(...: any): any
-global menu_keyreleased: function(...: any): any
-global menu_load: function(...: any): any
-global menu_mousepressed: function(...: any): any
-global menu_mousereleased: function(...: any): any
+global menu_draw: function()
+global menu_draw_mappackmenu: function()
+global menu_draw_options: function()
+global menu_draw_title: function()
+global menu_joystickaxis: function(any, any, any, any, any)
+global menu_joystickhat: function(any, any, any)
+global menu_joystickpressed: function(any, any)
+global menu_joystickreleased: function(any, any)
+global menu_keypressed: function(any)
+global menu_keyreleased: function(any)
+global menu_load: function()
+global menu_mousepressed: function(any, any, any)
+global menu_mousereleased: function(any, any, any)
 global menu_update: function(number)
 global modifyportaltiles: function(...: any): any
 global modifyportalwalls: function(...: any): any
@@ -1523,13 +1523,13 @@ global moveoutportal: function(...: any): any
 global moveupanimationguiline: function(string, animationguiline)
 global newRecoloredImage: function(string, {{number}}, {{number}}): Image|nil
 global newlevel: function(...: any): any
-global nextcharacter: function(...: any): any
+global nextcharacter: function()
 global nextlevel: function()
 global objectclipboardcopy: function(...: any): any
 global onlinemenu_draw: function(...: any): any
 global onlinemenu_load: function(...: any): any
 global onlinemenu_update: function(...: any): any
-global onlineupdatescroll: function(...: any): any
+global onlineupdatescroll: function()
 global openchangewidth: function(...: any): any
 global passivecollision: function(Entity, Entity, any, any, any, any, number): boolean
 global physicsupdate: function(dt: number)
@@ -1538,14 +1538,14 @@ global playmusic: function()
 global playsound: function(any)
 global portalcoords: function(x: number, y: number, speedx: number, speedy: number, width: number, height: number, rotation: number, animationdirection: any, entryportalX: number|boolean, entryportalY: number|boolean, entryportalfacing: any, exitportalX: number|boolean, exitportalY: number|boolean, exitportalfacing: any, self?: Entity, live?: boolean): number, number, number, number, number, any
 global prerotatecall: function(any, any): boolean
-global previouscharacter: function(...: any): any
+global previouscharacter: function()
 global properprint2: function(any, number, number, ...: any)
 global properprintbackground: function(...: any): any
 global removelink: function(...: any): any
 global renameline: function(...: any): any
 global renderpreview: function(): ImageData
-global reset_mappacks: function(...: any): any
-global resetconfig: function(...: any): any
+global reset_mappacks: function()
+global resetconfig: function()
 global respawnplayers: function()
 global reversefscrollfactor: function(...: any): any
 global reversescrollfactor: function(...: any): any
@@ -1565,7 +1565,7 @@ global selectionbutton: function(...: any): any
 global selectionend: function(...: any): any
 global selectiongettiles: function(...: any): {SelectionTile}
 global selectionstart: function(...: any): any
-global selectworld: function(...: any): any
+global selectworld: function()
 global sendchat: function(...: any): any
 global serializetable: function(...: any): any
 global shootportal: function(...: any): any
@@ -1583,7 +1583,7 @@ global tilesenemies: function(...: any): any
 global tilesentities: function(...: any): any
 global tilesportal: function(...: any): any
 global tilessmb: function(...: any): any
-global toconvertupdatescroll: function(...: any): any
+global toconvertupdatescroll: function()
 global toggleautoscroll: function(...: any): any
 global togglebonusstage: function(...: any): any
 global toggleclipboardenabled: function(...: any): any
@@ -1605,7 +1605,7 @@ global updateanimationdropdown: function(...: any): any
 global updatebackground: function(...: any): any
 global updatefscrollfactor: function(...: any): any
 global updateranges: function()
-global updatescroll: function(...: any): any
+global updatescroll: function()
 global updatescrollfactor: function(...: any): any
 global updatesizes: function()
 global upkey: function(any): any
