@@ -262,6 +262,75 @@ global function drawplayer(i: any, x: any, y: any, cscale?: any, offsetX?: any, 
 	end
 end
 
+local function card_colors_match(a: {{number}}, b: {{number}}): boolean
+	if #a ~= #b then
+		return false
+	end
+	for i = 1, #a do
+		local ca = a[i]
+		local cb = b[i]
+		if #ca ~= #cb then
+			return false
+		end
+		for j = 1, #ca do
+			if ca[j] ~= cb[j] then
+				return false
+			end
+		end
+	end
+	return true
+end
+
+local function character_for_card(colors: {{number}}): Character
+	for j = 1, players do
+		if mariocolors[j] and card_colors_match(mariocolors[j], colors) then
+			local name = mariocharacter[j]
+			if name and characters[name] then
+				return characters[name]
+			end
+		end
+	end
+	local fallback = mariocharacter[playerconfig] or mariocharacter[1] or "mario"
+	return characters[fallback] or characters["mario"]
+end
+
+global function drawplayercard(x: number, y: number, colors: {{number}}, hats: any, nick: string, ping?: number, focus?: boolean)
+	if focus then
+		love.graphics.setColor(1, 1, 0.5, 0.3)
+	else
+		love.graphics.setColor(0, 0, 0, 0.5)
+	end
+	love.graphics.rectangle("fill", x*scale, y*scale, 148*scale, 38*scale)
+	love.graphics.setColor(1, 1, 1, 1)
+	drawrectangle(x, y, 148, 38)
+
+	local v = character_for_card(colors)
+	local angle = 3
+	if v.nopointing then
+		angle = 1
+	end
+
+	local portal1 = {60/255, 188/255, 252/255}
+	local portal2 = {232/255, 130/255, 30/255}
+	if portalcolor and (portalcolor as {integer: {{number}}})[playerconfig as integer] then
+		portal1 = (portalcolor as {integer: {{number}}})[playerconfig as integer][1]
+		portal2 = (portalcolor as {integer: {{number}}})[playerconfig as integer][2]
+	end
+
+	drawplayer(nil, x+18, y+28, scale,
+		v.smalloffsetX, v.smalloffsetY, 0,
+		v.smallquadcenterX, v.smallquadcenterY,
+		"running", false, false,
+		hats, v.animations, v.run[angle][runanimationframe],
+		0, false, false, colors, 1, portal1, portal2,
+		runanimationframe, nil, nil, nil, nil, nil, v)
+
+	properprint(nick, (x+36)*scale, (y+6)*scale)
+	if ping then
+		properprint(tostring(ping) .. "ms", (x+36)*scale, (y+22)*scale)
+	end
+end
+
 global function reachedx(currentx: any)
 	local currentx = currentx as number
 	if not currentx or currentx <= (lastrepeat as number)+width then
@@ -465,7 +534,7 @@ global function updatesizes()
 	mariosizes = {}
 	if not objects then
 		for i = 1, players do
-			mariosizes[i] = 1 as any
+			mariosizes[i] = 1
 		end
 	else
 		for i = 1, players do

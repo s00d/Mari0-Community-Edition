@@ -155,7 +155,7 @@ function enemy:init(x: number, y: number, t: string, a: any)
 		self.jumptimer = 0
 	end
 	
-	self.firstmovement = self.movement as any
+	self.firstmovement = self.movement
 	self.firstanimationtype = self.animationtype
 
 	-- Apparently we now have to deal with case sensitivity.

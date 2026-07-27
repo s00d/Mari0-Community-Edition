@@ -14,7 +14,7 @@ function regiontrigger:init(x: number, y: number, r)
 	self.cox = x
 	self.coy = y
 	
-	self.checktable = "all" as any
+	self.checktable = "all"
 	self.outtable = {}
 	
 	--Input list
@@ -71,21 +71,21 @@ function regiontrigger:init(x: number, y: number, r)
 		table.remove(self.r, 1)
 	end
 	
-	self.out = "off" as any
+	self.out = "off"
 end
 
 function regiontrigger:update(dt: number)
 	local col = checkrect(self.regionX, self.regionY, self.regionwidth, self.regionheight, self.checktable)
 	
 	if self.out == "off" and #col > 0 then
-		self.out = "on" as any
+		self.out = "on"
 		for i = 1, #self.outtable do
 			if (self.outtable[i] as {Entity, any})[1].input then
 				(self.outtable[i] as {Entity, any})[1]:input(self.out, (self.outtable[i] as {Entity, any})[2])
 			end
 		end
 	elseif self.out == "on" and #col == 0 then
-		self.out = "off" as any
+		self.out = "off"
 		for i = 1, #self.outtable do
 			if (self.outtable[i] as {Entity, any})[1].input then
 				(self.outtable[i] as {Entity, any})[1]:input(self.out, (self.outtable[i] as {Entity, any})[2])

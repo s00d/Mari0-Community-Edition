@@ -41,16 +41,16 @@ global record Character
 	raccoon: boolean
 	nopointing: boolean
 	dbljmppls: boolean
-	nogunanimations: {any}
-	nogunbiganimations: {any}
-	animations: {any}
-	biganimations: {any}
+	animations: any
+	biganimations: any
 	flowercolor: {any}
 	defaultcolors: {integer:{{number}}}
 	defaulthat: any
 	colorables: {any}
 	hatoffsets: Dyn
 	bighatoffsets: Dyn
+	nogunanimations: any
+	nogunbiganimations: any
 	idle: {any:any}
 	run: {any:{any:any}}
 	slide: {any:any}

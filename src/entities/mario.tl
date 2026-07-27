@@ -111,7 +111,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 		--self.offsetY = self.offsetY - hat[self.hats[i]].height
 	--end
 	
-	self.customscissor = false as any
+	self.customscissor = false
 	
 	if players == 1 and not arcade then
 		self.portal1color = {60 / 255, 188 / 255, 252 / 255}
@@ -189,7 +189,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	end
 	
 	if self.animation == "intermission" and editormode then
-		self.animation = false as any
+		self.animation = false
 	end
 	
 	if mariolivecount ~= false and mariolives[self.playernumber] <= 0 then
@@ -198,7 +198,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 		self.active = false
 		self.static = true
 		self.controlsenabled = false
-		self.animation = false as any
+		self.animation = false
 	end
 	
 	if self.animation == "pipeup" then
@@ -218,7 +218,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 		
 		if arcade and not arcadeplaying[self.playernumber] then
 			self.y = (self.animationy as number) + 20/16 - pipeanimationdistancedown
-			self.animation = false as any
+			self.animation = false
 		end
 	elseif self.animation == "intermission" then
 		self.controlsenabled = false
@@ -463,8 +463,8 @@ function mario:update_animation(dt: number): boolean
 			if self.animationtimer >= pipeanimationtime then
 				self.active = true
 				self.controlsenabled = true
-				self.animation = false as any
-				self.customscissor = false as any
+				self.animation = false
+				self.customscissor = false
 			end
 		end
 		return true
@@ -801,7 +801,7 @@ function mario:update_animation(dt: number): boolean
 			self.active = true
 			self.controlsenabled = true
 			self.x = self.x + 7/16
-			self.animation = false as any
+			self.animation = false
 		end
 		
 		return true
@@ -857,7 +857,7 @@ function mario:update_animation(dt: number): boolean
 		end
 		
 		if self.animationtimer - dt < invincibletime and self.animationtimer > invincibletime then
-			self.animation = false as any
+			self.animation = false
 			self.invincible = false
 			self.drawable = true
 		end
@@ -891,7 +891,7 @@ function mario:update_animation(dt: number): boolean
 		
 		if self.animationtimer - dt < growtime and self.animationtimer > growtime then
 			self.animationstate = self.animationmisc as string
-			self.animation = false as any
+			self.animation = false
 			noupdate = false
 			self.quadcenterY = self.char.bigquadcenterY
 			self.graphic = self.biggraphic
@@ -908,7 +908,7 @@ function mario:update_animation(dt: number): boolean
 		self.colors = starcolors[frame]
 		
 		if self.animationtimer - dt < growtime and self.animationtimer > growtime then
-			self.animation = false as any
+			self.animation = false
 			noupdate = false
 			self.animationtimer = 0
 			self.colors = (self.char.flowercolor or flowercolor) as {any}
@@ -2073,9 +2073,9 @@ function mario:grow()
 		end
 		
 		if self.size == 2 then
-			self.animation = "grow1" as any
+			self.animation = "grow1"
 		else
-			self.animation = "grow2" as any
+			self.animation = "grow2"
 		end
 		
 		self.drawable = true
@@ -2099,7 +2099,7 @@ function mario:shrink()
 	
 	self.colors = mariocolors[self.playernumber as integer]
 	
-	self.animation = "shrink" as any
+	self.animation = "shrink"
 	self.drawable = true
 	self.invincible = true
 	self.animationtimer = 0
@@ -3164,7 +3164,7 @@ end
 
 function mario:goinvincible()
 	self.animationstate = self.animationmisc as string
-	self.animation = "invincible" as any
+	self.animation = "invincible"
 	self.invincible = true
 	noupdate = false
 	self.quadcenterY = self.char.smallquadcenterY
@@ -3301,12 +3301,12 @@ function mario:die(how: any)
 	end
 	
 	if how == "pit" then
-		self.animation = "deathpit" as any
+		self.animation = "deathpit"
 		self.size = 1
 		self.drawable = false
 		self.invincible = false
 	else
-		self.animation = "death" as any
+		self.animation = "death"
 		self.drawable = true
 		self.invincible = false
 		self.animationstate = "dead"
@@ -3605,7 +3605,7 @@ function mario:flag()
 	
 	self.raccoontimer = 0
 	self.ducking = false
-	self.animation = "flag" as any
+	self.animation = "flag"
 	self.drawable = true
 	self.controlsenabled = false
 	self.animationstate = "climbing"
@@ -3669,7 +3669,7 @@ function mario:axe()
 	end
 
 	self.raccoontimer = 0
-	self.animation = "axe" as any
+	self.animation = "axe"
 	self.invincible = false
 	self.drawable = true
 	self.animationx = axex
@@ -3719,7 +3719,7 @@ end
 
 function mario:vineanimation()
 	self.infunnel = false
-	self.animation = "vine" as any
+	self.animation = "vine"
 	self.invincible = false
 	self.drawable = true
 	self.controlsenabled = false
@@ -3843,7 +3843,7 @@ function mario:portaled(dir: any)
 		
 		for i, v in pairs(objects["enemy"]) do
 			v:shotted()
-			if (v as any) ~= "bowser" then
+			if (v as enemy).t ~= "bowser" then
 				addpoints(firepoints[(v as {string:any}).t] or 100, v.x, v.y)
 			else
 				for i = 1, 6 do
@@ -3939,7 +3939,7 @@ function mario:respawn()
 	self.animationstate = "idle"
 	self:setquad()
 	
-	self.animation = "invincible" as any
+	self.animation = "invincible"
 	self.invincible = true
 	self.animationtimer = 0
 	
@@ -3984,13 +3984,13 @@ function mario:enteredfunnel(inside: any)
 end
 
 function mario:animationwalk(dir: any)
-	self.animation = "animationwalk" as any
+	self.animation = "animationwalk"
 	self.animationstate = "running"
 	self.animationmisc = dir
 end
 
 function mario:stopanimation()
-	self.animation = false as any
+			self.animation = false
 end
 
 function mario:portalpickup(i: any)

@@ -41,7 +41,7 @@ global function game_load(suspended?: any)
 	
 	mariosizes = {}
 	for i = 1, players do
-		mariosizes[i] = 1 as any
+		mariosizes[i] = 1
 	end
 	
 	autoscroll = true
@@ -196,7 +196,7 @@ global function loadlevel(level: string|number): boolean
 	miniblocks = {}
 	inventory = {}
 	for i = 1, 9 do
-		inventory[i as any] = {}
+		inventory[i] = {}
 	end
 	mccurrentblock = 1
 	itemanimations = {}
@@ -678,9 +678,9 @@ global function generatespritebatch()
 								portalspritebatch:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
 							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount then
 								customspritebatch:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
-							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as any] or 0) then
-								for i = 1, modcustomtiles as number do
-									if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i as any] then
+							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0) then
+								for i = 1, modcustomtiles as integer do
+									if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i] then
 										(modcustomspritebatch[i as number] as SpriteBatch):add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
 										break
 									end
@@ -695,9 +695,9 @@ global function generatespritebatch()
 								portalspritebatchfront:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
 							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount then
 								customspritebatchfront:add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
-							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as any] or 0) then
-								for i = 1, modcustomtiles as number do
-									if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i as any] then
+							elseif tilenumber <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0) then
+								for i = 1, modcustomtiles as integer do
+									if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i] then
 										(modcustomspritebatch[i as number] as SpriteBatch):add( tilequads[tilenumber]:quad(), (x-1)*16*scale, ((y)*16-8)*scale, 0, scale, scale )
 										break
 									end

@@ -26,7 +26,7 @@ function andgate:init(x: number, y: number, r)
 	
 	self.outtable = {}
 	self.inputstate = {}
-	self.outputstate = "off" as any
+	self.outputstate = "off"
 end
 
 function andgate:link(): any|nil
@@ -35,7 +35,7 @@ function andgate:link(): any|nil
 			for i, v in pairs(objects[w]) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
-					self.inputstate[tonumber(self.r[2])] = "off" as any
+					self.inputstate[tonumber(self.r[2])] = "off"
 				end
 			end
 		end
@@ -76,9 +76,9 @@ function andgate:input(t, input): any
 	if tonumber(input) then
 		if t == "toggle" then
 			if self.inputstate[tonumber(input)] == "on" then
-				self.inputstate[tonumber(input)] = "off" as any
+				self.inputstate[tonumber(input)] = "off"
 			else
-				self.inputstate[tonumber(input)] = "on" as any
+				self.inputstate[tonumber(input)] = "on"
 			end
 		else
 			self.inputstate[tonumber(input)] = t
@@ -93,7 +93,7 @@ function andgate:input(t, input): any
 		
 		if self.outputstate ~= pass then
 			self:out(pass)
-			self.outputstate = pass as any
+			self.outputstate = pass
 		end
 	end
 	return nil

@@ -42,7 +42,7 @@ global function loadenemy(filename: string)
 	local s = string.sub(ss[#ss] as string, 1, -6):lower()
 	
 	--CHECK FOR - , ; * AND WHATEVER ELSE WOULD BREAK MAPS
-	local skip = not enemy_name_ok(s) as any
+	local skip = not enemy_name_ok(s)
 	
 	if not skip then --bad letter
 		local data = love.filesystem.read(filename)

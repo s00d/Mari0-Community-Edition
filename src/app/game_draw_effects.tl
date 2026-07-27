@@ -126,7 +126,10 @@ global function game_draw_fx()
 		v:draw()
 	end
 
-	local minex, miney, minecox, minecoy = nil as any, nil as any, nil as any, nil as any
+	local minex: number|nil
+	local miney: number|nil
+	local minecox: number|nil
+	local minecoy: number|nil = nil, nil, nil, nil
 
 	--PORTAL UI STUFF
 	if levelfinished == false then

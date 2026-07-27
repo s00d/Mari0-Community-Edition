@@ -248,8 +248,8 @@ global coinmap: {any:{any:any}}
 global smbtilecount: integer
 global portaltilecount: integer
 global customtilecount: integer
-global modcustomtiles: any
-global modcustomtilecount: {any:number}
+global modcustomtiles: integer
+global modcustomtilecount: {integer:number}
 global music: MusicPlayer
 global musicname: string
 global record SoundSource
@@ -296,7 +296,7 @@ global gdt: number
 global introprogress: number
 global currentshaderi1: integer
 global currentshaderi2: integer
-global globints: {any:any}
+global globints: {string:number}
 global outputs: {any:any}
 global CATEGORYDELIMITER: {any:string}
 global MAP_SPAWN_HANDLERS: {string:function(number, number, {any})}
@@ -369,7 +369,11 @@ global animatedtimers: {any:{any:animatedtimer}}
 global tileselectionclick1: any
 global tileselectionclick2: any
 global playertypei: number
-global lightdrawtable: {any}
+global record LightDrawPoint
+	x: number
+	y: number
+end
+global lightdrawtable: {LightDrawPoint}
 global toconvertmappackselection: number
 global rightclickcellspacing: number
 global smbtilesimg: Image
@@ -393,7 +397,7 @@ end
 
 global http: HttpLib
 global custombackgrounds: {any}
-global reachedworlds: {string:{any:any}}
+global reachedworlds: {string:{number|string:boolean}}
 global superfriction: number
 global animatedtilelist: any
 global toconvertmappacklist: {string}
@@ -449,7 +453,7 @@ global custombackgroundheight: {any:{number}}
 global custombackgroundwidth: {any:{number}}
 global testlevel: boolean
 global checkpointx: {number:number}
-global globools: {any:any}
+global globools: {string:boolean}
 global pipestartx: number
 global dirscale: number
 global vsync: boolean
@@ -471,7 +475,7 @@ global customtiles: boolean
 global scrollingcomplete: number
 global checkpointy: {number:number}
 global checkpointsub: number|boolean
-global mariosizes: {any}
+global mariosizes: {integer:number}
 global mazeends: {number}
 global walkaccelerationair: number
 global runaccelerationair: number
@@ -634,7 +638,7 @@ global multitileobjectnames: {any}
 global ctrlpressed: boolean
 global selectiondragging: boolean
 global outputsi: {number:any}
-global linktoolt: any
+global linktoolt: string|boolean
 global hasHotkey: function(any, any): string|boolean|nil
 global levelscreentimer: number
 global mappackauthor: {any}
@@ -1009,7 +1013,7 @@ global superscrollrate: number
 global superscroll: number
 global xpandiff: number
 global ypandiff: number
-global inventory: {any:any}
+global inventory: {integer:{any}}
 global fontimage2: Image
 global portalgundelay: number
 global speeddebug: boolean
@@ -1118,7 +1122,7 @@ global editmtobjects: boolean
 global entitiescount: number
 global regiontoolX: number
 global regiontoolY: number
-global regiontoolt: any
+global regiontoolt: string|boolean
 global checkboximg: Image
 global checkboxquad: {any:{any:any}}
 global playedwilhelm: boolean
@@ -1321,7 +1325,7 @@ global checkmagic: function(s: string): boolean
 global checkportalHOR: function(Entity, number): boolean
 global checkportalVER: function(Entity, number): boolean
 global checkportalremove: function(any, any)
-global checkrect: function(x: number, y: number, width: number, height: number, list: any, statics?: any): {any}
+global checkrect: function(x: number, y: number, width: number, height: number, list: any, statics?: any): {integer:any}
 global closerightclickmenu: function()
 global collectblock: function(any): any
 global collectcoin: function(x: number, y: number, i?: any): any
@@ -1448,9 +1452,9 @@ global getmaps: function(): any
 global getportalposition: function(any, any, any, any, any, mirexc?: any): number|boolean, number|nil, string|nil
 global getupdate: function(): boolean
 global givelive: function(any, Entity)
-global globintCH: function(any, any, any): any
-global globintSH: function(any, any, value?: any): any
-global globoolSH: function(any, any): any
+global globintCH: function(id: any, para: any, value: any): boolean
+global globintSH: function(id: any, para: any, value?: any): number
+global globoolSH: function(id: any, para: any): boolean
 global handlegroup: function(i: any, h: any, u: {any:Body}, v: Body, j: any, dt: number, passed: any): boolean, boolean
 global hitblock: function(x: number, y: number, t: any, koopa?: any): any
 global hitrightside: function()
@@ -1642,7 +1646,7 @@ global subtractscore: any
 global editor_link_screen_pos: function(any, any): number, number
 global gettilelistpos: function(number, number): number|boolean
 global changeHotKey: function(any, any, any): any
-global closestplayer: any
+global closestplayer: integer
 global drawui: function(hidetime?: any): any
 global drawtools: number
 global newx: number
@@ -1663,7 +1667,7 @@ global formatscrollnumber: function(any): string
 global mapsort: function(any, any): boolean
 global gradient: function({number}, {number}, number): {number}
 global menu_parse_settings_text: function(any): any, any, any
-global getclosestplayer: function(any): any
+global getclosestplayer: function(x: number): integer
 global cameraxpan: function(any, any)
 global cameraypan: function(any, any)
 global update_and_compact: function(any, any)

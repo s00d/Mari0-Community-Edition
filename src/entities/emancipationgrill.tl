@@ -14,7 +14,7 @@ function emancipationgrill:init(x: number, y: number, r: any)
 	self.r = {unpack(r as {any})}
 	self.dir = "hor"
 	self.active = true
-	self.inputstate = "off" as any
+	self.inputstate = "off"
 	
 	self.thickness = 4 -- For aabb checks
 	

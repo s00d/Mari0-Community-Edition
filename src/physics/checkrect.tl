@@ -1,9 +1,9 @@
 -- AABB object-list query (extracted from physics.lua).
 -- Depends at runtime on: objects, aabb.
 
-global function checkrect(x: number, y: number, width: number, height: number, list: any, statics?: any): {any}
+global function checkrect(x: number, y: number, width: number, height: number, list: any, statics?: any): {integer:any}
 	local unpack = table.unpack or unpack
-	local out = {} as {any}
+	local out = {} as {integer:any}
 	
 	local inobj: {Body}|nil = nil
 	
@@ -23,9 +23,9 @@ global function checkrect(x: number, y: number, width: number, height: number, l
 			for j = 1, #lst do
 				if lst[j] == i then
 					contains = true
-				elseif tonumber(lst[j] as any) and "enemy" == i then
+				elseif tonumber(lst[j] as string) and "enemy" == i then
 					contains = true
-					catlist = tonumber(lst[j] as any)
+					catlist = tonumber(lst[j] as string)
 				end
 			end
 		end

@@ -23,7 +23,7 @@ function zgbooltrigger:init(x: number, y: number, r)
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
 	
-	self.checktable = false as any
+	self.checktable = false
 	
 	--TRIGGER ON PLAYER?
 	if #self.r > 0 and self.r[1] ~= "link" then
@@ -54,7 +54,7 @@ function zgbooltrigger:update(dt: number)
 	local col = globoolSH(self.id, "check") 
 	
 	if self.inverted then
-		col = not col as any
+		col = not col
 	end
 	
 	if self.out == "off" and col then

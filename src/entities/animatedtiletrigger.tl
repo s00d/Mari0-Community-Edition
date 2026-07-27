@@ -26,7 +26,7 @@ function animatedtiletrigger:init(x: number, y: number, r)
 	--REGION
 	if #self.r > 0 then
 		local s = strsplit(self.r[1], ":")
-		self.regionX, self.regionY, self.regionwidth, self.regionheight = s[2] as any, s[3] as any, tonumber(s[4] as string), tonumber(s[5] as string)
+		self.regionX, self.regionY, self.regionwidth, self.regionheight = s[2], s[3], tonumber(s[4] as string), tonumber(s[5] as string)
 		if string.sub(self.regionX as string, 1, 1) == "m" then
 			self.regionX = -tonumber(string.sub(self.regionX as string, 2))
 		end

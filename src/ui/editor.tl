@@ -525,7 +525,7 @@ function editor_update_closed(dt: number)
 							y = y - 1
 						end
 					end
-					table.insert(lightdrawtable, {x=x,y=y} as any)
+					table.insert(lightdrawtable, {x=x,y=y})
 				
 					if #lightdrawtable >= 3 then
 						local prev = lightdrawtable[#lightdrawtable-2] as {string:number}
@@ -1110,7 +1110,7 @@ function editor_draw_linking(mx: number, my: number)
 				local drawtable: {{any}} = {}
 				
 				for i = 1, #map[ltx][lty] do
-					if map[ltx][lty][i] == "link" and tonumber(map[ltx][lty][i+2] as any) and tonumber(map[ltx][lty][i+3] as any) then
+					if map[ltx][lty][i] == "link" and tonumber(map[ltx][lty][i+2]) and tonumber(map[ltx][lty][i+3]) then
 						lx2, ly2 = math.floor(((map[ltx][lty][i+2] as number)-xscroll-.5)*16*scale), math.floor(((map[ltx][lty][i+3] as number)-yscroll-1)*16*scale)
 						
 						local t = map[ltx][lty][i+1]
@@ -1161,7 +1161,7 @@ function editor_draw_linking(mx: number, my: number)
 		
 		if map[ltx] and map[ltx][lty] then
 			for i = 1, #map[ltx][lty] do
-				if map[ltx][lty][i] == "link" and tonumber(map[ltx][lty][i+2] as any) and tonumber(map[ltx][lty][i+3] as any) then
+				if map[ltx][lty][i] == "link" and tonumber(map[ltx][lty][i+2]) and tonumber(map[ltx][lty][i+3]) then
 					lx2, ly2 = math.floor(((map[ltx][lty][i+2] as number)-xscroll-.5)*16*scale), math.floor(((map[ltx][lty][i+3] as number)-yscroll-1)*16*scale)
 					
 					local t = map[ltx][lty][i+1]
@@ -1216,8 +1216,8 @@ function editor_draw_linking(mx: number, my: number)
 				speedx = (((rightclickm as rightclickmenu).t[2] as guielement).value) as number
 				speedy = -((((rightclickm as rightclickmenu).t[4] as guielement).value) as number)
 			else
-				speedx = tonumber(map[ltx][lty][3] as any) or 0
-				speedy = -(tonumber(map[ltx][lty][4] as any) or 0)
+				speedx = tonumber(map[ltx][lty][3]) or 0
+				speedy = -(tonumber(map[ltx][lty][4]) or 0)
 			end
 			
 			local step = 1/60
@@ -3118,7 +3118,7 @@ function editor_mousepressed_left(x: number, y: number)
 	if editormenuopen == false then
 		if editorstate == "lightdraw" then
 			lightdrawX, lightdrawY = getMouseTile(x, y+8*scale)
-			lightdrawtable = {{x=lightdrawX, y=lightdrawY} as any}
+			lightdrawtable = {{x=lightdrawX, y=lightdrawY}}
 		elseif rightclickactive then
 			finishlinking(x, y)
 		elseif editorstate == "selection" then
@@ -4241,7 +4241,7 @@ function moveline(file: string, line: any, direction: string): boolean|nil
 		return false
 	end
 	
-	local linenum = tonumber(line as any) or 0
+	local linenum = tonumber(line) or 0
 	
 	local data: string = (love.filesystem.read(file) or "") as string
 	data = string.sub(data, 1, -2)
@@ -4281,7 +4281,7 @@ function deleteline(file: string, line: any): boolean|nil
 	if not love.filesystem.getInfo(file) then
 		return false
 	end
-	local linenum = tonumber(line as any) or 0
+	local linenum = tonumber(line) or 0
 	local data: string = (love.filesystem.read(file) or "") as string
 	data = string.sub(data, 1, -2)
 	local newdata = ""
@@ -4299,7 +4299,7 @@ function renameline(file: string, line: any, newName: string): boolean|nil
 	if not love.filesystem.getInfo(file) then
 		return false
 	end
-	local linenum = tonumber(line as any) or 0
+	local linenum = tonumber(line) or 0
 	local data: string = (love.filesystem.read(file) or "") as string
 	data = string.sub(data, 1, -2)
 	local newdata = ""
@@ -4320,7 +4320,7 @@ function changeline(file: string, linenumber: any, newstring: string): boolean|n
 	if not love.filesystem.getInfo(file) then
 		return false
 	end
-	local linenum = tonumber(linenumber as any) or 0
+	local linenum = tonumber(linenumber) or 0
 	local data: string = (love.filesystem.read(file) or "") as string
 	data = string.sub(data, 1, -2)
 	local newdata = ""
@@ -4449,7 +4449,7 @@ function startlinking(x: number, y: number, t: any)
 	rightclickactive = true
 	linktoolX = x
 	linktoolY = y
-	linktoolt = t as any
+	linktoolt = t as string
 	rightclicka = 1
 	
 	closerightclickmenu()
@@ -4459,7 +4459,7 @@ function startregion(x: number, y: number, t: any)
 	rightclickactive = true
 	regiontoolX = x
 	regiontoolY = y
-	regiontoolt = t as any
+	regiontoolt = t as string
 	rightclicka = 1
 	
 	--get width n shit
@@ -4603,7 +4603,7 @@ function finishlinking(x: number, y: number)
 				allowdrag = false
 			end
 		end
-		linktoolt = false as any
+		linktoolt = false
 	end
 end
 

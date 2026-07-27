@@ -122,27 +122,27 @@ function laser:update(dt: number)
 			local obj: Entity|nil = nil
 			if (self.lasertable[i] as string) == "right" or (self.lasertable[i] as string) == "down" then
 				local smallestx = mapwidth+1
-				local smallesti: number = 0
+				local smallesti: integer = 0
 			
 				for j = 1, #rectcol, 2 do
-					if (objects[rectcol[j as integer] as any] as {any:Entity})[rectcol[(j+1) as integer] as any].x < smallestx then
-						smallestx = (objects[rectcol[j as integer] as any] as {any:Entity})[rectcol[(j+1) as integer] as any].x
+					if objects[rectcol[j]][rectcol[j + 1]].x < smallestx then
+						smallestx = objects[rectcol[j]][rectcol[j + 1]].x
 						smallesti = j
 					end
 				end
-				obj = (objects[rectcol[smallesti as integer] as any] as {any:Entity})[rectcol[(smallesti+1) as integer] as any]
+				obj = objects[rectcol[smallesti]][rectcol[smallesti + 1]]
 			else
 				local biggestx: number = -1
-				local biggesti: number = 0
+				local biggesti: integer = 0
 			
 				for j = 1, #rectcol, 2 do
-					if (objects[rectcol[j as integer] as any] as {any:Entity})[rectcol[(j+1) as integer] as any].x > biggestx then
-						biggestx = (objects[rectcol[j as integer] as any] as {any:Entity})[rectcol[(j+1) as integer] as any].x
+					if objects[rectcol[j]][rectcol[j + 1]].x > biggestx then
+						biggestx = objects[rectcol[j]][rectcol[j + 1]].x
 						biggesti = j
 					end
 				end
 				
-				obj = (objects[rectcol[biggesti as integer] as any] as {any:Entity})[rectcol[(biggesti+1) as integer] as any]
+				obj = objects[rectcol[biggesti]][rectcol[biggesti + 1]]
 			end
 			local o = obj as Entity
 			

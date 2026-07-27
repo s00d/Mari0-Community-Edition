@@ -118,7 +118,7 @@ function lightbridge:updaterange()
 	
 	for i, v in pairs(self.childtable) do
 		local v = v as Entity
-		v.destroy = true as any
+		v.destroy = true
 	end
 	self.childtable = {}
 	

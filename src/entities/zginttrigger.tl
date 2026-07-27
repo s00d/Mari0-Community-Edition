@@ -23,7 +23,7 @@ function zginttrigger:init(x: number, y: number, r)
 	table.remove(self.r, 1)
 	table.remove(self.r, 1)
 	
-	self.checktable = false as any
+	self.checktable = false
 	self.conditions = {"greater","less","equal"}
 	--TRIGGER ON PLAYER?
 	if #self.r > 0 and self.r[1] ~= "link" then

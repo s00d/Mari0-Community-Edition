@@ -68,7 +68,7 @@ global function levelscreen_load(reason: any, levelarg?: any)
 	end
 	
 	if marioworld ~= "M" and not reachedworlds[mappack][marioworld] then
-		reachedworlds[mappack][marioworld] = true as any
+		reachedworlds[mappack][marioworld] = true
 		updated = true
 	end
 	

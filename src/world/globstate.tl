@@ -1,41 +1,48 @@
 -- Global bool/int helpers used by triggers, animations, enemies, text.
 
-global function globoolSH(id: any, para: any): any --does everything relating to globools
+local function glob_key(id: any): string
+	return tostring(id)
+end
+
+global function globoolSH(id: any, para: any): boolean
 --DOC: a simple function, unites four things that i'll be doing a lot with globools into a single, easy-to-use shorthand
+local key = glob_key(id)
 if para == "flip" then
-globools[id as any] = not (globools[id as any] as boolean) as any
+globools[key] = not globools[key]
 elseif para == "true" then
-globools[id as any] = true as any
+globools[key] = true
 elseif para == "false" then
-globools[id as any] = false as any
+globools[key] = false
 end
 if para ~= "check" then
 	-- intentionally silent (was print spam every globool mutate)
 end
-return globools[id as any] or false --sanitise outputs so nil is never returned
+return globools[key] or false --sanitise outputs so nil is never returned
 end
 
-global function globintSH(id: any, para: any, value?: any): any --modifies global integers in an expandable set of ways
-value = tonumber(value as any) or 0
-globints[id as any] = globints[id as any] or 0
+global function globintSH(id: any, para: any, value?: any): number
+local num: number = tonumber(value) or 0
+local key = glob_key(id)
+globints[key] = globints[key] or 0
 	if para == "set" then
-		globints[id as any] = value
+		globints[key] = num
 	elseif para == "add" then
-		globints[id as any] = (globints[id as any] as number) + (value as number)
+		globints[key] = globints[key] + num
 	elseif para == "subtract" then
-		globints[id as any] = (globints[id as any] as number) - (value as number)
+		globints[key] = globints[key] - num
 	end
-return globints[id as any]
+return globints[key]
 end
 
-global function globintCH(id: any, para: any, value: any): any --checks global integers
-value = tonumber(value as any) or 0
-globints[id as any] = globints[id as any] or 0
-	if (globints[id as any] as number) > (value as number) and para == "greater" then
+global function globintCH(id: any, para: any, value: any): boolean
+local num: number = tonumber(value) or 0
+local key = glob_key(id)
+globints[key] = globints[key] or 0
+	if globints[key] > num and para == "greater" then
 		return true
-	elseif (globints[id as any] as number) < (value as number) and para == "less" then
+	elseif globints[key] < num and para == "less" then
 		return true
-	elseif globints[id as any] == value and para == "equal" then
+	elseif globints[key] == num and para == "equal" then
 		return true
 	else
 		return false

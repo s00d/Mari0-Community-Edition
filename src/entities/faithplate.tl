@@ -49,7 +49,7 @@ function faithplate:init(x: number, y: number, r)
 	end
 	--Yspeed
 	if #self.r > 0 then
-		self.yspeed = (tonumber(self.r[1] as any) as number) or 20
+		self.yspeed = tonumber(self.r[1]) or 20
 		table.remove(self.r, 1)
 	end
 	--POWER
@@ -111,7 +111,9 @@ function faithplate:update(dt: number)
 		local intable = checkrect(self.x+.5, self.y-0.125, 1, 0.125, self.includetable)
 		
 		for i = 1, #intable, 2 do
-			local obj = (objects[intable[i] as any] as {any:Entity})[intable[i+1] as any]
+			local tname = intable[i] as string
+			local tidx = intable[i + 1] as integer
+			local obj = objects[tname][tidx]
 			if not obj.ignorefaithplates then
 				if obj.speedy >= 0 then
 					obj.speedy = -self.yspeed

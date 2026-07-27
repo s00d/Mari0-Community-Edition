@@ -22,7 +22,7 @@ function platform:init(x: number, y: number, r, diroverride?: any)
 	
 	--SIZE
 	if #self.r > 0 then
-		self.size = tonumber(self.r[1] as any) as number
+		self.size = tonumber(self.r[1]) as number
 		table.remove(self.r, 1)
 	end
 	

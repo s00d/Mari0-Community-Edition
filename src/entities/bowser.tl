@@ -133,7 +133,7 @@ function bowser:update(dt: number): boolean
 		
 		--left of player override
 		if not self.fall then
-			if (playerobjs[getclosestplayer(self.x+15/16) as any] as Entity).x > self.x+15/16 and self.jump == false then
+			if (playerobjs[getclosestplayer(self.x+15/16)] as Entity).x > self.x+15/16 and self.jump == false then
 				self.animationdirection = "left"
 				self.speedx = bowserspeedbackwards
 				self.backwards = true
