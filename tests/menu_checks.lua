@@ -186,6 +186,46 @@ do
 	check("parse desc", d == "Hello world")
 end
 
+-- Mappack filter + two-panel layout
+do
+	local names = { "Super Mario", "Portal Pack", "Custom" }
+	local all = menu_mappack_filter_indices(names, "")
+	check("filter empty keeps all", #all == 3)
+	local portal = menu_mappack_filter_indices(names, "portal")
+	check("filter substring", #portal == 1 and portal[1] == 2)
+	local none = menu_mappack_filter_indices(names, "zzz")
+	check("filter miss empty", #none == 0)
+
+	local lay = menu_layout_mappack({ visible_count = 3, scroll = 0 })
+	check("mappack list panel grid", lay.list.x % 8 == 0 and lay.list.w % 8 == 0 and lay.list.h % 8 == 0)
+	check("mappack preview panel grid", lay.preview.x % 8 == 0 and lay.preview.w % 8 == 0)
+	check("mappack rows count", #lay.rows == 3)
+	check("mappack rows on grid", menu_rects_on_grid(lay.rows))
+	check("mappack rows non-overlap", menu_rects_non_overlap(lay.rows))
+	local mid = lay.rows[2]
+	check("mappack hit row2", menu_hit(lay.rows, mid.x + 4, mid.y + 4) == 2)
+	check("mappack three tabs", #lay.tabs == 3)
+end
+
+-- Options tabs + pause layout
+do
+	local tabs = menu_layout_options_tabs()
+	check("options 4 tabs", #tabs == 4)
+	check("options tabs on grid", menu_rects_on_grid(tabs))
+	local body = menu_layout_options_rows(5)
+	check("options body rows", #body.rows == 4) -- selection 2..5
+	check("options body grid", menu_rects_on_grid(body.rows))
+
+	local pause = menu_layout_pause(400)
+	check("pause 6 rows", #pause.rects == 6)
+	check("pause panel grid", pause.panel.w % 8 == 0 and pause.panel.h % 8 == 0)
+	check("pause rows grid", menu_rects_on_grid(pause.rects))
+	check("pause hit first", menu_hit(pause.rects, pause.rects[1].x + 4, pause.rects[1].y + 4) == 1)
+
+	local ls = menu_layout_levelscreen(400)
+	check("levelscreen panel grid", ls.panel.x % 8 == 0 and ls.panel.w % 8 == 0)
+end
+
 if select("#", ...) > 0 then
 	return failed
 end

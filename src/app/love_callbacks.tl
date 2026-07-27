@@ -294,6 +294,14 @@ function love.mousemoved(x: any, y: any, dx: any, dy: any)
 	end
 	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "options" then
 		menu_mousemoved(mouseui_x, mouseui_y)
+	elseif gamestate == "game" and pausemenuopen and not menuprompt and not desktopprompt and not suspendprompt then
+		local ux = mouseui_x / scale
+		local uy = mouseui_y / scale
+		local lay = menu_layout_pause(width * 16)
+		local i = menu_hit(lay.rects as {any}, ux, uy)
+		if i then
+			pausemenuselected = i
+		end
 	end
 end
 

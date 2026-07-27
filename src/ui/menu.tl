@@ -7,7 +7,7 @@ local menu_cursor_y: number = 0
 local menu_cursor_ready: boolean = false
 local menu_hover_a: number = 0
 local menu_hover_i: integer|nil = nil
-local mappack_skipped_count: number = 0
+global mappack_skipped_count: number = 0
 
 local function main_layout(): {string:any}
 	if not MENU_SCREENS.main then
@@ -477,390 +477,39 @@ global function menu_draw_title()
 end
 
 global function menu_draw_mappackmenu()
-	--background
-	love.graphics.setColor(0, 0, 0, 0.4)
-	love.graphics.rectangle("fill", 21*scale, 16*scale, 218*scale, 200*scale)
-	love.graphics.setColor(1, 1, 1, 1)
-	
-	--set scissor
-	love.graphics.setScissor(21*scale, 16*scale, 218*scale, 200*scale)
-	
-	if loadingonlinemappacks then
-		love.graphics.setColor(0, 0, 0, 0.8)
-		love.graphics.rectangle("fill", 21*scale, 16*scale, 218*scale, 200*scale)
-		love.graphics.setColor(1, 1, 1, 1)
-		properprint("a little patience..|downloading " .. currentdownload .. " of " .. downloadcount, 50*scale, 30*scale)
-		drawrectangle(50, 55, 152, 10)
-		love.graphics.rectangle("fill", 50*scale, 55*scale, 152*((currentfiledownload-1)/(filecount-1))*scale, 10*scale)
-	else
-		love.graphics.translate(-round(mappackhorscrollsmooth*scale*mappackhorscrollrange), 0)
-		
-		if mappackhorscrollsmooth < 1 then
-			--draw each butten (even if all you do, is press ONE. BUTTEN.)
-			--scrollbar offset
-			love.graphics.translate(0, -round(mappackscrollsmooth*60*scale))
-			
-			love.graphics.setScissor(240*scale, 16*scale, 200*scale, 200*scale)
-			love.graphics.setColor(0, 0, 0, 0.8)
-			love.graphics.rectangle("fill", 240*scale, 81*scale, 115*scale, 61*scale)
-			love.graphics.setColor(1, 1, 1)
-			if not savefolderfailed then
-				local skipmsg = ""
-				if mappack_skipped_count > 0 then
-					skipmsg = "||" .. tostring(mappack_skipped_count) .. " packs skipped|(no settings/|has version.txt)"
-				end
-				properprint("press right to|access the dlc||press m to|open your|mappack folder" .. skipmsg, 241*scale, 83*scale)
-			else
-				properprint("press right to|access the dlc||could not|open your|mappack folder", 241*scale, 83*scale)
-			end
-			love.graphics.setScissor(21*scale, 16*scale, 218*scale, 200*scale)
-			
-			for i = 1, #mappacklist do
-				--back
-				love.graphics.draw(mappackback, 25*scale, (20+(i-1)*60)*scale, 0, scale, scale)
-				
-				--icon
-				if mappackicon[i] ~= nil then
-					local scale2w = scale*50 / math.max(1, mappackicon[i]:getWidth())
-					local scale2h = scale*50 / math.max(1, mappackicon[i]:getHeight())
-					love.graphics.draw(mappackicon[i], 29*scale, (24+(i-1)*60)*scale, 0, scale2w, scale2h)
-				else
-					love.graphics.draw(mappacknoicon, 29*scale, (24+(i-1)*60)*scale, 0, scale, scale)
-				end
-				love.graphics.draw(mappackoverlay, 29*scale, (24+(i-1)*60)*scale, 0, scale, scale)
-				
-				--name
-				love.graphics.setColor(0.8, 0.8, 0.8)
-				if mappackselection == i then
-					love.graphics.setColor(1, 1, 1)
-				end
-				
-				properprint(menu_mappack_title(mappackname[i]), 83*scale, (26+(i-1)*60)*scale)
-				
-				--author
-				love.graphics.setColor(0.4, 0.4, 0.4)
-				if mappackselection == i then
-					love.graphics.setColor(0.4, 0.4, 0.4)
-				end
-				
-				if mappackauthor[i] then
-					properprint(menu_mappack_author_line(mappackauthor[i]), 91*scale, (35+(i-1)*60)*scale)
-				end
-				
-				--description
-				love.graphics.setColor(0.5, 0.5, 0.5)
-				if mappackselection == i then
-					love.graphics.setColor(0.7, 0.7, 0.7)
-				end
-				
-				if mappackdescription[i] then
-					local d1, d2, d3 = menu_mappack_desc_lines(mappackdescription[i])
-					properprint(d1, 83*scale, (47+(i-1)*60)*scale)
-					if string.len((mappackdescription[i]) as string) > 17 then
-						properprint(d2, 83*scale, (56+(i-1)*60)*scale)
-					end
-					if string.len((mappackdescription[i]) as string) > 34 then
-						properprint(d3, 83*scale, (65+(i-1)*60)*scale)
-					end
-				end
-				
-				love.graphics.setColor(1, 1, 1)
-				
-				--highlight
-				if i == mappackselection then
-					love.graphics.draw(mappackhighlight, 25*scale, (20+(i-1)*60)*scale, 0, scale, scale)
-				end
-			end
-		
-			love.graphics.translate(0, round(mappackscrollsmooth*60*scale))
-		
-			local i = mappackscrollsmooth / (#mappacklist-3.233)
-		
-			love.graphics.draw(mappackscrollbar, 227*scale, (20+i*160)*scale, 0, scale, scale)
-		
-		end
-		
-		love.graphics.translate(round(mappackhorscrollsmooth*scale*mappackhorscrollrange), 0)
-		----------
-		--ONLINE--
-		----------
-		
-		love.graphics.translate(round(mappackhorscrollrange*scale - mappackhorscrollsmooth*scale*mappackhorscrollrange), 0)
-		
-		if mappackhorscrollsmooth > 0 and mappackhorscrollsmooth < 2 then
-			if #onlinemappacklist == 0 then
-				properprint("something went wrong||      sorry d:||maybe your internet|does not work right?", 40*scale, 80*scale)
-			end
-			
-			love.graphics.setScissor(240*scale, 16*scale, 200*scale, 200*scale)
-			love.graphics.setColor(0, 0, 0, 0.8)
-			love.graphics.rectangle("fill", 241*scale, 16*scale, 150*scale, 200*scale)
-			love.graphics.setColor(1, 1, 1, 1)
-			properprint("wanna contribute?|make a mappack and|send an email to|mappack at|stabyourself.net!||include your map-|pack! you can find|it in your appdata|love/mari0 dir.", 244*scale, 19*scale)
-			if outdated then
-				love.graphics.setColor(1, 0, 0, 1)
-				properprint("version outdated!|you have an old|version of mari0!|mappacks could not|be downloaded.|go to|stabyourself.net|to download latest", 244*scale, 130*scale)
-				love.graphics.setColor(1, 1, 1, 1)
-			elseif downloaderror then
-				love.graphics.setColor(1, 0, 0, 1)
-				properprint("download error!|something went|wrong while|downloading|mappacks.|press left and|right to try|again.  sorry.", 244*scale, 130*scale)
-				love.graphics.setColor(1, 1, 1, 1)
-			end
-				
-			love.graphics.setScissor(21*scale, 16*scale, 218*scale, 200*scale)
-			
-			--scrollbar offset
-			love.graphics.translate(0, -round(onlinemappackscrollsmooth*60*scale))
-			for i = 1, #onlinemappacklist do
-				--back
-				love.graphics.draw(mappackback, 25*scale, (20+(i-1)*60)*scale, 0, scale, scale)
-				
-				--icon
-				if onlinemappackicon[i] ~= nil then
-					love.graphics.draw(onlinemappackicon[i], 29*scale, (24+(i-1)*60)*scale, 0, scale, scale)
-				else
-					love.graphics.draw(mappacknoicon, 29*scale, (24+(i-1)*60)*scale, 0, scale, scale)
-				end
-				love.graphics.draw(mappackoverlay, 29*scale, (24+(i-1)*60)*scale, 0, scale, scale)
-				
-				--name
-				love.graphics.setColor(0.8, 0.8, 0.8)
-				if onlinemappackselection == i then
-					love.graphics.setColor(1, 1, 1)
-				end
-				
-				properprint(menu_mappack_title(onlinemappackname[i]), 83*scale, (26+(i-1)*60)*scale)
-				
-				--author
-				love.graphics.setColor(0.4, 0.4, 0.4)
-				if onlinemappackselection == i then
-					love.graphics.setColor(0.4, 0.4, 0.4)
-				end
-				
-				if onlinemappackauthor[i] then
-					properprint(menu_mappack_author_line(onlinemappackauthor[i]), 91*scale, (35+(i-1)*60)*scale)
-				end
-				
-				--description
-				love.graphics.setColor(0.5, 0.5, 0.5)
-				if onlinemappackselection == i then
-					love.graphics.setColor(0.7, 0.7, 0.7)
-				end
-				
-				if onlinemappackdescription[i] then
-					local d1, d2, d3 = menu_mappack_desc_lines(onlinemappackdescription[i])
-					properprint(d1, 83*scale, (47+(i-1)*60)*scale)
-					if string.len((onlinemappackdescription[i]) as string) > 17 then
-						properprint(d2, 83*scale, (56+(i-1)*60)*scale)
-					end
-					if string.len((onlinemappackdescription[i]) as string) > 34 then
-						properprint(d3, 83*scale, (65+(i-1)*60)*scale)
-					end
-				end
-				
-				love.graphics.setColor(1, 1, 1)
-				
-				--highlight
-				if i == onlinemappackselection then
-					love.graphics.draw(mappackhighlight, 25*scale, (20+(i-1)*60)*scale, 0, scale, scale)
-				end
-			end
-		
-			love.graphics.translate(0, round(onlinemappackscrollsmooth*60*scale))
-		
-			local i = onlinemappackscrollsmooth / (#onlinemappacklist-3.233)
-		
-			love.graphics.draw(mappackscrollbar, 227*scale, (20+i*160)*scale, 0, scale, scale)
-		end
-		
-		love.graphics.translate(- round(mappackhorscrollrange*scale - mappackhorscrollsmooth*scale*mappackhorscrollrange), 0)
-		----------------
-		--OLD MAPPACKS--
-		----------------
-		
-		love.graphics.translate(round(mappackhorscrollrange*scale*2 - mappackhorscrollsmooth*scale*mappackhorscrollrange), 0)
-		
-		if mappackhorscrollsmooth > 1 then
-			love.graphics.setScissor(240*scale, 16*scale, 200*scale, 200*scale)
-			love.graphics.setColor(0, 0, 0, 0.8)
-			love.graphics.rectangle("fill", 240*scale, 81*scale, 150*scale, 61*scale)
-			love.graphics.setColor(1, 1, 1)
-			properprint("use this menu to|convert a mappack|from the old 1.6|format to the ce|one. may take some|time!", 244*scale, 83*scale)
-			love.graphics.setScissor(21*scale, 16*scale, 218*scale, 200*scale)
-			love.graphics.setColor(1,1,1)
-			love.graphics.translate(0, -round(toconvertmappackscrollsmooth*60*scale))
-
-			if #toconvertmappacklist == 0 then
-				properprint("toconvert folder empty||put 1.6 mappacks in|toconvert/ then reopen", 40*scale, 80*scale)
-			end
-			
-			for i = 1, #toconvertmappacklist do
-				--back
-				love.graphics.draw(mappackback, 25*scale, (20+(i-1)*60)*scale, 0, scale, scale)
-				
-				--icon
-				if toconvertmappackicon[i] ~= nil then
-					local scale2w = scale*50 / math.max(1, toconvertmappackicon[i]:getWidth())
-					local scale2h = scale*50 / math.max(1, toconvertmappackicon[i]:getHeight())
-					love.graphics.draw(toconvertmappackicon[i], 29*scale, (24+(i-1)*60)*scale, 0, scale2w, scale2h)
-				else
-					love.graphics.draw(mappacknoicon, 29*scale, (24+(i-1)*60)*scale, 0, scale, scale)
-				end
-				love.graphics.draw(mappackoverlay, 29*scale, (24+(i-1)*60)*scale, 0, scale, scale)
-				
-				--name
-				love.graphics.setColor(0.8, 0.8, 0.8)
-				if mappackselection == i then
-					love.graphics.setColor(1, 1, 1)
-				end
-				
-				properprint(menu_mappack_title(toconvertmappackname[i]), 83*scale, (26+(i-1)*60)*scale)
-				
-				--author
-				love.graphics.setColor(0.4, 0.4, 0.4)
-				if toconvertmappackselection == i then
-					love.graphics.setColor(0.4, 0.4, 0.4)
-				end
-				
-				if toconvertmappackauthor[i] then
-					properprint(menu_mappack_author_line(toconvertmappackauthor[i]), 91*scale, (35+(i-1)*60)*scale)
-				end
-				
-				--description
-				love.graphics.setColor(0.5, 0.5, 0.5)
-				if toconvertmappackselection == i then
-					love.graphics.setColor(0.7, 0.7, 0.7)
-				end
-				
-				if toconvertmappackdescription[i] then
-					local d1, d2, d3 = menu_mappack_desc_lines(toconvertmappackdescription[i])
-					properprint(d1, 83*scale, (47+(i-1)*60)*scale)
-					if string.len((toconvertmappackdescription[i]) as string) > 17 then
-						properprint(d2, 83*scale, (56+(i-1)*60)*scale)
-					end
-					if string.len((toconvertmappackdescription[i]) as string) > 34 then
-						properprint(d3, 83*scale, (65+(i-1)*60)*scale)
-					end
-				end
-				
-				love.graphics.setColor(1, 1, 1)
-				
-				--highlight
-				if i == toconvertmappackselection then
-					love.graphics.draw(mappackhighlight, 25*scale, (20+(i-1)*60)*scale, 0, scale, scale)
-				end
-			end
-			
-			love.graphics.translate(0, round(toconvertmappackscrollsmooth*60*scale))
-			local i = toconvertmappackscrollsmooth / (#toconvertmappacklist-3.233)
-		
-			love.graphics.draw(mappackscrollbar, 227*scale, (20+i*160)*scale, 0, scale, scale)
-			love.graphics.setScissor()
-		end
-		
-		love.graphics.translate(- round(mappackhorscrollrange*scale*2 - mappackhorscrollsmooth*scale*mappackhorscrollrange), 0)
-	end
-	
-	love.graphics.setScissor()
-	
-	if mappackhorscroll == 0 then
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.rectangle("fill", 22*scale, 3*scale, 44*scale, 13*scale)
-		love.graphics.setColor(0, 0, 0)
-		properprint("local", 23*scale, 6*scale)
-		drawrectangle(22, 3, 44, 13)
-		love.graphics.setColor(0, 0, 0)
-		love.graphics.rectangle("fill", 70*scale, 3*scale, 29*scale, 13*scale)
-		love.graphics.rectangle("fill", 103*scale, 3*scale, 29*scale, 13*scale)
-		love.graphics.setColor(1, 1, 1)
-		properprint("dlc", 72*scale, 6*scale)
-		properprint("1.6", 105*scale, 6*scale)
-	elseif mappackhorscroll == 1 then
-		love.graphics.setColor(0, 0, 0)
-		love.graphics.rectangle("fill", 22*scale, 3*scale, 44*scale, 13*scale)
-		love.graphics.rectangle("fill", 103*scale, 3*scale, 29*scale, 13*scale)
-		love.graphics.setColor(1, 1, 1)
-		properprint("local", 23*scale, 6*scale)
-		properprint("1.6", 105*scale, 6*scale)
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.rectangle("fill", 70*scale, 3*scale, 29*scale, 13*scale)
-		love.graphics.setColor(0, 0, 0)
-		properprint("dlc", 72*scale, 6*scale)
-		drawrectangle(70, 3, 29, 13)
-	elseif mappackhorscroll == 2 then
-		love.graphics.setColor(0, 0, 0)
-		love.graphics.rectangle("fill", 22*scale, 3*scale, 44*scale, 13*scale)
-		love.graphics.rectangle("fill", 70*scale, 3*scale, 29*scale, 13*scale)
-		love.graphics.setColor(1, 1, 1)
-		properprint("local", 23*scale, 6*scale)
-		properprint("dlc", 72*scale, 6*scale)
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.rectangle("fill", 103*scale, 3*scale, 29*scale, 13*scale)
-		love.graphics.setColor(0, 0, 0)
-		properprint("1.6", 105*scale, 6*scale)
-		drawrectangle(103, 3, 29, 13)
-	end
+	menu_mappack_draw()
 end
 
 global function menu_draw_options()
-	love.graphics.setColor(0, 0, 0, 0.8)
-	love.graphics.rectangle("fill", 21*scale, 16*scale, 218*scale, 200*scale)
-	
-	--Controls tab head
-	if optionstab == 1 then
-		love.graphics.setColor(0.4, 0.4, 0.4, 0.4)
-		love.graphics.rectangle("fill", 25*scale, 20*scale, 67*scale, 11*scale)
+	local body = menu_layout_options_rows(15)
+	local panel = body.panel as {string:any}
+	draw_panel(panel.x as number, panel.y as number, panel.w as number, panel.h as number)
+
+	-- tab strip
+	local tabs = menu_layout_options_tabs()
+	for i = 1, #tabs do
+		local t = tabs[i] as {string:any}
+		local on = (t.id as integer) == optionstab
+		if on then
+			ui_set_color("sel")
+			love.graphics.rectangle("fill", (t.x as number) * scale, (t.y as number) * scale, (t.w as number) * scale, (t.h as number) * scale)
+			ui_set_color("text_accent")
+		elseif optionsselection == 1 and on then
+			ui_set_color("text_accent")
+		else
+			ui_set_color(optionsselection == 1 and (optionstab == (t.id as integer)) and "text_accent" or "text_dim")
+			if optionsselection == 1 and optionstab == (t.id as integer) then
+				ui_set_color("text_accent")
+			elseif optionstab == (t.id as integer) then
+				ui_set_color("text")
+			else
+				ui_set_color("text_dim")
+			end
+		end
+		properprint(t.label as string, ((t.x as number) + 4) * scale, ((t.y as number) + 4) * scale)
 	end
-	
-	if optionstab == 1 and optionsselection == 1 then
-		love.graphics.setColor(1, 1, 1, 1)
-	else
-		love.graphics.setColor(0.4, 0.4, 0.4, 1)
-	end
-	properprint("controls", 26*scale, 22*scale)
-	
-	--Skins tab head
-	if optionstab == 2 then
-		love.graphics.setColor(0.4, 0.4, 0.4, 0.4)
-		love.graphics.rectangle("fill", 96*scale, 20*scale, 43*scale, 11*scale)
-	end
-	
-	
-	if optionstab == 2 and optionsselection == 1 then
-		love.graphics.setColor(1, 1, 1, 1)
-	else
-		love.graphics.setColor(0.4, 0.4, 0.4, 1)
-	end
-	properprint("skins", 97*scale, 22*scale)
-	
-	--Miscellaneous tab head
-	if optionstab == 3 then
-		love.graphics.setColor(0.4, 0.4, 0.4, 0.4)
-		love.graphics.rectangle("fill", 145*scale, 20*scale, 39*scale, 11*scale)
-	end
-	
-	if optionstab == 3 and optionsselection == 1 then
-		love.graphics.setColor(1, 1, 1, 1)
-	else
-		love.graphics.setColor(0.4, 0.4, 0.4, 1)
-	end
-	properprint("misc.", 146*scale, 22*scale)
-	
-	--Cheat tab head
-	if optionstab == 4 then
-		love.graphics.setColor(0.4, 0.4, 0.4, 0.4)
-		love.graphics.rectangle("fill", 190*scale, 20*scale, 43*scale, 11*scale)
-	end
-	
-	if optionstab == 4 and optionsselection == 1 then
-		love.graphics.setColor(1, 1, 1, 1)
-	else
-		love.graphics.setColor(0.4, 0.4, 0.4, 1)
-	end
-	properprint("cheat", 191*scale, 22*scale)
-	
 	love.graphics.setColor(1, 1, 1, 1)
-	
+
 	if optionstab == 1 then
 		--CONTROLS
 		if optionsselection == 2 then
@@ -1429,35 +1078,44 @@ global function loadbackground(backgroundlevel: any): any
 end
 
 global function updatescroll()
-	--check if current focus is completely onscreen
-	if inrange(mappackselection, 1+mappackscroll, 3+mappackscroll, true) == false then
-		if mappackselection < 1+mappackscroll then --above window
-			mappackscroll = mappackselection-1
+	local vis = 6
+	if inrange(mappackselection, 1 + mappackscroll, vis + mappackscroll, true) == false then
+		if mappackselection < 1 + mappackscroll then
+			mappackscroll = mappackselection - 1
 		else
-			mappackscroll = mappackselection-3.233
+			mappackscroll = mappackselection - vis
 		end
+	end
+	if mappackscroll < 0 then
+		mappackscroll = 0
 	end
 end
 
 global function onlineupdatescroll()
-	--check if current focus is completely onscreen
-	if inrange(onlinemappackselection, 1+onlinemappackscroll, 3+onlinemappackscroll, true) == false then
-		if onlinemappackselection < 1+onlinemappackscroll then --above window
-			onlinemappackscroll = onlinemappackselection-1
+	local vis = 6
+	if inrange(onlinemappackselection, 1 + onlinemappackscroll, vis + onlinemappackscroll, true) == false then
+		if onlinemappackselection < 1 + onlinemappackscroll then
+			onlinemappackscroll = onlinemappackselection - 1
 		else
-			onlinemappackscroll = onlinemappackselection-3.233
+			onlinemappackscroll = onlinemappackselection - vis
 		end
+	end
+	if onlinemappackscroll < 0 then
+		onlinemappackscroll = 0
 	end
 end
 
 global function toconvertupdatescroll()
-	--check if current focus is completely onscreen
-	if inrange(toconvertmappackselection, 1+toconvertmappackscroll, 3+toconvertmappackscroll, true) == false then
-		if toconvertmappackselection < 1+toconvertmappackscroll then --above window
-			toconvertmappackscroll = toconvertmappackselection-1
+	local vis = 6
+	if inrange(toconvertmappackselection, 1 + toconvertmappackscroll, vis + toconvertmappackscroll, true) == false then
+		if toconvertmappackselection < 1 + toconvertmappackscroll then
+			toconvertmappackscroll = toconvertmappackselection - 1
 		else
-			toconvertmappackscroll = toconvertmappackselection-3.233
+			toconvertmappackscroll = toconvertmappackselection - vis
 		end
+	end
+	if toconvertmappackscroll < 0 then
+		toconvertmappackscroll = 0
 	end
 end
 
@@ -1469,6 +1127,7 @@ global function mappacks()
 	elseif mappackhorscroll == 2 then
 		loadtoconvertmappacks()
 	end
+	menu_mappack_setup_filter()
 end
 
 global function loadmappacks()
@@ -1839,87 +1498,66 @@ global function menu_keypressed(key: any)
 			spin_call("inc")
 		end
 	elseif gamestate == "mappackmenu" then
-		if (key == "up" or key == "w") then
-			if mappacktype == "local" then
-				if mappackselection > 1 then
-					mappackselection = mappackselection - 1
-					mappack = mappacklist[mappackselection as integer]
-					
-					updatescroll()
-				end
-			elseif mappacktype == "online" then
-				if onlinemappackselection > 1 then
-					onlinemappackselection = onlinemappackselection - 1
-					mappack = onlinemappacklist[onlinemappackselection]
-					
-					onlineupdatescroll()
-				end
-			elseif mappacktype == "toconvert" then
-				if toconvertmappackselection > 1 then
-					toconvertmappackselection = toconvertmappackselection - 1
-					--mappack = onlinemappacklist[onlinemappackselection]
-					
-					toconvertupdatescroll()
-				end
+		-- don't steal keys while typing in filter
+		local filter = guielements and guielements["mappackfilter"]
+		if filter and filter.inputting and key ~= "escape" and key ~= "up" and key ~= "down" and key ~= "return" and key ~= "enter" and key ~= "kpenter" then
+			if key == "backspace" then
+				-- guielement keypress handles this via love.keypressed → guielements
 			end
-		elseif (key == "down" or key == "s") then
-			if mappacktype == "local" then
-				if mappackselection < #mappacklist then
-					mappackselection = mappackselection + 1
-					mappack = mappacklist[mappackselection as integer]
-					
-					updatescroll()
-				end
-			elseif mappacktype == "online" then
-				if onlinemappackselection < #onlinemappacklist then
-					onlinemappackselection = onlinemappackselection + 1
-					mappack = onlinemappacklist[onlinemappackselection]
-					
-					onlineupdatescroll()
-				end
-			elseif mappacktype == "toconvert" then
-				if toconvertmappackselection < #toconvertmappacklist then
-					toconvertmappackselection = toconvertmappackselection + 1
-					--mappack = onlinemappacklist[onlinemappackselection]
-					
-					toconvertupdatescroll()
-				end
-			end	
+			-- still allow tab switch / navigation keys below for up/down/esc
+		end
+		if (key == "up" or key == "w") and not (filter and filter.inputting) then
+			menu_mappack_move(-1)
+		elseif (key == "down" or key == "s") and not (filter and filter.inputting) then
+			menu_mappack_move(1)
 		elseif key == "escape" or (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
-			if mappacktype == "toconvert" then
+			if filter and filter.inputting and key ~= "escape" then
+				filter.inputting = false
+				return
+			end
+			if key == "escape" and filter and filter.inputting then
+				filter.inputting = false
+				filter.value = ""
+				return
+			end
+			if mappacktype == "toconvert" and (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
 				local toconvert = toconvertmappacklist[toconvertmappackselection as integer]
 				convertmappack(toconvert)
 				mappack = toconvert
 				gamestate = "menu"
+				menu_mappack_teardown_filter()
 				saveconfig()
 				loadbackgroundsafe("1-1.txt")
-			else
+			elseif key == "escape" or (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
 				gamestate = "menu"
+				menu_mappack_teardown_filter()
 				saveconfig()
-				if mappack == "custom_mappack" then
+				if mappack == "custom_mappack" and key ~= "escape" then
 					createmappack()
 				end
-				
-				--load background
 				loadbackgroundsafe("1-1.txt")
 			end
-		elseif (key == "right" or key == "d") then
+		elseif (key == "right" or key == "d") and not (filter and filter.inputting) then
 			if mappackhorscroll == 0 then
 				loadonlinemappacks()
 				mappackhorscroll = 1
+				menu_mappack_setup_filter()
 			elseif mappackhorscroll == 1 then
 				loadtoconvertmappacks()
 				mappackhorscroll = 2
+				menu_mappack_setup_filter()
 			end
-		elseif (key == "left" or key == "a") then
+		elseif (key == "left" or key == "a") and not (filter and filter.inputting) then
 			if mappackhorscroll == 1 then
 				loadmappacks()
 				mappackhorscroll = 0
+				menu_mappack_setup_filter()
 			elseif mappackhorscroll == 2 then
 				loadonlinemappacks()
 				mappackhorscroll = 1
+				menu_mappack_setup_filter()
 			end
-		elseif key == "m" then
+		elseif key == "m" and not (filter and filter.inputting) then
 			if not openSaveFolder("mappacks") then
 				savefolderfailed = true
 			end
@@ -2270,31 +1908,43 @@ global function menu_mousepressed(x: any, y: any, button: any)
 			selection = i
 		end
 	elseif gamestate == "mappackmenu" then
-		-- list rows: legacy 60px spacing at x 25..243, y 20+(i-1)*60
-		if mappacktype == "local" and mappacklist then
-			local list_x, list_w = 21, 218
-			if ux >= list_x and ux < list_x + list_w then
-				local rel = uy - 20 + (mappackscrollsmooth or 0) * 60
-				local i = math.floor(rel / 60) + 1
-				if i >= 1 and i <= #mappacklist then
-					if i == mappackselection then
-						-- confirm
-						gamestate = "menu"
-						saveconfig()
-						if mappack == "custom_mappack" then
-							createmappack()
-						end
-						loadbackgroundsafe("1-1.txt")
-					else
-						mappackselection = i
-						mappack = mappacklist[i]
-						updatescroll()
-					end
-				end
+		menu_mappack_mousepressed(ux, uy, button)
+	elseif gamestate == "options" then
+		-- tabs + rows via layout; guielement widgets if any still get love.mousepressed loop
+		local tabs = menu_layout_options_tabs()
+		for i = 1, #tabs do
+			local t = tabs[i] as {string:any}
+			if ux >= (t.x as number) and ux < (t.x as number) + (t.w as number)
+				and uy >= (t.y as number) and uy < (t.y as number) + (t.h as number) then
+				optionstab = t.id as integer
+				optionsselection = 1
+				return
 			end
 		end
-	elseif gamestate == "options" then
-		-- guielement already handles widgets via love.mousepressed loop
+		local maxsel = 9
+		if optionstab == 1 then
+			maxsel = (skinningplayer == mouseowner) and 11 or 15
+		elseif optionstab == 2 then
+			maxsel = 5
+			if characters and mariocharacter and characters[mariocharacter[skinningplayer]] and characters[mariocharacter[skinningplayer]].colorables then
+				maxsel = 10
+			end
+		elseif optionstab == 4 then
+			maxsel = gamefinished and 10 or 1
+		end
+		local body = menu_layout_options_rows(maxsel)
+		local hi = menu_hit(body.rows as {any}, ux, uy)
+		if hi ~= nil then
+			local rows = body.rows as {any}
+			local row = rows[hi as integer] as {string:any}
+			local sel = row.selection as integer
+			if sel == optionsselection then
+				-- activate via same path as enter
+				menu_keypressed("return")
+			else
+				optionsselection = sel
+			end
+		end
 	end
 end
 
@@ -2311,15 +1961,26 @@ global function menu_mousemoved(x: number, y: number)
 		if i then
 			selection = i
 		end
-	elseif gamestate == "mappackmenu" and mappacktype == "local" and mappacklist then
-		local list_x, list_w = 21, 218
-		if ux >= list_x and ux < list_x + list_w then
-			local rel = uy - 20 + (mappackscrollsmooth or 0) * 60
-			local i = math.floor(rel / 60) + 1
-			if i >= 1 and i <= #mappacklist then
-				mappackselection = i
-				mappack = mappacklist[i]
+	elseif gamestate == "mappackmenu" then
+		menu_mappack_mousemoved(ux, uy)
+	elseif gamestate == "options" then
+		local maxsel = 9
+		if optionstab == 1 then
+			maxsel = (skinningplayer == mouseowner) and 11 or 15
+		elseif optionstab == 2 then
+			maxsel = 5
+			if characters and mariocharacter and characters[mariocharacter[skinningplayer]] and characters[mariocharacter[skinningplayer]].colorables then
+				maxsel = 10
 			end
+		elseif optionstab == 4 then
+			maxsel = gamefinished and 10 or 1
+		end
+		local body = menu_layout_options_rows(maxsel)
+		local hi = menu_hit(body.rows as {any}, ux, uy)
+		if hi ~= nil then
+			local rows = body.rows as {any}
+			local row = rows[hi as integer] as {string:any}
+			optionsselection = row.selection as integer
 		end
 	end
 end

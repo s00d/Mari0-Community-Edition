@@ -149,6 +149,9 @@ global function levelscreen_draw()
 	
 	if levelscreentimer < blacktime - blacktimesub and levelscreentimer > blacktimesub then
 		if gamestate == "levelscreen" then
+			local lay = menu_layout_levelscreen(width * 16)
+			local p = lay.panel as {string:any}
+			draw_panel(p.x as number, p.y as number, p.w as number, p.h as number)
 			properprint("world " .. tostring(marioworld) .. "-" .. tostring(mariolevel), (width/2*16)*scale-40*scale, 72*scale - (players-1)*6*scale)
 			
 			if not arcade and not mkstation then

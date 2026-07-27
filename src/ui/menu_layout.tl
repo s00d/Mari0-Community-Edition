@@ -129,6 +129,123 @@ global function menu_rects_non_overlap(rects: {any}): boolean
 	return true
 end
 
+-- Filter pack names (case-insensitive substring). Returns source indices.
+global function menu_mappack_filter_indices(names: {any}, filter: string): {integer}
+	local out: {integer} = {}
+	local f = (filter or ""):lower()
+	for i = 1, #names do
+		local n = tostring(names[i] or ""):lower()
+		if f == "" or string.find(n, f, 1, true) then
+			out[#out + 1] = i
+		end
+	end
+	return out
+end
+
+-- Two-panel mappack layout (400×224 UI space).
+-- opts: { visible_count, scroll, row_h?, filter_h? }
+global function menu_layout_mappack(opts: {string:any}|nil): {string:any}
+	local o = (opts or {}) as {string:any}
+	local row_h = (o.row_h as number) or 24
+	local filter_h = (o.filter_h as number) or 16
+	local vis = (o.visible_count as number) or 0
+	local scroll = (o.scroll as number) or 0
+	local list = { x = 16, y = 24, w = 224, h = 176 }
+	local preview = { x = 248, y = 24, w = 136, h = 176 }
+	local tabs: {any} = {
+		{ id = "local", label = "local", x = 16, y = 8, w = 56, h = 16 },
+		{ id = "online", label = "dlc", x = 80, y = 8, w = 40, h = 16 },
+		{ id = "toconvert", label = "convert", x = 128, y = 8, w = 64, h = 16 },
+	}
+	local filter_rect = { x = list.x + 8, y = list.y + 8, w = list.w - 16, h = filter_h }
+	local rows: {any} = {}
+	local list_top = list.y + 8 + filter_h + 8
+	for i = 1, vis do
+		table.insert(rows, {
+			x = list.x,
+			y = list_top + (i - 1) * row_h,
+			w = list.w,
+			h = row_h,
+			slot = i,
+			list_i = math.floor(scroll) + i,
+		})
+	end
+	return {
+		list = list,
+		preview = preview,
+		tabs = tabs,
+		filter = filter_rect,
+		rows = rows,
+		row_h = row_h,
+		footer = { x = 16, y = 208, text = "_dir4_dir6 list  enter ok  esc back  m folder" },
+	} as {string:any}
+end
+
+-- Options tab strip (matches menu_draw_options tab positions, snapped to 8).
+global function menu_layout_options_tabs(): {any}
+	return {
+		{ id = 1, label = "controls", x = 24, y = 16, w = 72, h = 16 },
+		{ id = 2, label = "skins", x = 96, y = 16, w = 48, h = 16 },
+		{ id = 3, label = "misc.", x = 144, y = 16, w = 40, h = 16 },
+		{ id = 4, label = "cheat", x = 184, y = 16, w = 48, h = 16 },
+	} as {any}
+end
+
+-- Options body rows: selection index 1 is tabs; body starts at selection 2.
+global function menu_layout_options_rows(count: number): {string:any}
+	local rects: {any} = {}
+	local panel = { x = 16, y = 16, w = 224, h = 192 }
+	local oy = 40
+	local line = 16
+	-- selection 1 = tabs (no body row)
+	for i = 2, count do
+		table.insert(rects, {
+			x = panel.x,
+			y = oy + (i - 2) * line,
+			w = panel.w,
+			h = line,
+			selection = i,
+		})
+	end
+	return { panel = panel, rows = rects } as {string:any}
+end
+
+-- Pause menu centered on game width (in unscaled UI units relative to width*16).
+global function menu_layout_pause(screen_w: number): {string:any}
+	local menuwidth = 120
+	local menuheight = 168 -- snap 8
+	local px = math.floor((screen_w - menuwidth) / 16) * 8 -- center on 8px grid
+	local py = 24
+	local line = 24
+	local rects: {any} = {}
+	for i = 1, 6 do
+		table.insert(rects, {
+			x = px,
+			y = py + 16 + (i - 1) * line,
+			w = menuwidth,
+			h = line,
+			index = i,
+		})
+	end
+	return {
+		panel = { x = px, y = py, w = menuwidth, h = menuheight },
+		rects = rects,
+	} as {string:any}
+end
+
+-- Levelscreen info panel (centered).
+global function menu_layout_levelscreen(screen_w: number): {string:any}
+	local pw, ph = 192, 80
+	return {
+		panel = {
+			x = math.floor((screen_w - pw) / 2),
+			y = 64,
+			w = pw,
+			h = ph,
+		},
+	} as {string:any}
+end
+
 return {
 	menu_visible_items = menu_visible_items,
 	menu_layout_main = menu_layout_main,
@@ -136,4 +253,10 @@ return {
 	menu_hit_spinner = menu_hit_spinner,
 	menu_rects_on_grid = menu_rects_on_grid,
 	menu_rects_non_overlap = menu_rects_non_overlap,
+	menu_mappack_filter_indices = menu_mappack_filter_indices,
+	menu_layout_mappack = menu_layout_mappack,
+	menu_layout_options_tabs = menu_layout_options_tabs,
+	menu_layout_options_rows = menu_layout_options_rows,
+	menu_layout_pause = menu_layout_pause,
+	menu_layout_levelscreen = menu_layout_levelscreen,
 }

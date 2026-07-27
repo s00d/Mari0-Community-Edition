@@ -275,6 +275,34 @@ end
 
 global function game_mousepressed(x: any, y: any, button: any)
 	if pausemenuopen then
+		if button ~= "l" then
+			return
+		end
+		local ux = (x as number) / scale
+		local uy = (y as number) / scale
+		if menuprompt or desktopprompt or suspendprompt then
+			-- yes/no: left half yes, right half no around center
+			local cx = width * 8
+			if uy >= 100 and uy <= 130 then
+				if ux < cx then
+					pausemenuselected2 = 1
+					game_keypressed("return")
+				else
+					pausemenuselected2 = 2
+					game_keypressed("return")
+				end
+			end
+			return
+		end
+		local lay = menu_layout_pause(width * 16)
+		local i = menu_hit(lay.rects as {any}, ux, uy)
+		if i then
+			if i == pausemenuselected then
+				game_keypressed("return")
+			else
+				pausemenuselected = i
+			end
+		end
 		return
 	end
 	

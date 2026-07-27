@@ -240,32 +240,44 @@ end
 global function game_draw_pausemenu()
 	love.graphics.setColor(0, 0, 0, 0.4)
 	love.graphics.rectangle("fill", 0, 0, width*16*scale, height*16*scale)
-	
-	love.graphics.setColor(0, 0, 0)
-	
-	local menuwidth = 120
-	local menuheight = 170
-	love.graphics.rectangle("fill", (width*8*scale)-menuwidth/2*scale, (96*scale)-75*scale, menuwidth*scale, menuheight*scale)
-	love.graphics.setColor(1, 1, 1)
-	drawrectangle(width*8-(menuwidth/2)+1, 96-74, menuwidth-2, menuheight-2)
-	
+
+	local screen_w = width * 16
+	local lay = menu_layout_pause(screen_w)
+	local panel = lay.panel as {string:any}
+	draw_panel(panel.x as number, panel.y as number, panel.w as number, panel.h as number)
+
+	local rects = lay.rects as {any}
 	for i = 1, #pausemenuoptions do
-		love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		if pausemenuselected == i and not menuprompt and not desktopprompt then
-			love.graphics.setColor(1, 1, 1, 1)
-			properprint(">", (width*8*scale)-(menuwidth/2-5)*scale, (96*scale)-60*scale+(i-1)*25*scale)
+		local raw = rects[i]
+		local y = 40 + (i - 1) * 24
+		local x = (panel.x as number)
+		if raw then
+			local r = raw as {string:any}
+			y = r.y as integer
+			if pausemenuselected == i and not menuprompt and not desktopprompt and not suspendprompt then
+				ui_set_color("sel")
+				love.graphics.rectangle("fill", (r.x as number) * scale, (r.y as number) * scale, (r.w as number) * scale, (r.h as number) * scale)
+				ui_set_color("text_accent")
+				properprint("_dir5", (x + 4) * scale, (y + 4) * scale)
+			else
+				ui_set_color("text_dim")
+			end
+		else
+			ui_set_color("text_dim")
 		end
-		properprint(pausemenuoptions[i as integer], (width*8*scale)-(menuwidth/2-15)*scale, (96*scale)-60*scale+(i-1)*25*scale)
-		properprint(pausemenuoptions2[i as integer], (width*8*scale)-(menuwidth/2-15)*scale, (96*scale)-50*scale+(i-1)*25*scale)
+		properprint(pausemenuoptions[i as integer], (x + 16) * scale, (y + 2) * scale)
+		properprint(pausemenuoptions2[i as integer], (x + 16) * scale, (y + 12) * scale)
 		
 		if pausemenuoptions[i as integer] == "music volume" or pausemenuoptions[i as integer] == "game volume" then
-			drawrectangle((width*8)-42, 52+(i-1)*25, 74, 1)
-			drawrectangle((width*8)-42, 49+(i-1)*25, 1, 7)
-			drawrectangle((width*8)+32, 49+(i-1)*25, 1, 7)
+			love.graphics.setColor(1, 1, 1, 1)
+			drawrectangle((width*8)-42, y + 14, 74, 1)
+			drawrectangle((width*8)-42, y + 11, 1, 7)
+			drawrectangle((width*8)+32, y + 11, 1, 7)
 			love.graphics.draw(volumesliderimg, math.floor(((width*8)-43+74*(pausemenuoptions[i as integer] == "music volume" and volumemusic or volumesfx))*scale),
-								(96*scale)-47*scale+(i-1)*25*scale, 0, scale, scale)
+								(y + 13) * scale, 0, scale, scale)
 		end
 	end
+	love.graphics.setColor(1, 1, 1, 1)
 	
 	if menuprompt then
 		love.graphics.setColor(0, 0, 0, 1)

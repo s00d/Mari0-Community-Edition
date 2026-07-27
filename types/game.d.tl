@@ -143,8 +143,21 @@ global menu_visible_items: function({string:any}): {any}
 global menu_layout_main: function({string:any}): {string:any}
 global menu_hit: function({any}, number, number): integer|nil
 global menu_hit_spinner: function({string:any}|nil, number, number): string|nil
-global menu_rects_on_grid: function({any}): boolean
-global menu_rects_non_overlap: function({any}): boolean
+global menu_mappack_filter_indices: function({any}, string): {integer}
+global menu_layout_mappack: function({string:any}|nil): {string:any}
+global menu_layout_options_tabs: function(): {any}
+global menu_layout_options_rows: function(number): {string:any}
+global menu_layout_pause: function(number): {string:any}
+global menu_layout_levelscreen: function(number): {string:any}
+global menu_mappack_draw: function()
+global menu_mappack_setup_filter: function()
+global menu_mappack_teardown_filter: function()
+global menu_mappack_mousepressed: function(number, number, any): boolean
+global menu_mappack_mousemoved: function(number, number)
+global menu_mappack_move: function(integer)
+global menu_mappack_filtered: function(): {integer}
+global menu_mappack_layout: function(): {string:any}
+global mappack_skipped_count: number
 
 global record UITheme
 	GRID: number
