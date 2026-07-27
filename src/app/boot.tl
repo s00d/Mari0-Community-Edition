@@ -85,6 +85,7 @@ function Boot.require_game()
 	require "app.game_runtime_globals"
 	require "app.game_spawn"
 	require "app.game_portal"
+	require "weapons"
 	require "util.editorutil"
 	require "ui.editor"
 	require "ui.animationguiline"

@@ -52,6 +52,9 @@ function box:init(x: number, y: number)
 	self.destroying = false
 	self.outtable = {}
 	self.portaledframe = false
+	self.grabbable = true
+	self.beamed = nil
+	self.punttimer = 0
 end
 
 function box:update(dt: number): boolean
@@ -88,6 +91,17 @@ function box:update(dt: number): boolean
 	end
 	
 	self.rotation = 0
+
+	if self.punttimer and (self.punttimer as number) > 0 then
+		self.punttimer = (self.punttimer as number) - dt
+	end
+
+	-- gravity-gun beam: stay in physics loop with gravity=0 (spring runs in weapon update)
+	if self.beamed and not self.parent then
+		self.gravity = 0
+		self.speedx = 0
+		self.speedy = 0
+	end
 	
 	if self.parent then
 		local parent = self.parent as Entity
@@ -212,6 +226,17 @@ function box:floorcollide(a: any, b: Entity, c: any, d: any): boolean
 		self.speedy = -10
 		return false
 	end
+	-- punt kill window: any enemy hit while punttimer active
+	if a == "enemy" and self.punttimer and (self.punttimer as number) > 0 then
+		if b.stompable then
+			b:stomp()
+		elseif b.shotted then
+			b:shotted("right", false, false, false)
+		end
+		addpoints(200, self.x, self.y)
+		playsound("stomp")
+		return false
+	end
 	return true
 end
 
@@ -242,6 +267,8 @@ function box:emancipate(_a: any): any
 			parent:cubeemancipate()
 			speedx = speedx + parent.speedx
 			speedy = speedy + parent.speedy
+		elseif self.beamed and Weapons then
+			Weapons.release(self.beamed as {string:any}, "emancipate")
 		end
 		table.insert(emancipateanimations, emancipateanimation:new(self.x, self.y, self.width, self.height, self.graphic, self.quad, speedx, speedy, self.rotation, self.offsetX, self.offsetY, self.quadcenterX, self.quadcenterY))
 		self:destroy()
@@ -250,6 +277,9 @@ function box:emancipate(_a: any): any
 end
 
 function box:destroy()
+	if self.beamed and Weapons then
+		Weapons.release(self.beamed as {string:any}, "destroying")
+	end
 	(self.userect as {string:any}).delete = true
 	self.destroying = true
 	
@@ -279,6 +309,10 @@ end
 
 function box:portaled()
 	self.portaledframe = true
+	-- release if object portals while gravity-gun held (player may keep cube through own portal)
+	if self.beamed and Weapons then
+		Weapons.release(self.beamed as {string:any}, "objportal")
+	end
 end
 
 function box:enteredfunnel(inside: any)

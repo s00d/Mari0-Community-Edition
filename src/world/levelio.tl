@@ -423,6 +423,7 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 	
 	--portalgun
 	portalsavailable = {true, true}
+	levelweapons = {} as {string}
 	
 	levelscreenback = nil
 	levelscreenbackname = nil
@@ -478,6 +479,16 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 				portalsavailable = {true, false}
 			elseif s3[2] == "orange" then
 				portalsavailable = {false, true}
+			end
+		elseif s3[1] == "weapons" then
+			-- optional: weapons=portal,gravitygun
+			levelweapons = {}
+			local parts = strsplit(s3[2] as string, ",")
+			for i = 1, #parts do
+				local id = (parts[i] as string):match("^%s*(.-)%s*$")
+				if id and id ~= "" then
+					table.insert(levelweapons as {string}, id)
+				end
 			end
 		elseif s3[1] == "levelscreenback" then
 			local screen_path = mappack_path(mappack) .. "/levelscreens/" .. s3[2] .. ".png"
@@ -544,6 +555,10 @@ global function savemap(filename: string, silent?: boolean)
 		end
 		
 		s = s .. CATEGORYDELIMITER[v] .. "portalgun" .. EQUALSIGN[v] ..  ptype
+	end
+	if levelweapons and #(levelweapons as {any}) > 0 then
+		local ws = table.concat(levelweapons as {string}, ",")
+		s = s .. CATEGORYDELIMITER[v] .. "weapons" .. EQUALSIGN[v] .. ws
 	end
 	
 	if levelscreenbackname then

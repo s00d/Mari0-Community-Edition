@@ -244,6 +244,8 @@ global function defaultconfig()
 	controls[i]["portal2"] = {""}
 	controls[i]["reload"] = {"r"}
 	controls[i]["use"] = {"e"}
+	controls[i]["weaponnext"] = {"tab"}
+	controls[i]["weaponprev"] = {""}
 	
 	for i = 2, 4 do
 		controls[i] = {}		
@@ -259,6 +261,8 @@ global function defaultconfig()
 		controls[i]["portal2"] = {"joy", i-1, "but", 6}
 		controls[i]["reload"] = {"joy", i-1, "but", 4}
 		controls[i]["use"] = {"joy", i-1, "but", 2}
+		controls[i]["weaponnext"] = {"joy", i-1, "but", 8}
+		controls[i]["weaponprev"] = {"joy", i-1, "but", 7}
 	end
 	-------------------
 	-- PORTAL COLORS --

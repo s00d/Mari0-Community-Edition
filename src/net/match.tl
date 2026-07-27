@@ -41,6 +41,8 @@ local function ensure_player_tables(n: integer)
 				portal2 = {""},
 				reload = {"r"},
 				use = {"e"},
+				weaponnext = {"tab"},
+				weaponprev = {""},
 			}
 		end
 		if not mariocolors[i] then

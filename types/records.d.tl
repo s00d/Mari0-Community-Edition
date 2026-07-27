@@ -1668,6 +1668,13 @@ global record mario is Entity, Body
 	swimanimationprogress: number
 	swimframe: number
 	t: string
+	weapons: {string}
+	weaponi: integer
+	weapondelay: {string:number}
+	gg_state: string
+	gg_pulling: any
+	gg_vx: number
+	gg_vy: number
 	tailwag: boolean
 	tailwagframe: number
 	tailwagtimer: number

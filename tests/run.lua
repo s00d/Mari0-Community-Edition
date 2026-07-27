@@ -75,6 +75,7 @@ run_file("tests/spawn_checks.lua")
 run_file("tests/levelio_checks.lua")
 run_file("tests/editor_checks.lua")
 run_file("tests/menu_checks.lua")
+run_file("tests/weapon_checks.lua")
 
 print(string.format("Suites: %d  Failures: %d", ran, failed))
 if failed > 0 then

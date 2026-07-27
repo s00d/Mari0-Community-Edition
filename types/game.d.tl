@@ -23,6 +23,25 @@ global record GamestateModule
 	draw: function()
 end
 
+global record WeaponsModule
+	registry: {string:{string:any}}
+	gravitygun: {string:any}
+	get: function(string): {string:any}
+	current: function(any): {string:any}
+	icon_image: function(string): any
+	default_loadout: function(): {string}
+	setup_player: function(any)
+	give: function(any, string)
+	release: function(any, string)
+	switch: function(any, number)
+	fire: function(any, any)
+	hold: function(any, any, number)
+	update: function(any, number)
+	update_all: function(number)
+	draw: function(any)
+	draw_hud: function(any)
+end
+
 global record LoveFrameModule
 	request_skip_update: function()
 	begin_update: function(): boolean
@@ -176,6 +195,8 @@ global portalcolor1: {number:number}
 global portalcolor2: {number:number}
 global portals: {number:portal}
 global portalsavailable: {any:boolean}
+global levelweapons: {string}
+global Weapons: WeaponsModule
 global controls: {any:{string:{any}}}
 global mouse: MouseProxy
 global mousex: number

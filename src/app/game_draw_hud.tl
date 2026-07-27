@@ -51,6 +51,10 @@ global function game_draw_hud(hidetime?: any): any
 			end
 		end
 	end
+
+	if Weapons and playerobjs[1] then
+		Weapons.draw_hud(playerobjs[mouseowner] or playerobjs[1])
+	end
 end
 
 drawui = game_draw_hud

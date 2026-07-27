@@ -210,6 +210,7 @@ global function loadlevel(level: string|number): boolean
 	for i = 1, players do
 		portaldelay[i] = 0
 	end
+	levelweapons = {} as {string}
 	
 	--class tables
 	coinblockanimations = {}
@@ -415,6 +416,14 @@ global function loadlevel(level: string|number): boolean
 	local mul = 0.5
 	if mariosublevel ~= 0 or prevsublevel ~= false then
 		mul = 2/16
+	end
+
+	if Weapons and playerobjs then
+		for i = 1, (players or 0) do
+			if playerobjs[i] then
+				Weapons.release(playerobjs[i], "levelend")
+			end
+		end
 	end
 	
 	playerobjs = {}

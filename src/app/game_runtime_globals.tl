@@ -139,6 +139,7 @@ global function init_game_runtime_globals()
 	prevsublevel = false
 	spawnrestrictions = {}
 	portalsavailable = {true, true}
+	levelweapons = {} as {string}
 	background = {}
 
 	-- levelscreen / spawn / levelio

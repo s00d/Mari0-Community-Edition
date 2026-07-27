@@ -151,12 +151,21 @@ global function game_keypressed(key: any)
 
 		if playerobjs[i] and not playerobjs[i].remote then
 			if controls[i]["portal1"][i] == key then
-				shootportal(i, 1, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
+				Weapons.fire(playerobjs[i], "l")
 				return
 			end
 
 			if controls[i]["portal2"][i] == key then
-				shootportal(i, 2, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
+				Weapons.fire(playerobjs[i], "r")
+				return
+			end
+
+			if controls[i]["weaponnext"] and controls[i]["weaponnext"][1] == key then
+				Weapons.switch(playerobjs[i], 1)
+				return
+			end
+			if controls[i]["weaponprev"] and controls[i]["weaponprev"][1] == key then
+				Weapons.switch(playerobjs[i], -1)
 				return
 			end
 		end
@@ -227,10 +236,15 @@ global function shootportal(plnumber: any, i: any, sourcex: any, sourcey: any, d
 	if playerobjs[plnumber].pickup then
 		return
 	end
-	--portalgun delay
-	if portaldelay[plnumber as number] > 0 then
+	-- per-weapon cooldown (also mirrors portaldelay for legacy)
+	local pl = playerobjs[plnumber]
+	if not pl.weapondelay then
+		pl.weapondelay = {}
+	end
+	if ((pl.weapondelay as {string:number}).portal or 0) > 0 or (portaldelay[plnumber as number] or 0) > 0 then
 		return
 	else
+		(pl.weapondelay as {string:number}).portal = portalgundelay
 		portaldelay[plnumber as number] = portalgundelay
 	end
 	
@@ -295,28 +309,9 @@ global function game_mousepressed(x: any, y: any, button: any)
 			end
 		
 			if button == "l" then
-				if playertype == "portal" then
-					local sourcex = playerobjs[mouseowner].x+6/16
-					local sourcey = playerobjs[mouseowner].y+6/16
-					local direction = playerobjs[mouseowner].pointingangle
-					
-					shootportal(mouseowner, 1, sourcex, sourcey, direction)
-					if mkstation then
-						--playerobjs[1]:use()
-					end
-				end
-				
+				Weapons.fire(playerobjs[mouseowner], "l")
 			elseif button == "r" then
-				if playertype == "portal" then
-					local sourcex = playerobjs[mouseowner].x+6/16
-					local sourcey = playerobjs[mouseowner].y+6/16
-					local direction = playerobjs[mouseowner].pointingangle
-					
-					shootportal(mouseowner, 2, sourcex, sourcey, direction)
-					if mkstation then
-						--playerobjs[1]:use()
-					end
-				end
+				Weapons.fire(playerobjs[mouseowner], "r")
 			end
 		end
 			
@@ -328,6 +323,8 @@ global function game_mousepressed(x: any, y: any, button: any)
 				end
 			elseif speeddebug then
 				speed = math.max(0, speed/2)
+			elseif playerobjs[mouseowner] then
+				Weapons.switch(playerobjs[mouseowner], 1)
 			end
 		elseif button == "wu" then
 			if bullettime then
@@ -337,6 +334,8 @@ global function game_mousepressed(x: any, y: any, button: any)
 				end
 			elseif speeddebug then
 				speed = math.min(1, speed*2)
+			elseif playerobjs[mouseowner] then
+				Weapons.switch(playerobjs[mouseowner], -1)
 			end
 		end
 	end
@@ -542,7 +541,7 @@ global function game_joystickpressed(joystick: any, button: any)
 				if s and s[1] == "joy" then
 					if s[3] == "but" then
 						if joystick == s[2] and button == s[4] then
-							shootportal(i, 1, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
+							Weapons.fire(playerobjs[i], "l")
 							return
 						end
 					end
@@ -552,10 +551,21 @@ global function game_joystickpressed(joystick: any, button: any)
 				if s and s[1] == "joy" then
 					if s[3] == "but" then
 						if joystick == s[2] and button == s[4] then
-							shootportal(i, 2, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
+							Weapons.fire(playerobjs[i], "r")
 							return
 						end
 					end
+				end
+
+				local sn = controls[i]["weaponnext"]
+				if sn and sn[1] == "joy" and sn[3] == "but" and joystick == sn[2] and button == sn[4] then
+					Weapons.switch(playerobjs[i], 1)
+					return
+				end
+				local sp = controls[i]["weaponprev"]
+				if sp and sp[1] == "joy" and sp[3] == "but" and joystick == sp[2] and button == sp[4] then
+					Weapons.switch(playerobjs[i], -1)
+					return
 				end
 			end
 		end
@@ -602,7 +612,7 @@ global function game_joystickaxis(joystick: any, axis: any, value: any, stickmov
 				if s and s[1] == "joy" then
 					if s[3] == "axe" and s[4] == axis then
 						if joystick == s[2] and shouldermoved then
-							shootportal(i, 1, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
+							Weapons.fire(playerobjs[i], "l")
 							return
 						end
 					end
@@ -612,7 +622,7 @@ global function game_joystickaxis(joystick: any, axis: any, value: any, stickmov
 				if s and s[1] == "joy" then
 					if s[3] == "axe" and s[4] == axis then
 						if joystick == s[2] and shouldermoved then
-							shootportal(i, 2, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
+							Weapons.fire(playerobjs[i], "r")
 							return
 						end
 					end
@@ -649,7 +659,7 @@ global function game_joystickhat(joystick: any, hat: any, direction: any)
 			if s and s[1] == "joy" then
 				if s[3] == "hat" and s[4] == hat then
 					if joystick == s[2] and (s[5] as string):find(direction as string) then
-						shootportal(i, 1, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
+						Weapons.fire(playerobjs[i], "l")
 						return
 					end
 				end
@@ -659,7 +669,7 @@ global function game_joystickhat(joystick: any, hat: any, direction: any)
 			if s and s[1] == "joy" then
 				if s[3] == "hat" and s[4] == hat then
 					if joystick == s[2] and (s[5] as string):find(direction as string) then
-						shootportal(i, 2, playerobjs[i].x+6/16, playerobjs[i].y+6/16, playerobjs[i].pointingangle)
+						Weapons.fire(playerobjs[i], "r")
 						return
 					end
 				end

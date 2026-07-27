@@ -187,6 +187,14 @@ global interface Entity is {any}
 	invincible: boolean
 	pickup: any
 	payload: any
+	weapons: {string}
+	weaponi: number
+	weapondelay: {string:number}
+	gg_state: string
+	gg_pulling: any
+	beamed: any
+	grabbable: boolean
+	punttimer: number
 	gels: {string:any}
 	slant: string
 	callback: any

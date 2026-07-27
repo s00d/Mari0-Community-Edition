@@ -28,7 +28,7 @@ global function menu_load()
 	colorsetedit = 1
 	love.graphics.setBackgroundColor(backgroundcolor[1])
 	
-	controlstable = {"left", "right", "up", "down", "run", "jump", "reload", "use", "aimx", "aimy", "portal1", "portal2"} as {number:string}
+	controlstable = {"left", "right", "up", "down", "run", "jump", "reload", "use", "aimx", "aimy", "portal1", "portal2", "weaponnext", "weaponprev"} as {number:string}
 	
 	portalanimation = 1
 	portalanimationtimer = 0

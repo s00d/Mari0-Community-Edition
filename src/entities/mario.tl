@@ -24,6 +24,16 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	end
 	self.t = (t or "portal") as string
 	self.portalsavailable = portalsavailable as {number:boolean}
+	self.weapons = nil
+	self.weaponi = 1
+	self.weapondelay = {}
+	self.gg_state = "idle"
+	self.gg_pulling = nil
+	self.gg_vx = 0
+	self.gg_vy = 0
+	if Weapons then
+		Weapons.setup_player(self as {string:any})
+	end
 	
 	--PHYSICS STUFF
 	self.speedx = 0
@@ -3275,7 +3285,9 @@ function mario:die(how: any)
 	
 	self.dead = true
 	
-	if self.pickup then
+	if Weapons then
+		Weapons.release(self as {string:any}, "death")
+	elseif self.pickup then
 		self:dropbox()
 	end
 	
@@ -3501,7 +3513,11 @@ function mario:dropbox()
 end
 
 function mario:cubeemancipate(): any
-	self.pickup = false
+	if Weapons then
+		Weapons.release(self as {string:any}, "emancipate")
+	else
+		self.pickup = false
+	end
 	return nil
 end
 

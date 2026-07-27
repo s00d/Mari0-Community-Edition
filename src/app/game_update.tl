@@ -175,11 +175,16 @@ global function game_update(dt: number)
 		portaldotstimer = portaldotstimer - portaldotstime
 	end
 	
-	--portalgundelay
+	--portalgundelay (legacy global + per-player weapondelay)
 	for i = 1, players do
 		if portaldelay[i] > 0 then
 			portaldelay[i] = math.max(0, portaldelay[i] - dt/speed)
 		end
+	end
+
+	-- weapon dispatcher (cooldowns, gravity-gun spring, gel hold)
+	if Weapons then
+		Weapons.update_all(dt)
 	end
 	
 	--check if updates are blocked for whatever reason
@@ -223,24 +228,6 @@ global function game_update(dt: number)
 	for _, v in pairs(coinblocktimers as {any:{any}}) do
 		if (v[3] as number) > 0 then
 			v[3] = (v[3] as number) - dt
-		end
-	end
-	
-	--gelcannon
-	if playerobjs[mouseowner] and playertype == "gelcannon" and playerobjs[mouseowner].controlsenabled then
-		if gelcannontimer > 0 then
-			gelcannontimer = gelcannontimer - dt
-			if gelcannontimer < 0 then
-				gelcannontimer = 0
-			end
-		else
-			if love.mouse.isDown(1) then
-				gelcannontimer = gelcannondelay
-				playerobjs[mouseowner]:shootgel(1)
-			elseif love.mouse.isDown(2) then
-				gelcannontimer = gelcannondelay
-				playerobjs[mouseowner]:shootgel(2)
-			end
 		end
 	end
 	
