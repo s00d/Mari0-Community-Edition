@@ -7,7 +7,7 @@ end
 
 -- Character config bag (assets/characters/*/config.txt + quads from characterloader).
 -- Declared before Entity so Entity.char can be Character.
-global record Character is {any}
+global record Character
 	name: string
 	smallquadwidth: number
 	smallquadheight: number
@@ -91,6 +91,7 @@ global interface Body
 	gravitydirection: number|nil
 	portalable: boolean|nil
 end
+-- Keep open-array escape: closing Entity breaks open-field access across hundreds of entity sites (cyan red).
 global interface Entity is {any}
 	x: number
 	y: number

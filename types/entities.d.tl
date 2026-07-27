@@ -2,7 +2,7 @@
 -- Loaded via require from types/game.d.tl (global_env_def chain).
 
 -- Enemy JSON / enemiesdata values (assets/enemies/*.json).
-global record EnemyDef is {any}
+global record EnemyDef
 	quadcount: integer
 	quadno: integer
 	width: number
@@ -60,7 +60,7 @@ end
 -- Character record lives in types/love.d.tl (needed before Entity.char).
 
 -- Tile atlas entry (world.quad / tilequads[i]).
-global record TileQuad is {any}
+global record TileQuad
 	image: Image
 	triggered: any
 	boolean: any
@@ -168,7 +168,7 @@ global record AssetStoreEntry
 	default_path: string
 end
 
-global record AssetStore is {any}
+global record AssetStore
 	images: {string:AssetStoreEntry}
 	sounds: {string:AssetStoreEntry}
 	music_type: string
@@ -195,7 +195,7 @@ global record AssetStore is {any}
 	load_sound: function(string, string): Source|nil
 end
 
-global record HatDef is {any}
+global record HatDef
 	graphic: Image|nil
 	x: number
 	y: number
@@ -203,7 +203,7 @@ global record HatDef is {any}
 	width: number
 end
 
-global record MusicPlayer is {any}
+global record MusicPlayer
 	loaded: {string:Source}
 	pitch: number
 	list: {string}

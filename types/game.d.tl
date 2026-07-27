@@ -13,7 +13,7 @@ end
 
 
 
-global record GamestateModule is {any}
+global record GamestateModule
 	current: string
 	handlers: {any:any}
 	register: function(...: any): any
@@ -51,6 +51,7 @@ global record JSONModule
 end
 
 -- Map / camera / session
+-- Keep open-array escape: MapCell is a Teal array-record (numeric tile slots via `#` / [1],[2],… plus named fields).
 global record MapCell is {any}
 	portaloverride: {string:any}
 	gels: {string:any}
@@ -227,7 +228,7 @@ global tileliststart: integer
 global middlemode: {any:any} -- [1]=bool dragging, [2]=x, [3]=y
 global colorsetedit: integer
 global replaychar: {any:Character}
-global record PromptState is {any}
+global record PromptState
 	joystick: {number:{string:any}}
 	joysticks: number
 end
@@ -267,7 +268,7 @@ global record SoundEntry
 	lastplayed: number
 end
 global soundlist: {any:SoundEntry}
-global record ShadersController is {any}
+global record ShadersController
 	scale: any
 	set: function(ShadersController, any, any)
 	update: function(ShadersController, any)
@@ -302,7 +303,7 @@ global MAP_SPAWN_HANDLERS: {string:function(number, number, {any})}
 global MAP_SPAWN_EARLY_HANDLERS: {string:function(number, number, {any})}
 
 -- Auto-ambient stubs for legacy globals (narrow later)
-global record NoticeModule is {any}
+global record NoticeModule
 	new: function(text: any, color?: any, lifetime?: any)
 	white: any
 	red: any
@@ -782,7 +783,7 @@ global platformimg: Image
 global springquads: {any:{any:any}}
 global linktoolfadeouttime: number
 global tileswitcherpressed: boolean
-global entitytooltipobject: {any}
+global entitytooltipobject: entitytooltip|nil
 global filecount: number
 global mappackback: Image
 global mappacknoicon: Image

@@ -55,7 +55,7 @@ global record andgate is Entity, Body
 	new: function(andgate, number, number, {any}): andgate
 end
 
-global record animatedbooltimer is {any}
+global record animatedbooltimer
 	boolcheck: any
 	delays: {number}
 	dir: number
@@ -74,7 +74,7 @@ global record animatedbooltimer is {any}
 	new: function(animatedbooltimer, number, number, any): animatedbooltimer
 end
 
-global record animatedquad is {any}
+global record animatedquad
 	boolean: any
 	boolid: any
 	cache: {any}
@@ -123,7 +123,7 @@ global record animatedtiletrigger is Entity, Body
 	new: function(animatedtiletrigger, number, number, {any}): animatedtiletrigger
 end
 
-global record animatedtimer is {any}
+global record animatedtimer
 	delays: {number}
 	dir: number
 	frametimes: {number}
@@ -140,7 +140,7 @@ global record animatedtimer is {any}
 	new: function(animatedtimer, number, number, any): animatedtimer
 end
 
-global record animation is {any}
+global record animation
 	actions: {{any}}
 	conditions: {{any}}
 	currentaction: number
@@ -165,7 +165,7 @@ global record animation is {any}
 	new: function(animation, any, any): animation
 end
 
-global record animationguielement is {any}
+global record animationguielement
 	gui: guielement
 	width: number
 	t: any
@@ -175,7 +175,7 @@ global record animationguielement is {any}
 	length: any
 end
 
-global record animationguiline is {any}
+global record animationguiline
 	deletebutton: guielement
 	downbutton: guielement
 	elements: {animationguielement}
@@ -1039,7 +1039,7 @@ global record enemyspawner is Entity, Body
 	new: function(enemyspawner, number, number, {any}): enemyspawner
 end
 
-global record entity is {any}
+global record entity
 	image: Image
 	quad: any
 	t: string
@@ -1058,7 +1058,7 @@ global record entitylistitem
 	new: function(entitylistitem, any, any): entitylistitem
 end
 
-global record entitytooltip is {any}
+global record entitytooltip
 	ent: any
 	x: number
 	y: number
@@ -1191,7 +1191,7 @@ global record fireworkboom is Entity, Body
 	new: function(fireworkboom, any, any): fireworkboom
 end
 
-global record funnel is {any}
+global record funnel
 	lastblock: {any}
 	funneltable: {any}
 	animationtime: any
@@ -1313,7 +1313,7 @@ global record groundlight is Entity, Body
 	new: function(groundlight, number, number, any, any): groundlight
 end
 
-global record guielement is {any}
+global record guielement
 	active: boolean
 	arguments: {any}
 	autorepeat: number
@@ -1420,7 +1420,7 @@ global record itemanimation is Entity, Body
 	new: function(itemanimation, number, number, any): itemanimation
 end
 
-global record laser is {any}
+global record laser
 	x: number
 	y: number
 	width: number
@@ -1481,7 +1481,7 @@ global record laserdetector is Entity, Body
 	new: function(laserdetector, number, number, {any}): laserdetector
 end
 
-global record lightbridge is {any}
+global record lightbridge
 	speedx: number
 	speedy: number
 	active: boolean
@@ -2271,7 +2271,7 @@ global record RightClickVar
 	text: any
 end
 
-global record rightclickmenu is {any}
+global record rightclickmenu
 	elements: {any}
 	t: {any}
 	tx: any
@@ -2482,7 +2482,7 @@ global record seesaw
 	new: function(seesaw, number, number, {any}): seesaw
 end
 
-global record seesawplatform is {any}, Body
+global record seesawplatform is Body
 	active: boolean
 	callback: any
 	category: number
