@@ -8,7 +8,6 @@
 - `types/love.d.tl` — LÖVE 11 globals for the Teal checker
 - `types/game.d.tl` — ~1519 ambient gameplay globals (`map`, `objects`, `xscroll`, …); required from `love.d.tl`
 - `assets/` — graphics, sounds, shaders, characters, built-in enemies
-- `legacy/netplayinc/` — unused netplay helpers (kept for reference; not required at runtime)
 - `mappacks/` — unchanged format (`N-M.txt`, settings **disk colors 0–255** via `DISK_COLOR_MAX`)
 
 ## Runtime model

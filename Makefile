@@ -99,6 +99,7 @@ $(LOVE_FILE):
 		-x './types/*' \
 		-x './scripts/*' \
 		-x './docs/*' \
+		-x './legacy/*' \
 		-x './Makefile' \
 		-x './tlconfig.lua' \
 		-x './tests/*' \

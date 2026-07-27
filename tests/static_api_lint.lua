@@ -153,7 +153,7 @@ local function list_files(dir, exts)
 	end
 	for line in p:lines() do
 		if not line:find("/%.git/") and not line:find("/tests/") and not line:find("/build/")
-			and not line:find("/legacy/") and not line:find("/dist/") then
+			and not line:find("/dist/") then
 			table.insert(out, line)
 		end
 	end
