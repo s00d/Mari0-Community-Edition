@@ -42,7 +42,7 @@ function World:set_gamestate(name: string)
 	rawset(_G, "gamestate", name)
 	local GS = rawget(_G, "Gamestate")
 	if GS then
-		((GS as Dyn)["set"] as function(any, string))(GS, name)
+		(GS as GamestateModule).set(name)
 	end
 end
 

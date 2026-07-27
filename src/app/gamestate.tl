@@ -13,6 +13,9 @@ function Gamestate.register(name: string, handlers: {string:function})
 end
 
 function Gamestate.set(name: string)
+	if type(name) ~= "string" then
+		error("Gamestate.set expects string, got " .. type(name), 2)
+	end
 	Gamestate.current = name
 	rawset(_G, "gamestate", name)
 end
