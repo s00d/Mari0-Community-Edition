@@ -215,7 +215,7 @@ global function loadlevel(level: string|number): boolean
 	
 	portals = {}
 	
-	level_reset_ctx()
+	reset_level_state()
 	
 	startx = {3, 3, 3, 3, 3}
 	starty = {13, 13, 13, 13, 13}

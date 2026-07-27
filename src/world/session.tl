@@ -1,19 +1,11 @@
--- Session / world bag (Teal strangler).
--- Gradual replacement for naked globals; sync_session_from_globals keeps session in sync.
+-- Session bag (Teal strangler): game-flow fields only; level map/objects live in _G.
 -- `World` record shape lives in types/entities.d.tl (ambient / global_env_def).
--- .d.tl does not emit Lua, so bootstrap the runtime table here.
 
 
 rawset(_G, "World", rawget(_G, "World") or {})
 
 function World.new(): World
 	local self = setmetatable({}, { __index = World }) as World
-	self.map = {}
-	self.objects = {}
-	self.mapwidth = 0
-	self.mapheight = 0
-	self.xscroll = 0
-	self.yscroll = 0
 	self.mariotimer = 0
 	self.gamestate = "intro"
 	self.mappack = nil
@@ -24,12 +16,6 @@ function World.new(): World
 end
 
 function World:sync_session_from_globals()
-	self.map = (rawget(_G, "map") as {number:{number:{any}}}) or {}
-	self.objects = (rawget(_G, "objects") as {string:{number:Entity}}) or {}
-	self.mapwidth = (rawget(_G, "mapwidth") as integer) or 0
-	self.mapheight = (rawget(_G, "mapheight") as integer) or 0
-	self.xscroll = (rawget(_G, "xscroll") as number) or 0
-	self.yscroll = (rawget(_G, "yscroll") as number) or 0
 	self.mariotimer = (rawget(_G, "mariotimer") as number) or 0
 	local gs = rawget(_G, "gamestate")
 	if type(gs) == "string" then
@@ -42,15 +28,11 @@ function World:sync_session_from_globals()
 end
 
 function World:set_scroll(x: number, y: number)
-	self.xscroll = x
-	self.yscroll = y
 	rawset(_G, "xscroll", x)
 	rawset(_G, "yscroll", y)
 end
 
 function World:set_map_size(w: integer, h: integer)
-	self.mapwidth = w
-	self.mapheight = h
 	rawset(_G, "mapwidth", w)
 	rawset(_G, "mapheight", h)
 end

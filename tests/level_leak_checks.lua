@@ -1,4 +1,4 @@
---[[ Level lifetime leak checks via Ctx.level (no LÖVE). ]]
+--[[ Level lifetime leak checks via _G reset (no LÖVE). ]]
 
 local root = ... or "."
 local failed = 0
@@ -18,36 +18,31 @@ package.path = table.concat({
 	package.path,
 }, ";")
 
-local Ctx = require("core.ctx")
-local Level = require("world.level")
+require("world.level")
 
 do
-	local a = Level.new()
-	a.map[1] = { { 99 } }
-	a.objects["box"] = { { tag = "level-a" } }
-	Ctx.level = a
-	a:push_globals()
+	map = { { { 99 } } }
+	objects = fresh_objects()
+	objects["box"] = { { tag = "level-a" } }
 	local map_ref = map
 	local box_ref = objects["box"]
 
-	level_reset_ctx()
+	reset_level_state()
 	check("new level new map table", map ~= map_ref)
 	check("new level new objects table", objects["box"] ~= box_ref)
-	check("old map not aliased in ctx", Ctx.level.map ~= map_ref)
-	check("old box table not in new level", Ctx.level.objects["box"] ~= box_ref)
-	check("teardown cleared old refs", #a.map == 0 and a.objects["box"] == nil)
+	check("fresh box group empty", next(objects["box"]) == nil)
+	check("map zeroed", mapwidth == 0 and mapheight == 0)
+	check("scroll zeroed", xscroll == 0 and yscroll == 0)
 end
 
 do
-	local destroyed = false
-	local lvl = Level.new()
-	Ctx.level = lvl
-	lvl:on_destroy(function()
-		destroyed = true
-	end)
-	lvl:destroy()
-	check("on_destroy runs", destroyed)
-	check("destroy clears ctx.level", Ctx.level == nil)
+	local objects, playerobjs = fresh_objects()
+	check("player group aliases playerobjs", objects["player"] == playerobjs)
+	check("object group count", #OBJECT_GROUP_KEYS == 48)
+	for i = 1, #OBJECT_GROUP_KEYS do
+		local key = OBJECT_GROUP_KEYS[i]
+		check("group " .. key .. " exists", objects[key] ~= nil)
+	end
 end
 
 return failed

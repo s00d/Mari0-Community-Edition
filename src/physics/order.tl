@@ -1,56 +1,12 @@
--- Deterministic physics group iteration order (matches game_load_level init).
+-- Deterministic physics group iteration order (matches fresh_objects keys + screenboundary).
 
-PHYSICS_GROUP_ORDER = {
-	"player",
-	"portalwall",
-	"tile",
-	"vine",
-	"box",
-	"door",
-	"button",
-	"groundlight",
-	"wallindicator",
-	"animatedtiletrigger",
-	"delayer",
-	"walltimer",
-	"notgate",
-	"rsflipflop",
-	"orgate",
-	"andgate",
-	"musicentity",
-	"enemyspawner",
-	"squarewave",
-	"lightbridge",
-	"lightbridgebody",
-	"faithplate",
-	"laser",
-	"laserdetector",
-	"gel",
-	"geldispenser",
-	"cubedispenser",
-	"pushbutton",
-	"fireball",
-	"platform",
-	"platformspawner",
-	"castlefire",
-	"castlefirefire",
-	"bowser",
-	"spring",
-	"seesawplatform",
-	"ceilblocker",
-	"funnel",
-	"panel",
-	"scaffold",
-	"regiontrigger",
-	"zgbooltrigger",
-	"zginttrigger",
-	"animationtrigger",
-	"checkpoints",
-	"portalent",
-	"actionblock",
-	"enemy",
-	"screenboundary",
-}
+require("world.level")
+
+PHYSICS_GROUP_ORDER = {}
+for i = 1, #OBJECT_GROUP_KEYS do
+	PHYSICS_GROUP_ORDER[i] = OBJECT_GROUP_KEYS[i]
+end
+PHYSICS_GROUP_ORDER[#PHYSICS_GROUP_ORDER + 1] = "screenboundary"
 
 global function physics_group_keys_sorted(w: {any: any}): {any}
 	local keys: {any} = {}
