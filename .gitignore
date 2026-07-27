@@ -31,3 +31,8 @@
 # Cave Story assets / converted pack (Pixel freeware — never commit)
 /mappacks/cavestory/
 /toconvert/cavestory/
+
+# SuperTux raw clone + converted pack (CC-BY-SA data; regenerate via mapsdk)
+# Engine GPL-3 must never land in src/ — converter only commits scripts/tests/docs.
+/mappacks/supertux/
+/toconvert/supertux/

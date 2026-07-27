@@ -20,6 +20,8 @@ local M = {
 		vglc = dofile(DIR .. "/sources/vglc.lua"),
 		smb3dump = dofile(DIR .. "/sources/smb3dump.lua"),
 		cavestory = dofile(DIR .. "/sources/cavestory.lua"),
+		supertux = dofile(DIR .. "/sources/supertux.lua"),
+		sexpr = dofile(DIR .. "/sources/sexpr.lua"),
 	},
 	cs_formats = dofile(DIR .. "/cs_formats.lua"),
 }
