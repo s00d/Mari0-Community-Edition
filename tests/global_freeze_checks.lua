@@ -142,16 +142,28 @@ do
 		f:close()
 		return body
 	end
-	local function collect_global_assigns(body, stop_pattern)
+	local function collect_global_assigns(body, stop_pattern, top_level_only)
 		local assigns = {}
 		local section = body
 		if stop_pattern then
 			section = body:match(stop_pattern) or ""
 		end
 		for line in (section .. "\n"):gmatch("(.-)\n") do
-			local name = line:match("^%s*([%w_]+)%s*=")
+			local name
+			if top_level_only then
+				name = line:match("^\t([%w_]+)%s*=")
+				if name and line:match("^\t\t") then
+					name = nil
+				end
+			else
+				name = line:match("^%s*([%w_]+)%s*=")
+			end
 			if name and not line:match("^%s*local ") then
 				assigns[name] = true
+			end
+			local raw_name = line:match('rawset%(_G, "([%w_]+)"')
+			if raw_name then
+				assigns[raw_name] = true
 			end
 		end
 		return assigns
@@ -176,6 +188,83 @@ do
 			check("game_load global pre-init: " .. name, false, "add to init_game_runtime_globals")
 		end
 	end
+	local loadlevel_fn = game_load_body:match("global function loadlevel%([^)]*%): boolean(.-)\nend\n\nglobal function startlevel") or ""
+	local loadlevel_globals = collect_global_assigns(loadlevel_fn, nil, true)
+	local game_d_path = root .. "/types/game.d.tl"
+	local declared_globals = {}
+	do
+		local f = io.open(game_d_path, "r")
+		if f then
+			local body = f:read("*a")
+			f:close()
+			for g in body:gmatch("global ([%w_]+)") do
+				declared_globals[g] = true
+			end
+		end
+	end
+	local missing_loadlevel = {}
+	for name in pairs(loadlevel_globals) do
+		if declared_globals[name] and not init_globals[name] then
+			table.insert(missing_loadlevel, name)
+		end
+	end
+	table.sort(missing_loadlevel)
+	if #missing_loadlevel == 0 then
+		check("loadlevel globals initialized before freeze", true)
+	else
+		for _, name in ipairs(missing_loadlevel) do
+			check("loadlevel global pre-init: " .. name, false, "add to init_game_runtime_globals")
+		end
+	end
+	local nil_inits = {}
+	for line in (init_fn .. "\n"):gmatch("(.-)\n") do
+		local name = line:match("^%s*([%w_]+)%s*=%s*nil%s*$")
+		if name then
+			table.insert(nil_inits, name)
+		end
+		local raw_nil = line:match('rawset%(_G, "([%w_]+)", nil%)')
+		if raw_nil then
+			table.insert(nil_inits, raw_nil)
+		end
+	end
+	table.sort(nil_inits)
+	if #nil_inits == 0 then
+		check("init_game_runtime_globals has no nil assignments", true)
+	else
+		for _, name in ipairs(nil_inits) do
+			check("init nil removes freeze key: " .. name, false, "use false or {} instead of nil")
+		end
+	end
+end
+
+do
+	-- Lua removes keys on nil assign; snapshot only sees keys present in _G
+	local GlobalFreeze = require("core.global_freeze")
+	rawset(_G, "map", {})
+	GlobalFreeze.install_writes_only()
+	local ok_missing, err_missing = pcall(function()
+		_G.objects = {}
+	end)
+	check("freeze blocks write to unsnapshotted global", not ok_missing and tostring(err_missing):find("undeclared global write: objects"), tostring(err_missing))
+	GlobalFreeze.uninstall()
+	rawset(_G, "map", nil)
+
+	rawset(_G, "objects", {})
+	GlobalFreeze.install_writes_only()
+	local ok_reassign, err_reassign = pcall(function()
+		_G.objects = {}
+	end)
+	local ok_nil, err_nil = pcall(function()
+		_G.objects = nil
+	end)
+	local ok_after_nil, err_after_nil = pcall(function()
+		_G.objects = {player = {}}
+	end)
+	check("freeze allows snapshotted global reassignment", ok_reassign, tostring(err_reassign))
+	check("freeze allows snapshotted global cleared to nil", ok_nil, tostring(err_nil))
+	check("freeze allows write after nil clear", ok_after_nil, tostring(err_after_nil))
+	GlobalFreeze.uninstall()
+	rawset(_G, "objects", nil)
 end
 
 do

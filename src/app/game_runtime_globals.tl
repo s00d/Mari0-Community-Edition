@@ -1,5 +1,7 @@
 --[[ Runtime defaults for globals written during game_load / loadlevel / levelscreen.
-     Must run before the post-boot _G write guard snapshots globals. ]]
+     Must run before the post-boot _G write guard snapshots globals.
+     Do not assign nil here: in Lua that removes the key from _G, so freeze will
+     block later writes (e.g. objects = nil in game_load). Use false or {} instead. ]]
 
 global function init_game_runtime_globals()
 	-- game_load
@@ -24,15 +26,17 @@ global function init_game_runtime_globals()
 	mariolevel = 1
 	mariosublevel = 0
 	respawnsublevel = 0
-	objects = nil
-	musicname = nil
+	local objs, pobjs = fresh_objects()
+	objects = objs
+	playerobjs = pobjs as {any:mario}
+	musicname = ""
 
 	-- loadlevel (misc + class tables)
 	everyonedead = false
 	levelfinished = false
 	coinanimation = 1
 	flagx = false
-	levelfinishtype = nil
+	levelfinishtype = ""
 	firestartx = false
 	firestarted = false
 	firedelay = 4
@@ -116,11 +120,10 @@ global function init_game_runtime_globals()
 	coinmap = {}
 	mapwidth = 0
 	mapheight = 0
-	playerobjs = {}
 	startx = {3, 3, 3, 3, 3}
 	starty = {13, 13, 13, 13, 13}
-	pipestartx = nil
-	pipestarty = nil
+	rawset(_G, "pipestartx", false)
+	rawset(_G, "pipestarty", false)
 	enemiesspawned = {}
 	intermission = false
 	haswarpzone = false
@@ -142,9 +145,9 @@ global function init_game_runtime_globals()
 	allowenemy = true
 	animatedbooltimers = {}
 	animatedtimers = {}
-	levelscreenback = nil
-	levelscreenbackname = nil
-	previewimg = nil
+	levelscreenback = false
+	levelscreenbackname = false
+	rawset(_G, "previewimg", false)
 	unstatics = {}
 	yadd = 0
 end
