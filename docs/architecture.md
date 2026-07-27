@@ -23,7 +23,7 @@
 - Game loop phases: `app.game_update`; draw/load/portal/main_util split into facades + parts (see below)
 - Logging: `app.logger`
 - Assets: `assets.store` (`AssetStore`) with path prefixes under `assets/`; default imagelist/sounds registered in `Boot.load_media`; one-shot loads via `AssetStore.load_image` / `load_sound`
-- Session bag: `world.session` (`World`) — `bind_globals` / `push_globals` on load/spawn; new writes prefer session fields with `_G` compat
+- Session bag: `world.session` (`World`) — `sync_session_from_globals` on load/spawn; `set_gamestate` / `set_scroll` are single writers to `_G` where wired
 - Gamestate: `app.gamestate` — handlers registered in `Boot.register_gamestates` for menu/game/intro/levelscreen; `love_callbacks` prefer handlers when present
 
 ## Smoke checklist (`make run`)
@@ -31,6 +31,17 @@
 1. Title / intro plays (or skip with debug), then main menu appears
 2. Start game → levelscreen → world 1-1 loads and scrolls
 3. Pause / return to menu still works; no missing-module errors in console
+
+## Stability architecture (teal-migration)
+
+| Layer | Module | Role |
+|-------|--------|------|
+| Global guard | `core.global_freeze` | Write-only `_G` metatable after `love.load` completes |
+| RNG | `core.rng` | `Rng.install(seed?)` — `MARI0_SEED`, `--seed=N`, else `os.time()` |
+| Physics order | `physics.order` | `PHYSICS_GROUP_ORDER` + sorted per-group keys in `physicsupdate` |
+| Session | `world.session` | `sync_session_from_globals`; `set_gamestate` single-writer for state |
+
+Headless checks: `tests/global_freeze_checks.lua`, `steptimer_checks.lua`, `rng_checks.lua`, `physics_order_checks.lua`, `session_checks.lua`.
 
 ## Structural migration status
 
@@ -65,7 +76,7 @@ Facades (keep `_G` function names via require):
 
 ## Build
 
-Project Teal build is **[Cyan](https://github.com/teal-language/cyan)** (`cyan build`), driven by `tlconfig.lua` (`source_dir = "src"`, `build_dir = "build"`, `gen_target = "5.1"`, `feat_arity = "off"`, `global_env_def = "love"`, `include_dir = { "types" }`).
+Project Teal build is **[Cyan](https://github.com/teal-language/cyan)** (`cyan build`), driven by `tlconfig.lua` (`source_dir = "src"`, `build_dir = "build"`, `gen_target = "5.1"`, `feat_arity = "on"`, `global_env_def = "love"`, `include_dir = { "types" }`).
 
 ```bash
 luarocks install --local cyan   # once (matches Homebrew luarocks Lua, often 5.5)
