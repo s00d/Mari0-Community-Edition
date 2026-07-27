@@ -1,11 +1,9 @@
 --[[ Love callbacks extracted from main.lua ]]
 
 local LoveFrame = require("app.love_frame")
-local FrameDebug = require("core.framedebug")
 
 function love.update(dt: any)
 	local dt = dt as number
-	frametime_record(dt)
 	if music then
 		music:update()
 	end
@@ -13,16 +11,6 @@ function love.update(dt: any)
 	
 	if recording then
 		frame_dt = recordtarget as number
-	end
-
-	-- FrameDebug: pause / step / fast-forward only during gameplay so F5 does not freeze menus.
-	-- (debugbinds gate; FF hold keys polled inside FrameDebug.apply)
-	if debugbinds and gamestate == "game" then
-		local scaled = FrameDebug.apply(frame_dt)
-		if scaled == false then
-			return
-		end
-		frame_dt = scaled as number
 	end
 	
 	dt = targetdt as number
@@ -124,7 +112,6 @@ function love.update(dt: any)
 end
 
 function love.draw()
-	prof_push("love.draw")
 	shaders:predraw()
 	
 	local gs_handled = false
@@ -141,9 +128,7 @@ function love.draw()
 		elseif gamestate == "levelscreen" or gamestate == "gameover" or gamestate == "mappackfinished" then
 			levelscreen_draw()
 		elseif gamestate == "game" then
-			prof_push("game_draw")
 			game_draw()
-			prof_pop("game_draw")
 		elseif gamestate == "intro" then
 			intro_draw()
 		end
@@ -152,7 +137,6 @@ function love.draw()
 	notice.draw()
 	
 	shaders:postdraw()
-	prof_pop("love.draw")
 		
 	love.graphics.setColor(1, 1, 1)
 	
@@ -199,48 +183,6 @@ function love.keypressed(key: any, scancode: any, _: any)
 		debug.debug()
 		return
 	end
-
-	if key == "f3" and debugbinds then
-		local p50, p95, p99 = frametime_percentiles()
-		print(string.format("frametime ms: p50=%.2f p95=%.2f p99=%.2f", p50 * 1000, p95 * 1000, p99 * 1000))
-		return
-	end
-
-	if key == "f4" and debugbinds then
-		local on = profzones_toggle()
-		if on then
-			profzones_reset()
-			print("profzones ON (F4 again prints report + toggles off)")
-		else
-			print(profzones_report(16))
-			print("profzones OFF")
-		end
-		return
-	end
-
-	if key == "f5" and debugbinds then
-		FrameDebug.pause_play()
-		print(FrameDebug.is_playing() and "FrameDebug: playing" or "FrameDebug: paused (F6 = step)")
-		return
-	end
-
-	if (key == "f6" or key == "#") and debugbinds then
-		FrameDebug.frame_advance()
-		print("FrameDebug: step")
-		return
-	end
-
-	if key == "f7" and debugbinds then
-		portalveldebug = not portalveldebug
-		print(portalveldebug and "portal velocity arrows ON" or "portal velocity arrows OFF")
-		return
-	end
-
-	if key == "f8" and debugbinds then
-		physicsdebug = not physicsdebug
-		print(physicsdebug and "hitbox overlay ON" or "hitbox overlay OFF")
-		return
-	end
 	
 	if replaysystem then
 		if key == "k" then
@@ -283,7 +225,7 @@ function love.keypressed(key: any, scancode: any, _: any)
 			gamefinished = true
 			saveconfig()
 			notice.new("Cheats unlocked!")
-			-- Also enable F3–F8 / FrameDebug (same as --debug / MARI0_DEBUG=1)
+			-- Also enable leftover debugbinds (same as --debug / MARI0_DEBUG=1)
 			enable_debugbinds()
 		end
 		menu_keypressed(key)

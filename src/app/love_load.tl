@@ -2,14 +2,14 @@
 
 local LoveLoad = {}
 
--- F3–F8 / FrameDebug are gated on debugbinds. Enable via:
+-- Leftover debugbinds (recording / Lua console / grow). Enable via:
 --   love . --debug   |   MARI0_DEBUG=1   |   konami code in menu (also unlocks cheats)
 global function enable_debugbinds()
 	if debugbinds then
 		return
 	end
 	debugbinds = true
-	print("debugbinds: F3 frametime, F4 profzones, F5 pause, F6 step, F7 portal vel, F8 hitboxes, RShift FF, RCtrl slowmo")
+	print("debugbinds: LCtrl Lua console, Y+LAlt toggle recording, F grow")
 end
 
 local function want_debug_from_env_or_arg(arg: any): boolean
@@ -179,7 +179,6 @@ function LoveLoad.run(arg: any)
 	portalwalldebug = false
 	userectdebug = false
 	speeddebug = false
-	portalveldebug = false
 	spritebatch_dirty = false
 
 	DEBUG = want_debug_from_env_or_arg(arg)

@@ -1031,7 +1031,6 @@ global portaldotimg: Image
 global portalcrosshairimg: Image
 global physicsdebug: any
 global portalwalldebug: any
-global portalveldebug: boolean
 global coinblockimg: Image
 global coinimg: Image
 global portalbackgroundimg: Image
@@ -1737,17 +1736,9 @@ global enemy_onscreen: function(any, any, any, any): boolean
 global onscreen: function(number, number, number|nil, number|nil): boolean
 global prof_push: function(string)
 global prof_pop: function(string|nil)
-global profzones_set_enabled: function(boolean)
-global profzones_enabled: function(): boolean
-global profzones_toggle: function(): boolean
-global profzones_report: function(integer|nil): string
-global profzones_reset: function()
-global frametime_record: function(number)
 global gcpace_configure: function()
 global gcpace_step: function()
 global gcpace_after_load: function()
-global frametime_percentiles: function(): number, number, number
-global frametime_reset: function()
 global record LoveLoadModule
 	install_mouse: function(LoveLoadModule)
 	run: function(LoveLoadModule, any)

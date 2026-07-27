@@ -1,4 +1,4 @@
---[[ FrameDebug + profzones + onscreen + spritebatch coalesce. ]]
+--[[ onscreen cull + spritebatch coalesce. ]]
 
 local root = ... or "."
 local failed = 0
@@ -17,37 +17,6 @@ package.path = table.concat({
 	root .. "/build/?/init.lua",
 	package.path,
 }, ";")
-
--- FrameDebug
-do
-	local FrameDebug = require("core.framedebug")
-	FrameDebug.set_playing(true)
-	check("framedebug playing apply", FrameDebug.apply(0.016) ~= false)
-	FrameDebug.pause_play()
-	check("framedebug pause returns false", FrameDebug.apply(0.016) == false)
-	FrameDebug.frame_advance()
-	local stepped = FrameDebug.apply(0.016)
-	check("framedebug step advances", type(stepped) == "number" and stepped > 0)
-	FrameDebug.set_playing(true)
-end
-
--- Prof zones
-do
-	require("core.profzones")
-	profzones_reset()
-	profzones_set_enabled(true)
-	prof_push("a")
-	prof_push("b")
-	prof_pop("b")
-	prof_pop("a")
-	local report = profzones_report(5)
-	check("profzones report has zone a", report:find("a", 1, true) ~= nil)
-	profzones_set_enabled(false)
-	prof_push("noop")
-	prof_pop()
-	check("profzones disabled no-op", true)
-	profzones_reset()
-end
 
 -- onscreen / enemy_onscreen (padded enemy cull, not an alias)
 do

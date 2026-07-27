@@ -226,24 +226,6 @@ global function game_draw_debug()
 		end
 	end
 
-	-- Portal / player velocity arrows (F7 when debugbinds)
-	if portalveldebug and objects and objects["player"] then
-		love.graphics.setColor(0, 1, 0.4, 0.9)
-		local lw = love.graphics.getLineWidth()
-		love.graphics.setLineWidth(2)
-		for _, p in pairs(objects["player"] as {any:Body}) do
-			if p.active and p.width then
-				local x = math.floor((p.x + p.width / 2 - xscroll) * 16 * scale)
-				local y = math.floor((p.y + p.height / 2 - yscroll - 0.5) * 16 * scale)
-				local sx = (p.speedx or 0) * 4 * scale
-				local sy = (p.speedy or 0) * 4 * scale
-				love.graphics.line(x, y, x + sx, y + sy)
-			end
-		end
-		love.graphics.setLineWidth(lw)
-		love.graphics.setColor(1, 1, 1, 1)
-	end
-	
 end
 
 global function game_draw_pausemenu()
