@@ -28,6 +28,13 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	self.weaponi = 1
 	self.weapondelay = {}
 	self.gg_state = "idle"
+	self.grapple = false
+	self.grapple_x = nil
+	self.grapple_y = nil
+	self.grapple_cox = nil
+	self.grapple_coy = nil
+	self.grapple_len = nil
+	self.grapple_reel = nil
 	self.gg_pulling = nil
 	self.gg_vx = 0
 	self.gg_vy = 0
@@ -1312,7 +1319,7 @@ function mario:updateangle()
 		return
 	end
 	
-	if self.vine or (self.animation and self.animation ~= "invincible") then
+	if self.vine or self.grapple or (self.animation and self.animation ~= "invincible") then
 		return
 	end
 	--UPDATE THE PLAYER ANGLE
@@ -3831,6 +3838,12 @@ global function collectcoin(x: number, y: number, i?: any): any
 end
 
 function mario:portaled(dir: any)
+	if self.grapple then
+		-- ponytail: отцеп при входе в портал; перенос якоря на выход — если механика зайдёт
+		if Weapons and Weapons.hookshot then
+			(Weapons.hookshot.detach as function({string:any}, string, boolean))(self as {string:any}, "portal", false)
+		end
+	end
 	if self.pickup then
 		(self.pickup as Entity):portaled(dir)
 	end

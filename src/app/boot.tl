@@ -125,6 +125,7 @@ function Boot.require_game()
 	require "entities.bulletbill"
 	require "entities.fireball"
 	require "entities.gravityball"
+	require "entities.hook"
 	require "ui.gui"
 	require "entities.blockdebris"
 	require "entities.firework"

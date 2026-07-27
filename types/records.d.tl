@@ -1217,6 +1217,46 @@ global record gravityball is Body
 	new: function(gravityball, number, number, number, number, any): gravityball
 end
 
+global record hook is Body
+	active: boolean
+	autodelete: boolean
+	category: number
+	destroy: boolean
+	drawable: boolean
+	emancipatecheck: boolean
+	graphic: any
+	gravity: number
+	gravitydirection: number
+	height: number
+	mask: {boolean}
+	offsetX: number
+	offsetY: number
+	owner: any
+	portalable: boolean
+	quad: any
+	quadcenterX: number
+	quadcenterY: number
+	rotation: number
+	speedx: number
+	speedy: number
+	state: string
+	static: boolean
+	travelled: number
+	width: number
+	x: number
+	y: number
+	init: function(hook, number, number, number, number, any)
+	update: function(hook, number): boolean
+	leftcollide: function(hook, any, Entity): boolean
+	rightcollide: function(hook, any, Entity): boolean
+	floorcollide: function(hook, any, Entity): boolean
+	ceilcollide: function(hook, any, Entity): boolean
+	passivecollide: function(hook, any, Entity): boolean
+	hitstuff: function(hook, any, Entity)
+	emancipate: function(hook): any
+	new: function(hook, number, number, number, number, any): hook
+end
+
 global record fireworkboom is Entity, Body
 	width: number
 	height: number
@@ -1719,6 +1759,13 @@ global record mario is Entity, Body
 	gg_pulling: any
 	gg_vx: number
 	gg_vy: number
+	grapple: boolean
+	grapple_x: number|nil
+	grapple_y: number|nil
+	grapple_cox: number|nil
+	grapple_coy: number|nil
+	grapple_len: number|nil
+	grapple_reel: boolean|nil
 	tailwag: boolean
 	tailwagframe: number
 	tailwagtimer: number

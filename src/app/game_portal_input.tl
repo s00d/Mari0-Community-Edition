@@ -150,12 +150,14 @@ global function game_keypressed(key: any)
 		end
 
 		if playerobjs[i] and not playerobjs[i].remote then
-			if controls[i]["portal1"][i] == key then
+			local can_fire = not playerobjs[i].vine and (not playerobjs[i].grapple
+				or (Weapons.current(playerobjs[i]) and Weapons.current(playerobjs[i]).id == "hookshot"))
+			if can_fire and controls[i]["portal1"][i] == key then
 				Weapons.fire(playerobjs[i], "l")
 				return
 			end
 
-			if controls[i]["portal2"][i] == key then
+			if can_fire and controls[i]["portal2"][i] == key then
 				Weapons.fire(playerobjs[i], "r")
 				return
 			end
@@ -294,24 +296,32 @@ global function game_mousepressed(x: any, y: any, button: any)
 		end
 		
 		if not noupdate and playerobjs[mouseowner] and playerobjs[mouseowner].controlsenabled and playerobjs[mouseowner].vine == false then
-		
-			if button == "l" or button == "r" and playerobjs[mouseowner] then
-				--knockback
-				if portalknockback then
-					local xadd = math.sin(playerobjs[mouseowner].pointingangle)*30
-					local yadd = math.cos(playerobjs[mouseowner].pointingangle)*30
-					playerobjs[mouseowner].speedx = playerobjs[mouseowner].speedx + xadd
-					playerobjs[mouseowner].speedy = playerobjs[mouseowner].speedy + yadd
-					playerobjs[mouseowner].falling = true
-					playerobjs[mouseowner].animationstate = "falling"
-					playerobjs[mouseowner]:setquad()
-				end
+			local pl = playerobjs[mouseowner]
+			local allow_fire = not pl.grapple
+			if pl.grapple then
+				local curw = Weapons and Weapons.current(pl)
+				allow_fire = curw ~= nil and curw.id == "hookshot"
 			end
-		
-			if button == "l" then
-				Weapons.fire(playerobjs[mouseowner], "l")
-			elseif button == "r" then
-				Weapons.fire(playerobjs[mouseowner], "r")
+
+			if allow_fire then
+				if button == "l" or button == "r" and playerobjs[mouseowner] then
+					--knockback
+					if portalknockback then
+						local xadd = math.sin(playerobjs[mouseowner].pointingangle)*30
+						local yadd = math.cos(playerobjs[mouseowner].pointingangle)*30
+						playerobjs[mouseowner].speedx = playerobjs[mouseowner].speedx + xadd
+						playerobjs[mouseowner].speedy = playerobjs[mouseowner].speedy + yadd
+						playerobjs[mouseowner].falling = true
+						playerobjs[mouseowner].animationstate = "falling"
+						playerobjs[mouseowner]:setquad()
+					end
+				end
+
+				if button == "l" then
+					Weapons.fire(playerobjs[mouseowner], "l")
+				elseif button == "r" then
+					Weapons.fire(playerobjs[mouseowner], "r")
+				end
 			end
 		end
 			
@@ -537,8 +547,10 @@ global function game_joystickpressed(joystick: any, button: any)
 			end
 			
 			if i ~= mouseowner then
+				local can_fire = not playerobjs[i].grapple
+					or (Weapons.current(playerobjs[i]) and Weapons.current(playerobjs[i]).id == "hookshot")
 				local s = controls[i]["portal1"]
-				if s and s[1] == "joy" then
+				if can_fire and s and s[1] == "joy" then
 					if s[3] == "but" then
 						if joystick == s[2] and button == s[4] then
 							Weapons.fire(playerobjs[i], "l")
@@ -548,7 +560,7 @@ global function game_joystickpressed(joystick: any, button: any)
 				end
 				
 				local s = controls[i]["portal2"]
-				if s and s[1] == "joy" then
+				if can_fire and s and s[1] == "joy" then
 					if s[3] == "but" then
 						if joystick == s[2] and button == s[4] then
 							Weapons.fire(playerobjs[i], "r")

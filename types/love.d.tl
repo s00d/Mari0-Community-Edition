@@ -168,6 +168,7 @@ global interface Entity is {any}
 	portalgundisabled: boolean
 	disableaiming: boolean
 	vine: Entity|boolean
+	grapple: boolean
 	lastportal: number
 	portal: any
 	portal1color: any

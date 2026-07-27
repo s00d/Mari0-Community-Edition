@@ -3,12 +3,14 @@
 local portalgun = require("weapons.portalgun") as {string:any}
 local gelcannon = require("weapons.gelcannon") as {string:any}
 local gravitygun = require("weapons.gravitygun") as {string:any}
+local hookshot = require("weapons.hookshot") as {string:any}
 
 local registry: {string:{string:any}} = {
 	portal = portalgun,
 	gelcannon = gelcannon,
 	gel = gelcannon, -- alias (legacy playertype / levelweapons)
 	gravitygun = gravitygun,
+	hookshot = hookshot,
 }
 
 local icon_cache: {string:any} = {}
@@ -66,8 +68,8 @@ local function default_loadout(): {string}
 			return out
 		end
 	end
-	-- Testing unlock: portal + gravity + gel always available.
-	return { "portal", "gravitygun", "gelcannon" }
+	-- Testing unlock: portal + gravity + gel + hookshot always available.
+	return { "portal", "gravitygun", "gelcannon", "hookshot" }
 end
 
 local function setup_player(pl_any: any)
@@ -114,6 +116,7 @@ local function release(pl_any: any, reason: string)
 		return
 	end
 	(gravitygun.release_obj as function({string:any}, string))(pl, reason or "release")
+	(hookshot.detach as function({string:any}, string, boolean))(pl, reason or "release", false)
 end
 
 local function switch(pl_any: any, dir: number)
@@ -176,13 +179,16 @@ local function update(pl_any: any, dt: number)
 			end
 		end
 	end
-	-- Always tick gravity-gun spring even if another weapon is selected mid-hold
+	-- Always tick gravity-gun / hookshot even if another weapon is selected mid-hold
 	-- (unequip should have released; keep as safety if state leaked).
 	local w = current(pl)
 	if w and w.update then
 		(w.update as function({string:any}, number))(pl, dt)
 	elseif pl.gg_state and pl.gg_state ~= "idle" and gravitygun.update then
 		(gravitygun.update as function({string:any}, number))(pl, dt)
+	end
+	if pl.grapple and (not w or w.id ~= "hookshot") then
+		(hookshot.update as function({string:any}, number))(pl, dt)
 	end
 end
 
@@ -202,7 +208,8 @@ local function update_all(dt: number)
 			update(pl, dt)
 			if i == mouseowner and pl.controlsenabled and not pl.vine then
 				local w = current(pl)
-				if w and w.hold then
+				local allow_hold = not pl.grapple or (w and w.id == "hookshot")
+				if allow_hold and w and w.hold then
 					if lmb then
 						hold(pl, "l", dt)
 					elseif rmb then
@@ -219,6 +226,8 @@ local function draw(pl_any: any)
 	local w = current(pl)
 	if w and w.draw then
 		(w.draw as function({string:any}))(pl)
+	elseif pl.grapple then
+		(hookshot.draw as function({string:any}))(pl)
 	end
 end
 
@@ -260,6 +269,7 @@ end
 local Weapons: WeaponsModule = {
 	registry = registry,
 	gravitygun = gravitygun,
+	hookshot = hookshot,
 	get = get,
 	current = current,
 	icon_image = icon_image,

@@ -32,6 +32,7 @@ OBJECT_GROUP_KEYS = {
 	"pushbutton",
 	"fireball",
 	"gravityball",
+	"hook",
 	"platform",
 	"platformspawner",
 	"castlefire",

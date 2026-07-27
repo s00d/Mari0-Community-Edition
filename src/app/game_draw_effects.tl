@@ -140,7 +140,7 @@ global function game_draw_fx()
 		for pl = 1, players do
 			local curw = Weapons and Weapons.current(playerobjs[pl])
 			local portal_equipped = (not Weapons) or (curw and curw.id == "portal")
-			if playerobjs[pl].controlsenabled and portal_equipped and playerobjs[pl].vine == false and (playerobjs[pl].portalsavailable[1] or playerobjs[pl].portalsavailable[2]) then
+			if playerobjs[pl].controlsenabled and portal_equipped and playerobjs[pl].vine == false and playerobjs[pl].grapple == false and (playerobjs[pl].portalsavailable[1] or playerobjs[pl].portalsavailable[2]) then
 				local sourcex: number = playerobjs[pl].x+6/16
 				local sourcey: number = playerobjs[pl].y+6/16
 				local an = playerobjs[pl].pointingangle

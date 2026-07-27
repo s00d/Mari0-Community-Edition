@@ -3468,7 +3468,7 @@ function editor_mousepressed_right(x: number, y: number)
 			else
 				local cox, coy = getMouseTile(x, y+8*scale)
 				
-				if objects["player"][1] and not objects["player"][1].vine then
+				if objects["player"][1] and not objects["player"][1].vine and not objects["player"][1].grapple then
 					objects["player"][1].x = cox-1+2/16
 					objects["player"][1].y = coy-objects["player"][1].height
 					objects["player"][1].vine = false

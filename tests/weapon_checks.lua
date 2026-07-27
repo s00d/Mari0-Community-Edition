@@ -106,14 +106,16 @@ do
 	check("release pulling clears beam", obj2.beamed == nil and pl2.gg_pulling == nil)
 end
 
--- 4) registry + default loadout includes all three weapons
+-- 4) registry + default loadout includes all four weapons
 do
 	check("registry portal", Weapons.get("portal") ~= nil and Weapons.get("portal").id == "portal")
 	check("registry gelcannon", Weapons.get("gelcannon") ~= nil and Weapons.get("gelcannon").id == "gelcannon")
 	check("registry gel alias", Weapons.get("gel") == Weapons.get("gelcannon"))
 	check("registry gravitygun", Weapons.get("gravitygun") ~= nil)
+	check("registry hookshot", Weapons.get("hookshot") ~= nil and Weapons.get("hookshot").id == "hookshot")
 	check("portal icon path", tostring(Weapons.get("portal").icon):find("portalgun%.png") ~= nil)
 	check("gel icon path", tostring(Weapons.get("gelcannon").icon):find("gelcannon%.png") ~= nil)
+	check("hookshot icon path", tostring(Weapons.get("hookshot").icon):find("hookshot%.png") ~= nil)
 
 	levelweapons = nil
 	playertype = "portal"
@@ -122,13 +124,16 @@ do
 	check("default has portal", loadout[1] == "portal")
 	check("default has gravitygun", loadout[2] == "gravitygun")
 	check("default has gelcannon", loadout[3] == "gelcannon")
-	check("default len 3", #loadout == 3)
+	check("default has hookshot", loadout[4] == "hookshot")
+	check("default len 4", #loadout == 4)
 
-	local pl = { weapons = { "portal", "gravitygun", "gelcannon" }, weaponi = 1, weapondelay = {} }
+	local pl = { weapons = { "portal", "gravitygun", "gelcannon", "hookshot" }, weaponi = 1, weapondelay = {} }
 	Weapons.switch(pl, 1)
 	check("switch +1", pl.weaponi == 2 and pl.weapons[pl.weaponi] == "gravitygun")
 	Weapons.switch(pl, 1)
 	check("switch to gel", pl.weaponi == 3 and pl.weapons[pl.weaponi] == "gelcannon")
+	Weapons.switch(pl, 1)
+	check("switch to hookshot", pl.weaponi == 4 and pl.weapons[pl.weaponi] == "hookshot")
 	Weapons.switch(pl, 1)
 	check("switch wrap", pl.weaponi == 1)
 end
@@ -668,6 +673,116 @@ do
 		crate.speedy = 12
 		box.floorcollide(crate, "enemy", immune, nil, nil)
 		check("box crush immune", stomped == false)
+	end
+end
+
+-- 12) hookshot rope_step + detach funnel
+do
+	local ok_hs, hookshot = pcall(require, "weapons.hookshot")
+	check("load weapons.hookshot", ok_hs)
+	if ok_hs then
+		-- 1) d < rest: no move
+		local pl = {
+			x = 0, y = 0, width = 1, height = 1,
+			speedx = 0, speedy = 0,
+			grapple = true, grapple_x = 2, grapple_y = 0.5,
+			grapple_len = 5, grapple_reel = false,
+		}
+		local x0, y0 = pl.x, pl.y
+		hookshot.rope_step(pl, 1 / 60)
+		check("rope d<rest no move", pl.x == x0 and pl.y == y0)
+
+		-- 2) d > rest → distance == rest
+		pl.x, pl.y = 0, 0
+		pl.width, pl.height = 0, 0 -- center == top-left for easy math
+		pl.grapple_x, pl.grapple_y = 10, 0
+		pl.grapple_len = 4
+		pl.grapple_reel = false
+		pl.speedx, pl.speedy = 0, 0
+		hookshot.rope_step(pl, 1 / 60)
+		local px = pl.x + pl.width / 2
+		local py = pl.y + pl.height / 2
+		local d = math.sqrt((pl.grapple_x - px) ^ 2 + (pl.grapple_y - py) ^ 2)
+		check("rope d>rest equals rest", math.abs(d - 4) < 1e-6, "d=" .. tostring(d))
+
+		-- 3) tangential kept, radial away zeroed
+		-- anchor at (0,0), player at (5,0), rest=5 so already on circle; give outward + tangential vel
+		-- Wait: need d > rest to apply velocity kill. rest=4, d=5.
+		pl.x, pl.y = 5, 0
+		pl.width, pl.height = 0, 0
+		pl.grapple_x, pl.grapple_y = 0, 0
+		pl.grapple_len = 4
+		pl.grapple_reel = false
+		-- velocity: away from anchor (-radial in their convention: nx points to anchor)
+		-- nx = (0-5)/5 = -1, radial = vx*nx + vy*ny; away means moving further = opposite to nx = positive x
+		pl.speedx, pl.speedy = 3, 4 -- radial away = speedx*(-nx?); nx=-1, radial = 3*(-1)+4*0 = -3 < 0 → kill
+		hookshot.rope_step(pl, 1 / 60)
+		-- after step: on circle at rest=4; radial away removed
+		px = pl.x + pl.width / 2
+		py = pl.y + pl.height / 2
+		d = math.sqrt((0 - px) ^ 2 + (0 - py) ^ 2)
+		check("rope after step on circle", math.abs(d - 4) < 1e-5, "d=" .. tostring(d))
+		local nx, ny = (0 - px) / d, (0 - py) / d
+		local radial = pl.speedx * nx + pl.speedy * ny
+		check("rope radial away zeroed", radial >= -1e-6, "radial=" .. tostring(radial))
+		-- tangential component of (3,4) should remain roughly: original tangential was (0,4) if on x-axis
+		-- after position correction player is at (4,0), nx=-1; speed was (3,4), radial=-3, remove → (0,4)
+		check("rope tangential kept", math.abs(pl.speedy - 4) < 1e-5 and math.abs(pl.speedx) < 1e-5,
+			"vx=" .. tostring(pl.speedx) .. " vy=" .. tostring(pl.speedy))
+
+		-- 4) detach clears all grapple_* for all reasons
+		local reasons = {
+			"release", "jump", "death", "levelend", "broken_anchor", "grill", "outofreach", "portal", "switch",
+		}
+		local all_ok = true
+		for _, reason in ipairs(reasons) do
+			local p = {
+				grapple = true,
+				grapple_x = 1, grapple_y = 2,
+				grapple_cox = 3, grapple_coy = 4,
+				grapple_len = 5, grapple_reel = true,
+				speedy = 0,
+			}
+			local boost = reason == "jump"
+			hookshot.detach(p, reason, boost)
+			if p.grapple or p.grapple_x or p.grapple_y or p.grapple_cox or p.grapple_coy
+				or p.grapple_len or p.grapple_reel then
+				all_ok = false
+				print("  leftover after " .. reason)
+			end
+			if boost and not (p.speedy <= -9) then
+				all_ok = false
+				print("  boost missing after jump: " .. tostring(p.speedy))
+			end
+		end
+		check("detach clears all reasons", all_ok)
+
+		-- 5) broken anchor → detach same frame
+		local p2 = {
+			x = 1, y = 1, width = 0.75, height = 0.75,
+			speedx = 0, speedy = 0,
+			grapple = true,
+			grapple_x = 5, grapple_y = 1,
+			grapple_cox = 6, grapple_coy = 2,
+			grapple_len = 4, grapple_reel = true,
+			playernumber = 99, -- != mouseowner → mouse treated as held
+		}
+		mouseowner = 1
+		inmap = function() return true end
+		map = { [6] = { [2] = { 1 } } } -- tid 1 = empty
+		tilequads = {}
+		love = { mouse = { isDown = function() return true end } }
+		hookshot.update(p2, 1 / 60)
+		check("broken anchor detaches same frame", p2.grapple == false and p2.grapple_x == nil)
+
+		-- Weapons.release detaches grapple
+		local p3 = {
+			grapple = true, grapple_x = 1, grapple_y = 1,
+			grapple_len = 2, grapple_reel = true,
+			gg_state = "idle", pickup = false,
+		}
+		Weapons.release(p3, "death")
+		check("Weapons.release detaches grapple", p3.grapple == false)
 	end
 end
 

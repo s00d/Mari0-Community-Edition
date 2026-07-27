@@ -26,6 +26,7 @@ end
 global record WeaponsModule
 	registry: {string:{string:any}}
 	gravitygun: {string:any}
+	hookshot: {string:any}
 	get: function(string): {string:any}
 	current: function(any): {string:any}
 	icon_image: function(string): any
