@@ -1,0 +1,3 @@
+name=super mario bros. 2 japan / lost levels (vglc)
+author=nintendo / vglc import
+description=SMB2J (Lost Levels) from TheVGLC WithEnemies. DEFAULT tileset. Pipes are solid decor.

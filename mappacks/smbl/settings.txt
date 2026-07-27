@@ -1,0 +1,3 @@
+name=super mario land (vglc)
+author=nintendo / vglc import
+description=SML levels from TheVGLC (incomplete: no 2-3/4-3 shooters). DEFAULT tileset.
