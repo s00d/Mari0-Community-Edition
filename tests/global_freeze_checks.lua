@@ -238,19 +238,32 @@ do
 end
 
 do
-	-- Lua removes keys on nil assign; snapshot only sees keys present in _G
+	-- Declared globals in game.d.tl are allowed even when absent from _G snapshot
 	local GlobalFreeze = require("core.global_freeze")
-	rawset(_G, "map", {})
 	GlobalFreeze.install_writes_only()
-	local ok_missing, err_missing = pcall(function()
-		_G.objects = {}
+	local ok_typo, err_typo = pcall(function()
+		_G._gf_test_typo_xyz = 1
 	end)
-	check("freeze blocks write to unsnapshotted global", not ok_missing and tostring(err_missing):find("undeclared global write: objects"), tostring(err_missing))
-	GlobalFreeze.uninstall()
-	rawset(_G, "map", nil)
+	check("freeze blocks undeclared typo global", not ok_typo and tostring(err_typo):find("undeclared global write"), tostring(err_typo))
+
+	local ok_blacktime, err_blacktime = pcall(function()
+		_G.blacktime = 1.5
+	end)
+	check("freeze allows game.d.tl global blacktime", ok_blacktime and _G.blacktime == 1.5, tostring(err_blacktime))
+
+	local ok_levelscreen, err_levelscreen = pcall(function()
+		_G.levelscreentimer = 0
+		_G.sublevelscreen_level = 1
+		_G.livesleft = false
+		_G.coinframe = 1
+	end)
+	check("freeze allows levelscreen globals from game.d.tl", ok_levelscreen
+		and _G.levelscreentimer == 0
+		and _G.sublevelscreen_level == 1
+		and _G.livesleft == false
+		and _G.coinframe == 1, tostring(err_levelscreen))
 
 	rawset(_G, "objects", {})
-	GlobalFreeze.install_writes_only()
 	local ok_reassign, err_reassign = pcall(function()
 		_G.objects = {}
 	end)
@@ -260,10 +273,15 @@ do
 	local ok_after_nil, err_after_nil = pcall(function()
 		_G.objects = {player = {}}
 	end)
-	check("freeze allows snapshotted global reassignment", ok_reassign, tostring(err_reassign))
-	check("freeze allows snapshotted global cleared to nil", ok_nil, tostring(err_nil))
+	check("freeze allows declared global reassignment", ok_reassign, tostring(err_reassign))
+	check("freeze allows declared global cleared to nil", ok_nil, tostring(err_nil))
 	check("freeze allows write after nil clear", ok_after_nil, tostring(err_after_nil))
 	GlobalFreeze.uninstall()
+	rawset(_G, "blacktime", nil)
+	rawset(_G, "levelscreentimer", nil)
+	rawset(_G, "sublevelscreen_level", nil)
+	rawset(_G, "livesleft", nil)
+	rawset(_G, "coinframe", nil)
 	rawset(_G, "objects", nil)
 end
 

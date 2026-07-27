@@ -140,8 +140,11 @@ global function init_game_runtime_globals()
 	background = {}
 
 	-- levelscreen / spawn / levelio
+	blacktime = 0
 	livesleft = false
 	levelscreentimer = 0
+	sublevelscreen_level = 0
+	coinframe = 1
 	allowenemy = true
 	animatedbooltimers = {}
 	animatedtimers = {}
