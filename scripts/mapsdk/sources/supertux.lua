@@ -60,7 +60,7 @@ M.ST_OBJECTS = {
 	coin = { kind = "coin" },  -- emits entity "manycoins"
 	trampoline = { kind = "entity", name = "spring" },
 	platform = { kind = "entity", name = "platform" },
-	weak_block = { kind = "skip" },
+	weak_block = { kind = "tile", id = 78 },
 	unstable_tile = { kind = "skip" },
 	infoblock = { kind = "skip" },
 	invisible_wall = { kind = "skip" },
@@ -95,7 +95,9 @@ M.ST_OBJECTS = {
 	goldbomb = { kind = "enemy", name = "beetle" },
 	powerup = { kind = "enemy", name = "mushroom" },
 	flame = { kind = "enemy", name = "fire" },
-	yeti = { kind = "enemy", name = "bowser" },
+	yeti = { kind = "enemy", name = "boomboom" },
+	ghosttree = { kind = "enemy", name = "boomboom" },
+	mrtree = { kind = "enemy", name = "koopa" },
 	wind = { kind = "skip" },
 	bumper = { kind = "skip" },
 	circleplatform = { kind = "entity", name = "platform" },
@@ -205,6 +207,16 @@ local function tile_flags_from_node(t)
 		else
 			p.slantupright = true
 		end
+	end
+	local obj_name = sexpr.as_string(sexpr.field(t, "object-name")) or ""
+	local obj_data = sexpr.as_string(sexpr.field(t, "object-data")) or ""
+	if obj_name == "brick" or obj_name == "heavy-brick" or obj_data:find("breakable #t", 1, true) then
+		p.breakable = true
+		p.collision = true
+	end
+	if obj_name == "coin" or obj_name:match("coin$") then
+		p.coin = true
+		p.collision = nil
 	end
 	return p
 end
@@ -413,6 +425,13 @@ function M.convert_stl(text, opts)
 					ir.entities[#ir.entities + 1] = { x = tx, y = ty, name = "flag" }
 				elseif m.kind == "coin" then
 					ir.entities[#ir.entities + 1] = { x = tx, y = ty, name = "manycoins" }
+				elseif m.kind == "tile" then
+					-- weak_block etc.: paint ST tile id into IR (base+id)
+					local st_id = m.id
+					if type(st_id) == "number" then
+						local mid = (remap and remap[st_id]) or (base + st_id)
+						ir.tiles[tx][ty] = mid
+					end
 				elseif m.kind == "enemy" or m.kind == "entity" then
 					ir.entities[#ir.entities + 1] = { x = tx, y = ty, name = m.name }
 				end

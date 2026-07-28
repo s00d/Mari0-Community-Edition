@@ -127,11 +127,12 @@ global function changescale(s: number, init?: boolean)
 	end
 	
 	local vsync_mode = vsync and 1 or 0
+	local winflags = {fullscreen=fullscreen, vsync=vsync_mode}
 	if fullscreen then
-		love.window.setMode(desktopsize.width, desktopsize.height, {fullscreen=fullscreen, vsync=vsync_mode--[[, fsaa=fsaa]]})
+		love.window.setMode(desktopsize.width, desktopsize.height, winflags)
 	else
 		uispace = math.floor(width*16*scale/4)
-		love.window.setMode(width*16*scale, height*16*scale, {fullscreen=fullscreen, vsync=vsync_mode--[[, fsaa=fsaa]]}) --25x14 blocks (15 blocks actual height)
+		love.window.setMode(width*16*scale, height*16*scale, winflags) --25x14 blocks (15 blocks actual height)
 	end
 
 	completecanvas = love.graphics.newCanvas()
@@ -298,6 +299,47 @@ global function getupdate(): boolean
 	return false
 end
 
+-- Once-per-glyph warn (debugprints). Never call love.graphics.draw with a nil Quad.
+local properprint_missing: {string:boolean} = {}
+
+local function properprint_warn_missing(kind: string, what: string)
+	local key = kind .. ":" .. what
+	if properprint_missing[key] then
+		return
+	end
+	properprint_missing[key] = true
+	if debugprints then
+		print("[warn] properprint missing " .. kind .. " " .. what)
+	end
+end
+
+-- UTF-8 lead byte → extra continuation bytes to skip (0 for ASCII).
+local function utf8_extra_bytes(b: number): integer
+	if b < 0x80 then
+		return 0
+	elseif b >= 0xF0 then
+		return 3
+	elseif b >= 0xE0 then
+		return 2
+	elseif b >= 0xC0 then
+		return 1
+	end
+	return 0 -- continuation / invalid: treat as single
+end
+
+local function properprint_draw_glyph(img: Image, quads: {string:any}, char: string, dx: number, dy: number, scale: number, xoff: number, yoff: number)
+	local q = quads[char]
+	if q then
+		love.graphics.draw(img, q, dx, dy, 0, scale, scale)
+		return
+	end
+	properprint_warn_missing("glyph", string.format("%q U+%04X", char, string.byte(char) or 0))
+	local sub = quads["?"]
+	if sub then
+		love.graphics.draw(img, sub, dx + xoff, dy + yoff, 0, scale, scale)
+	end
+end
+
 global function properprint(s: any, x: number, y: number, sc?: number)
 	local scale = (sc or scale) as number
 	local startx = x as number
@@ -311,13 +353,36 @@ global function properprint(s: any, x: number, y: number, sc?: number)
 		else
 			local char = string.sub(ss, i, i)
 			if string.sub(ss, i, i+3) == "_dir" and tonumber(string.sub(ss, i+4, i+4)) then
-				love.graphics.draw(directionsimg, directionsquad[tonumber(string.sub(ss, i+4, i+4)) as integer], xx+((i-1)*8+1)*scale, yy, 0, scale, scale)
+				local di = tonumber(string.sub(ss, i+4, i+4)) as integer
+				local dq = directionsquad and directionsquad[di]
+				if dq then
+					love.graphics.draw(directionsimg, dq, xx+((i-1)*8+1)*scale, yy, 0, scale, scale)
+				else
+					properprint_warn_missing("dir", tostring(di))
+					local sub = fontquads["?"]
+					if sub then
+						love.graphics.draw(fontimage, sub, xx+((i-1)*8+1)*scale, yy, 0, scale, scale)
+					end
+				end
 				skip = 4
 			elseif char == "|" then
 				xx = startx-((i)*8)*scale
 				yy = yy + 10*scale
-			elseif fontquads[char] then
-				love.graphics.draw(fontimage, fontquads[char], xx+((i-1)*8+1)*scale, yy, 0, scale, scale)
+			else
+				local extra = utf8_extra_bytes(string.byte(char) or 0)
+				if extra > 0 then
+					-- Multi-byte UTF-8 (em dash, ellipsis, …): one "?" and skip trail bytes.
+					properprint_warn_missing("utf8", string.format("U+%02X..", string.byte(char) or 0))
+					local sub = fontquads["?"]
+					if sub then
+						love.graphics.draw(fontimage, sub, xx+((i-1)*8+1)*scale, yy, 0, scale, scale)
+					end
+					skip = extra
+				elseif fontquads[char] then
+					love.graphics.draw(fontimage, fontquads[char], xx+((i-1)*8+1)*scale, yy, 0, scale, scale)
+				elseif char ~= " " then
+					properprint_draw_glyph(fontimage, fontquads, char, xx+((i-1)*8+1)*scale, yy, scale, 0, 0)
+				end
 			end
 		end
 	end
@@ -338,8 +403,20 @@ global function properprintbackground(s: any, x: any, y: any, include?: any, _?:
 			if char == "|" then
 				xx = startx-((i)*8)*scale
 				yy = yy + 10*scale
-			elseif fontquadsback[char] then
-				love.graphics.draw(fontimageback, fontquadsback[char], xx+((i-1)*8)*scale, yy-1*scale, 0, scale, scale)
+			else
+				local extra = utf8_extra_bytes(string.byte(char) or 0)
+				if extra > 0 then
+					properprint_warn_missing("utf8-back", string.format("U+%02X..", string.byte(char) or 0))
+					local sub = fontquadsback["?"]
+					if sub then
+						love.graphics.draw(fontimageback, sub, xx+((i-1)*8)*scale, yy-1*scale, 0, scale, scale)
+					end
+					skip = extra
+				elseif fontquadsback[char] then
+					love.graphics.draw(fontimageback, fontquadsback[char], xx+((i-1)*8)*scale, yy-1*scale, 0, scale, scale)
+				elseif char ~= " " then
+					properprint_draw_glyph(fontimageback, fontquadsback, char, xx+((i-1)*8)*scale, yy-1*scale, scale, 0, 0)
+				end
 			end
 		end
 	end

@@ -373,43 +373,44 @@ def gen_icon() -> None:
 # --- enemies ---
 
 def sheet(frames: int, size: int = 16) -> tuple[Image.Image, ImageDraw.ImageDraw]:
-    im = Image.new("RGBA", (size, size * frames), (0, 0, 0, 0))
-    return im, ImageDraw.Draw(im)
+	# Mari0: frames LEFT→RIGHT (width=quadcount*size), height=frame size when nospritesets.
+	im = Image.new("RGBA", (size * frames, size), (0, 0, 0, 0))
+	return im, ImageDraw.Draw(im)
 
 
-def draw_nullptr(d, y0, frame):
-    # ghostly pointer diamond + "0"
-    if frame == 0:
-        px(d, 7, y0 + 2, CYAN, 2, 12)
-        px(d, 4, y0 + 5, CYAN, 8, 2)
-        px(d, 5, y0 + 7, WHT, 6, 4)
-        px(d, 6, y0 + 8, BLK, 4, 2)
-    else:
-        px(d, 6, y0 + 3, CYAN, 4, 10)
-        px(d, 3, y0 + 6, FAULT, 10, 2)
-        px(d, 5, y0 + 8, WHT, 6, 3)
+def draw_nullptr(d, x0, frame):
+	# ghostly pointer diamond + "0"
+	if frame == 0:
+		px(d, x0 + 7, 2, CYAN, 2, 12)
+		px(d, x0 + 4, 5, CYAN, 8, 2)
+		px(d, x0 + 5, 7, WHT, 6, 4)
+		px(d, x0 + 6, 8, BLK, 4, 2)
+	else:
+		px(d, x0 + 6, 3, CYAN, 4, 10)
+		px(d, x0 + 3, 6, FAULT, 10, 2)
+		px(d, x0 + 5, 8, WHT, 6, 3)
 
 
-def draw_offbyone(d, y0, frame):
-    # body shifted look: outline one side, fill other
-    px(d, 2 + frame, y0 + 4, WARN, 10, 10)
-    px(d, 3 + frame, y0 + 5, FAULT, 8, 8)
-    px(d, 5 + frame, y0 + 7, BLK, 2, 2)
-    px(d, 8 + frame, y0 + 7, BLK, 2, 2)
-    px(d, 14, y0 + 2, CYAN, 1, 1)  # stray pixel = off-by-one joke
+def draw_offbyone(d, x0, frame):
+	# body shifted look: outline one side, fill other
+	px(d, x0 + 2 + frame, 4, WARN, 10, 10)
+	px(d, x0 + 3 + frame, 5, FAULT, 8, 8)
+	px(d, x0 + 5 + frame, 7, BLK, 2, 2)
+	px(d, x0 + 8 + frame, 7, BLK, 2, 2)
+	px(d, x0 + 14, 2, CYAN, 1, 1)  # stray pixel = off-by-one joke
 
 
-def draw_memleak(d, y0, frame):
-    # growing blob of hex garbage
-    s = 8 + frame * 2
-    ox = (16 - s) // 2
-    px(d, ox, y0 + ox, PRP, s, s)
-    px(d, ox + 1, y0 + ox + 1, PNK, s - 2, s - 2)
-    px(d, ox + 2, y0 + ox + 3, BLK, 2, 2)
-    px(d, ox + s - 4, y0 + ox + 3, BLK, 2, 2)
-    if frame:
-        px(d, ox - 1, y0 + ox + 2, OK, 2, 2)
-        px(d, ox + s - 1, y0 + ox + 6, FAULT, 2, 2)
+def draw_memleak(d, x0, frame):
+	# growing blob of hex garbage
+	s = 8 + frame * 2
+	ox = (16 - s) // 2
+	px(d, x0 + ox, ox, PRP, s, s)
+	px(d, x0 + ox + 1, ox + 1, PNK, s - 2, s - 2)
+	px(d, x0 + ox + 2, ox + 3, BLK, 2, 2)
+	px(d, x0 + ox + s - 4, ox + 3, BLK, 2, 2)
+	if frame:
+		px(d, x0 + ox - 1, ox + 2, OK, 2, 2)
+		px(d, x0 + ox + s - 1, ox + 6, FAULT, 2, 2)
 
 
 def save_enemy_png(name: str, drawer, frames: int = 2) -> None:

@@ -157,4 +157,17 @@ check("strf batch solid", props[10] and props[10].collision)
 check("strf batch hurts", props[11] and props[11].spikestop)
 check("strf image", imgs[79] == "snow.png")
 
+-- brick / coin via object-data
+local brick_strf = [[
+(supertux-tiles
+  (tile (id 78) (images "brick.png") (solid #t)
+    (object-name "brick")
+    (object-data "(breakable #t)"))
+  (tile (id 44) (images "objects/coin/coin-0.png") (object-name "coin"))
+)
+]]
+local bp, _bi = st.parse_strf(brick_strf)
+check("strf brick breakable", bp[78] and bp[78].breakable and bp[78].collision)
+check("strf coin prop", bp[44] and bp[44].coin and not bp[44].collision)
+
 return failed

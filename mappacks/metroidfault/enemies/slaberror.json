@@ -1,0 +1,7 @@
+base=thwomp
+{
+	"boss": true,
+	"persistkill": true,
+	"health": 8,
+	"slamaccel": 110
+}

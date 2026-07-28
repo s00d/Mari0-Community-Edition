@@ -64,28 +64,28 @@ end
 
 global function lobby_draw()
 	local scroll = guielements.playerscroll.value as number
-	love.graphics.setColor(0, 0, 0, 0.8)
-	love.graphics.rectangle("fill", 3 * scale, 3 * scale, 233 * scale, 104 * scale)
+	draw_panel(0, 0, 240, 112)
 
 	love.graphics.setColor(1, 1, 1, 1)
 	if usemagic and adjective and noun and adjective ~= "" and noun ~= "" then
-		properprintbackground("magicdns: " .. adjective .. " " .. noun, 4 * scale, 98 * scale, true)
+		properprintbackground("magicdns: " .. adjective .. " " .. noun, 8 * scale, 98 * scale, true)
 	end
-	properprintbackground("status: " .. tostring(netstatus or "?"), 4 * scale, 4 * scale, true)
+	ui_set_color("status")
+	properprintbackground("status: " .. tostring(netstatus or "?"), 8 * scale, 6 * scale, true)
+	ui_set_color("text")
 	if SERVER then
-		properprintbackground("port " .. tostring(port or 7331), 4 * scale, 14 * scale, true)
+		properprintbackground("port " .. tostring(port or 7331), 8 * scale, 16 * scale, true)
 		guielements.startbutton:draw()
 	else
-		properprintbackground("connected to host", 4 * scale, 14 * scale, true)
+		properprintbackground("connected to host", 8 * scale, 16 * scale, true)
 	end
 	guielements.quitbutton:draw()
 
-	love.graphics.setScissor(239 * scale, 3 * scale, 161 * scale, 104 * scale)
+	love.graphics.setScissor(240 * scale, 0, 160 * scale, 112 * scale)
 
 	local missingpixels = math.max(0, (#playerlist * 41 - 3) - 104)
 
-	love.graphics.setColor(0, 0, 0, 0.8)
-	love.graphics.rectangle("fill", 239 * scale, 3 * scale, 150 * scale, 104 * scale)
+	draw_panel(240, 0, 160, 112)
 
 	love.graphics.translate(0, -missingpixels * scroll * scale)
 
@@ -97,7 +97,7 @@ global function lobby_draw()
 			if i > 1 then
 				ping = round(playerlist[i].ping * 1000)
 			end
-			drawplayercard(239, (y - 1) * 41 + 3, playerlist[i].colors, playerlist[i].hats, playerlist[i].nick, ping, focus)
+			drawplayercard(240, (y - 1) * 41 + 3, playerlist[i].colors, playerlist[i].hats, playerlist[i].nick, ping, focus)
 			y = y + 1
 		end
 	end
@@ -106,10 +106,8 @@ global function lobby_draw()
 	guielements.playerscroll:draw()
 	love.graphics.setScissor()
 
-	love.graphics.setColor(0, 0, 0, 0.8)
-	love.graphics.rectangle("fill", 3 * scale, 110 * scale, 394 * scale, 111 * scale)
-	love.graphics.setColor(1, 1, 1, 1)
-	drawrectangle(4, 111, 392, 109)
+	draw_panel(0, 112, 400, 112)
+	menu_draw_rule(8, 112, 384)
 
 	guielements.chatentry:draw()
 	guielements.sendbutton:draw()
@@ -141,6 +139,7 @@ global function lobby_draw()
 			chat_height = chat_height + 1
 		end
 	end
+	love.graphics.setColor(1, 1, 1, 1)
 end
 
 global function sendchat()

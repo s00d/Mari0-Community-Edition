@@ -1,0 +1,62 @@
+{
+  "start": "approach",
+  "level": "1-10",
+  "title": "Fault Core",
+  "rooms": [
+    {
+      "id": "approach",
+      "x": 0,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h",
+      "doors": [
+        {
+          "kind": "green",
+          "to": "final",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-10:approach>final"
+        }
+      ],
+      "items": [
+        {
+          "uid": "l10_grav",
+          "ability": "gravitygun",
+          "dx": 6,
+          "dy": 11
+        },
+        {
+          "uid": "l10_portal",
+          "ability": "portal",
+          "dx": 10,
+          "dy": 11
+        },
+        {
+          "uid": "l10_morph",
+          "ability": "morphball",
+          "dx": 14,
+          "dy": 11
+        }
+      ]
+    },
+    {
+      "id": "final",
+      "x": 25,
+      "y": 0,
+      "w": 50,
+      "h": 15,
+      "flags": "scroll_h|boss|save",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "approach",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-10:final>approach"
+        }
+      ],
+      "items": []
+    }
+  ]
+}

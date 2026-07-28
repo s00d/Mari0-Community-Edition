@@ -757,6 +757,29 @@ global record gatedoor is Entity, Body
 	new: function(gatedoor, number, number, {any}): gatedoor
 end
 
+global record abilitypickup is Entity, Body
+	cox: number
+	coy: number
+	x: number
+	y: number
+	width: number
+	height: number
+	ability: string
+	uid: string
+	taken: boolean
+	timer: number
+	category: number
+	mask: {boolean}
+	static: boolean
+	active: boolean
+	drawable: boolean
+	destroy: boolean
+	init: function(abilitypickup, number, number, any)
+	update: function(abilitypickup, number)
+	draw: function(abilitypickup)
+	new: function(abilitypickup, number, number, {any}): abilitypickup
+end
+
 global record emancipateanimation is Entity, Body
 	active: boolean
 	static: boolean
@@ -1870,6 +1893,8 @@ global record mario is Entity, Body
 	gravitydirection: number
 	hats: {any}
 	height: number
+	hp: number
+	maxhp: number
 	infunnel: boolean
 	invincible: boolean
 	jumpanimationprogress: number
@@ -3030,4 +3055,115 @@ end
 
 global record upfire is Entity, Body
 	new: function(any, number, number, any): upfire
+end
+
+-- Alesan99's Entities (mari0_ae) CE ports
+global record donut is Entity, Body
+	cox: number
+	coy: number
+	falling: boolean
+	fallingtimer: number
+	shaketimer: number
+	PLATFORM: boolean
+	init: function(donut, number, number, {any})
+	update: function(donut, number): boolean
+	ceilcollide: function(donut, any, Entity): any
+	leftcollide: function(donut, any, Entity): any
+	rightcollide: function(donut, any, Entity): any
+	floorcollide: function(donut, any, Entity): any
+	new: function(donut, number, number, {any}): donut
+end
+
+global record powblock is Entity, Body
+	cox: number
+	coy: number
+	explode: boolean
+	explodetimer: number
+	scale: number
+	init: function(powblock, number, number)
+	hit: function(powblock)
+	update: function(powblock, number): boolean
+	floorcollide: function(powblock, any, Entity): any
+	ceilcollide: function(powblock, any, Entity): any
+	leftcollide: function(powblock, any, Entity): any
+	rightcollide: function(powblock, any, Entity): any
+	new: function(powblock, number, number): powblock
+end
+
+global record flipblock is Entity, Body
+	cox: number
+	coy: number
+	flip: boolean
+	timer: number
+	init: function(flipblock, number, number)
+	hit: function(flipblock)
+	update: function(flipblock, number): boolean
+	ceilcollide: function(flipblock, any, Entity): any
+	floorcollide: function(flipblock, any, Entity): any
+	new: function(flipblock, number, number): flipblock
+end
+
+global record belt is Entity, Body
+	cox: number
+	coy: number
+	beltspeed: number
+	on: boolean
+	animtimer: number
+	PLATFORM: boolean
+	init: function(belt, number, number, {any})
+	update: function(belt, number): boolean
+	ceilcollide: function(belt, any, Entity): any
+	draw: function(belt)
+	new: function(belt, number, number, {any}): belt
+end
+
+global record longfire is Entity, Body
+	cox: number
+	coy: number
+	dir: string
+	on: boolean
+	timer: number
+	init: function(longfire, number, number, {any})
+	update: function(longfire, number): boolean
+	hurt: function(longfire, any, Entity): any
+	leftcollide: function(longfire, any, Entity): any
+	rightcollide: function(longfire, any, Entity): any
+	ceilcollide: function(longfire, any, Entity): any
+	floorcollide: function(longfire, any, Entity): any
+	new: function(longfire, number, number, {any}): longfire
+end
+
+global record smallspring is Entity, Body
+	cox: number
+	coy: number
+	timer: number
+	frame: number
+	init: function(smallspring, number, number)
+	update: function(smallspring, number): boolean
+	hit: function(smallspring)
+	ceilcollide: function(smallspring, any, Entity): any
+	new: function(smallspring, number, number): smallspring
+end
+
+global record collectable is Entity, Body
+	cox: number
+	coy: number
+	t: number
+	collected: boolean
+	init: function(collectable, number, number, {any})
+	update: function(collectable, number): boolean
+	new: function(collectable, number, number, {any}): collectable
+end
+
+global record camerastop is Entity, Body
+	cox: number
+	coy: number
+	rx: number
+	ry: number
+	rw: number
+	rh: number
+	power: boolean
+	init: function(camerastop, number, number, {any})
+	update: function(camerastop, number): boolean
+	new: function(camerastop, number, number, {any}): camerastop
 end

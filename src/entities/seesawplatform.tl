@@ -37,9 +37,6 @@ function seesawplatform:init(x: number, y: number, size, callback, side)
 end
 
 function seesawplatform:update(dt: number): boolean
-	local _ = self.x
-	local _ = self.y
-	
 	local checktable: {string} = {}
 	for _, v in ipairs(enemies) do
 		if objects[v] then

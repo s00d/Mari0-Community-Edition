@@ -64,9 +64,7 @@ global function has_ability(pl_any: any, id: string): boolean
 	return false
 end
 
-global function grant_ability(pl_any: any, id: string)
-	if not ABILITIES[id] then return end
-	globoolSH("ability_" .. id, "true")
+local function apply_ability_effects(pl_any: any, id: string)
 	local pl = pl_any as {string:any}
 	if Weapons and Weapons.give and (id == "portal" or id == "gravitygun" or id == "freezeray" or id == "hookshot" or id == "lightgun" or id == "gelcannon") then
 		Weapons.give(pl, id)
@@ -76,9 +74,25 @@ global function grant_ability(pl_any: any, id: string)
 		(pl.char as {string:any}).morphball = true
 	end
 	if id == "highjump" and pl then pl.metroid_highjump = 1.35 end
+end
+
+global function grant_ability(pl_any: any, id: string)
+	if not ABILITIES[id] then return end
+	globoolSH("ability_" .. id, "true")
+	apply_ability_effects(pl_any, id)
 	local def = ABILITIES[id]
 	if notice and notice.new then notice.new(def.name .. " GET", notice.white, 2) end
 	if createdialogbox and ABILITY_TEXT[id] then createdialogbox(ABILITY_TEXT[id], def.name) end
+end
+
+-- Re-apply owned abilities after player respawn / nextlevel (globools persist; player does not).
+global function metroid_reapply_abilities(pl_any: any)
+	if not pl_any or not ABILITIES then return end
+	for id in pairs(ABILITIES) do
+		if globoolSH("ability_" .. id, "check") then
+			apply_ability_effects(pl_any, id)
+		end
+	end
 end
 
 global function door_uid(x: number, y: number): string
@@ -125,4 +139,5 @@ return {
 	has_ability = has_ability, grant_ability = grant_ability, has_weapon = has_weapon,
 	door_can_pass = door_can_pass, door_try_open = door_try_open, door_uid = door_uid,
 	fake_player_from_abilities = fake_player_from_abilities,
+	metroid_reapply_abilities = metroid_reapply_abilities,
 }

@@ -324,7 +324,6 @@ function love.mousepressed(...: any)
 	end
 	
 	if animationguilines and editormenuopen and not changemapwidthmenu and not guielements["animationselectdrop"].extended then
-		local _ = false
 		for _, v in pairs(animationguilines) do
 			for _, w in pairs(v as {any:any}) do
 				if (w as guielement):haspriority() then

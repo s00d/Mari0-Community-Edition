@@ -347,6 +347,165 @@ def icon_lost_levels_dlc() -> Image.Image:
     return im
 
 
+def icon_cavestory() -> Image.Image:
+    # Misty cave + Quote silhouette + polar star gun
+    bg = (24, 36, 48, 255)
+    im = new(bg)
+    d = ImageDraw.Draw(im)
+    rock = (70, 90, 100, 255)
+    rock_hi = (110, 140, 150, 255)
+    mist = (160, 200, 190, 80)
+    # cave walls
+    px(d, 0, 0, rock, 8, 50)
+    px(d, 42, 0, rock, 8, 50)
+    for y in (4, 14, 28, 40):
+        px(d, 1, y, rock_hi, 4, 2)
+        px(d, 44, y + 2, rock_hi, 4, 2)
+    # mist blobs
+    d.ellipse([10, 30, 28, 44], fill=mist)
+    d.ellipse([22, 34, 40, 48], fill=mist)
+    # Quote: white body, black hair tuft
+    body = (240, 240, 245, 255)
+    ink = (20, 20, 28, 255)
+    gun = (200, 180, 60, 255)
+    px(d, 20, 18, body, 8, 10)  # torso
+    px(d, 21, 12, body, 6, 7)  # head
+    px(d, 22, 10, ink, 5, 3)  # hair
+    px(d, 23, 14, ink, 2, 2)  # eye
+    # gun pointing right
+    px(d, 28, 22, gun, 10, 3)
+    px(d, 36, 21, gun, 4, 5)
+    # floor
+    px(d, 8, 44, rock, 34, 6)
+    border(d, (10, 16, 22, 255))
+    return im
+
+
+def icon_opensyobon() -> Image.Image:
+    # Cat Mario / Syobon: sky + green ground + white cat silhouette (NOT Cave Story)
+    sky = (120, 180, 255, 255)
+    im = new(sky)
+    d = ImageDraw.Draw(im)
+    grass = (40, 160, 50, 255)
+    dirt = (120, 80, 40, 255)
+    brick = (180, 60, 40, 255)
+    cat = (250, 250, 255, 255)
+    ink = (30, 30, 40, 255)
+    # ground
+    px(d, 0, 38, dirt, 50, 12)
+    px(d, 0, 36, grass, 50, 3)
+    # brick
+    px(d, 8, 22, brick, 10, 10)
+    px(d, 9, 23, (220, 100, 70, 255), 3, 3)
+    # cat body
+    px(d, 24, 20, cat, 10, 12)
+    px(d, 26, 14, cat, 8, 8)  # head
+    px(d, 26, 12, cat, 3, 4)  # ear L
+    px(d, 31, 12, cat, 3, 4)  # ear R
+    px(d, 28, 16, ink, 2, 2)  # eye
+    px(d, 22, 28, cat, 4, 2)  # tail stub
+    border(d, (20, 40, 80, 255))
+    return im
+
+
+def icon_supertux() -> Image.Image:
+    # Snowy hill + orange penguin
+    sky = (140, 190, 255, 255)
+    im = new(sky)
+    d = ImageDraw.Draw(im)
+    snow = (250, 250, 255, 255)
+    snow_d = (200, 210, 230, 255)
+    orange = (240, 120, 30, 255)
+    orange_d = (180, 70, 10, 255)
+    white = (255, 255, 255, 255)
+    ink = (20, 20, 30, 255)
+    # hills
+    d.ellipse([-10, 28, 40, 70], fill=snow)
+    d.ellipse([20, 32, 60, 72], fill=snow_d)
+    # penguin body
+    d.ellipse([16, 14, 34, 40], fill=orange)
+    d.ellipse([19, 20, 31, 38], fill=white)
+    # head
+    d.ellipse([18, 8, 32, 22], fill=orange)
+    px(d, 22, 12, ink, 2, 2)
+    px(d, 27, 12, ink, 2, 2)
+    # beak
+    px(d, 23, 15, (255, 200, 40, 255), 5, 2)
+    # feet
+    px(d, 18, 38, orange_d, 5, 3)
+    px(d, 27, 38, orange_d, 5, 3)
+    # snowflakes
+    flake = (255, 255, 255, 255)
+    for x, y in ((6, 6), (40, 8), (44, 18), (8, 16)):
+        px(d, x, y, flake, 2, 2)
+    border(d, (60, 100, 160, 255))
+    return im
+
+
+def icon_metroidfault() -> Image.Image:
+    # Gate zone: green acid + morph orb + ability door
+    bg = (12, 20, 28, 255)
+    im = new(bg)
+    d = ImageDraw.Draw(im)
+    metal = (80, 100, 110, 255)
+    metal_hi = (140, 160, 170, 255)
+    acid = (40, 200, 80, 255)
+    acid_d = (20, 120, 50, 255)
+    orb = (220, 180, 40, 255)
+    orb_hi = (255, 240, 120, 255)
+    door = (60, 160, 220, 255)
+    # corridor walls
+    px(d, 0, 0, metal, 50, 10)
+    px(d, 0, 40, metal, 50, 10)
+    px(d, 0, 10, metal_hi, 50, 1)
+    px(d, 0, 40, metal_hi, 50, 1)
+    # ability door (right)
+    px(d, 36, 12, door, 10, 26)
+    px(d, 38, 16, (20, 40, 60, 255), 6, 18)
+    px(d, 39, 22, acid, 4, 4)
+    # acid pool left
+    px(d, 4, 32, acid_d, 18, 8)
+    px(d, 6, 32, acid, 14, 3)
+    # morph ball
+    d.ellipse([14, 16, 30, 32], fill=orb)
+    d.ellipse([17, 18, 24, 25], fill=orb_hi)
+    px(d, 20, 26, (40, 40, 40, 255), 4, 2)
+    border(d, (6, 10, 14, 255))
+    return im
+
+
+def icon_enginefault() -> Image.Image:
+    # Broken window / EF crash chrome (same idea as gen_enginefault_art)
+    void = (40, 40, 56, 255)
+    im = new(void)
+    d = ImageDraw.Draw(im)
+    panel = (72, 80, 104, 255)
+    panel_hi = (120, 130, 160, 255)
+    fault = (200, 60, 80, 255)
+    warn = (248, 200, 40, 255)
+    ok = (80, 200, 120, 255)
+    cyan = (60, 160, 220, 255)
+    white = (252, 252, 252, 255)
+    px(d, 4, 8, panel, 42, 34)
+    px(d, 4, 8, panel_hi, 42, 6)
+    px(d, 6, 10, fault, 3, 3)
+    px(d, 11, 10, warn, 3, 3)
+    px(d, 16, 10, ok, 3, 3)
+    px(d, 6, 16, (20, 40, 120, 255), 38, 24)
+    for x, y in (
+        (12, 22), (12, 23), (12, 24), (12, 25), (12, 26), (12, 27),
+        (13, 22), (14, 22), (13, 24), (14, 24), (13, 27), (14, 27),
+        (18, 22), (18, 23), (18, 24), (18, 25), (18, 26), (18, 27),
+        (19, 22), (20, 22), (19, 24), (20, 24), (20, 25), (20, 26), (20, 27),
+    ):
+        px(d, x, y, white, 1, 1)
+    px(d, 8, 36, fault, 12, 2)
+    px(d, 22, 35, cyan, 8, 3)
+    px(d, 32, 36, warn, 10, 2)
+    border(d, (0, 0, 0, 255))
+    return im
+
+
 SETTINGS: dict[str, dict[str, str]] = {
     "mappacks/endless": {
         "name": "endless climb",
@@ -420,6 +579,36 @@ SETTINGS: dict[str, dict[str, str]] = {
         "description": "choose-your-own-adventure mappack. branch wisely - watch for traps!",
         "extra": "lives=0\n",
     },
+    "mappacks/cavestory": {
+        "name": "cave story (local)",
+        "author": "Pixel — do not redistribute assets",
+        "description": "Regenerated locally via mapsdk/build_cavestory.py from your CS install",
+        "extra": "",
+    },
+    "mappacks/supertux": {
+        "name": "supertux (local)",
+        "author": "see AUTHORS.txt — CC-BY-SA levels from SuperTux",
+        "description": "CC-BY-SA SuperTux levels (data only; engine GPL not included)",
+        "extra": "",
+    },
+    "mappacks/opensyobon": {
+        "name": "opensyobon (local)",
+        "author": "Chiku / OpenSyobonAction — local rebuild only",
+        "description": "Syobon Action (Cat Mario) via mapsdk/build_opensyobon.py — NOT Cave Story",
+        "extra": "",
+    },
+    "mappacks/enginefault": {
+        "name": "ENGINE FAULT",
+        "author": "qa4",
+        "description": "build still compiling. you are tester #4. ticket tracker narrates. glitches are features (WONTFIX).",
+        "extra": "",
+    },
+    "mappacks/metroidfault": {
+        "name": "METROID FAULT",
+        "author": "qa4",
+        "description": "gate-zone stub for metroid core (rooms+ability doors).",
+        "extra": "metroid=true\nlives=0\n",
+    },
 }
 
 ICONS = {
@@ -429,6 +618,11 @@ ICONS = {
     "mappacks/smb2": icon_smb2,
     "mappacks/smb3": icon_smb3,
     "mappacks/smbl": icon_smbl,
+    "mappacks/cavestory": icon_cavestory,
+    "mappacks/supertux": icon_supertux,
+    "mappacks/opensyobon": icon_opensyobon,
+    "mappacks/enginefault": icon_enginefault,
+    "mappacks/metroidfault": icon_metroidfault,
     "toconvert/dlc_a_portal_tribute": icon_portal_tribute,
     "toconvert/dlc_acid_trip": icon_acid_trip,
     "toconvert/dlc_escape_the_lab": icon_escape_lab,
@@ -438,10 +632,13 @@ ICONS = {
 }
 
 
-def write_settings(rel: str, meta: dict[str, str]) -> None:
+def write_settings(rel: str, meta: dict[str, str], *, overwrite: bool) -> None:
     path = ROOT / rel / "settings.txt"
     if not path.parent.exists():
         print(f"skip settings (missing dir): {rel}")
+        return
+    if path.exists() and not overwrite:
+        print(f"keep settings: {path.relative_to(ROOT)}")
         return
     text = (
         f"name={meta['name']}\n"
@@ -453,7 +650,7 @@ def write_settings(rel: str, meta: dict[str, str]) -> None:
     print(f"wrote {path.relative_to(ROOT)}")
 
 
-def sync_converted_dlc() -> None:
+def sync_converted_dlc(*, overwrite_icons: bool) -> None:
     """Copy toconvert DLC settings/icon into mappacks/dlc_* if present (gitignored)."""
     import shutil
 
@@ -463,21 +660,85 @@ def sync_converted_dlc() -> None:
             continue
         for name in ("settings.txt", "icon.png"):
             s, d = src / name, dst / name
-            if s.exists():
-                shutil.copy2(s, d)
-                print(f"synced {d.relative_to(ROOT)}")
+            if not s.exists():
+                continue
+            if name == "icon.png" and d.exists() and not overwrite_icons:
+                print(f"keep synced icon: {d.relative_to(ROOT)}")
+                continue
+            if name == "settings.txt" and d.exists() and not overwrite_icons:
+                print(f"keep synced settings: {d.relative_to(ROOT)}")
+                continue
+            shutil.copy2(s, d)
+            print(f"synced {d.relative_to(ROOT)}")
+
+
+def icon_is_placeholder(path: Path) -> bool:
+    """True if icon is missing, empty, wrong size, or a known stub duplicate."""
+    if not path.exists() or path.stat().st_size < 64:
+        return True
+    try:
+        with Image.open(path) as im:
+            if im.size != (SIZE, SIZE):
+                return True
+    except OSError:
+        return True
+    return False
+
+
+def duplicate_icon_paths() -> set[Path]:
+    """Find packs that share identical icon bytes (usually a copied stub)."""
+    import hashlib
+
+    by_hash: dict[str, list[Path]] = {}
+    for pack in sorted((ROOT / "mappacks").iterdir()):
+        icon = pack / "icon.png"
+        if not icon.is_file():
+            continue
+        h = hashlib.sha256(icon.read_bytes()).hexdigest()
+        by_hash.setdefault(h, []).append(icon)
+    dupes: set[Path] = set()
+    for paths in by_hash.values():
+        if len(paths) > 1:
+            # Keep the first pack's icon; treat the rest as placeholders to replace
+            for p in paths[1:]:
+                dupes.add(p.resolve())
+    return dupes
 
 
 def main() -> None:
+    import argparse
+
+    ap = argparse.ArgumentParser(description="Generate 50x50 mappack icons / settings")
+    ap.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite existing icons and settings (default: only missing/broken)",
+    )
+    ap.add_argument(
+        "--force-settings",
+        action="store_true",
+        help="Overwrite settings.txt even when --force is not set",
+    )
+    args = ap.parse_args()
+    overwrite = args.force
+    overwrite_settings = args.force or args.force_settings
+    dupes = duplicate_icon_paths() if not overwrite else set()
+
     for rel, fn in ICONS.items():
         dest = ROOT / rel
         if not dest.exists():
             print(f"skip icon (missing dir): {rel}")
             continue
-        save(fn(), dest / "icon.png")
+        out = dest / "icon.png"
+        needs = overwrite or icon_is_placeholder(out) or out.resolve() in dupes
+        if not needs:
+            print(f"keep icon: {out.relative_to(ROOT)}")
+            continue
+        save(fn(), out)
+
     for rel, meta in SETTINGS.items():
-        write_settings(rel, meta)
-    sync_converted_dlc()
+        write_settings(rel, meta, overwrite=overwrite_settings)
+    sync_converted_dlc(overwrite_icons=overwrite)
 
 
 if __name__ == "__main__":

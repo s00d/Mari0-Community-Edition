@@ -94,12 +94,43 @@ local function place_flag(ir)
 end
 
 local function place_spawn(ir)
-	-- Left side, stand on first solid from bottom
-	for x = 2, math.min(12, ir.width) do
+	-- Left side: air above solid floor, headroom, and side clearance (avoid wall pockets).
+	local base = M.CUSTOM_TILE_BASE
+	local function solid(x, y)
+		if x < 1 or y < 1 or x > ir.width or y > ir.height then
+			return true
+		end
+		local t = ir.tiles[x] and ir.tiles[x][y]
+		return t ~= nil and t > base
+	end
+	local function air(x, y)
+		return not solid(x, y)
+	end
+	local xmax = math.min(ir.width - 1, math.max(16, math.floor(ir.width / 3)))
+	local function search(need_both)
+		for x = 2, xmax do
+			for y = ir.height - 1, 2, -1 do
+				if air(x, y) and solid(x, y + 1) and air(x, y - 1) then
+					local left_ok = air(x - 1, y) and air(x - 1, y - 1)
+					local right_ok = air(x + 1, y) and air(x + 1, y - 1)
+					if need_both and left_ok and right_ok then
+						return { x = x, y = y }
+					end
+					if not need_both and (left_ok or right_ok) then
+						return { x = x, y = y }
+					end
+				end
+			end
+		end
+		return nil
+	end
+	local hit = search(true) or search(false)
+	if hit then
+		return hit
+	end
+	for x = 2, ir.width - 1 do
 		for y = ir.height - 1, 2, -1 do
-			local below = ir.tiles[x][y + 1]
-			local here = ir.tiles[x][y]
-			if below and below > M.CUSTOM_TILE_BASE and here == M.CUSTOM_TILE_BASE then
+			if air(x, y) and solid(x, y + 1) and air(x, y - 1) then
 				return { x = x, y = y }
 			end
 		end

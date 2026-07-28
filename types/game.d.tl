@@ -155,6 +155,7 @@ global menu_mappack_teardown_filter: function()
 global menu_mappack_mousepressed: function(number, number, any): boolean
 global menu_mappack_mousemoved: function(number, number)
 global menu_mappack_move: function(integer)
+global menu_mappack_wheel: function(integer)
 global menu_mappack_filtered: function(): {integer}
 global menu_mappack_layout: function(): {string:any}
 global mappack_skipped_count: number
@@ -178,6 +179,16 @@ global theme_init: function()
 global draw_panel: function(number, number, number, number)
 global draw_panel_inset: function(number, number, number, number)
 global ui_set_color: function(string)
+global menu_ease: function(number, number, number, number): number
+global menu_draw_overlay: function()
+global menu_draw_row_bg: function(number, number, number, number, string, number)
+global menu_draw_cursor: function(number, number)
+global menu_draw_footer: function(number, number, string)
+global menu_draw_rule: function(number, number, number)
+global menu_draw_tabs: function({any}, any, boolean)
+global menu_opt_color: function(boolean)
+global menu_draw_yesno: function(string, boolean, string|nil, number|nil)
+global menu_layout_selectworld: function(): {string:any}
 
 global record DesktopSize
 	width: number
@@ -1118,9 +1129,9 @@ global updatenotification: boolean
 global playerselectimg: Image
 global selectworldexists: {boolean}
 global loadingonlinemappacks: boolean
-global menu_mappack_title: function(any): string
-global menu_mappack_author_line: function(any): string
-global menu_mappack_desc_lines: function(any): string, string, string
+global menu_mappack_title: function(any, any): string
+global menu_mappack_author_line: function(any, any): string
+global menu_mappack_desc_lines: function(any, any): string, string, string, string
 global huebarimg: Image
 global huebarmarkerimg: Image
 global DEBUG: boolean
@@ -1408,6 +1419,13 @@ global scrollsmoothrate: number
 global spawnarea: {any}
 global speedmodifier: number
 global springimg: Image
+global donutimg: Image
+global powblockimg: Image
+global flipblockimg: Image
+global beltimg: Image
+global longfireimg: Image
+global smallspringimg: Image
+global collectableimg: Image
 global squarewaveimg: Image
 global squidacceleration: number
 global squiddowndistance: number
@@ -2007,6 +2025,7 @@ global autotile_mask: function(number, number, AutotileGroup): integer
 global autotile_pick: function(AutotileGroup, integer): integer
 global autotile_refresh_cell: function(number, number)
 global autotile_around: function(number, number)
+global autotile_region: function(number, number, number, number)
 global autotile_paint: function(number, number, integer, boolean): boolean
 global autotile_group_for_tile: function(integer): AutotileGroup|nil
 
@@ -2016,6 +2035,48 @@ global editor_undo_commit: function()
 global editor_undo: function(): boolean
 global editor_redo: function(): boolean
 global editor_undo_clear: function()
+
+global EDITOR_RECENT_TILES: {integer}
+global EDITOR_PALETTE_CATEGORY: string
+global editor_recent_push: function(integer)
+global editor_recent_list: function(): {integer}
+global palette_entity_categories: function(any): {string}
+global palette_entities_filtered: function(any, string|nil): {any}
+global editor_cycle_palette_category: function(any): string
+
+global editor_cheats_used: boolean
+global editor_clear_cheats: function()
+global editor_mark_cheats: function()
+global editor_pass_clearcheck: function(): boolean
+global editor_has_clearcheck: function(any, any, any): boolean
+global editor_clear_check: function(): boolean, string
+global editor_run_clearcheck_ui: function()
+
+global editor_draw_live_preview: function()
+
+global record EditorDragState
+	kind: string
+	ox: number
+	oy: number
+	from_x: number
+	from_y: number
+	to_x: number
+	to_y: number
+	started: boolean
+	handle: string|nil
+	ent_t: string|nil
+end
+global EDITOR_DRAG: EditorDragState|nil
+global editor_drag_begin: function(number, number, boolean)
+global editor_drag_move: function(number, number): boolean
+global editor_drag_end: function(number, number)
+global editor_drag_active: function(): boolean
+
+global ENEMY_MODIFIERS: {string:{string:any}}
+global ENEMY_MODIFIER_ORDER: {string}
+global apply_enemy_modifiers: function(any, {any}|nil)
+global enemy_modifier_ids_from_args: function({any}|nil): {string}
+global enemy_drop_modifier: function(string, number, number): boolean
 
 global editor_capture_test_restore: function({string:any}|nil)
 global editor_apply_test_restore: function(boolean|nil)
@@ -2058,12 +2119,14 @@ global map_reveal: function(string)
 global spawn_room: function(MetroidRoom)
 global despawn_room: function(MetroidRoom)
 global metroid_try_load_mappack: function(string): boolean
+global metroid_try_load_level: function(string, string|nil): boolean
 global metroid_bootstrap_from_player: function()
 global metroid_mark_killed: function(number, number)
 global metroid_load_rooms_from_strings: function(string|nil, string|nil): boolean
 global room_camera_target: function(MetroidRoom, number, number, number, number): number, number
 global has_ability: function(any, string): boolean
 global grant_ability: function(any, string)
+global metroid_reapply_abilities: function(any)
 global has_weapon: function(any, string): boolean
 global door_can_pass: function(string, any, any): boolean
 global door_try_open: function(string, string, any, any): boolean

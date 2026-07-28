@@ -28,6 +28,18 @@ global function game_draw_fx()
 		w:draw()
 	end
 
+	--Metroid ability-gated doors + pickups
+	if objects["gatedoor"] then
+		for _, w in pairs(objects["gatedoor"]) do
+			w:draw()
+		end
+	end
+	if objects["abilitypickup"] then
+		for _, w in pairs(objects["abilitypickup"]) do
+			w:draw()
+		end
+	end
+
 	--Doors
 	for _, w in pairs(objects["door"]) do
 		w:draw()

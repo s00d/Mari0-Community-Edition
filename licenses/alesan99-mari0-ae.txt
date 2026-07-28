@@ -1,0 +1,13 @@
+Mari0: Alesan99's Entities (mari0_ae)
+=====================================
+
+Custom enemies, entities, graphics, hats, and the alesans_entities
+showcase content in this CE port originate from:
+
+  https://github.com/alesan99/mari0_ae
+  Author: alesan99
+  Forum: http://forum.stabyourself.net/viewtopic.php?f=13&t=3636
+
+Upstream license: see mari0_ae/LICENSE.txt (WTFPL-style Mari0 lineage).
+CE integrates selected custom content into the Teal rewrite; not a full
+engine fork. Nintendo IP remains fan-content under the same rules as CE.

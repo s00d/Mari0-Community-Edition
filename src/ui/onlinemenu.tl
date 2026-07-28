@@ -92,69 +92,68 @@ global function onlinemenu_update(dt: number)
 end
 
 global function onlinemenu_draw()
-	love.graphics.setColor(0, 0, 0, 0.8)
-	love.graphics.rectangle("fill", 3 * scale, 3 * scale, 394 * scale, 52 * scale)
-	love.graphics.setColor(1, 1, 1)
+	draw_panel(0, 0, 400, 56)
+	ui_set_color("text_accent")
+	properprint("online play", 8 * scale, 6 * scale)
 
-	properprint("online play", 4 * scale, 5 * scale)
-
-	properprint("your nick:", 4 * scale, 20 * scale)
+	ui_set_color("text")
+	properprint("your nick:", 8 * scale, 22 * scale)
 	guielements.nickentry:draw()
 
-	properprint("use config", 140 * scale, 20 * scale)
-	properprint("number  " .. playerconfig, 140 * scale, 33 * scale)
+	ui_set_color("text_dim")
+	properprint("use config", 144 * scale, 22 * scale)
+	ui_set_color("text")
+	properprint("number  " .. playerconfig, 144 * scale, 34 * scale)
 	guielements.configdecrease:draw()
 	guielements.configincrease:draw()
 
 	drawplayercard(240, 10, mariocolors[playerconfig as integer], mariohats[playerconfig as integer], localnick)
 
-	love.graphics.setColor(0, 0, 0, 0.8)
-	love.graphics.rectangle("fill", 3 * scale, 58 * scale, 196 * scale, 163 * scale)
+	draw_panel(0, 56, 200, 144)
+	ui_set_color("text_accent")
+	properprint("join game", 64 * scale, 62 * scale)
 
-	love.graphics.setColor(1, 1, 1)
-	properprint("join game", 64 * scale, 60 * scale)
-
-	properprint("address/magicdns", 36 * scale, 77 * scale)
+	ui_set_color("text")
+	properprint("address/magicdns", 36 * scale, 78 * scale)
 	guielements.ipentry:draw()
-	love.graphics.setColor(0.6, 0.6, 0.6)
-	properprint("enter ip or hostname", 24 * scale, 107 * scale)
-	properprint("to connect (lan/wan).", 28 * scale, 117 * scale)
-	properprint("default port 7331", 40 * scale, 127 * scale)
+	ui_set_color("text_dim")
+	properprint("enter ip or hostname", 24 * scale, 108 * scale)
+	properprint("to connect (lan/wan).", 28 * scale, 118 * scale)
+	properprint("default port 7331", 40 * scale, 128 * scale)
 
-	love.graphics.setColor(1, 1, 1)
+	ui_set_color("text")
 	properprint("optional port:", 21 * scale, 148 * scale)
 	guielements.portentry2:draw()
 
-	love.graphics.setColor(0.6, 0.6, 0.6)
+	ui_set_color("text_dim")
 	properprint("udp port must match", 28 * scale, 162 * scale)
 	properprint("the host port.", 48 * scale, 172 * scale)
 
 	guielements.joinbutton:draw()
 
-	love.graphics.setColor(0, 0, 0, 0.8)
-	love.graphics.rectangle("fill", 202 * scale, 58 * scale, 195 * scale, 163 * scale)
-
-	love.graphics.setColor(1, 1, 1)
-	properprint("host game", 260 * scale, 60 * scale)
-	properprint("port", 280 * scale, 77 * scale)
+	draw_panel(200, 56, 200, 144)
+	ui_set_color("text_accent")
+	properprint("host game", 260 * scale, 62 * scale)
+	ui_set_color("text")
+	properprint("port", 280 * scale, 78 * scale)
 
 	guielements.portentry:draw()
 
-	love.graphics.setColor(0.6, 0.6, 0.6)
-	properprint("forward udp port for", 218 * scale, 107 * scale)
-	properprint("internet play. lan", 226 * scale, 117 * scale)
-	properprint("works without that.", 222 * scale, 127 * scale)
+	ui_set_color("text_dim")
+	properprint("forward udp port for", 218 * scale, 108 * scale)
+	properprint("internet play. lan", 226 * scale, 118 * scale)
+	properprint("works without that.", 222 * scale, 128 * scale)
 
 	guielements.magiccheckbox:draw()
-	love.graphics.setColor(1, 1, 1)
+	ui_set_color("text")
 	properprint("use magicdns words", 230 * scale, 148 * scale)
-	love.graphics.setColor(0.6, 0.6, 0.6)
+	ui_set_color("text_dim")
 	if magicdns_available and magicdns_available() then
 		properprint("optional short words", 226 * scale, 162 * scale)
 		properprint("instead of ip.", 250 * scale, 172 * scale)
 	else
 		properprint("unavailable (no http", 222 * scale, 162 * scale)
-		properprint("/ssl) — use ip.", 242 * scale, 172 * scale)
+		properprint("/ssl) - use ip.", 242 * scale, 172 * scale)
 	end
 
 	guielements.hostbutton:draw()
@@ -163,10 +162,10 @@ global function onlinemenu_draw()
 		v:draw()
 	end
 
-	love.graphics.setColor(0, 0, 0, 0.8)
-	love.graphics.rectangle("fill", 3 * scale, 212 * scale, 394 * scale, 10 * scale)
-	love.graphics.setColor(0.5, 1, 1)
-	properprint("status: " .. tostring(netstatus or "offline"), 4 * scale, 213 * scale)
+	draw_panel(0, 200, 400, 24)
+	ui_set_color("status")
+	properprint("status: " .. tostring(netstatus or "offline"), 8 * scale, 208 * scale)
+	love.graphics.setColor(1, 1, 1, 1)
 end
 
 global function configdecrease()
@@ -206,7 +205,7 @@ global function creategame()
 	if usemagic then
 		if not (magicdns_available and magicdns_available()) then
 			usemagic = false
-			notice.new("magicdns unavailable — hosting by ip", notice.red)
+			notice.new("magicdns unavailable - hosting by ip", notice.red)
 		else
 			local adj, n = magicdns_make()
 			adjective, noun = adj, n
@@ -225,7 +224,7 @@ global function joingame()
 	local s = guielements.ipentry.value as string
 	if checkmagic(s) then
 		if not (magicdns_available and magicdns_available()) then
-			notice.new("magicdns unavailable — enter an ip", notice.red)
+			notice.new("magicdns unavailable - enter an ip", notice.red)
 			return
 		end
 		usemagic = true

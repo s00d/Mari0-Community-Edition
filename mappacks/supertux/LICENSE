@@ -1,0 +1,11 @@
+Creative Commons Attribution-ShareAlike 4.0 International (CC-BY-SA 4.0)
+
+This mappack contains levels and artwork derived from SuperTux data files
+that declare CC-BY-SA (or compatible share-alike) licenses. See AUTHORS.txt
+for per-level attribution (author + original license string).
+
+SuperTux game engine code (GPL-3) is NOT included and was NOT used as a
+source for the Mari0 CE engine. This directory is data only.
+
+https://creativecommons.org/licenses/by-sa/4.0/
+https://www.supertux.org/

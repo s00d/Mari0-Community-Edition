@@ -10,6 +10,7 @@ OBJECT_GROUP_KEYS = {
 	"iceblock",
 	"door",
 	"gatedoor",
+	"abilitypickup",
 	"button",
 	"groundlight",
 	"wallindicator",
@@ -54,6 +55,14 @@ OBJECT_GROUP_KEYS = {
 	"checkpoints",
 	"portalent",
 	"actionblock",
+	"donut",
+	"powblock",
+	"flipblock",
+	"belt",
+	"longfire",
+	"smallspring",
+	"collectable",
+	"camerastop",
 	"enemy",
 }
 

@@ -49,16 +49,20 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 				end
 				
 				local cox, coy = flooredxscroll+x, flooredyscroll+y
-				local t = lmap[flooredxscroll+x][flooredyscroll+y]
-				
+				local col = lmap[flooredxscroll+x]
+				local t = col and col[flooredyscroll+y]
+				if not t then
+					-- incomplete / sparse map cell (bad pack or mid-edit)
+				else
 				local tilenumber = t[1]
-				if tilequads[tilenumber]:getproperty("coinblock", cox, coy) and tilequads[tilenumber]:getproperty("invisible", cox, coy) == false then --coinblock
+				local tq = (tilenumber ~= nil) and tilequads[tilenumber] or nil
+				if tq and tq:getproperty("coinblock", cox, coy) and tq:getproperty("invisible", cox, coy) == false then --coinblock
 					love.graphics.draw(coinblockimg, coinblockquads[spriteset][coinframe], math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac-bounceyoffset)*16-8)*scale), 0, scale, scale)
-				elseif coinmap[cox][coy] then --coin
+				elseif coinmap[cox] and coinmap[cox][coy] then --coin
 					love.graphics.draw(coinimg, coinquads[spriteset][coinframe], math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac-bounceyoffset)*16-8)*scale), 0, scale, scale)
-				elseif bounceyoffset ~= 0 or (tilenumber as number) > 10000 then
-					if not tilequads[tilenumber]:getproperty("invisible", cox, coy) then
-						love.graphics.draw(tilequads[tilenumber].image, tilequads[tilenumber]:quad(flooredxscroll+x, flooredyscroll+y), math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac-bounceyoffset)*16-8)*scale), 0, scale, scale)
+				elseif tq and (bounceyoffset ~= 0 or (tilenumber as number) > 10000) then
+					if not tq:getproperty("invisible", cox, coy) then
+						love.graphics.draw(tq.image, tq:quad(flooredxscroll+x, flooredyscroll+y), math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac-bounceyoffset)*16-8)*scale), 0, scale, scale)
 					end
 				end
 				
@@ -67,8 +71,8 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 				end
 				
 				if editormode then
-					if tilequads[t[1]]:getproperty("invisible", cox, coy) and t[1] ~= 1 then
-						love.graphics.draw(tilequads[t[1]].image, tilequads[t[1]]:quad(), math.floor((x-1-xscrollfrac)*16*scale), ((y-1-yscrollfrac)*16-8)*scale, 0, scale, scale)
+					if tq and tq:getproperty("invisible", cox, coy) and t[1] ~= 1 then
+						love.graphics.draw(tq.image, tq:quad(), math.floor((x-1-xscrollfrac)*16*scale), ((y-1-yscrollfrac)*16-8)*scale, 0, scale, scale)
 					end
 					
 					if #t > 1 and t[2] ~= "link" then
@@ -76,33 +80,39 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 						love.graphics.setColor(1, 1, 1, 0.6)
 						if tablecontains(enemies, tilenumber) then --ENEMY PREVIEW THING
 							local v = enemiesdata[tilenumber]
-							local xoff, yoff = (((v.spawnoffsetx or 0)+v.width/2-.5)*16 - v.offsetX + v.quadcenterX)*scale, (((v.spawnoffsety or 0)-v.height+1)*16-v.offsetY - v.quadcenterY)*scale
-							
-							local mx, my = getMouseTile(mouse.getX(), mouse.getY()+8*scale)
-							local alpha = 0.6
-							if x == mx and y == my then
-								alpha = 1
+							if v and v.graphic and v.quad then
+								local xoff, yoff = (((v.spawnoffsetx or 0)+v.width/2-.5)*16 - v.offsetX + v.quadcenterX)*scale, (((v.spawnoffsety or 0)-v.height+1)*16-v.offsetY - v.quadcenterY)*scale
+								
+								local mx, my = getMouseTile(mouse.getX(), mouse.getY()+8*scale)
+								local alpha = 0.6
+								if x == mx and y == my then
+									alpha = 1
+								end
+								
+								love.graphics.setColor(1, 0, 0, alpha)
+								love.graphics.rectangle("fill", math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac)*16-8)*scale), 16*scale, 16*scale)
+								love.graphics.setColor(1, 1, 1, alpha)
+								love.graphics.draw(v.graphic, v.quad, math.floor((x-1-xscrollfrac)*16*scale+xoff), math.floor(((y-1-yscrollfrac)*16)*scale+yoff), 0, scale, scale)
 							end
-							
-							love.graphics.setColor(1, 0, 0, alpha)
-							love.graphics.rectangle("fill", math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac)*16-8)*scale), 16*scale, 16*scale)
-							love.graphics.setColor(1, 1, 1, alpha)
-							love.graphics.draw(v.graphic, v.quad, math.floor((x-1-xscrollfrac)*16*scale+xoff), math.floor(((y-1-yscrollfrac)*16)*scale+yoff), 0, scale, scale)
 						else
-							love.graphics.draw(entityquads[tilenumber as number].image, entityquads[tilenumber as number].quad, math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac)*16-8)*scale), 0, scale, scale)
+							local eq = entityquads[tilenumber as number]
+							if eq and eq.image and eq.quad then
+								love.graphics.draw(eq.image, eq.quad, math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac)*16-8)*scale), 0, scale, scale)
+							end
 						end
 						love.graphics.setColor(1, 1, 1, 1)
 					end
 					
-					if entitylist[map[x][y][2]] and entitylist[map[x][y][2]].t == "platform" then
+					local mcell = map[x] and map[x][y]
+					if mcell and entitylist[mcell[2]] and entitylist[mcell[2]].t == "platform" then
 						local dir: any
 						local dist: any
 						if rightclickm and (rightclickm as rightclickmenu).tx == x and (rightclickm as rightclickmenu).ty == y then
 							dir = (rightclickm as rightclickmenu).variables[2].value
 							dist = tonumber(((rightclickm as rightclickmenu).t[6] as guielement).value as string)
 						else
-							dir = map[x][y][3]
-							dist = tonumber(map[x][y][5])
+							dir = mcell[3]
+							dist = tonumber(mcell[5])
 						end
 						
 						
@@ -114,6 +124,7 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 						end
 						love.graphics.setColor(1, 1, 1, 1)
 					end
+				end
 				end
 			end
 		end
@@ -261,24 +272,29 @@ global function drawforeground()
 		for x = 1, xtodraw do
 			if inmap(flooredxscroll+x, flooredyscroll+y) then
 				local cox, coy = flooredxscroll+x, flooredyscroll+y
-				local t = lmap[cox][coy]
-				
+				local col = lmap[cox]
+				local t = col and col[coy]
+				if not t then
+					-- skip
+				else
 				local tilenumber = t[1]
+				local tq = (tilenumber ~= nil) and tilequads[tilenumber] or nil
 				
-				if tilequads[tilenumber]:getproperty("foreground", cox, coy) then
-					if tilequads[tilenumber]:getproperty("coinblock", cox, coy) and not tilequads[tilenumber]:getproperty("invisible", cox, coy) then --coinblock
+				if tq and tq:getproperty("foreground", cox, coy) then
+					if tq:getproperty("coinblock", cox, coy) and not tq:getproperty("invisible", cox, coy) then --coinblock
 						love.graphics.draw(coinblockimg, coinblockquads[spriteset][coinframe], math.floor((x-1-math.fmod(xscroll, 1))*16*scale), math.floor(((y-1-math.fmod(yscroll, 1))*16-8)*scale), 0, scale, scale)
-					elseif coinmap[x][y] then --coin
+					elseif coinmap[x] and coinmap[x][y] then --coin
 						love.graphics.draw(coinimg, coinquads[spriteset][coinframe], math.floor((x-1-xscroll)*16*scale), math.floor(((y-1-yscroll)*16-8)*scale), 0, scale, scale)
 					elseif (tilenumber as number) > 10000 then
-						if not tilequads[tilenumber]:getproperty("invisible", cox, coy) then
-							love.graphics.draw(tilequads[tilenumber].image, tilequads[tilenumber]:quad(flooredxscroll+x, flooredyscroll+y), math.floor((x-1-math.fmod(xscroll, 1))*16*scale), math.floor(((y-1-math.fmod(yscroll, 1))*16-8)*scale), 0, scale, scale)
+						if not tq:getproperty("invisible", cox, coy) then
+							love.graphics.draw(tq.image, tq:quad(flooredxscroll+x, flooredyscroll+y), math.floor((x-1-math.fmod(xscroll, 1))*16*scale), math.floor(((y-1-math.fmod(yscroll, 1))*16-8)*scale), 0, scale, scale)
 						end
 					end
 					
 					if t.gelSides then
 						draw_tile_gel_overlays(t.gelSides, math.floor((x - .5 - math.fmod(xscroll, 1)) * 16 * scale), math.floor((y - 1 - math.fmod(yscroll, 1)) * 16 * scale), 8, 8)
 					end
+				end
 				end
 			end
 		end
@@ -357,6 +373,14 @@ global function game_draw_props()
 	--springs
 	for _, w in pairs(objects["spring"]) do
 		w:draw()
+	end
+
+	love.graphics.setColor(1, 1, 1)
+	--AE belts (tiled)
+	if objects["belt"] then
+		for _, w in pairs(objects["belt"]) do
+			(w as belt):draw()
+		end
 	end
 
 	love.graphics.setColor(1, 1, 1)

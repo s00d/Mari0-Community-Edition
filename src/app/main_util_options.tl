@@ -188,8 +188,11 @@ global function loadconfig()
 		elseif s2[1] == "mouseowner" then
 			mouseowner = tonumber(s2[2]) as integer
 		elseif s2[1] == "mappack" then
-			if love.filesystem.getInfo(mappack_path(s2[2]) .. "/settings.txt") then
-				mappack = s2[2]
+			-- Inline path: loadconfig runs in LoveLoad before Boot.require_game
+			-- defines mappack_path (world.levelio). Calling it here threw every launch.
+			local pack = s2[2]
+			if pack and love.filesystem.getInfo("mappacks/" .. pack .. "/settings.txt") then
+				mappack = pack
 			end
 		elseif s2[1] == "gamefinished" then
 			gamefinished = true

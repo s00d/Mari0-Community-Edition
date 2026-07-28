@@ -22,6 +22,8 @@ global function init_game_runtime_globals()
 	autoscrollx = true
 	autoscrolly = true
 	minimapdragging = false
+	mousex = 0
+	mousey = 0
 	jumpitems = { "mushroom", "oneup" }
 	marioworld = 1
 	mariolevel = 1

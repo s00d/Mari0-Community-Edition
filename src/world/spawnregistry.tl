@@ -142,6 +142,13 @@ MAP_SPAWN_HANDLERS["gatedoor"] = function(x: number, y: number, r: {any})
 	table.insert(objects["gatedoor"], gatedoor:new(x, y, r) as Entity)
 end
 
+MAP_SPAWN_HANDLERS["abilitypickup"] = function(x: number, y: number, r: {any})
+	if not objects["abilitypickup"] then
+		objects["abilitypickup"] = {}
+	end
+	table.insert(objects["abilitypickup"], abilitypickup:new(x, y, r) as Entity)
+end
+
 MAP_SPAWN_HANDLERS["button"] = function(x: number, y: number, r: {any})
 	table.insert(objects["button"], button:new(x, y, r) as Entity)
 end
@@ -252,6 +259,38 @@ end
 
 MAP_SPAWN_HANDLERS["spring"] = function(x: number, y: number, _: {any})
 	table.insert(objects["spring"], spring:new(x, y) as Entity)
+end
+
+MAP_SPAWN_HANDLERS["donut"] = function(x: number, y: number, r: {any})
+	table.insert(objects["donut"], donut:new(x, y, r) as Entity)
+end
+
+MAP_SPAWN_HANDLERS["powblock"] = function(x: number, y: number, _: {any})
+	table.insert(objects["powblock"], powblock:new(x, y) as Entity)
+end
+
+MAP_SPAWN_HANDLERS["flipblock"] = function(x: number, y: number, _: {any})
+	table.insert(objects["flipblock"], flipblock:new(x, y) as Entity)
+end
+
+MAP_SPAWN_HANDLERS["belt"] = function(x: number, y: number, r: {any})
+	table.insert(objects["belt"], belt:new(x, y, r) as Entity)
+end
+
+MAP_SPAWN_HANDLERS["longfire"] = function(x: number, y: number, r: {any})
+	table.insert(objects["longfire"], longfire:new(x, y, r) as Entity)
+end
+
+MAP_SPAWN_HANDLERS["smallspring"] = function(x: number, y: number, _: {any})
+	table.insert(objects["smallspring"], smallspring:new(x, y) as Entity)
+end
+
+MAP_SPAWN_HANDLERS["collectable"] = function(x: number, y: number, r: {any})
+	table.insert(objects["collectable"], collectable:new(x, y, r) as Entity)
+end
+
+MAP_SPAWN_HANDLERS["camerastop"] = function(x: number, y: number, r: {any})
+	table.insert(objects["camerastop"], camerastop:new(x, y, r) as Entity)
 end
 
 MAP_SPAWN_HANDLERS["seesaw"] = function(x: number, y: number, r: {any})

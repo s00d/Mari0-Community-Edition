@@ -106,21 +106,60 @@ local function point_in_room(r: MetroidRoom, x: number, y: number): boolean
 	return x >= r.x and x < r.x + r.w and y >= r.y and y < r.y + r.h
 end
 
-global function despawn_room(r: MetroidRoom)
-	if not r or not objects or not objects["enemy"] then return end
-	local enemies = objects["enemy"] as {any:Entity}
-	local remove: {any} = {}
-	for k, e in pairs(enemies) do
+local function despawn_group_in_room(group: {any:Entity}|nil, r: MetroidRoom)
+	if not group then return end
+	local g = group as {any:Entity}
+	local remove: {integer} = {}
+	for k, e in pairs(g) do
 		local ent = e as Dyn
-		local ex = (ent.cox as number) or ((ent.x as number) or -999)
-		local ey = (ent.coy as number) or ((ent.y as number) or -999)
-		if point_in_room(r, ex, ey) then table.insert(remove, k) end
+		local wx: number
+		local wy: number
+		if ent.cox and ent.coy then
+			wx = (ent.cox as number) - 1 + 0.5
+			wy = (ent.coy as number) - 1 + 0.5
+		else
+			wx = (ent.x as number) or -999
+			wy = (ent.y as number) or -999
+		end
+		if point_in_room(r, wx, wy) then
+			-- Dense lists (enemy/abilitypickup via table.insert): nil holes crash update_and_compact.
+			if type(k) == "number" then
+				table.insert(remove, k as integer)
+			else
+				g[k] = nil
+			end
+		end
 	end
-	for i = 1, #remove do enemies[remove[i]] = nil end
+	if #remove > 0 then
+		remove_indices_desc(g as {any}, remove)
+	end
+end
+
+global function despawn_room(r: MetroidRoom)
+	if not r or not objects then return end
+	despawn_group_in_room(objects["enemy"] as {any:Entity}|nil, r)
+	despawn_group_in_room(objects["abilitypickup"] as {any:Entity}|nil, r)
+end
+
+local function spawn_room_items(r: MetroidRoom)
+	if not r.items or #r.items == 0 or not abilitypickup or not objects then return end
+	if not objects["abilitypickup"] then objects["abilitypickup"] = {} end
+	for i = 1, #r.items do
+		local it = r.items[i]
+		local ab = tostring(it.ability or "")
+		local uid = tostring(it.uid or ab)
+		if ab ~= "" and not globoolSH("item_" .. uid, "check") and not globoolSH("ability_" .. ab, "check") then
+			local mx = math.floor(r.x + (tonumber(it.dx) or (r.w / 2)) + 1)
+			local my = math.floor(r.y + (tonumber(it.dy) or (r.h / 2)) + 1)
+			local fake = {1, "abilitypickup", ab, uid} as {any}
+			table.insert(objects["abilitypickup"], abilitypickup:new(mx, my, fake) as Entity)
+		end
+	end
 end
 
 global function spawn_room(r: MetroidRoom)
 	if not r then return end
+	spawn_room_items(r)
 	if r.spawns and #r.spawns > 0 and enemy and objects and objects["enemy"] then
 		for i = 1, #r.spawns do
 			local e = r.spawns[i]
@@ -132,8 +171,8 @@ global function spawn_room(r: MetroidRoom)
 		return
 	end
 	if not map or not spawnenemy or not enemiesspawned then return end
-	for x = math.floor(r.x), math.ceil(r.x + r.w) - 1 do
-		for y = math.floor(r.y), math.ceil(r.y + r.h) - 1 do
+	for x = math.floor(r.x) + 1, math.ceil(r.x + r.w) do
+		for y = math.floor(r.y) + 1, math.ceil(r.y + r.h) do
 			if not globoolSH("killed_" .. tostring(tilekey(x, y)), "check") then
 				enemiesspawned[tilekey(x, y)] = nil
 				spawnenemy(x, y)
@@ -195,22 +234,34 @@ global function metroid_bootstrap_from_player()
 	end
 end
 
-global function metroid_try_load_mappack(pack: string): boolean
+local function rooms_load_json_path(path: string): boolean
+	if not (love and love.filesystem and love.filesystem.getInfo(path)) then return false end
+	local raw = love.filesystem.read(path)
+	if not raw or not JSON or not JSON.decode then return false end
+	rooms_set(rooms_parse_json(JSON.decode(raw) as {string:any}))
+	return #ROOMS > 0
+end
+
+-- Prefer rooms/<level>.json; fall back to pack rooms.json / rooms.txt.
+global function metroid_try_load_level(pack: string, level: string|nil): boolean
 	rooms_clear()
 	local base = mappack_path and mappack_path(pack) or ("mappacks/" .. pack)
 	local loaded = false
-	if love and love.filesystem and love.filesystem.getInfo(base .. "/rooms.json") then
-		local raw = love.filesystem.read(base .. "/rooms.json")
-		if raw and JSON and JSON.decode then
-			rooms_set(rooms_parse_json(JSON.decode(raw) as {string:any}))
-			loaded = #ROOMS > 0
-		end
+	local lvl = level and tostring(level) or ""
+	if lvl ~= "" and rooms_load_json_path(base .. "/rooms/" .. lvl .. ".json") then
+		loaded = true
+	elseif rooms_load_json_path(base .. "/rooms.json") then
+		loaded = true
 	elseif love and love.filesystem and love.filesystem.getInfo(base .. "/rooms.txt") then
 		rooms_set(rooms_parse_txt(love.filesystem.read(base .. "/rooms.txt") or ""))
 		loaded = #ROOMS > 0
 	end
 	metroidmode = loaded
 	return metroidmode
+end
+
+global function metroid_try_load_mappack(pack: string): boolean
+	return metroid_try_load_level(pack, nil)
 end
 
 global function metroid_load_rooms_from_strings(txt: string|nil, json_str: string|nil): boolean
@@ -228,5 +279,6 @@ return {
 	rooms_parse_txt = rooms_parse_txt, rooms_parse_json = rooms_parse_json, rooms_set = rooms_set, rooms_clear = rooms_clear,
 	room_at = room_at, room_camera_target = room_camera_target, roomcam_update = roomcam_update, room_enter = room_enter,
 	map_reveal = map_reveal, spawn_room = spawn_room, despawn_room = despawn_room,
-	metroid_try_load_mappack = metroid_try_load_mappack, metroid_bootstrap_from_player = metroid_bootstrap_from_player,
+	metroid_try_load_mappack = metroid_try_load_mappack, metroid_try_load_level = metroid_try_load_level,
+	metroid_bootstrap_from_player = metroid_bootstrap_from_player,
 }

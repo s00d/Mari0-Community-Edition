@@ -342,15 +342,19 @@ global record love
 		setColor: function(...: any)
 		setBackgroundColor: function(...: any)
 		getBackgroundColor: function(): number, number, number, number
-		clear: function(...: number)
+		clear: function(...: any)
 		draw: function(...: any)
 		getWidth: function(): number
 		getHeight: function(): number
+		getDimensions: function(): number, number
 		setDefaultFilter: function(min: string, mag: string)
 		setPointSize: function(s: number)
 		setScissor: function(...: any)
 		setCanvas: function(...: any)
-		setShader: function(shader: Shader|nil)
+		setShader: function(shader?: Shader)
+		setDepthMode: function(comparemode: string, write: boolean)
+		setMeshCullMode: function(mode: string)
+		newMesh: function(...: any): Mesh
 		origin: function()
 		push: function()
 		pop: function()
@@ -396,6 +400,8 @@ global record love
 	record filesystem
 		getInfo: function(path: string, filter?: string): {string:any}|nil
 		getDirectoryItems: function(path: string): {string}
+		getRequirePath: function(): string
+		setRequirePath: function(paths: string)
 		read: function(path: string): string|nil, string|nil
 		write: function(path: string, data: string): boolean, string|nil
 		createDirectory: function(path: string): boolean
@@ -527,10 +533,19 @@ end
 global record Image
 	getWidth: function(self: Image): number
 	getHeight: function(self: Image): number
+	getDimensions: function(self: Image): number, number
 	setFilter: function(self: Image, min: string, mag: string)
 end
 
 global record Quad
+	getViewport: function(self: Quad): number, number, number, number
+end
+
+global record Mesh
+	setVertexAttribute: function(self: Mesh, ...: any)
+	setTexture: function(self: Mesh, texture: Image|nil)
+	setVertices: function(self: Mesh, ...: any)
+	release: function(self: Mesh)
 end
 
 global record Canvas

@@ -1,4 +1,4 @@
---[[ Shared UI theme: 8px grid, color tokens, 9-slice panel. ]]
+--[[ Shared UI theme: 8px grid, color tokens, 9-slice panel, menu draw helpers. ]]
 
 global record UITheme
 	GRID: number
@@ -23,14 +23,18 @@ global UI: UITheme = {
 	SCREEN_W = 400,
 	SCREEN_H = 224,
 	COL = {
+		-- CE brand: cool slate panels + amber accent (not purple SaaS)
 		text = {1.00, 1.00, 1.00, 1},
-		text_dim = {0.62, 0.62, 0.66, 1},
+		text_dim = {0.58, 0.60, 0.66, 1},
 		text_accent = {1.00, 0.84, 0.22, 1},
-		panel = {0.05, 0.06, 0.10, 0.88},
-		panel_edge = {0.35, 0.38, 0.50, 1},
-		hover = {1.00, 1.00, 1.00, 0.10},
-		sel = {1.00, 0.84, 0.22, 0.18},
-		rule = {0.30, 0.32, 0.42, 1},
+		panel = {0.04, 0.05, 0.09, 0.90},
+		panel_edge = {0.32, 0.36, 0.48, 1},
+		hover = {1.00, 1.00, 1.00, 0.08},
+		sel = {1.00, 0.84, 0.22, 0.16},
+		rule = {0.28, 0.30, 0.40, 1},
+		overlay = {0.00, 0.00, 0.00, 0.48},
+		tab_on = {1.00, 0.84, 0.22, 0.20},
+		status = {0.45, 0.90, 0.95, 1},
 	},
 	panel_img = nil,
 	panel_inset_img = nil,
@@ -130,4 +134,129 @@ global function ui_set_color(name: string)
 	if c then
 		love.graphics.setColor(c[1], c[2], c[3], c[4] or 1)
 	end
+end
+
+-- Exponential ease toward target (tau ≈ time constant). Snaps when close.
+global function menu_ease(cur: number, target: number, dt: number, tau: number): number
+	local d = target - cur
+	if math.abs(d) < 0.35 then
+		return target
+	end
+	local t = math.max(0.001, tau)
+	local k = 1 - math.exp(-dt / t)
+	return cur + d * k
+end
+
+global function menu_draw_overlay()
+	local c = UI.COL.overlay
+	love.graphics.setColor(c[1], c[2], c[3], c[4] or 0.48)
+	love.graphics.rectangle("fill", 0, 0, UI.SCREEN_W * scale * 2, UI.SCREEN_H * scale * 2)
+	love.graphics.setColor(1, 1, 1, 1)
+end
+
+-- Selection / hover fill for a list row (unscaled UI coords). alpha usually 1.
+global function menu_draw_row_bg(x: number, y: number, w: number, h: number, kind: string, alpha: number)
+	local a = alpha
+	if kind == "sel" then
+		local c = UI.COL.sel
+		love.graphics.setColor(c[1], c[2], c[3], (c[4] or 0.16) * a)
+		love.graphics.rectangle("fill", x * scale, y * scale, w * scale, h * scale)
+		-- left accent bar
+		local ac = UI.COL.text_accent
+		love.graphics.setColor(ac[1], ac[2], ac[3], a)
+		love.graphics.rectangle("fill", x * scale, y * scale, 2 * scale, h * scale)
+	elseif kind == "hover" then
+		local c = UI.COL.hover
+		love.graphics.setColor(c[1], c[2], c[3], (c[4] or 0.08) * a)
+		love.graphics.rectangle("fill", x * scale, y * scale, w * scale, h * scale)
+	end
+	love.graphics.setColor(1, 1, 1, 1)
+end
+
+global function menu_draw_cursor(x: number, y: number)
+	ui_set_color("text_accent")
+	properprint("_dir5", x * scale, y * scale)
+	love.graphics.setColor(1, 1, 1, 1)
+end
+
+global function menu_draw_footer(x: number, y: number, text: string)
+	ui_set_color("text_dim")
+	properprint(text, x * scale, y * scale)
+	love.graphics.setColor(1, 1, 1, 1)
+end
+
+global function menu_draw_rule(x: number, y: number, w: number)
+	ui_set_color("rule")
+	love.graphics.rectangle("fill", x * scale, y * scale, w * scale, 1 * scale)
+	love.graphics.setColor(1, 1, 1, 1)
+end
+
+-- Tab strip: tabs = {{id, label, x, y, w, h}, ...}; active_id compared with ==
+global function menu_draw_tabs(tabs: {any}, active_id: any, focus_tabs: boolean)
+	for i = 1, #tabs do
+		local t = tabs[i] as {string:any}
+		local on = t.id == active_id
+		local x, y, w, h = t.x as number, t.y as number, t.w as number, t.h as number
+		if on then
+			local c = UI.COL.tab_on
+			love.graphics.setColor(c[1], c[2], c[3], c[4] or 0.2)
+			love.graphics.rectangle("fill", x * scale, y * scale, w * scale, h * scale)
+			ui_set_color("text_accent")
+			-- underline
+			love.graphics.rectangle("fill", x * scale, (y + h - 2) * scale, w * scale, 2 * scale)
+		elseif focus_tabs then
+			ui_set_color("text")
+		else
+			ui_set_color("text_dim")
+		end
+		properprint(t.label as string, (x + 4) * scale, (y + 4) * scale)
+	end
+	love.graphics.setColor(1, 1, 1, 1)
+end
+
+-- Options row text: selected = full white, else dim.
+global function menu_opt_color(selected: boolean)
+	if selected then
+		ui_set_color("text")
+	else
+		ui_set_color("text_dim")
+	end
+end
+
+-- Centered yes/no confirm dialog.
+-- center_x: unscaled X center (defaults to UI.SCREEN_W/2). Use width*8 in-game.
+global function menu_draw_yesno(title: string, yes_selected: boolean, subtitle: string|nil, center_x: number|nil)
+	local cx = center_x or (UI.SCREEN_W / 2)
+	local pw, ph = 200, 56
+	if subtitle then
+		ph = 64
+	end
+	local px = math.floor((cx - pw / 2) / 8) * 8
+	local py = math.floor((UI.SCREEN_H - ph) / 2 / 8) * 8
+	love.graphics.setColor(0, 0, 0, 0.35)
+	love.graphics.rectangle("fill", 0, 0, (cx * 2 + 64) * scale, UI.SCREEN_H * scale * 2)
+	draw_panel(px, py, pw, ph)
+	ui_set_color("text")
+	properprint(title, (px + math.floor((pw - #title * 8) / 2)) * scale, (py + 10) * scale)
+	if subtitle then
+		ui_set_color("text_dim")
+		properprint(subtitle, (px + math.floor((pw - #subtitle * 8) / 2)) * scale, (py + 22) * scale)
+	end
+	local by = subtitle and (py + 40) or (py + 32)
+	local yes_x = px + 40
+	local no_x = px + 120
+	if yes_selected then
+		menu_draw_row_bg(yes_x - 12, by - 2, 48, 16, "sel", 1)
+		ui_set_color("text_accent")
+		properprint("yes", yes_x * scale, by * scale)
+		ui_set_color("text_dim")
+		properprint("no", no_x * scale, by * scale)
+	else
+		menu_draw_row_bg(no_x - 12, by - 2, 40, 16, "sel", 1)
+		ui_set_color("text_dim")
+		properprint("yes", yes_x * scale, by * scale)
+		ui_set_color("text_accent")
+		properprint("no", no_x * scale, by * scale)
+	end
+	love.graphics.setColor(1, 1, 1, 1)
 end

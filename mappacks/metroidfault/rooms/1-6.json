@@ -1,0 +1,81 @@
+{
+  "start": "rift",
+  "level": "1-6",
+  "title": "Rift Bridge",
+  "rooms": [
+    {
+      "id": "rift",
+      "x": 0,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|scroll_v",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "hookhall",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-6:rift>hookhall"
+        }
+      ],
+      "items": [
+        {
+          "uid": "l6_hook",
+          "ability": "hookshot",
+          "dx": 8,
+          "dy": 10
+        },
+        {
+          "uid": "l6_highjump",
+          "ability": "highjump",
+          "dx": 12,
+          "dy": 11
+        }
+      ]
+    },
+    {
+      "id": "hookhall",
+      "x": 25,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "rift",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-6:hookhall>rift"
+        },
+        {
+          "kind": "open",
+          "to": "bridge",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-6:hookhall>bridge"
+        }
+      ],
+      "items": []
+    },
+    {
+      "id": "bridge",
+      "x": 50,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|save",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "hookhall",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-6:bridge>hookhall"
+        }
+      ],
+      "items": []
+    }
+  ]
+}

@@ -116,6 +116,18 @@ end
 require "app.game_update"
 require "app.game_draw"
 
+-- Defensive: AE/mappack load paths have hit `mario` nil at player spawn (boot
+-- require missed / global clobber). Re-require once; never index a nil class.
+local function create_mario_player(x: number, y: number, i: any, animation: any, size: any, playertype: any): mario
+	if not rawget(_G, "mario") or not (mario as Dyn).new then
+		require "entities.mario"
+	end
+	if not rawget(_G, "mario") or not (mario as Dyn).new then
+		error("mario class missing during loadlevel (entities.mario failed to register)")
+	end
+	return mario:new(x, y, i, animation, size, playertype)
+end
+
 global function loadlevel(level: string|number): boolean
 	-- Do NOT full-collect here: that sets a low GC threshold, then map/entity
 	-- alloc balloons debt → multi-second pause ~5s into gameplay. Collect after load.
@@ -283,6 +295,13 @@ global function loadlevel(level: string|number): boolean
 	mariotimelimit = 400
 	spriteset = 1
 	
+	-- Metroid: load rooms for this level (rooms/<level>.json) before map spawn/bootstrap
+	if metroid_try_load_level then
+		metroid_try_load_level(mappack as string, tostring(level))
+	elseif metroid_try_load_mappack then
+		metroid_try_load_mappack(mappack as string)
+	end
+
 	--LOAD THE MAP
 	local needs_to_be_saved = false
 	if loadmap(tostring(level), true) == false then --make one up
@@ -467,9 +486,9 @@ global function loadlevel(level: string|number): boolean
 			
 			table.insert(spawns, {x=astartx, y=astarty})
 			
-			playerobjs[i] = mario:new((astartx as number)+add, (astarty as number)-1, i, animation, mariosizes[i], playertype)
+			playerobjs[i] = create_mario_player((astartx as number)+add, (astarty as number)-1, i, animation, mariosizes[i], playertype)
 		else
-			playerobjs[i] = mario:new(1.5 + (i-1)*mul-6/16+1.5, 13, i, animation, mariosizes[i], playertype)
+			playerobjs[i] = create_mario_player(1.5 + (i-1)*mul-6/16+1.5, 13, i, animation, mariosizes[i], playertype)
 		end
 	end
 	
@@ -493,9 +512,12 @@ global function loadlevel(level: string|number): boolean
 			end
 		end
 	end
-	if metroidmode and playerobjs and metroid_apply_hp_to_player then
+	if metroidmode and playerobjs then
 		for i = 1, players do
-			if playerobjs[i] then metroid_apply_hp_to_player(playerobjs[i]) end
+			if playerobjs[i] then
+				if metroid_reapply_abilities then metroid_reapply_abilities(playerobjs[i]) end
+				if metroid_apply_hp_to_player then metroid_apply_hp_to_player(playerobjs[i]) end
+			end
 		end
 	end
 	
@@ -904,6 +926,7 @@ global function nextlevel()
 	end
 	
 	if testlevel then
+		if editor_pass_clearcheck then editor_pass_clearcheck() end
 		editormode = true
 		testlevel = false
 		loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel) .. ((mariosublevel as number) > 0 and ("_" .. tostring(mariosublevel)) or ""))
@@ -952,6 +975,7 @@ end
 
 global function endgame()
 	if testlevel then
+		if editor_pass_clearcheck then editor_pass_clearcheck() end
 		marioworld = testlevelworld
 		mariolevel = testlevellevel
 		testlevel = false

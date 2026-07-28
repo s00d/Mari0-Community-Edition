@@ -152,7 +152,9 @@ global function levelscreen_draw()
 			local lay = menu_layout_levelscreen(width * 16)
 			local p = lay.panel as {string:any}
 			draw_panel(p.x as number, p.y as number, p.w as number, p.h as number)
-			properprint("world " .. tostring(marioworld) .. "-" .. tostring(mariolevel), (width/2*16)*scale-40*scale, 72*scale - (players-1)*6*scale)
+			ui_set_color("text_accent")
+			properprint("world " .. tostring(marioworld) .. "-" .. tostring(mariolevel), (width/2*16)*scale-40*scale, 64*scale - (players-1)*6*scale)
+			ui_set_color("text")
 			
 			if not arcade and not mkstation then
 				for i = 1, players do
@@ -192,6 +194,7 @@ global function levelscreen_draw()
 						s = s .. "-"
 					end
 				end
+				ui_set_color("text_dim")
 				properprint(s, (width/2*16)*scale-string.len(s)*4*scale, 200*scale)
 			end
 			
@@ -203,6 +206,7 @@ global function levelscreen_draw()
 						s = s .. "-"
 					end
 				end
+				ui_set_color("text_dim")
 				properprint(s, (width/2*16)*scale-string.len(s)*4*scale, 190*scale)
 				
 				local s = "you can grab cubes and push buttons with "
@@ -216,13 +220,15 @@ global function levelscreen_draw()
 			end
 			
 		elseif gamestate == "mappackfinished" then
+			ui_set_color("text_accent")
 			properprint("congratulations!", (width/2*16)*scale-64*scale, 120*scale)
+			ui_set_color("text")
 			properprint("you have finished this mappack!", (width/2*16)*scale-128*scale, 140*scale)
 		else
 			local s = "game over"
+			ui_set_color("text_accent")
 			properprint(s, (width/2*16)*scale-40*scale, 120*scale)
-		end
-		
+		end		
 		love.graphics.translate(0, -yoffset*scale)
 		if yoffset < 0 then
 			love.graphics.translate(0, yoffset*scale)

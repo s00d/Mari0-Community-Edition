@@ -104,12 +104,21 @@ function M.classify(name)
 		props.spikestop = 2
 		return props
 	end
-	if n:find("platform", 1, true) and not n:find("wire", 1, true) then
+	if n:find("note block", 1, true) or n:find("cloud platform", 1, true) then
 		props.collision = 2
 		props.platform = 2
 		return props
 	end
-	if n:find("note block", 1, true) or n:find("cloud platform", 1, true) then
+	if n:find("platform", 1, true) and n:find("floating", 1, true) and not n:find("wire", 1, true) then
+		props.collision = 2
+		props.platform = 2
+		return props
+	end
+	if n:find("platform", 1, true) and n:find("extends to ground", 1, true) then
+		props.collision = 3
+		return props
+	end
+	if n:find("platform", 1, true) and not n:find("wire", 1, true) then
 		props.collision = 2
 		props.platform = 2
 		return props
@@ -170,14 +179,24 @@ function M.derive_tile_props(levels)
 		end
 	end
 
-	-- Resolve to boolean props
+	-- Resolve to boolean props (platform needs a strong vote — shared tile ids).
 	local out = {}
 	for key, scores in pairs(votes) do
 		local props = {}
+		local collision_score = scores.collision or 0
 		for prop, score in pairs(scores) do
 			if score > 0 then
-				props[prop] = true
+				local keep = true
+				if prop == "platform" and collision_score > 0 and score < collision_score * 0.5 then
+					keep = false
+				end
+				if keep then
+					props[prop] = true
+				end
 			end
+		end
+		if collision_score > 0 then
+			props.collision = true
 		end
 		out[key] = props
 	end

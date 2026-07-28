@@ -1,0 +1,6 @@
+base=charger
+{
+	"boss": true,
+	"persistkill": true,
+	"health": 10
+}

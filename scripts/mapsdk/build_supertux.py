@@ -94,7 +94,8 @@ ST_OBJECTS = {
     "coin": ("coin", "manycoins"),
     "trampoline": ("entity", "spring"),
     "platform": ("entity", "platform"),
-    "weak_block": ("skip", None),
+    # Ice brick tile id 78 (solid+breakable via object-data); painted into grid
+    "weak_block": ("tile", 78),
     "unstable_tile": ("skip", None),
     "infoblock": ("skip", None),
     "invisible_wall": ("skip", None),
@@ -130,11 +131,41 @@ ST_OBJECTS = {
     "goldbomb": ("enemy", "beetle"),
     "powerup": ("enemy", "mushroom"),
     "flame": ("enemy", "fire"),
-    "yeti": ("enemy", "bowser"),
+    # bowser is a hardcoded CE *entity*, not an enemiesdata JSON base
+    "yeti": ("enemy", "boomboom"),
+    "ghosttree": ("enemy", "boomboom"),
+    "mrtree": ("enemy", "koopa"),
+    "fish-jumping": ("enemy", "cheepcheepred"),
+    "fishjumping": ("enemy", "cheepcheepred"),
     "wind": ("skip", None),
     "bumper": ("skip", None),
     "circleplatform": ("entity", "platform"),
     "particles-clouds": ("skip", None),
+    "owl": ("enemy", "koopaflying"),
+    "igel": ("enemy", "spikey"),
+    "snail": ("enemy", "koopa"),
+    "mole": ("enemy", "goomba"),
+    "tarantula": ("enemy", "spikey"),
+    "viciousivy": ("enemy", "spikey"),
+    "leafshot": ("enemy", "bulletbill"),
+    "walkingleaf": ("enemy", "goomba"),
+    "crystallo": ("enemy", "goomba"),
+    "rcrystallo": ("enemy", "goomba"),
+    "scrystallo": ("enemy", "goomba"),
+    "granito": ("enemy", "goomba"),
+    "darttrap": ("enemy", "plant"),
+    "livefire": ("enemy", "fire"),
+    "livefireasleep": ("enemy", "fire"),
+    "livefiredormant": ("enemy", "fire"),
+}
+
+# CE entitylist numeric ids (string names also work after levelio fix, but ids are safer)
+CE_ENTITY_ID = {
+    "spawn": "8",
+    "flag": "11",
+    "manycoins": "5",
+    "platform": "18",
+    "spring": "94",
 }
 
 LICENSE_TEXT = """\
@@ -335,6 +366,15 @@ def tile_flags_from_node(t: list) -> dict[str, bool]:
             p["slantupleft"] = True
         else:
             p["slantupright"] = True
+    # SuperTux often puts breakable/coin in object-name / object-data, not attributes.
+    obj_name = as_string(field(t, "object-name")[0]) or ""
+    obj_data = as_string(field(t, "object-data")[0]) or ""
+    if obj_name in ("brick", "heavy-brick") or "breakable #t" in obj_data or "(breakable #t)" in obj_data:
+        p["breakable"] = True
+        p["collision"] = True
+    if obj_name == "coin" or obj_name.endswith("coin"):
+        p["coin"] = True
+        p.pop("collision", None)
     return p
 
 
@@ -423,23 +463,160 @@ def px_to_tile(v) -> int:
     return int(float(v or 0) // 32)
 
 
-def place_spawn(mapped: list[list[int]], base: int) -> tuple[int, int]:
-    h, w = len(mapped), len(mapped[0]) if mapped else 0
-    for x in range(1, min(12, w)):
+def encode_entity(name: str) -> str:
+    """Prefer CE numeric ids for markers/items; keep enemy JSON basenames as strings."""
+    return CE_ENTITY_ID.get(name, name)
+
+
+def tilemap_z(tm: list) -> float:
+    z = field(tm, "z-pos")[0]
+    if isinstance(z, (int, float)):
+        return float(z)
+    return 0.0
+
+
+def read_tilemap(tm: list) -> tuple[int, int, list[int], bool, float]:
+    w = int(field(tm, "width")[0])
+    h = int(field(tm, "height")[0])
+    _, tiles_node = field(tm, "tiles")
+    tiles = decode_tiles(tiles_node, w, h)
+    return w, h, tiles, is_true(field(tm, "solid")[0]), tilemap_z(tm)
+
+
+def air_above_solid(solid_mask: list[list[bool]], x: int, y: int) -> bool:
+    h = len(solid_mask)
+    if y < 0 or y >= h - 1:
+        return False
+    return (not solid_mask[y][x]) and solid_mask[y + 1][x]
+
+
+def place_spawn(_mapped: list[list[int]], solid_mask: list[list[bool]]) -> tuple[int, int]:
+    """Air cell above solid near left edge (0-based)."""
+    h, w = len(solid_mask), len(solid_mask[0]) if solid_mask else 0
+    for x in range(1, min(16, w)):
         for y in range(h - 2, 1, -1):
-            if mapped[y][x] == base and mapped[y + 1][x] > base:
+            if air_above_solid(solid_mask, x, y) and (y == 0 or not solid_mask[y - 1][x]):
                 return x, y
     return 2, max(1, h - 3)
 
 
-def place_flag(mapped: list[list[int]], base: int) -> tuple[int, int]:
-    h, w = len(mapped), len(mapped[0]) if mapped else 0
-    x = w - 1
-    y = max(1, h - 3)
+def place_flag_at_x(_mapped: list[list[int]], solid_mask: list[list[bool]], x: int) -> tuple[int, int]:
+    h, w = len(solid_mask), len(solid_mask[0]) if solid_mask else 0
+    x = max(0, min(w - 1, x))
     for yy in range(h - 1, 0, -1):
-        if mapped[yy][x] > base:
+        if solid_mask[yy][x]:
             return x, max(0, yy - 1)
-    return x, y
+    return x, max(1, h - 3)
+
+
+def place_flag(mapped: list[list[int]], solid_mask: list[list[bool]]) -> tuple[int, int]:
+    w = len(solid_mask[0]) if solid_mask else 0
+    return place_flag_at_x(mapped, solid_mask, w - 1)
+
+
+def snap_spawn_to_ground(solid_mask: list[list[bool]], tx: int, ty: int) -> tuple[int, int]:
+    h, w = len(solid_mask), len(solid_mask[0]) if solid_mask else 0
+    tx = max(0, min(w - 1, tx))
+    ty = max(0, min(h - 1, ty))
+    if air_above_solid(solid_mask, tx, ty):
+        return tx, ty
+    for y in range(ty, h - 1):
+        if air_above_solid(solid_mask, tx, y):
+            return tx, y
+    for y in range(ty, 0, -1):
+        if air_above_solid(solid_mask, tx, y):
+            return tx, y
+    return place_spawn([], solid_mask)
+
+
+def tile_collides(tid: int, props: dict[int, dict[str, bool]] | None) -> bool:
+    """True if this ST tile should block the player (strf collision/platform)."""
+    if not tid:
+        return False
+    if not props:
+        return True
+    p = props.get(tid)
+    if p is None:
+        # Unknown id on a solid layer: keep previous conservative behaviour.
+        return True
+    return bool(p.get("collision") or p.get("platform"))
+
+
+def composite_tilemaps(
+    sector,
+    props: dict[int, dict[str, bool]] | None = None,
+) -> tuple[list[list[int]], list[list[bool]], set[int], set[int]]:
+    """
+    Merge all sector tilemaps into one ST-id grid (0 = empty) + solid mask.
+    Solids painted first (visual authority on overlaps), then decorations fill
+    empty cells back→front by z-pos so pipes/props on FG/BG still appear.
+
+    Collision matches SuperTux: only tiles that originated on a solid=#t tilemap
+    are candidates, and only if tiles.strf marks them solid/unisolid.
+    Decorative snow caps (7/8/9), trees on BG, and coin tiles stay non-solid.
+    """
+    tms = []
+    for tm in children(sector, "tilemap"):
+        try:
+            tms.append(read_tilemap(tm))
+        except Exception as e:
+            print(f"  WARN tilemap skip: {e}", file=sys.stderr)
+    if not tms:
+        raise ValueError("no tilemaps")
+    solids = [t for t in tms if t[3]]
+    if not solids:
+        raise ValueError("no solid tilemap")
+    solids.sort(key=lambda t: (-t[0] * t[1], t[4]))
+    w, h = solids[0][0], solids[0][1]
+    grid = [[0 for _ in range(w)] for _ in range(h)]
+    from_solid = [[False for _ in range(w)] for _ in range(h)]
+    used: set[int] = set()
+
+    def paint(tiles: list[int], tw: int, th: int, only_empty: bool, mark_layer_solid: bool):
+        mw, mh = min(w, tw), min(h, th)
+        for y in range(mh):
+            for x in range(mw):
+                tid = tiles[y * tw + x]
+                if not tid:
+                    continue
+                if only_empty and grid[y][x]:
+                    continue
+                # Non-solid tilemaps in ST do not collide. Skip embedding strf-solid
+                # tiles from deco/FG (editor scraps reuse ground ids → floating floors).
+                if only_empty and tile_collides(tid, props):
+                    continue
+                grid[y][x] = tid
+                used.add(tid)
+                if mark_layer_solid:
+                    from_solid[y][x] = True
+
+    for tw, th, tiles, _solid, _z in sorted(solids, key=lambda t: t[4]):
+        paint(tiles, tw, th, only_empty=False, mark_layer_solid=True)
+
+    decos = [t for t in tms if not t[3]]
+    decos.sort(key=lambda t: t[4])
+    for tw, th, tiles, _solid, _z in decos:
+        paint(tiles, tw, th, only_empty=True, mark_layer_solid=False)
+
+    solid_mask = [
+        [
+            bool(from_solid[y][x] and tile_collides(grid[y][x], props))
+            for x in range(w)
+        ]
+        for y in range(h)
+    ]
+    # Edge case: solid layer had a collidable tile, then a later solid layer painted
+    # a non-solid decorative id into the same cell — trust the visible tile's props
+    # (from_solid still True, tile_collides False → air). Good.
+    #
+    # If deco overwrote an empty solid cell with a tree, from_solid is False → air.
+    solid_tids = {
+        grid[y][x]
+        for y in range(h)
+        for x in range(w)
+        if solid_mask[y][x] and grid[y][x]
+    }
+    return grid, solid_mask, used, solid_tids
 
 
 def convert_stl(
@@ -448,7 +625,8 @@ def convert_stl(
     unmapped: Counter,
     attribution: list[dict],
     filename: str,
-) -> tuple[str, list[list[int]], set[int]] | None:
+    props: dict[int, dict[str, bool]] | None = None,
+) -> tuple[str, list[list[int]], set[int], set[int]] | None:
     root = parse_sexpr(text)
     if not isinstance(root, list) or not root or root[0] != "supertux-level":
         print(f"  SKIP {filename}: not supertux-level", file=sys.stderr)
@@ -469,35 +647,28 @@ def convert_stl(
         print(f"  SKIP {filename}: no sector", file=sys.stderr)
         return None
 
-    solid = None
-    for tm in children(sector, "tilemap"):
-        if is_true(field(tm, "solid")[0]):
-            solid = tm
-            break
-    if solid is None:
-        print(f"  SKIP {filename}: no solid tilemap", file=sys.stderr)
+    try:
+        st_grid, solid_mask, used, solid_tids = composite_tilemaps(sector, props)
+    except ValueError as e:
+        print(f"  SKIP {filename}: {e}", file=sys.stderr)
         return None
 
-    w = int(field(solid, "width")[0])
-    h = int(field(solid, "height")[0])
-    _, tiles_node = field(solid, "tiles")
-    tiles = decode_tiles(tiles_node, w, h)
-    used = {t for t in tiles if t}
+    h, w = len(st_grid), len(st_grid[0]) if st_grid else 0
 
-    mapped: list[list[int]] = []
+    # Coin tiles (e.g. id 44): collectible via Mari0 coin prop — keep graphic, no collision.
+    # Already handled in tileset props; ensure solid_mask doesn't treat them as ground.
     for y in range(h):
-        row = []
         for x in range(w):
-            tid = tiles[y * w + x]
-            if tid == 0:
-                row.append(CUSTOM_TILE_BASE)
-            else:
-                row.append(tile_remap.get(tid, CUSTOM_TILE_BASE + 1))
-        mapped.append(row)
+            tid = st_grid[y][x]
+            if not tid or not props:
+                continue
+            p = props.get(tid) or {}
+            if p.get("coin"):
+                solid_mask[y][x] = False
 
     ents: dict[tuple[int, int], str] = {}
     spawn = None
-    finish = None
+    finish_xs: list[int] = []
     for obj in children(sector):
         head = obj[0] if obj else None
         if not isinstance(head, str):
@@ -514,22 +685,43 @@ def convert_stl(
         tx = max(0, min(w - 1, tx))
         ty = max(0, min(h - 1, ty))
         if kind == "spawn":
-            spawn = (tx, ty)
+            spawn = snap_spawn_to_ground(solid_mask, tx, ty)
         elif kind == "finish":
-            finish = (tx, ty)
-            ents[(tx, ty)] = "flag"
+            finish_xs.append(tx)
+        elif kind == "tile":
+            # Paint ST tile id into grid (weak_block → ice brick, etc.)
+            st_id = int(name)  # type: ignore[arg-type]
+            st_grid[ty][tx] = st_id
+            used.add(st_id)
+            if tile_collides(st_id, props):
+                solid_mask[ty][tx] = True
+                solid_tids.add(st_id)
         elif kind in ("enemy", "entity", "coin"):
-            ents[(tx, ty)] = name  # type: ignore
+            ents[(tx, ty)] = encode_entity(name)  # type: ignore
+
+    mapped: list[list[int]] = []
+    for y in range(h):
+        row = []
+        for x in range(w):
+            tid = st_grid[y][x]
+            if tid == 0:
+                row.append(CUSTOM_TILE_BASE)
+            else:
+                row.append(tile_remap.get(tid, CUSTOM_TILE_BASE + 1))
+        mapped.append(row)
 
     if spawn is None:
-        spawn = place_spawn(mapped, CUSTOM_TILE_BASE)
-    ents[spawn] = "spawn"
-    if finish is None:
-        finish = place_flag(mapped, CUSTOM_TILE_BASE)
-        ents[finish] = "flag"
+        spawn = place_spawn(mapped, solid_mask)
+    ents[spawn] = encode_entity("spawn")
+
+    if finish_xs:
+        fx = max(finish_xs)
+        ents[place_flag_at_x(mapped, solid_mask, fx)] = encode_entity("flag")
+    else:
+        ents[place_flag(mapped, solid_mask)] = encode_entity("flag")
 
     body = rle_encode(mapped, ents)
-    text_out = f"{h}{CD}{body}{CD}spriteset{EQ}1{CD}timelimit{EQ}0"
+    text_out = f"{h}{CD}{body}{CD}spriteset{EQ}1{CD}timelimit{EQ}400"
 
     attribution.append(
         {
@@ -539,7 +731,7 @@ def convert_stl(
             "license": lic or "?",
         }
     )
-    return text_out, mapped, used
+    return text_out, mapped, used, solid_tids
 
 
 def load_tile_rgba(data_images: Path, info, cache: dict) -> Image.Image | None:
@@ -614,7 +806,7 @@ def build_tileset(
                     continue
                 pi = PROP_ORDER.index(name)
                 if pi <= 16:
-                    px[prop_x, oy + pi] = (255, 255, 255, 255)
+                    px[prop_x, oy + pi] = (255, 0, 0, 255)
 
     paste_at(0, None, None)  # empty
     for i, tid in enumerate(ordered):
@@ -647,6 +839,55 @@ def write_authors(path: Path, rows: list[dict]) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+
+def force_unknown_solid_collision(
+    props: dict[int, dict[str, bool]], solid_tids: set[int]
+) -> int:
+    """
+    Only force collision for solid-layer tile ids that are missing from tiles.strf.
+    Never override explicit non-solid defs (snow caps 7/8/9, trees, coin tiles, …).
+    """
+    n = 0
+    for tid in solid_tids:
+        if tid in props:
+            continue
+        props[tid] = {"collision": True}
+        n += 1
+    return n
+
+
+def apply_special_tile_props(props: dict[int, dict[str, bool]], images: dict[int, object]) -> None:
+    """Post-pass: coin graphics → Mari0 coin (non-solid); brick object-tiles → breakable."""
+    for tid, img in images.items():
+        name = img if isinstance(img, str) else (
+            img.get("sheet") if isinstance(img, dict) else ""
+        )
+        name = (name or "").replace("\\", "/").lower()
+        p = dict(props.get(tid) or {})
+        changed = False
+        if "objects/coin/" in name or name.endswith("/coin-0.png"):
+            p["coin"] = True
+            p.pop("collision", None)
+            changed = True
+        # Scenery sheets must never be solid even if a bad attr sneaks in.
+        if any(
+            s in name
+            for s in (
+                "/snowy_tree",
+                "/iceshrub",
+                "/grass1",
+                "/grass2",
+                "/branches.png",
+            )
+        ):
+            if p.get("collision") or p.get("platform"):
+                p.pop("collision", None)
+                p.pop("platform", None)
+                changed = True
+        if changed:
+            props[tid] = p
+
+
 def find_data_root(path: Path) -> Path:
     if (path / "levels").is_dir() and (path / "images").is_dir():
         return path
@@ -655,33 +896,150 @@ def find_data_root(path: Path) -> Path:
     raise FileNotFoundError(f"No SuperTux data/ under {path}")
 
 
+def worldmap_level_order(world_dir: Path) -> list[Path] | None:
+    """Parse worldmap.stwm (level \"file.stl\") order when present."""
+    stwm = world_dir / "worldmap.stwm"
+    if not stwm.exists():
+        return None
+    text = stwm.read_text(encoding="utf-8", errors="replace")
+    names = re.findall(r'\(level\s+"([^"]+)"', text)
+    if not names:
+        names = re.findall(r"\(level\s+([^\s\)]+)", text)
+    out: list[Path] = []
+    seen: set[str] = set()
+    for name in names:
+        name = name.strip()
+        if not name.endswith(".stl"):
+            name = name + ".stl"
+        if name in seen:
+            continue
+        seen.add(name)
+        p = world_dir / name
+        if p.exists():
+            out.append(p)
+    return out or None
+
+
+
+def collect_level_tiles(
+    root, props: dict[int, dict[str, bool]] | None = None
+) -> tuple[set[int], set[int]]:
+    used: set[int] = set()
+    solid_tids: set[int] = set()
+    for sec in children(root, "sector"):
+        for tm in children(sec, "tilemap"):
+            try:
+                tw, th, tiles, is_solid, _z = read_tilemap(tm)
+            except Exception:
+                continue
+            for tid in tiles:
+                if not tid:
+                    continue
+                used.add(tid)
+                if is_solid and tile_collides(tid, props):
+                    solid_tids.add(tid)
+        # Object-painted tiles (weak_block → brick, …)
+        for obj in children(sec):
+            head = obj[0] if obj else None
+            if not isinstance(head, str):
+                continue
+            m = ST_OBJECTS.get(head)
+            if not m or m[0] != "tile":
+                continue
+            st_id = int(m[1])  # type: ignore[arg-type]
+            used.add(st_id)
+            if tile_collides(st_id, props):
+                solid_tids.add(st_id)
+    return used, solid_tids
+
+
+
+
+def convert_world(
+    data: Path,
+    world_name: str,
+    out: Path,
+    world_index: int,
+    props: dict,
+    images: dict,
+    remap: dict[int, int],
+    attribution: list[dict],
+    unmapped: Counter,
+    no_tileset: bool,
+) -> tuple[int, set[int]]:
+    world = data / "levels" / world_name
+    if not world.is_dir():
+        print(f"missing {world}", file=sys.stderr)
+        return 0, set()
+
+    ordered = worldmap_level_order(world)
+    stls = ordered if ordered else sorted(world.glob("*.stl"))
+    print(f"World {world_name}: {len(stls)} stl (worldmap={'yes' if ordered else 'alpha'})")
+
+    used: set[int] = set()
+    licensed: list[Path] = []
+    for p in stls:
+        text = p.read_text(encoding="utf-8", errors="replace")
+        root = parse_sexpr(text)
+        ok, lic = license_ok(root)
+        if not ok:
+            print(f"  SKIP {p.name}: license={lic!r}")
+            continue
+        licensed.append(p)
+        u, s = collect_level_tiles(root, props); used |= u
+
+    written = 0
+    for i, p in enumerate(licensed, start=1):
+        text = p.read_text(encoding="utf-8", errors="replace")
+        result = convert_stl(text, remap, unmapped, attribution, p.name, props)
+        if not result:
+            continue
+        level_txt, _, level_used, level_solid = result
+        used |= level_used
+        out_name = f"{world_index}-{i}.txt"
+        (out / out_name).write_text(level_txt, encoding="utf-8")
+        print(f"  {out_name} ← {p.name}")
+        written += 1
+    return written, used
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--data", type=Path, required=True, help="SuperTux data/ root (or clone root)")
     ap.add_argument("--out", type=Path, default=Path("mappacks/supertux"))
-    ap.add_argument("--world", default="world1", help="levels/<world> to convert")
+    ap.add_argument("--world", default="world1", help="levels/<world> to convert (ignored with --all-worlds)")
+    ap.add_argument("--all-worlds", action="store_true", help="Convert world1..worldN present under levels/")
     ap.add_argument("--histogram", action="store_true", help="Print object histogram and exit")
     ap.add_argument("--no-tileset", action="store_true", help="Skip tiles.png (geometry only)")
     args = ap.parse_args()
 
     data = find_data_root(args.data)
-    world = data / "levels" / args.world
-    if not world.is_dir():
-        print(f"missing {world}", file=sys.stderr)
-        return 1
 
-    stls = sorted(world.glob("*.stl"))
-    # skip cutscenes by default for playable pack? Keep all licensed levels.
-    print(f"Data: {data}  world: {world}  levels: {len(stls)}")
+    if args.all_worlds:
+        worlds = sorted(
+            p.name
+            for p in (data / "levels").iterdir()
+            if p.is_dir() and p.name.startswith("world") and list(p.glob("*.stl"))
+        )
+        # natural world1, world2, … then extras
+        def wkey(n: str):
+            m = re.match(r"world(\d+)$", n)
+            return (0, int(m.group(1))) if m else (1, n)
+
+        worlds = sorted(worlds, key=wkey)
+    else:
+        worlds = [args.world]
 
     if args.histogram:
         hist: Counter = Counter()
-        for p in stls:
-            root = parse_sexpr(p.read_text(encoding="utf-8", errors="replace"))
-            for sec in children(root, "sector"):
-                for obj in children(sec):
-                    if obj and isinstance(obj[0], str):
-                        hist[obj[0]] += 1
+        for wn in worlds:
+            world = data / "levels" / wn
+            for p in world.glob("*.stl"):
+                root = parse_sexpr(p.read_text(encoding="utf-8", errors="replace"))
+                for sec in children(root, "sector"):
+                    for obj in children(sec):
+                        if obj and isinstance(obj[0], str):
+                            hist[obj[0]] += 1
         for name, n in hist.most_common(50):
             mapped = ST_OBJECTS.get(name, ("?", None))
             print(f"  {n:5d}  {name:<24} -> {mapped}")
@@ -692,40 +1050,48 @@ def main() -> int:
     if strf_path.exists():
         print(f"Parsing {strf_path} …")
         props, images = parse_strf(strf_path.read_text(encoding="utf-8", errors="replace"))
+        apply_special_tile_props(props, images)
         print(f"  tile defs: {len(props)}  with images: {len(images)}")
     else:
         print("WARN: tiles.strf missing — collision props will be empty", file=sys.stderr)
 
-    # Pass 1: collect used tile ids from licensed levels
+    # Pass 1: collect used tile ids + truly-solid tids from licensed levels
     used: set[int] = set()
-    licensed_files: list[Path] = []
-    for p in stls:
-        text = p.read_text(encoding="utf-8", errors="replace")
-        root = parse_sexpr(text)
-        ok, lic = license_ok(root)
-        if not ok:
-            print(f"  SKIP {p.name}: license={lic!r}")
+    solid_tids: set[int] = set()
+    for wn in worlds:
+        world = data / "levels" / wn
+        if not world.is_dir():
+            print(f"missing {world}", file=sys.stderr)
             continue
-        licensed_files.append(p)
-        for sec in children(root, "sector"):
-            for tm in children(sec, "tilemap"):
-                if not is_true(field(tm, "solid")[0]):
-                    continue
-                w = int(field(tm, "width")[0])
-                h = int(field(tm, "height")[0])
-                _, tn = field(tm, "tiles")
-                try:
-                    tiles = decode_tiles(tn, w, h)
-                except Exception as e:
-                    print(f"  WARN {p.name} tiles: {e}", file=sys.stderr)
-                    continue
-                used.update(t for t in tiles if t)
+        ordered = worldmap_level_order(world) or sorted(world.glob("*.stl"))
+        for p in ordered:
+            text = p.read_text(encoding="utf-8", errors="replace")
+            root = parse_sexpr(text)
+            ok, _lic = license_ok(root)
+            if not ok:
+                continue
+            u, s = collect_level_tiles(root, props)
+            used |= u
+            solid_tids |= s
 
-    print(f"Licensed levels: {len(licensed_files)}  unique solid tiles: {len(used)}")
+    forced = force_unknown_solid_collision(props, solid_tids)
+    print(
+        f"Worlds: {worlds}  unique tiles: {len(used)}  "
+        f"strf-solid: {len(solid_tids)}  unknown-forced: {forced}"
+    )
 
     args.out.mkdir(parents=True, exist_ok=True)
     for old in args.out.glob("*.txt"):
         old.unlink()
+    # Drop broken custom enemy overlays (CE bases used by name instead)
+    enemies_dir = args.out / "enemies"
+    if enemies_dir.is_dir():
+        for old in enemies_dir.iterdir():
+            old.unlink()
+        try:
+            enemies_dir.rmdir()
+        except OSError:
+            pass
     if (args.out / "tiles.png").exists() and not args.no_tileset:
         (args.out / "tiles.png").unlink()
 
@@ -739,24 +1105,26 @@ def main() -> int:
         sheet.save(args.out / "tiles.png")
         print(f"  wrote tiles.png  remap entries={len(remap)}")
     else:
-        # identity-ish packing without graphics
         for i, tid in enumerate(sorted(used)):
             remap[tid] = CUSTOM_TILE_BASE + 1 + i
 
     unmapped: Counter = Counter()
     attribution: list[dict] = []
     written = 0
-    for i, p in enumerate(licensed_files, start=1):
-        text = p.read_text(encoding="utf-8", errors="replace")
-        result = convert_stl(text, remap, unmapped, attribution, p.name)
-        if not result:
-            continue
-        level_txt, _, _ = result
-        # Playable naming: 1-N for world1
-        out_name = f"1-{i}.txt"
-        (args.out / out_name).write_text(level_txt, encoding="utf-8")
-        print(f"  {out_name} ← {p.name}")
-        written += 1
+    for wi, wn in enumerate(worlds, start=1):
+        n, _ = convert_world(
+            data,
+            wn,
+            args.out,
+            wi,
+            props,
+            images,
+            remap,
+            attribution,
+            unmapped,
+            args.no_tileset,
+        )
+        written += n
 
     write_authors(args.out / "AUTHORS.txt", attribution)
     (args.out / "LICENSE").write_text(LICENSE_TEXT, encoding="utf-8")
@@ -766,9 +1134,27 @@ def main() -> int:
                 "name=supertux (local)",
                 "author=see AUTHORS.txt — CC-BY-SA levels from SuperTux",
                 "description=Regenerated via mapsdk/build_supertux.py (engine GPL not included)",
+                "lives=4",
                 "",
             ]
         ),
+        encoding="utf-8",
+    )
+    gaps = args.out / "GAPS.md"
+    gaps.write_text(
+        "# SuperTux → Mari0 gaps (honest)\n\n"
+        "Imported: solid+decorative tile layers (composited), CC-BY-SA levels,\n"
+        "badguys→CE enemy JSON names, trampolines→spring, platforms, coin tiles,\n"
+        "weak_block→ice brick, flags via sequencetrigger X snapped to ground,\n"
+        "spawn snapped to floor. Collision from tiles.strf (not “any solid-layer tile”).\n"
+        "Entity markers use CE numeric ids (spawn=8, flag=11, spring=94, …).\n\n"
+        "Still missing / stubbed:\n"
+        "- Scripting (.nut), scripttrigger, init-script, sequencetrigger cutscenes\n"
+        "- Pushable rocks, fallblocks, unstable/magicblock, climbable, infoblock text\n"
+        "- Wind, bumper, doors as warps; tutorial decals/billboards\n"
+        "- Worldmap UI / hub progression (flat W-N level list instead)\n"
+        "- True badguy AI (snowball etc. use Mari0 goomba/koopa/… behaviour)\n"
+        "- Tux physics (ice friction), music, parallax backgrounds\n",
         encoding="utf-8",
     )
 
@@ -777,7 +1163,8 @@ def main() -> int:
         for name, n in unmapped.most_common(30):
             print(f"  {name}: {n}")
 
-    print(f"Done → {args.out} ({written} levels, gitignored; do not commit large art unless intentional)")
+    print(f"Done → {args.out} ({written} levels)")
+    print("Rebuild: python3 scripts/mapsdk/build_supertux.py --data toconvert/supertux/data --out mappacks/supertux --all-worlds")
     return 0
 
 

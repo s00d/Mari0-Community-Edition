@@ -1,0 +1,81 @@
+{
+  "start": "descent",
+  "level": "1-9",
+  "title": "Slab Descent",
+  "rooms": [
+    {
+      "id": "descent",
+      "x": 0,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h",
+      "doors": [
+        {
+          "kind": "green",
+          "to": "pit",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-9:descent>pit"
+        }
+      ],
+      "items": [
+        {
+          "uid": "l9_grav",
+          "ability": "gravitygun",
+          "dx": 6,
+          "dy": 11
+        },
+        {
+          "uid": "l9_highjump",
+          "ability": "highjump",
+          "dx": 10,
+          "dy": 11
+        }
+      ]
+    },
+    {
+      "id": "pit",
+      "x": 25,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|scroll_v",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "descent",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-9:pit>descent"
+        },
+        {
+          "kind": "open",
+          "to": "thwompboss",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-9:pit>thwompboss"
+        }
+      ],
+      "items": []
+    },
+    {
+      "id": "thwompboss",
+      "x": 50,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|boss|save",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "pit",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-9:thwompboss>pit"
+        }
+      ],
+      "items": []
+    }
+  ]
+}

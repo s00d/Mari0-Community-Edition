@@ -238,7 +238,7 @@ global function game_draw_debug()
 end
 
 global function game_draw_pausemenu()
-	love.graphics.setColor(0, 0, 0, 0.4)
+	love.graphics.setColor(0, 0, 0, 0.48)
 	love.graphics.rectangle("fill", 0, 0, width*16*scale, height*16*scale)
 
 	local screen_w = width * 16
@@ -246,26 +246,37 @@ global function game_draw_pausemenu()
 	local panel = lay.panel as {string:any}
 	draw_panel(panel.x as number, panel.y as number, panel.w as number, panel.h as number)
 
+	local title_raw = lay.title
+	if title_raw then
+		local title = title_raw as {string:any}
+		ui_set_color("text_accent")
+		properprint(title.text as string, (title.x as number) * scale, (title.y as number) * scale)
+		menu_draw_rule((panel.x as number) + 8, (panel.y as number) + 20, (panel.w as number) - 16)
+	end
+
 	local rects = lay.rects as {any}
+	local prompting = menuprompt or desktopprompt or suspendprompt
 	for i = 1, #pausemenuoptions do
 		local raw = rects[i]
 		local y = 40 + (i - 1) * 24
 		local x = (panel.x as number)
+		local selected = pausemenuselected == i and not prompting
 		if raw then
 			local r = raw as {string:any}
 			y = r.y as integer
-			if pausemenuselected == i and not menuprompt and not desktopprompt and not suspendprompt then
-				ui_set_color("sel")
-				love.graphics.rectangle("fill", (r.x as number) * scale, (r.y as number) * scale, (r.w as number) * scale, (r.h as number) * scale)
-				ui_set_color("text_accent")
-				properprint("_dir5", (x + 4) * scale, (y + 4) * scale)
-			else
-				ui_set_color("text_dim")
+			x = r.x as number
+			if selected then
+				menu_draw_row_bg(r.x as number, r.y as number, r.w as number, r.h as number, "sel", 1)
+				menu_draw_cursor((r.x as number) + 4, (r.y as number) + 4)
 			end
+		end
+		if selected then
+			ui_set_color("text_accent")
 		else
-			ui_set_color("text_dim")
+			ui_set_color("text")
 		end
 		properprint(pausemenuoptions[i as integer], (x + 16) * scale, (y + 2) * scale)
+		ui_set_color("text_dim")
 		properprint(pausemenuoptions2[i as integer], (x + 16) * scale, (y + 12) * scale)
 		
 		if pausemenuoptions[i as integer] == "music volume" or pausemenuoptions[i as integer] == "game volume" then
@@ -279,68 +290,17 @@ global function game_draw_pausemenu()
 	end
 	love.graphics.setColor(1, 1, 1, 1)
 	
+	local cx = width * 8
 	if menuprompt then
-		love.graphics.setColor(0, 0, 0, 1)
-		love.graphics.rectangle("fill", (width*8*scale)-100*scale, (112*scale)-25*scale, 200*scale, 50*scale)
-		love.graphics.setColor(1, 1, 1, 1)
-		drawrectangle((width*8)-99, 112-24, 198, 48)
-		properprint("quit to menu?", (width*8*scale)-string.len("quit to menu?")*4*scale, (112*scale)-10*scale)
-		if pausemenuselected2 == 1 then
-			properprint(">", (width*8*scale)-51*scale, (112*scale)+4*scale)
-			love.graphics.setColor(1, 1, 1, 1)
-			properprint("yes", (width*8*scale)-44*scale, (112*scale)+4*scale)
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-			properprint("no", (width*8*scale)+28*scale, (112*scale)+4*scale) 
-		else
-			properprint(">", (width*8*scale)+20*scale, (112*scale)+4*scale)
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-			properprint("yes", (width*8*scale)-44*scale, (112*scale)+4*scale)
-			love.graphics.setColor(1, 1, 1, 1)
-			properprint("no", (width*8*scale)+28*scale, (112*scale)+4*scale)
-		end
+		menu_draw_yesno("quit to menu?", pausemenuselected2 == 1, nil, cx)
 	end
 	
 	if desktopprompt then
-		love.graphics.setColor(0, 0, 0, 1)
-		love.graphics.rectangle("fill", (width*8*scale)-100*scale, (112*scale)-25*scale, 200*scale, 50*scale)
-		love.graphics.setColor(1, 1, 1, 1)
-		drawrectangle((width*8)-99, 112-24, 198, 48)
-		properprint("quit to desktop?", (width*8*scale)-string.len("quit to desktop?")*4*scale, (112*scale)-10*scale)
-		if pausemenuselected2 == 1 then
-			properprint(">", (width*8*scale)-51*scale, (112*scale)+4*scale)
-			love.graphics.setColor(1, 1, 1, 1)
-			properprint("yes", (width*8*scale)-44*scale, (112*scale)+4*scale)
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-			properprint("no", (width*8*scale)+28*scale, (112*scale)+4*scale)
-		else
-			properprint(">", (width*8*scale)+20*scale, (112*scale)+4*scale)
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-			properprint("yes", (width*8*scale)-44*scale, (112*scale)+4*scale)
-			love.graphics.setColor(1, 1, 1, 1)
-			properprint("no", (width*8*scale)+28*scale, (112*scale)+4*scale)
-		end
+		menu_draw_yesno("quit to desktop?", pausemenuselected2 == 1, nil, cx)
 	end
 	
 	if suspendprompt then
-		love.graphics.setColor(0, 0, 0, 1)
-		love.graphics.rectangle("fill", (width*8*scale)-100*scale, (112*scale)-25*scale, 200*scale, 50*scale)
-		love.graphics.setColor(1, 1, 1, 1)
-		drawrectangle((width*8)-99, 112-24, 198, 48)
-		properprint("suspend game? this can", (width*8*scale)-string.len("suspend game? this can")*4*scale, (112*scale)-20*scale)
-		properprint("only be loaded once!", (width*8*scale)-string.len("only be loaded once!")*4*scale, (112*scale)-10*scale)
-		if pausemenuselected2 == 1 then
-			properprint(">", (width*8*scale)-51*scale, (112*scale)+4*scale)
-			love.graphics.setColor(1, 1, 1, 1)
-			properprint("yes", (width*8*scale)-44*scale, (112*scale)+4*scale)
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-			properprint("no", (width*8*scale)+28*scale, (112*scale)+4*scale)
-		else
-			properprint(">", (width*8*scale)+20*scale, (112*scale)+4*scale)
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-			properprint("yes", (width*8*scale)-44*scale, (112*scale)+4*scale)
-			love.graphics.setColor(1, 1, 1, 1)
-			properprint("no", (width*8*scale)+28*scale, (112*scale)+4*scale)
-		end
+		menu_draw_yesno("suspend game?", pausemenuselected2 == 1, "can only load once!", cx)
 	end
 end
 

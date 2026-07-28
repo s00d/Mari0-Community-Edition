@@ -1,0 +1,55 @@
+# Alesan99's Entities — CE port inventory (session)
+
+Source: https://github.com/alesan99/mari0_ae (cloned to ../mari0_ae)
+Attribution: licenses/alesan99-mari0-ae.txt
+
+## Newly ported this session
+
+### Enemies (assets/enemies/*.json+png) — 33
+muncher, ninji, sidestepper, splunkin, shyguy, goombrat, spike, spiketop,
+fishbone, parabeetle, amp, fuzzy, icicle, barrel, mole, bigmole, thwimp,
+bobomb, pokey, chainchomp, bigbill, cannonball, meteor, torpedoted,
+rockywrench, angrysun, fighterfly, boomboom, wiggler, grinder, skewer,
+plantcreeper, magikoopa
+
+### Entities (src/entities/*.tl + spawn/entitylist/boot wiring)
+donut, powblock, flipblock, belt, longfire, smallspring, collectable, camerastop
+
+### Mappack / characters / license
+mappacks/alesans_entities (showcase 1-1)
+assets/characters/{toad,toadette,luigi} from AE
+licenses/alesan99-mari0-ae.txt
+scripts/port_ae_content.py
+
+## Already in CE (skip / superseded)
+- Vanilla customenemies JSON set (goomba/koopa/…)
+- Hats / standardhats (AE set already present)
+- boo, drybones, thwomp, turret, and CE-original endless enemies
+- Portal I/O, editor MM features, weapons, metroidfault, mapsdk packs
+- Online: CE has own net stack (not AE netplay)
+
+## Remaining AE custom (follow-up)
+### Entities
+yoshi, cappy, clearpipe, snakeblock, track, risingwater, tilemoving,
+ice (full), laserfield, levelball, redseesaw, energylauncher/energycatcher,
+blocktogglebutton, pbutton/buttonblock, musicchanger, doorsprite, frozencoin,
+pipe2/pipespawnhor, randomizer, windstart/windend, checkpointflag, enemytool,
+smbsitem, tiletool, notice/dailychallenge
+
+### Enemies / bosses (full AE Lua AI)
+koopaling 1–7, bowserjr, bowser3, glados, core, kingbill,
+full chainchomp leash, multi-segment pokey/wiggler, plantcreeper pathing,
+boomboom phases, magikoopa teleport+magic, skewer/grinder track modes
+
+### Powerups / suits
+tanooki, frog, hammer, ice flower, feather/leaf (CE has leaf enemy/item path),
+boomerang flower, superball, carrot, weird/mini mushroom, swimwing, luckystar
+
+### Other
+Full alesans_entities_mappack level conversion (AE map format ≠ CE),
+AE languages, android UI, AE-specific physics flags, vertical scroll quirks
+
+## Verify in-game
+1. Mappack "alesan's entities" → 1-1 (spawn + sample AE enemies)
+2. Editor → Enemies tab: muncher, ninji, amp, …
+3. Editor → Entities: donut, powblock, flipblock, belt, longfire, smallspring, collectable, camerastop

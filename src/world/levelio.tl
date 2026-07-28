@@ -377,9 +377,20 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 				coinmap[x][y] = true
 			end
 			
-			if #r > 1 then 
-				if entitylist[r[2]] then
-					local et = entitylist[r[2]].t
+			if #r > 1 then
+				-- Numeric CE entitylist ids, or string names from mapsdk converters
+				-- ("spawn"/"flag"/… and custom enemy JSON basenames).
+				local ent = r[2]
+				local et: string|nil = nil
+				if entitylist[ent] then
+					et = entitylist[ent].t
+				elseif type(ent) == "string" then
+					local name = ent as string
+					if MAP_SPAWN_EARLY_HANDLERS[name] or MAP_SPAWN_HANDLERS[name] then
+						et = name
+					end
+				end
+				if et then
 					dispatch_map_entity_spawn(et, x, y, r, createobjects, editormode)
 				end
 			end

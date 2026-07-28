@@ -1,0 +1,31 @@
+{
+	"description": "muncher creeper plant (AE simplified piston)",
+	"quadcount": 8,
+	"nospritesets": true,
+	"animationtype": "frames",
+	"animationframes": 2,
+	"animationstart": 1,
+	"animationspeed": 0.15,
+	"static": true,
+	"active": true,
+	"category": 29,
+	"mask": [
+		true
+	],
+	"emancipatecheck": true,
+	"offsetX": 16,
+	"offsetY": 0,
+	"quadcenterX": 16,
+	"quadcenterY": 16,
+	"width": 1,
+	"height": 1.5,
+	"movement": "piston",
+	"pistondistx": 0,
+	"pistondisty": -1.5,
+	"pistonspeedx": 0,
+	"pistonspeedy": 2.0,
+	"pistonextendtime": 1.5,
+	"pistonretracttime": 1.5,
+	"kills": true,
+	"stompable": false
+}

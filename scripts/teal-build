@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Compile all src/**/*.tl into build/ via Cyan (tlconfig.lua).
 # Real build path only — no per-file tl gen fallback.
+#
+# Footgun: never "fix unused" by turning `global_a, global_b = f()` into
+# `local _, _ = f()` — globals stay nil and crash at runtime. See lib/README.md.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"

@@ -1,0 +1,88 @@
+{
+  "start": "shaft",
+  "level": "1-2",
+  "title": "Vent Crawl",
+  "rooms": [
+    {
+      "id": "shaft",
+      "x": 0,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|scroll_v",
+      "doors": [
+        {
+          "kind": "morph",
+          "to": "vents",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-2:shaft>vents"
+        }
+      ],
+      "items": [
+        {
+          "uid": "l2_portal",
+          "ability": "portal",
+          "dx": 5,
+          "dy": 11
+        },
+        {
+          "uid": "l2_morph",
+          "ability": "morphball",
+          "dx": 12,
+          "dy": 11
+        }
+      ]
+    },
+    {
+      "id": "vents",
+      "x": 25,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "shaft",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-2:vents>shaft"
+        },
+        {
+          "kind": "open",
+          "to": "drain",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-2:vents>drain"
+        }
+      ],
+      "items": [
+        {
+          "uid": "l2_gel",
+          "ability": "gelcannon",
+          "dx": 12,
+          "dy": 11
+        }
+      ]
+    },
+    {
+      "id": "drain",
+      "x": 50,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|save",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "vents",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-2:drain>vents"
+        }
+      ],
+      "items": []
+    }
+  ]
+}

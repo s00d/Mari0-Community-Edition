@@ -22,7 +22,7 @@ function enemy:init(x: number, y: number, t: string, a: any)
 	else
 		self.a = {}
 	end
-	
+
 	--Some standard values..
 	self.rotation = 0
 	self.active = true
@@ -174,6 +174,10 @@ function enemy:init(x: number, y: number, t: string, a: any)
 	self.startx = self.x
 	self.starty = self.y
 	self.startgravity = self.gravity
+
+	if apply_enemy_modifiers then
+		apply_enemy_modifiers(self, self.a as {any})
+	end
 	
 	if self.spawnsenemy then
 		self.spawnenemytimer = 0
@@ -611,10 +615,8 @@ function enemy:customtimeraction(action: any, arg: any): any
 			if not (act[2] and act[3]) then return end
 			if globintCH(act[2],  string.sub(realaction as string, 1, -5), act[3]) then --coding practice, using string.sub the same way Maurice did
 				local a1 = args[1] as {any}
-				local _ = args[2] as {any}
 				self:customtimeraction(a1[1], a1[2])
 			else
-				local _ = args[1] as {any}
 				local a2 = args[2] as {any}
 				self:customtimeraction(a2[1], a2[2])
 			end
@@ -622,10 +624,8 @@ function enemy:customtimeraction(action: any, arg: any): any
 			print(globools[act[2] as string])
 			if globools[act[2] as string] then
 				local a1 = args[1] as {any}
-				local _ = args[2] as {any}
 				self:customtimeraction(a1[1], a1[2])
 			else
-				local _ = args[1] as {any}
 				local a2 = args[2] as {any}
 				self:customtimeraction(a2[1], a2[2])
 			end

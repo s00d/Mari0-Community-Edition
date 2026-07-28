@@ -42,6 +42,8 @@ global function metroid_use_hp(): boolean
 end
 
 global function metroid_hurt(pl_any: any, n: number): boolean
+	-- Returns true if HP model absorbed the hit (caller should not classic-shrink).
+	-- Does NOT call die — caller finishes death when hp<=0.
 	if not metroid_use_hp() then return false end
 	local pl = pl_any as {string:any}
 	if not pl then return false end
@@ -50,7 +52,6 @@ global function metroid_hurt(pl_any: any, n: number): boolean
 	hp = hp - (n or 1)
 	pl.hp = hp
 	pl.invultimer = 1.0
-	if hp <= 0 and pl.die then (pl.die as function(any, any))(pl, "hp") end
 	return true
 end
 

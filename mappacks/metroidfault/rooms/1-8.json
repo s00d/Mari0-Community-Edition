@@ -1,0 +1,88 @@
+{
+  "start": "vault",
+  "level": "1-8",
+  "title": "Grav Vault",
+  "rooms": [
+    {
+      "id": "vault",
+      "x": 0,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|save",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "core",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-8:vault>core"
+        }
+      ],
+      "items": [
+        {
+          "uid": "l8_portal",
+          "ability": "portal",
+          "dx": 5,
+          "dy": 11
+        },
+        {
+          "uid": "l8_freeze",
+          "ability": "freezeray",
+          "dx": 8,
+          "dy": 11
+        }
+      ]
+    },
+    {
+      "id": "core",
+      "x": 25,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|scroll_v",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "vault",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-8:core>vault"
+        },
+        {
+          "kind": "green",
+          "to": "gravlab",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-8:core>gravlab"
+        }
+      ],
+      "items": [
+        {
+          "uid": "l8_grav",
+          "ability": "gravitygun",
+          "dx": 18,
+          "dy": 10
+        }
+      ]
+    },
+    {
+      "id": "gravlab",
+      "x": 50,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|save",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "core",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-8:gravlab>core"
+        }
+      ],
+      "items": []
+    }
+  ]
+}

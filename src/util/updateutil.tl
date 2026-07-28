@@ -16,15 +16,18 @@ local function update_and_compact(v: Dyn, dt: number)
 		local arr = v as {Entity}
 		for j = 1, n do
 			local w = arr[j]
-			local remove = false
-			if w.update and w:update(dt) then
-				remove = true
-			elseif w.autodelete then
-				if w.y > mapheight+5 or w.x > mapwidth+5 or w.x < -5 or w.y < -5 then
-					if w.autodeleted then
-						(w.autodeleted as function(Entity))(w)
-					end
+			-- Holes (nil) from despawn/assign-nil: drop and compact. #t past a hole is undefined in Lua.
+			local remove = (w == nil)
+			if not remove then
+				if w.update and w:update(dt) then
 					remove = true
+				elseif w.autodelete then
+					if w.y > mapheight+5 or w.x > mapwidth+5 or w.x < -5 or w.y < -5 then
+						if w.autodeleted then
+							(w.autodeleted as function(Entity))(w)
+						end
+						remove = true
+					end
 				end
 			end
 			if not remove then

@@ -1,0 +1,88 @@
+{
+  "start": "chill",
+  "level": "1-4",
+  "title": "Cryo Wing",
+  "rooms": [
+    {
+      "id": "chill",
+      "x": 0,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h",
+      "doors": [
+        {
+          "kind": "red",
+          "to": "cryo",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-4:chill>cryo"
+        }
+      ],
+      "items": [
+        {
+          "uid": "l4_portal",
+          "ability": "portal",
+          "dx": 4,
+          "dy": 11
+        },
+        {
+          "uid": "l4_freeze",
+          "ability": "freezeray",
+          "dx": 12,
+          "dy": 10
+        }
+      ]
+    },
+    {
+      "id": "cryo",
+      "x": 25,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "chill",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-4:cryo>chill"
+        },
+        {
+          "kind": "open",
+          "to": "iceboss",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-4:cryo>iceboss"
+        }
+      ],
+      "items": []
+    },
+    {
+      "id": "iceboss",
+      "x": 50,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|boss|save",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "cryo",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-4:iceboss>cryo"
+        }
+      ],
+      "items": [
+        {
+          "uid": "l4_highjump",
+          "ability": "highjump",
+          "dx": 20,
+          "dy": 11
+        }
+      ]
+    }
+  ]
+}

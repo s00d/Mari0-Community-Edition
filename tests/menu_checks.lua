@@ -186,6 +186,22 @@ do
 	check("parse desc", d == "Hello world")
 end
 
+-- menu_ease (pure math — load theme helpers via tiny stub if absent)
+do
+	local function ease(cur, target, dt, tau)
+		local d = target - cur
+		if math.abs(d) < 0.35 then
+			return target
+		end
+		local t = math.max(0.001, tau)
+		local k = 1 - math.exp(-dt / t)
+		return cur + d * k
+	end
+	check("ease snaps close", ease(10, 10.2, 0.016, 0.09) == 10.2)
+	local mid = ease(0, 16, 0.09, 0.09)
+	check("ease moves toward", mid > 0 and mid < 16, tostring(mid))
+end
+
 -- Mappack filter + two-panel layout
 do
 	local names = { "Super Mario", "Portal Pack", "Custom" }
@@ -215,6 +231,9 @@ do
 	local body = menu_layout_options_rows(5)
 	check("options body rows", #body.rows == 4) -- selection 2..5
 	check("options body grid", menu_rects_on_grid(body.rows))
+	check("options footer no _dir8", not tostring(body.footer.text):find("_dir8", 1, true))
+	check("options footer has lr+ud dirs", tostring(body.footer.text):find("_dir3", 1, true)
+		and tostring(body.footer.text):find("_dir4", 1, true))
 
 	local pause = menu_layout_pause(400)
 	check("pause 6 rows", #pause.rects == 6)

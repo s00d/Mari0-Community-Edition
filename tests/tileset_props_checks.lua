@@ -74,6 +74,8 @@ if ok then
 	check("classify Background Clouds anti", (anti.collision or 0) < 0)
 	local hills = mapsdk.tileset.classify("Background Hills A")
 	check("classify Background Hills solid", (hills.collision or 0) > 0)
+	local ext = mapsdk.tileset.classify("Green Block Platform (Extends to ground)")
+	check("classify extends-to-ground not platform", not ext.platform and (ext.collision or 0) > 0)
 
 	local smb3src = mapsdk.sources.smb3dump
 	check("bonus naming 1-1_1", smb3src.level_filename({

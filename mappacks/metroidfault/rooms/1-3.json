@@ -1,0 +1,88 @@
+{
+  "start": "lobby",
+  "level": "1-3",
+  "title": "Lab Access",
+  "rooms": [
+    {
+      "id": "lobby",
+      "x": 0,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h",
+      "doors": [
+        {
+          "kind": "blue",
+          "to": "lab",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-3:lobby>lab"
+        }
+      ],
+      "items": [
+        {
+          "uid": "l3_portal",
+          "ability": "portal",
+          "dx": 5,
+          "dy": 11
+        },
+        {
+          "uid": "l3_morph",
+          "ability": "morphball",
+          "dx": 8,
+          "dy": 11
+        }
+      ]
+    },
+    {
+      "id": "lab",
+      "x": 25,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "lobby",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-3:lab>lobby"
+        },
+        {
+          "kind": "open",
+          "to": "pipes",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-3:lab>pipes"
+        }
+      ],
+      "items": [
+        {
+          "uid": "l3_gel",
+          "ability": "gelcannon",
+          "dx": 12,
+          "dy": 10
+        }
+      ]
+    },
+    {
+      "id": "pipes",
+      "x": 50,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|save",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "lab",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-3:pipes>lab"
+        }
+      ],
+      "items": []
+    }
+  ]
+}

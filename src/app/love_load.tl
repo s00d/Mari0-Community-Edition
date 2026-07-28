@@ -168,11 +168,14 @@ function LoveLoad.run(arg: any)
 
 	add("Variables, shaderlist")
 
-	if not pcall(loadconfig) then
+	-- Missing options.txt is quiet (loadconfig returns after defaultconfig).
+	-- Only real parse/runtime errors surface a notice — include console detail.
+	local config_result = { pcall(loadconfig) }
+	if not config_result[1] then
 		players = 1
 		defaultconfig()
-		print("== FAILED TO LOAD CONFIG ==")
-		notice.new("failed to load config — using defaults", notice.red)
+		print("== FAILED TO LOAD CONFIG ==\n" .. tostring(config_result[2]))
+		notice.new("config error - using defaults", notice.red)
 	end
 
 	physicsdebug = false

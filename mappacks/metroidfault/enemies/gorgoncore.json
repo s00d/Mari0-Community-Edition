@@ -1,0 +1,7 @@
+base=medusa
+{
+	"boss": true,
+	"persistkill": true,
+	"health": 7,
+	"sineamp": 2.2
+}

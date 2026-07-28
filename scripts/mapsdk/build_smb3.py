@@ -145,9 +145,14 @@ def classify(name: str) -> dict[str, int]:
         return {"collision": 3, "breakable": 3}
     if "spike" in n:
         return {"collision": 2, "spikestop": 2}
-    if "platform" in n and "wire" not in n:
-        return {"collision": 2, "platform": 2}
+    # SMB3 "Block Platform (Extends to ground)" is solid terrain, not a Mari0 one-way platform.
     if "note block" in n or "cloud platform" in n:
+        return {"collision": 2, "platform": 2}
+    if "platform" in n and "floating" in n and "wire" not in n:
+        return {"collision": 2, "platform": 2}
+    if "platform" in n and "extends to ground" in n:
+        return {"collision": 3}
+    if "platform" in n and "wire" not in n:
         return {"collision": 2, "platform": 2}
     return {"collision": 2}
 
@@ -210,7 +215,45 @@ def level_filename(data: dict) -> str:
     return re.sub(r"[^\w\-]", "_", lid)
 
 
-def derive_tile_props(levels: list[dict]) -> dict[tuple[int, int], dict[str, bool]]:
+def load_tile_opaque(tiles_dir: Path) -> dict[tuple[int, int], bool]:
+    """True when the ROM tile graphic has any opaque pixel (not empty/sky filler)."""
+    opaque: dict[tuple[int, int], bool] = {}
+    for os_ in range(1, 16):
+        png = tiles_dir / f"object_set_{os_}.png"
+        if not png.exists():
+            continue
+        sheet = Image.open(png).convert("RGBA")
+        cols = sheet.width // 16
+        for tid in range(256):
+            tx, ty = tid % cols, tid // cols
+            tile = sheet.crop((tx * 16, ty * 16, tx * 16 + 16, ty * 16 + 16))
+            opaque[(os_, tid)] = any(p[3] > 0 for p in tile.getdata())
+    return opaque
+
+
+def resolve_props(votes: dict[tuple[int, int], dict[str, int]]) -> dict[tuple[int, int], dict[str, bool]]:
+    out: dict[tuple[int, int], dict[str, bool]] = {}
+    for key, scores in votes.items():
+        props: dict[str, bool] = {}
+        collision_score = scores.get("collision", 0)
+        for prop, score in scores.items():
+            if score <= 0:
+                continue
+            if prop == "platform":
+                # Ignore stray platform votes on mostly-solid ground tiles (shared tile ids).
+                if collision_score > 0 and score < collision_score * 0.5:
+                    continue
+            props[prop] = True
+        if collision_score > 0:
+            props["collision"] = True
+        out[key] = props
+    return out
+
+
+def derive_tile_props(
+    levels: list[dict],
+    opaque: dict[tuple[int, int], bool] | None = None,
+) -> dict[tuple[int, int], dict[str, bool]]:
     votes: dict[tuple[int, int], dict[str, int]] = defaultdict(lambda: defaultdict(int))
 
     for data in levels:
@@ -228,13 +271,12 @@ def derive_tile_props(levels: list[dict]) -> dict[tuple[int, int], dict[str, boo
                     tid = tm[y][x] & 0xFF
                     if tid == 0:
                         continue
+                    if opaque is not None and not opaque.get((os_, tid), True):
+                        continue
                     for p, weight in props.items():
                         votes[(os_, tid)][p] += weight
 
-    out: dict[tuple[int, int], dict[str, bool]] = {}
-    for key, scores in votes.items():
-        out[key] = {p: True for p, s in scores.items() if s > 0}
-    return out
+    return resolve_props(votes)
 
 
 def validate_props(levels: list[dict], props: dict[tuple[int, int], dict[str, bool]], min_ratio: float = 0.90):
@@ -402,7 +444,34 @@ def spriteset_for(data: dict) -> int:
     return 1
 
 
-def level_to_txt(data: dict, mapping: dict[tuple[int, int], int], dump: Path) -> str:
+def props_for_mid(
+    mapping: dict[tuple[int, int], int],
+    props: dict[tuple[int, int], dict[str, bool]],
+) -> dict[int, dict[str, bool]]:
+    return {mid: props.get(key, {}) for key, mid in mapping.items()}
+
+
+def tile_collides(mid: int, mid_props: dict[int, dict[str, bool]]) -> bool:
+    return bool(mid_props.get(mid, {}).get("collision"))
+
+
+def place_spawn(mapped: list[list[int]], mid_props: dict[int, dict[str, bool]]) -> tuple[int, int]:
+    """First open cell above solid ground near the left edge (0-based)."""
+    h, w = len(mapped), len(mapped[0]) if mapped else 0
+    for x in range(0, min(12, w)):
+        for y in range(h - 2, 0, -1):
+            here, below = mapped[y][x], mapped[y + 1][x]
+            if tile_collides(below, mid_props) and not tile_collides(here, mid_props):
+                return x, y
+    return 1, max(0, h - 3)
+
+
+def level_to_txt(
+    data: dict,
+    mapping: dict[tuple[int, int], int],
+    dump: Path,
+    mid_props: dict[int, dict[str, bool]],
+) -> str:
     os_ = data["object_set"]
     raw = data["tilemap"]
     height = data["header"]["height"]
@@ -423,6 +492,8 @@ def level_to_txt(data: dict, mapping: dict[tuple[int, int], int], dump: Path) ->
         x, y = enemy["x"], enemy["y"] - y_offset
         if 0 <= x < w and 0 <= y < h:
             enemies_at[(x, y)] = ent
+    sx, sy = place_spawn(mapped, mid_props)
+    enemies_at[(sx, sy)] = "spawn"
     body = rle_encode(mapped, enemies_at)
     br, bg, bb = bg_color(data, dump)
     timelimit = data["header"].get("time_limit") or 400
@@ -467,7 +538,8 @@ def main() -> int:
     print(f"Loaded {len(levels)} levels")
 
     print("Deriving tile props …")
-    props = derive_tile_props(levels)
+    opaque = load_tile_opaque(dump / "tiles")
+    props = derive_tile_props(levels, opaque)
     ok, ratio, sb, tot = validate_props(levels, props, args.min_solid)
     print(f"  validate solid_bottom={sb}/{tot} ratio={ratio:.3f} ok={ok}")
     if not ok:
@@ -492,6 +564,7 @@ def main() -> int:
             old.unlink()
 
     tiles_img.save(out / "tiles.png")
+    mid_props = props_for_mid(mapping, props)
     (out / "settings.txt").write_text(
         "\n".join(
             [
@@ -513,7 +586,7 @@ def main() -> int:
             fname = f"{fname}_{names[fname]}"
         else:
             names[fname] = 1
-        (out / f"{fname}.txt").write_text(level_to_txt(data, mapping, dump))
+        (out / f"{fname}.txt").write_text(level_to_txt(data, mapping, dump, mid_props))
         written += 1
 
     (out / "tile_mapping.json").write_text(

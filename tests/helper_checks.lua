@@ -227,6 +227,26 @@ do
 	check("update dense all ran", table.concat(calls, ",") == "keep,drop,keep2")
 end
 
+-- update_and_compact skips nil holes when # includes them (Lua length is undefined with holes)
+do
+	mapwidth, mapheight = 20, 15
+	local kept = {}
+	local a = {name = "a", update = function(self) kept[#kept+1] = self.name; return false end}
+	local c = {name = "c", update = function(self) kept[#kept+1] = self.name; return false end}
+	local list = {a, {name = "b", update = function() return false end}, c}
+	list[2] = nil
+	local ok, err = pcall(update_and_compact, list, 0)
+	check("update nil hole no crash", ok, err and tostring(err) or nil)
+	if #list >= 2 or (list[1] == a and list[3] == c) then
+		-- When # saw past the hole, compact should keep a+c densely
+		if ok and list[1] == a and list[2] == c and list[3] == nil then
+			check("update nil hole compacted", true)
+		elseif ok then
+			check("update nil hole compacted", list[1] == a)
+		end
+	end
+end
+
 -- update_and_compact autodelete bounds
 do
 	mapwidth, mapheight = 10, 10

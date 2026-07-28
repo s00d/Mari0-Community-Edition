@@ -11,12 +11,10 @@ Converter only. **Do not copy SuperTux C++/engine (GPL-3) into `src/`.**
 | Mari0 engine | stays WTFPL | unaffected |
 
 - Raw SuperTux clone / data: gitignored under `/toconvert/` (use `toconvert/supertux/`).
-- Converted pack: gitignored `/mappacks/supertux/` (like smb3/cavestory). Commit the **converter**, not large art, unless you intentionally vendor a small licensed pack.
+- Converted pack may be kept under `mappacks/supertux/` for playtesting.
 - **Do not use OpenSyobonAction** (no clear license).
 
-## F0 — data path
-
-Shallow sparse clone (data only):
+## Data path
 
 ```bash
 mkdir -p toconvert
@@ -26,54 +24,35 @@ cd toconvert/supertux
 git sparse-checkout set data
 ```
 
-Expected layout:
-
-- `toconvert/supertux/data/levels/world1/*.stl`
-- `toconvert/supertux/data/images/tiles.strf`
-- `toconvert/supertux/data/images/tiles/**/*.png`
-
-## Build
+## Rebuild (one command)
 
 ```bash
 python3 scripts/mapsdk/build_supertux.py \
   --data toconvert/supertux/data \
   --out mappacks/supertux \
-  --world world1
-
-# Object histogram (fills ST_OBJECTS from frequency)
-python3 scripts/mapsdk/build_supertux.py \
-  --data toconvert/supertux/data --world world1 --histogram
+  --all-worlds
 ```
 
-Then launch Mari0 CE → mappack **supertux (local)** → levels `1-1` …
+Single world: omit `--all-worlds` and pass `--world world1`.
 
-Graphics: tiles are **nearest-neighbor 32→16** into Mari0’s 17×17 prop sheet. Geometry: **1 ST tile = 1 Mari0 tile** (object coords `/32`). Height is **not cropped** (`mapheight > 15` is fine).
+Then Mari0 CE → mappack **supertux (local)** → `1-1` (Welcome to Antarctica).
+
+### What the builder fixes
+
+- Composites **all** tilemaps (multiple solids + decorative fill)
+- **Collision from `tiles.strf` only** — decorative snow caps (7/8/9), trees, coin
+  tiles on solid layers stay non-solid (fixes sky/ground gap + walk-through trees)
+- Coin tiles → Mari0 `coin` prop; bricks via `object-data` → `breakable`
+- `weak_block` → ice brick tile (78)
+- Spawn snapped to air-above-solid; flag from sequencetrigger **X** snapped to ground (ignores y=0)
+- Markers use CE numeric ids: spawn=`8`, flag=`11`, spring=`94`, platform=`18`, manycoins=`5`
+- Bosses: `yeti`/`ghosttree` → `boomboom` (not invalid `base=bowser`)
+- Badguys map to existing CE `assets/enemies/*.json` names
+- `timelimit=400`; world order from `worldmap.stwm` when present
 
 ## Headless tests
 
 ```bash
 lua tests/supertux_format_checks.lua
-# or
-lua tests/run.lua
+python3 tests/supertux_builder_checks.py
 ```
-
-Synthetic `.stl` snippets only — CI does not need a SuperTux checkout.
-
-## Pipeline status
-
-| Phase | Status |
-|---|---|
-| F0 data path + docs | done |
-| F1 sexpr + RLE + tests | done |
-| F2 tiles.strf → props → tiles.png | done |
-| F3 `license_ok` + `AUTHORS.txt` | done (before mass convert) |
-| F4 object histogram → `ST_OBJECTS` | done (world1-backed) |
-| F5 world1 → playable IR → emit | converter ready; play locally after build |
-| F6+ other worlds / art regen | not in this pass |
-
-## Files
-
-- `scripts/mapsdk/sources/sexpr.lua` — parse / field / decode_tiles
-- `scripts/mapsdk/sources/supertux.lua` — license, strf, convert_stl, ST_OBJECTS
-- `scripts/mapsdk/build_supertux.py` — CLI + tileset writer
-- `tests/supertux_format_checks.lua`

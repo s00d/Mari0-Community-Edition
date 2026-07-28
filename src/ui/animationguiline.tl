@@ -1053,7 +1053,6 @@ function animationguiline:init(tabl: any, t2: any)
 	self.t = tabl as {any:any}
 	self.type = t2 as string
 	
-	local _ = 0
 	self.elements = {}
 	self.elements[1] = {} as animationguielement
 	local start = 1

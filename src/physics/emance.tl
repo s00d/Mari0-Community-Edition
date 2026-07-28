@@ -1,15 +1,12 @@
 -- Emancipation grill check (once per mover). Depends on aabb + emancipationgrills global.
 
-global function checkforemances(_: number, v: Body, speedx?: number, speedy?: number)
+global function checkforemances(_: number, v: Body, _speedx?: number, _speedy?: number)
 	-- Body doesn't include emancipate callbacks; they live on full Entity types.
 	local ent = v as Entity
 	if ent.emancipatecheck then
 		for h, u in pairs(emancipationgrills) do
 			local grill = u as emancipationgrill
 			if grill.active then
-				local _ = speedx or ent.speedx
-				local _ = speedy or ent.speedy
-
 				-- Honestly, why were fizzlers originally done with "inrange" instead of "aabb"?
 				if grill.dir == "hor" then
 					-- if inrange(v.x+6/16, u.startx-1, u.endx, true) and inrange(u.y-14/16, v.y, v.y+spy*dt, true) then

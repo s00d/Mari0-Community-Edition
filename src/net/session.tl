@@ -342,7 +342,7 @@ local function report_desync(frame: integer, local_h: integer, remote_h: integer
 	desync_reported_frame = frame
 	local msg = "DESYNC frame=" .. tostring(frame) .. " local=" .. tostring(local_h) .. " peer=" .. tostring(remote_h) .. " (" .. who .. ")"
 	net_log(msg)
-	notice.new("desync @" .. tostring(frame), notice.red)
+	notice.new("desync at " .. tostring(frame), notice.red)
 end
 
 local function on_remote_hash(from_id: string, msg: {string:any})
@@ -693,7 +693,7 @@ global function client_load()
 	rawset(_G, "SERVER", false)
 	rawset(_G, "chatmessages", {})
 	rawset(_G, "playerlist", {})
-	set_status("connecting…")
+	set_status("connecting...")
 	connect_t = 0
 	bind_facade()
 	encode_send({
@@ -861,7 +861,7 @@ live.update = function(dt: number)
 		end
 	end
 
-	if role == "client" and status == "connecting…" then
+	if role == "client" and status == "connecting..." then
 		connect_t = connect_t + dt
 		if connect_t > 8 then
 			notice.new("connection timed out", notice.red)

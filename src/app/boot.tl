@@ -49,6 +49,7 @@ function Boot.require_game()
 	require "world.roomcam"
 	require "world.reachability"
 	require "world.metroidsave"
+	require "world.enemymodifiers"
 	require "ui.metroidmap"
 	require "world.bounceutil"
 	require "core.listutil"
@@ -106,6 +107,10 @@ function Boot.require_game()
 	require "ui.editor_palettes"
 	require "ui.autotile"
 	require "ui.editor_undo"
+	require "ui.editor_recent"
+	require "ui.editor_clearcheck"
+	require "ui.editor_preview"
+	require "ui.editor_drag"
 	require "ui.editor"
 	require "ui.animationguiline"
 	require "physics"
@@ -130,6 +135,7 @@ function Boot.require_game()
 	require "entities.emancipationgrill"
 	require "entities.door"
 	require "entities.gatedoor"
+	require "entities.abilitypickup"
 	require "entities.button"
 	require "entities.groundlight"
 	require "entities.wallindicator"
@@ -156,6 +162,14 @@ function Boot.require_game()
 	require "entities.bowser"
 	require "entities.vine"
 	require "entities.spring"
+	require "entities.donut"
+	require "entities.powblock"
+	require "entities.flipblock"
+	require "entities.belt"
+	require "entities.longfire"
+	require "entities.smallspring"
+	require "entities.collectable"
+	require "entities.camerastop"
 	require "entities.seesaw"
 	require "entities.seesawplatform"
 	require "entities.bubble"
@@ -223,7 +237,8 @@ function Boot.load_media()
 	"button", "pushbutton", "wallindicator", "walltimer", "lightbridge", "lightbridgeglow", "lightbridgeside", "laser", "laserside", "excursionbase", "excursionfunnel", "excursionfunnel2", "excursionfunnelend", 
 	"excursionfunnelend2", "faithplateplate", "laserdetector", "gel1", "gel2", "gel3", "gel4", "gel5", "gel1ground", "gel2ground", "gel3ground", "gel4ground", "geldispenser", "cubedispenser", "panel", "pedestalbase",
 	"pedestalgun", "actionblock", "portal", "markbase", "markoverlay", "andgate", "notgate", "orgate", "squarewave", "rsflipflop", "portalglow", "fireball", "musicentity", "smbtiles", "portaltiles",
-	"animatedtiletrigger", "delayer", "title", "menuselect"}
+	"animatedtiletrigger", "delayer", "title", "menuselect",
+	"donut", "powblock", "flipblock", "belt", "longfire", "smallspring", "collectable"}
 	
 	for _, v in ipairs(imagelist) do
 		local path = "assets/graphics/DEFAULT/" .. v .. ".png"
@@ -284,8 +299,8 @@ function Boot.load_media()
 	local imgwidth, imgheight = entitiesimg:getWidth(), entitiesimg:getHeight()
 	local width = math.floor(imgwidth/17)
 	local height = math.floor(imgheight/17)
-	local _ = love.image.newImageData("assets/graphics/entities.png")
-	
+	-- Entity quads do not read pixel props (unlike tile quads); no imgdata needed.
+
 	for y = 1, height do
 		for x = 1, width do
 			table.insert(entityquads as {any}, entity:new(entitiesimg, x, y, imgwidth, imgheight) as EntityQuad)

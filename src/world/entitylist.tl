@@ -120,6 +120,15 @@ entitylist = {
 	{t=""},
 	{t="panel", category="portal elements", description="place on block - will probably be removed anyway. todo!", iconauthor=""},
 	{t="textentity", category="i/o objects", description="place anywhere - creates a text in the level, supports input", iconauthor=""},
+	-- Alesan99's Entities (mari0_ae) — CE ports
+	{t="donut", category="smb stuff", description="place on empty tile - falls after stood on (AE)", iconauthor="alesan99"},
+	{t="powblock", category="smb stuff", description="place on empty tile - POW block knocks enemies (AE)", iconauthor="alesan99"},
+	{t="flipblock", category="smb stuff", description="place on empty tile - flips when hit (AE)", iconauthor="alesan99"},
+	{t="belt", category="smb stuff", description="place on empty tile - conveyor belt (AE)", iconauthor="alesan99"},
+	{t="longfire", category="smb stuff", description="place on empty tile - long fire jet (AE)", iconauthor="alesan99"},
+	{t="smallspring", category="smb stuff", description="place on empty tile - small spring (AE)", iconauthor="alesan99"},
+	{t="collectable", category="smb stuff", description="place on empty tile - collectable gem (AE)", iconauthor="alesan99"},
+	{t="camerastop", category="level markers", description="place anywhere - camera stop region (AE)", iconauthor="alesan99"},
 }
 
 outputs = {}

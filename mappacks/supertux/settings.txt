@@ -1,0 +1,4 @@
+name=supertux (local)
+author=see AUTHORS.txt — CC-BY-SA levels from SuperTux
+description=Regenerated via mapsdk/build_supertux.py (engine GPL not included)
+lives=4

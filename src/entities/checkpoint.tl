@@ -141,5 +141,9 @@ function checkpoint:trigger(): any
 	end
 	
 	checkpointsub = mariosublevel
+	-- Metroid savepoint: persist globools + position
+	if metroidmode and metroid_autosave then
+		metroid_autosave()
+	end
 	return nil
 end

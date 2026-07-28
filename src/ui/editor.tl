@@ -3,6 +3,7 @@
 global editor_test_restore: {string:any}|nil = nil
 
 global function test_level_from_cursor()
+	if editor_clear_cheats then editor_clear_cheats() end
 	local cox, coy = getMouseTile(love.mouse.getX(), love.mouse.getY()-8*scale)
 	editor_capture_test_restore({ cursor_x = cox, cursor_y = coy })
 	savelevel()
@@ -216,7 +217,8 @@ function editor_load()
 	guielements["savebutton"] = guielement:new("button", 10, 200, "save", savelevel, 2)
 	guielements["menubutton"] = guielement:new("button", 54, 200, "return to menu", editorexit, 2)
 	guielements["testbutton"] = guielement:new("button", 204, 200, "test level", test_level, 2)
-	guielements["testcursorbutton"] = guielement:new("button", 204, 184, "test@cursor", test_level_from_cursor, 2)
+	guielements["testcursorbutton"] = guielement:new("button", 204, 184, "test cursor", test_level_from_cursor, 2)
+	guielements["clearcheckbutton"] = guielement:new("button", 10, 184, "clear check", editor_run_clearcheck_ui, 2)
 	guielements["widthbutton"] = guielement:new("button", 296, 200, "change size", openchangewidth, 2)
 	
 	guielements["savebutton"].bordercolor = {1, 0, 0}
@@ -547,7 +549,10 @@ end
 function editor_update_closed(_: number)
 	if editorstate == "lightdraw" then
 		if love.mouse.isDown(1) then
-			local _, _ = mouse.getPosition()
+			mousex, mousey = mouse.getPosition()
+			if not mousex or not mousey then
+				return
+			end
 			local currentx, currenty = getMouseTile(mousex, mousey+8*scale)
 			
 			if lightdrawX and (currentx ~= lightdrawX or currenty ~= lightdrawY) then
@@ -656,6 +661,14 @@ function editor_update_closed(_: number)
 	if rightclickactive or editorstate == "lightdraw" or editorstate == "selection" then
 		return
 	end
+
+	if love.mouse.isDown(1) and allowdrag and editor_drag_move then
+		local mx, my = mouse.getPosition()
+		if editor_drag_active and editor_drag_active() then
+			editor_drag_move(mx, my)
+			return
+		end
+	end
 	
 	if love.mouse.isDown(1) and allowdrag then
 		if not (pastingtiles or tileselection) then
@@ -747,9 +760,11 @@ function editor_update_closed(_: number)
 end
 
 function editor_update_main(dt: number)
+	-- Always refresh globals used by minimap/selection (never discard into `local _`).
+	mousex, mousey = mouse.getPosition()
 	if love.mouse.isDown(1) then
-		local _, _ = mouse.getPosition()
-		if mousey >= minimapy*scale and mousey < (minimapy+minimapheight*2+4)*scale then
+		if mousex and mousey and minimapx and minimapy and minimapheight
+			and mousey >= minimapy*scale and mousey < (minimapy+minimapheight*2+4)*scale then
 			if mousex >= minimapx*scale and mousex < (minimapx+394)*scale then
 				--HORIZONTAL
 				if mousex < (minimapx+width)*scale then
@@ -859,6 +874,7 @@ function editor_draw()
 	local emx, emy = mouse.getPosition()
 
 	if editormenuopen == false then
+		editor_draw_live_preview()
 		editor_draw_overlay(emx, emy)
 		editor_draw_linking(emx, emy)
 		editor_draw_status()
@@ -1130,10 +1146,7 @@ function editor_draw_linking(mx: number, my: number)
 		for x = math.floor(xscroll), math.floor(xscroll)+width+1 do
 			for y = math.floor(yscroll), math.floor(yscroll)+height+1 do
 				for _, v in ipairs(table1) do
-					if inmap(x, y) and #map[x][y] > 1 and map[x][y][2] == v then							
-						local _ = map[x][y]
-						local _ = false
-						
+					if inmap(x, y) and #map[x][y] > 1 and map[x][y][2] == v then
 						if cox == x and coy == y and tablecontains(outputsi, map[x][y][2]) then
 							love.graphics.setColor(1, 1, 0.6, 1)
 						elseif tablecontains(outputsi, map[x][y][2]) then
@@ -1330,6 +1343,7 @@ function editor_draw_status()
 			{"t","test level from cursor position.", 0},
 			{"alt+paint","place raw tile (skip autotile).", 0},
 			{"ctrl+c/ctrl+x/ctrl+v","copy/cut/paste region.", 0},
+			{"shift+1-5","enemy mods: wing/big/fast/ice/stack.", 0},
 			{"ctrl+a","select the entire level.", 0},--      |
 			{"middle click drag","navigates in-editor between|" ..
 								 "tiles/entities/enemies.", 1},
@@ -1381,7 +1395,17 @@ function editor_draw_menu(emx: number, emy: number)
 		end
 		if L.hint.w >= 24 then
 			ui_set_color("text_dim")
-			properprint("tab palette  p props  t test@cursor  alt raw tile", (L.hint.x+8)*scale, (L.hint.y+4)*scale)
+			properprint("tab palette  p props  t test cursor  alt raw  shift+1-5 mods", (L.hint.x+8)*scale, (L.hint.y+4)*scale)
+			-- recent tiles strip
+			if EDITOR_RECENT_TILES and #EDITOR_RECENT_TILES > 0 and not editentities then
+				love.graphics.setColor(1, 1, 1, 0.85)
+				for i = 1, math.min(6, #EDITOR_RECENT_TILES) do
+					local tid = EDITOR_RECENT_TILES[i]
+					if tilequads[tid] then
+						love.graphics.draw(tilequads[tid].image, tilequads[tid]:quad(), (L.hint.x + 8 + (i - 1) * 17) * scale, (L.hint.y - 18) * scale, 0, scale, scale)
+					end
+				end
+			end
 			love.graphics.setColor(1, 1, 1, 1)
 		end
 	else
@@ -2012,6 +2036,9 @@ function maintab()
 	guielements["testbutton"].active = true
 	if guielements["testcursorbutton"] then
 		guielements["testcursorbutton"].active = true
+	end
+	if guielements["clearcheckbutton"] then
+		guielements["clearcheckbutton"].active = true
 	end
 	guielements["widthbutton"].active = true
 	guielements["intermissioncheckbox"].active = true
@@ -2851,6 +2878,9 @@ function placetile(x: number, y: number, t: any, ent: any, preventMultiTile: any
 
 	-- Cell undo: snapshot before mutation
 	editor_undo_record(cox, coy)
+	if editor_recent_push and editentities == false and type(currenttile) == "number" then
+		editor_recent_push(currenttile as integer)
+	end
 
 	-- Autotile brush (ALT = raw tile)
 	local alt = love.keyboard.isDown("lalt") or love.keyboard.isDown("ralt")
@@ -2901,7 +2931,6 @@ function placetile(x: number, y: number, t: any, ent: any, preventMultiTile: any
 		end
 		
 	else
-		local _ = map[cox][coy]
 		if editenemies == false and entitylist[currenttile].t == "remove" then --removing tile
 			for i = 2, #map[cox][coy] do
 				map[cox][coy][i] = nil
@@ -3058,7 +3087,6 @@ function getmaps()
 			end
 			mapbuttons["text" .. worlds .. "-" .. levels .. "_" .. sublevels] = guielement:new("text", 4, yadd+26, "sub " .. sublevels, {0.5, 0.5, 0.5})
 			mapbuttons["text" .. worlds .. "-" .. levels .. "_" .. sublevels].starty = yadd+26
-			local _ = 50
 			if love.filesystem.getInfo(mappack_path(mappack) .. "/" .. worlds .. "-" .. levels .. "_" .. sublevels ..".png") then
 				mapbuttons[worlds .. "-" .. levels .. "_" .. sublevels] = guielement:new("button", 54, yadd+21, AssetStore.load_image(mappack_path(mappack) .. "/" .. level_name(worlds, levels, sublevels) .. ".png"), mapnumberclick, 0, {worlds, levels, sublevels})
 				mapbuttons[worlds .. "-" .. levels .. "_" .. sublevels].starty = yadd+21
@@ -3238,6 +3266,15 @@ function editor_mousepressed_left(x: number, y: number)
 		elseif editorstate == "selection" then
 			selectionstart()
 		else
+			-- Unified drag: move/resize/paint without mode switches
+			local palette_active = currenttile ~= nil and (editentities or (type(currenttile) == "number" and (currenttile as number) > 1))
+			if editor_drag_begin and not pastingtiles and not tileselection then
+				editor_drag_begin(x, y, palette_active == true)
+				if EDITOR_DRAG and ((EDITOR_DRAG as EditorDragState).kind == "move" or (EDITOR_DRAG as EditorDragState).kind == "resize") then
+					allowdrag = false
+					return
+				end
+			end
 			local cox, coy = getMouseTile(x, y+8*scale)
 			if inmap(cox, coy) then					
 				local lx1: number = 0
@@ -3281,16 +3318,33 @@ function editor_mousepressed_left(x: number, y: number)
 					allowdrag = false
 					
 				elseif pastingtiles then
+					editor_undo_begin()
+					local paste_x0: number|nil = nil
+					local paste_y0: number|nil = nil
+					local paste_x1: number|nil = nil
+					local paste_y1: number|nil = nil
 					for i, v in pairs(mtclipboard as {any:any}) do
 						for j, w in pairs(v as {any:any}) do
 							if w == 1 and pastemode == false then
 								-- nothing
 							else
 								currenttile = (mtclipboard[i as integer] as {any})[j as integer]
-								placetile(x+((i as number)-1 + pastecenter[1])*16*scale, y+((j as number)-1 + pastecenter[2])*16*scale)
+								local px = x+((i as number)-1 + pastecenter[1])*16*scale
+								local py = y+((j as number)-1 + pastecenter[2])*16*scale
+								local cx, cy = getMouseTile(px, py+8*scale)
+								if paste_x0 == nil then paste_x0, paste_y0, paste_x1, paste_y1 = cx, cy, cx, cy end
+								paste_x0 = math.min(paste_x0 as number, cx)
+								paste_y0 = math.min(paste_y0 as number, cy)
+								paste_x1 = math.max(paste_x1 as number, cx)
+								paste_y1 = math.max(paste_y1 as number, cy)
+								placetile(px, py)
 							end
 						end
 					end
+					if paste_x0 and autotile_region then
+						autotile_region(paste_x0 as number, paste_y0 as number, paste_x1 as number, paste_y1 as number)
+					end
+					editor_undo_commit()
 					allowdrag = false
 				elseif tileselection and pastingtiles == false then
 					local xx, yy = getMouseTile(love.mouse.getX(), love.mouse.getY()-8*scale)
@@ -3618,6 +3672,10 @@ function editor_mousereleased(x: number, y: number, button: any)
 		end
 		return
 	end
+
+	if button == "l" and editor_drag_end then
+		editor_drag_end(x, y)
+	end
 	
 	if button == "l" or button == "r" then
 		editor_undo_commit()
@@ -3684,9 +3742,7 @@ end
 function editor_keypressed(key: string)
 	if selectionwidth then
 		if key == "delete" then
-			local _, _ = round(selectionx/scale), round(selectiony/scale)
-			local _, _ = round(selectionwidth/scale), round(selectionheight/scale)
-			
+			-- selectiongettiles uses pixel coords; do not discard scaled sizes into `_`.
 			local selectionlist = selectiongettiles(selectionx, selectiony, selectionwidth, selectionheight)
 			
 			for i = 1, #selectionlist do
@@ -3852,6 +3908,33 @@ function editor_keypressed(key: string)
 	elseif key == "t" and not ctrlpressed and not editormenuopen then
 		test_level_from_cursor()
 		return
+	elseif key == "]" and editormenuopen then
+		local p = build_palettes(nil)
+		local cat = editor_cycle_palette_category(p)
+		notice.new("category: " .. tostring(cat), notice.white, 1)
+		return
+	elseif key == "[" and editormenuopen then
+		local p = build_palettes(nil)
+		local cats = palette_entity_categories(p)
+		local cur = EDITOR_PALETTE_CATEGORY
+		local idx = 1
+		for i = 1, #cats do if cats[i] == cur then idx = i; break end end
+		idx = idx - 1
+		if idx < 1 then idx = #cats end
+		EDITOR_PALETTE_CATEGORY = cats[idx]
+		notice.new("category: " .. EDITOR_PALETTE_CATEGORY, notice.white, 1)
+		return
+	elseif (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) and not editormenuopen and ENEMY_MODIFIER_ORDER then
+		for i = 1, 5 do
+			if key == tostring(i) then
+				local mod = ENEMY_MODIFIER_ORDER[i]
+				local cox, coy = getMouseTile(love.mouse.getX(), love.mouse.getY()-8*scale)
+				if enemy_drop_modifier and enemy_drop_modifier(mod, cox, coy) then
+					notice.new("mod +" .. mod, notice.white, 1)
+				end
+				return
+			end
+		end
 	end
 
 	if key == "escape" then
@@ -4162,6 +4245,7 @@ function increasetimelimit()
 end
 
 function test_level()
+	if editor_clear_cheats then editor_clear_cheats() end
 	editor_capture_test_restore(nil)
 	savelevel()
 	editorclose()
@@ -4176,6 +4260,15 @@ function test_level()
 		loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel))
 	end
 	startlevel()
+end
+
+global function editor_run_clearcheck_ui()
+	local ok, msg = editor_clear_check()
+	if ok then
+		notice.new("CLEAR CHECK OK - ready to publish", notice.white, 3)
+	else
+		notice.new(msg or "clear check failed", notice.red, 3)
+	end
 end
 
 -- Snapshot editor view so ESC can restore scroll/palette after playtest.
@@ -4810,7 +4903,10 @@ function selectionbutton()
 end
 
 function selectionstart()
-	local _, _ = mouse.getPosition()
+	mousex, mousey = mouse.getPosition()
+	if not mousex or not mousey then
+		return
+	end
 	selectionx = mousex
 	selectiony = mousey
 	
@@ -4818,7 +4914,10 @@ function selectionstart()
 end
 
 function selectionend()
-	local _, _ = mouse.getPosition()
+	mousex, mousey = mouse.getPosition()
+	if not mousex or not mousey then
+		return
+	end
 	selectionwidth = mousex - selectionx
 	selectionheight = mousey - selectiony
 	

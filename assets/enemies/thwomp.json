@@ -41,6 +41,7 @@
 	],
 	"emancipatecheck": true,
 	"autodelete": true,
+	"nospritesets": true,
 	"offsetX": 16,
 	"offsetY": 0,
 	"quadcenterX": 16,

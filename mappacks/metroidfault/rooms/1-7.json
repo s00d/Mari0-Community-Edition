@@ -1,0 +1,81 @@
+{
+  "start": "roost",
+  "level": "1-7",
+  "title": "Gorgon Nest",
+  "rooms": [
+    {
+      "id": "roost",
+      "x": 0,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|scroll_v",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "nest",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-7:roost>nest"
+        }
+      ],
+      "items": [
+        {
+          "uid": "l7_light",
+          "ability": "lightgun",
+          "dx": 6,
+          "dy": 10
+        },
+        {
+          "uid": "l7_hook",
+          "ability": "hookshot",
+          "dx": 10,
+          "dy": 11
+        }
+      ]
+    },
+    {
+      "id": "nest",
+      "x": 25,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "roost",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-7:nest>roost"
+        },
+        {
+          "kind": "open",
+          "to": "medusaboss",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-7:nest>medusaboss"
+        }
+      ],
+      "items": []
+    },
+    {
+      "id": "medusaboss",
+      "x": 50,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|boss|save",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "nest",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-7:medusaboss>nest"
+        }
+      ],
+      "items": []
+    }
+  ]
+}

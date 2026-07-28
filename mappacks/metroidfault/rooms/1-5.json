@@ -1,0 +1,81 @@
+{
+  "start": "gelworks",
+  "level": "1-5",
+  "title": "Split Works",
+  "rooms": [
+    {
+      "id": "gelworks",
+      "x": 0,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "span",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-5:gelworks>span"
+        }
+      ],
+      "items": [
+        {
+          "uid": "l5_gel",
+          "ability": "gelcannon",
+          "dx": 6,
+          "dy": 11
+        },
+        {
+          "uid": "l5_portal",
+          "ability": "portal",
+          "dx": 9,
+          "dy": 11
+        }
+      ]
+    },
+    {
+      "id": "span",
+      "x": 25,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "gelworks",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-5:span>gelworks"
+        },
+        {
+          "kind": "open",
+          "to": "splitboss",
+          "dx": 24,
+          "dy": 7,
+          "uid": "1-5:span>splitboss"
+        }
+      ],
+      "items": []
+    },
+    {
+      "id": "splitboss",
+      "x": 50,
+      "y": 0,
+      "w": 25,
+      "h": 15,
+      "flags": "scroll_h|boss|save",
+      "doors": [
+        {
+          "kind": "open",
+          "to": "span",
+          "dx": 0,
+          "dy": 7,
+          "uid": "1-5:splitboss>span"
+        }
+      ],
+      "items": []
+    }
+  ]
+}

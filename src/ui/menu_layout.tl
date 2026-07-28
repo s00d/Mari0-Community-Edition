@@ -25,8 +25,8 @@ global function menu_layout_main(screen: {string:any}): {string:any}
 	local grid = 8
 	local line = 16
 	local pad = 8
-	local panel_w = 192
-	local panel_x = math.floor((400 - panel_w) / 2) -- 104
+	local panel_w = 200
+	local panel_x = math.floor((400 - panel_w) / 2 / 8) * 8 -- 96 (snap 8)
 	local items = menu_visible_items(screen)
 	local n = #items
 	local panel_h = math.max(24, pad * 2 + n * line)
@@ -64,7 +64,7 @@ global function menu_layout_main(screen: {string:any}): {string:any}
 		panel = { x = panel_x, y = panel_y, w = panel_w, h = panel_h },
 		rects = rects,
 		spinner = spinner,
-		footer = { x = 48, y = 208, text = "_dir4_dir6 select   enter ok   esc quit" },
+		footer = { x = 56, y = 208, text = "_dir4_dir6  enter  esc" },
 		items = items,
 	}
 end
@@ -177,7 +177,7 @@ global function menu_layout_mappack(opts: {string:any}|nil): {string:any}
 		filter = filter_rect,
 		rows = rows,
 		row_h = row_h,
-		footer = { x = 16, y = 208, text = "_dir4_dir6 list  enter ok  esc back  m folder" },
+		footer = { x = 16, y = 208, text = "wheel  click  enter  esc" },
 	} as {string:any}
 end
 
@@ -185,16 +185,16 @@ end
 global function menu_layout_options_tabs(): {any}
 	return {
 		{ id = 1, label = "controls", x = 24, y = 16, w = 72, h = 16 },
-		{ id = 2, label = "skins", x = 96, y = 16, w = 48, h = 16 },
-		{ id = 3, label = "misc.", x = 144, y = 16, w = 40, h = 16 },
-		{ id = 4, label = "cheat", x = 184, y = 16, w = 48, h = 16 },
+		{ id = 2, label = "skins", x = 104, y = 16, w = 48, h = 16 },
+		{ id = 3, label = "misc", x = 160, y = 16, w = 40, h = 16 },
+		{ id = 4, label = "cheat", x = 208, y = 16, w = 48, h = 16 },
 	} as {any}
 end
 
 -- Options body rows: selection index 1 is tabs; body starts at selection 2.
 global function menu_layout_options_rows(count: number): {string:any}
 	local rects: {any} = {}
-	local panel = { x = 16, y = 16, w = 224, h = 192 }
+	local panel = { x = 16, y = 16, w = 240, h = 192 }
 	local oy = 40
 	local line = 16
 	-- selection 1 = tabs (no body row)
@@ -207,21 +207,26 @@ global function menu_layout_options_rows(count: number): {string:any}
 			selection = i,
 		})
 	end
-	return { panel = panel, rows = rects } as {string:any}
+	return {
+		panel = panel,
+		rows = rects,
+		-- dirs: 3=left 5=right 4=up 6=down (sprite has only 1..6; no numpad 8/2)
+		footer = { x = 16, y = 208, text = "_dir3_dir5 tabs  _dir4_dir6  enter  esc" },
+	} as {string:any}
 end
 
 -- Pause menu centered on game width (in unscaled UI units relative to width*16).
 global function menu_layout_pause(screen_w: number): {string:any}
-	local menuwidth = 120
-	local menuheight = 168 -- snap 8
+	local menuwidth = 136
+	local menuheight = 184 -- snap 8: title + 6×24 rows
 	local px = math.floor((screen_w - menuwidth) / 16) * 8 -- center on 8px grid
-	local py = 24
+	local py = 16
 	local line = 24
 	local rects: {any} = {}
 	for i = 1, 6 do
 		table.insert(rects, {
 			x = px,
-			y = py + 16 + (i - 1) * line,
+			y = py + 24 + (i - 1) * line, -- 40,64,... on 8px grid
 			w = menuwidth,
 			h = line,
 			index = i,
@@ -230,19 +235,29 @@ global function menu_layout_pause(screen_w: number): {string:any}
 	return {
 		panel = { x = px, y = py, w = menuwidth, h = menuheight },
 		rects = rects,
+		title = { x = px + 8, y = py + 8, text = "paused" },
 	} as {string:any}
 end
 
 -- Levelscreen info panel (centered).
 global function menu_layout_levelscreen(screen_w: number): {string:any}
-	local pw, ph = 192, 80
+	local pw, ph = 200, 88
+	local px = math.floor((screen_w - pw) / 2 / 8) * 8
 	return {
 		panel = {
-			x = math.floor((screen_w - pw) / 2),
-			y = 64,
+			x = px,
+			y = 56,
 			w = pw,
 			h = ph,
 		},
+	} as {string:any}
+end
+
+-- Select-world overlay (main menu).
+global function menu_layout_selectworld(): {string:any}
+	return {
+		panel = { x = 88, y = 88, w = 224, h = 72 },
+		title = { x = 136, y = 100, text = "select world" },
 	} as {string:any}
 end
 
@@ -259,4 +274,5 @@ return {
 	menu_layout_options_rows = menu_layout_options_rows,
 	menu_layout_pause = menu_layout_pause,
 	menu_layout_levelscreen = menu_layout_levelscreen,
+	menu_layout_selectworld = menu_layout_selectworld,
 }

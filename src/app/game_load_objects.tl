@@ -474,10 +474,12 @@ global function reachedx(currentx: any)
 end
 
 global function properprint2(s: any, x: number, y: number, _: any)
-	
+	-- Small score font: only numberglyphs ("012458"). Never draw a nil Quad.
 	for i = 1, string.len(tostring(s)) do
-		if fontquads[string.sub(s as string, i, i)] then
-			love.graphics.draw(fontimage2, font2quads[string.sub(s as string, i, i)], (x as number)+((i-1)*4)*scale, y as number, 0, scale, scale)
+		local char = string.sub(s as string, i, i)
+		local q = font2quads[char]
+		if q then
+			love.graphics.draw(fontimage2, q, (x as number)+((i-1)*4)*scale, y as number, 0, scale, scale)
 		end
 	end
 end

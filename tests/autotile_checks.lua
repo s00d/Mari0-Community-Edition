@@ -57,6 +57,18 @@ check("mask N+E", mask == 3, tostring(mask))
 local pick = autotile_pick(AUTOTILE_GROUPS.ground, mask)
 check("pick index", pick == AUTOTILE_GROUPS.ground.tiles[4], tostring(pick)) -- mask 3 → index 4
 
+-- mode 8 blob: N+E with diagonal NE → bits 1+4+2=7 when NE present
+map[4][2][1] = 30 -- NE of 3,3 for brick group
+map[3][3][1] = 30
+map[3][2][1] = 30
+map[4][3][1] = 30
+local m8 = autotile_mask(3, 3, AUTOTILE_GROUPS.brick)
+check("mode8 has N+E", (m8 % 2 == 1) and (math.floor(m8/4)%2 == 1), tostring(m8))
+check("mode8 NE culled ok", math.floor(m8/2)%2 == 1, tostring(m8)) -- both edges → NE kept
+map[4][2][1] = 1 -- remove NE tile; diagonal should cull
+local m8b = autotile_mask(3, 3, AUTOTILE_GROUPS.brick)
+check("mode8 NE culled when empty", math.floor(m8b/2)%2 == 0, tostring(m8b))
+
 editor_undo_clear()
 editor_undo_begin()
 local ok = autotile_paint(2, 2, 10, false)
@@ -65,6 +77,10 @@ check("painted in group", AUTOTILE_BY_TILE[map[2][2][1]] == "ground")
 autotile_paint(2, 3, 10, false)
 autotile_around(2, 2)
 check("around refreshed", AUTOTILE_BY_TILE[map[2][2][1]] == "ground")
+if autotile_region then
+	autotile_region(2, 2, 3, 3)
+	check("region ok", true)
+end
 
 -- ALT/raw skip
 check("raw skip", autotile_paint(1, 1, 10, true) == false)

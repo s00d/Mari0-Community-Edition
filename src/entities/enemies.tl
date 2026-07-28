@@ -116,9 +116,15 @@ global function loadenemy(filename: string)
 		
 		apply_enemy_defaults(enemiesdata[s], defaultvalues)
 		
-		--Load graphics if it exists
+		--Load graphics if it exists (mappack folder first; else keep base copy from usebase)
 		if love.filesystem.getInfo(folder .. s .. ".png") then
 			enemiesdata[s].graphic = AssetStore.load_image(folder .. s .. ".png")
+		elseif not enemiesdata[s].graphic then
+			-- Base-only mappack enemies (json overlay, no png): try assets/enemies/<name>.png
+			local assetpng = "assets/enemies/" .. s .. ".png"
+			if love.filesystem.getInfo(assetpng) then
+				enemiesdata[s].graphic = AssetStore.load_image(assetpng)
+			end
 		end
 		
 		--Set up quads if given

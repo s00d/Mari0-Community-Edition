@@ -32,7 +32,11 @@
 /mappacks/cavestory/
 /toconvert/cavestory/
 
-# SuperTux raw clone + converted pack (CC-BY-SA data; regenerate via mapsdk)
-# Engine GPL-3 must never land in src/ — converter only commits scripts/tests/docs.
-/mappacks/supertux/
-/toconvert/supertux/
+# Open Syobon Action / Cat Mario (unclear asset license — local rebuild only)
+# NOT Cave Story — keep separate from mappacks/cavestory/
+/mappacks/opensyobon/
+/toconvert/opensyobon/
+/toconvert/syobon/
+
+__pycache__/
+**/__pycache__/

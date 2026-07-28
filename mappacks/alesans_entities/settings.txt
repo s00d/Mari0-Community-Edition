@@ -1,0 +1,3 @@
+name=alesan's entities
+author=alesan99 (port)
+description=CE port of Mari0 AE custom enemies/entities. Place AE enemies from the editor enemy list.

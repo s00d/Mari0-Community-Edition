@@ -1,0 +1,7 @@
+base=splitter
+{
+	"boss": true,
+	"persistkill": true,
+	"health": 5,
+	"splitlevel": 3
+}

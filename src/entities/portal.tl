@@ -187,7 +187,6 @@ function portal:draw()
 				offsetx, offsety = 5, -8
 			end
 			
-			local _ = 100
 			if self.x2 and self.x1 then
 				--portal glow
 				love.graphics.setColor(1, 1, 1, (80 - math.abs(self.portalframe-3)*10)/255)

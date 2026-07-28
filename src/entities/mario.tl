@@ -2746,8 +2746,10 @@ function mario:ceilcollide(a: any, b: Entity, c: any, d: any): boolean
 		end
 	elseif a == "tile" then
 		local x, y = b.cox, b.coy
-		local _ = map[x][y]
-		
+		if not (map[x] and map[x][y]) then
+			return false
+		end
+
 		--check if it's an invisible block
 		if tilequads[map[x][y][1]]:getproperty("invisible", x, y) then
 			if self.y-self.speedy <= y-1 then
@@ -3381,9 +3383,15 @@ function mario:die(how: any)
 		self.speedy = 0
 		return
 	end
-	
-	
-	if how ~= "pit" and how ~= "time" then
+
+	-- Metroid HP model (compat: maxhp==0 keeps classic size-based damage)
+	if how ~= "pit" and how ~= "time" and how ~= "hp" and metroid_use_hp and metroid_use_hp() and metroid_hurt then
+		metroid_hurt(self, 1)
+		if ((self.hp as number) or 0) > 0 then
+			return
+		end
+		-- hp depleted → fall through to real death (skip shrink)
+	elseif how ~= "pit" and how ~= "time" then
 		if self.size > 1 then
 			self:shrink()
 			return

@@ -1,4 +1,4 @@
-# Cave Story → Mari0 CE (Level-1)
+# Cave Story → Mari0 CE (mapsdk)
 
 Converter only. **Pixel assets are never committed.**
 
@@ -9,40 +9,44 @@ Converter only. **Pixel assets are never committed.**
 - Cave Story maps/sprites/music stay on your machine under gitignored paths:
   - `/mappacks/cavestory/`
   - `/toconvert/cavestory/`
+- This pack is **Cave Story (doukutsu)**, not Syobon / Cat Mario. Syobon lives in `mappacks/opensyobon/` (separate).
 
-## F0 findings
+## What was wrong (fixed)
 
-| Check | Result |
-|---|---|
-| Quote character | `assets/characters/quote/` — physics fields in `config.txt` (÷0x2000 / tick convert from doukutsu-rs). `mario.tl` reads optional per-char speeds/gravity/jump when set. |
-| `mapheight > 15` | Supported. Level files start with height (`levelio.tl`). Endless stitch builds arenas taller than 15 (room grid × 15). **Do not crop** CS maps. First Cave is 60×45. |
-| License file | `licenses/doukutsu-rs.MIT` |
+| Issue | Cause | Fix |
+|---|---|---|
+| Almost no levels | Default build only wrote First Cave as `1-1` | `--all` converts every resolvable `Stage/*.pxm` → `1-N.txt` |
+| Spawn inside stone | Heuristic put spawn in a 1-tile pocket next to a solid wall; air tile 0 was opaque black | Collision-aware spawn + headroom/side clearance; force tile 0 transparent |
+| Multi-stage tiles | Each stage overwrote `tiles.png` | Unified sheet packs every used `Prt*` tileset |
 
-## Build a pack from a local install
+## Build
 
 Point `--data` at a folder that contains `Stage/*.pxm` (freeware data, CSE2 `game_english/data`, or doukutsu-rs data root):
 
 ```bash
+# First Cave only
 python3 scripts/mapsdk/build_cavestory.py \
   --data /path/to/CaveStory/data \
   --out mappacks/cavestory \
   --stage Cave
 
-# Optional: PXE type histogram
-python3 scripts/mapsdk/build_cavestory.py --data /path/to/data --histogram
+# Full pack (all resolvable stages)
+python3 scripts/mapsdk/build_cavestory.py \
+  --data /path/to/CaveStory/data \
+  --out mappacks/cavestory \
+  --all
 
-# Optional: all maps (still gitignored)
-python3 scripts/mapsdk/build_cavestory.py --data /path/to/data --out mappacks/cavestory --all
+python3 scripts/gen_mappack_icons.py   # icon if missing
 ```
 
-Then launch Mari0 CE, select the **cave story (local)** mappack, play **1-1** (First Cave). Choose character **quote** for CS-tuned physics.
+Then launch Mari0 CE → **cave story (local)** → start at **1-1** (First Cave). Prefer character **quote** for CS-tuned physics.
+
+`STAGES.txt` in the pack lists `1-N` ↔ original map names.
 
 ## Headless tests
 
 ```bash
 lua tests/cavestory_format_checks.lua
-# or full suite
-lua tests/run.lua
 ```
 
 ## What’s playable (Level-1)

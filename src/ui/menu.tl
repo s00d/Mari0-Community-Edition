@@ -2,12 +2,16 @@
 
 require "assets.spritebatch_util"
 
--- Optional polish (max 3 anims): cursor Y lerp 60ms, hover fade 40ms
+-- Cursor bar slides; labels stay fixed (no sliding text).
 local menu_cursor_y: number = 0
 local menu_cursor_ready: boolean = false
 local menu_hover_a: number = 0
 local menu_hover_i: integer|nil = nil
 global mappack_skipped_count: number = 0
+
+local function scroll_ease(cur: number, target: number, dt: number): number
+	return menu_ease(cur, target, dt, 0.12)
+end
 
 local function main_layout(): {string:any}
 	if not MENU_SCREENS.main then
@@ -59,21 +63,9 @@ local function spin_call(which: string)
 	end
 end
 
-local function draw_menu_item(r: {string:any}, state: string, hover_a: number)
+-- Labels stay at fixed row Y. Selection bar / cursor are drawn separately (lerped).
+local function draw_menu_item(r: {string:any}, state: string)
 	local s = scale
-	if state == "hover" or (state == "selected" and hover_a > 0 and menu_hover_i == (r.index as integer)) then
-		local ha = (state == "hover") and math.max(hover_a, 0.5) or hover_a
-		local c = UI.COL.hover
-		love.graphics.setColor(c[1], c[2], c[3], (c[4] or 0.1) * ha)
-		love.graphics.rectangle("fill", (r.x as number) * s, (r.y as number) * s, (r.w as number) * s, (r.h as number) * s)
-	end
-	if state == "selected" then
-		local c = UI.COL.sel
-		love.graphics.setColor(c[1], c[2], c[3], c[4] or 0.18)
-		love.graphics.rectangle("fill", (r.x as number) * s, (r.y as number) * s, (r.w as number) * s, (r.h as number) * s)
-		ui_set_color("text_accent")
-		properprint("_dir5", ((r.x as number) + 2) * s, ((r.y as number) + 4) * s)
-	end
 	if state == "selected" then
 		ui_set_color("text_accent")
 	elseif r.disabled then
@@ -212,16 +204,15 @@ global function menu_update(dt: number)
 			menu_cursor_y = target_y
 			menu_cursor_ready = true
 		else
-			local k = math.min(1, dt / 0.06)
-			menu_cursor_y = menu_cursor_y + (target_y - menu_cursor_y) * k
+			-- Smooth cursor bar only (~90ms); labels never slide.
+			menu_cursor_y = menu_ease(menu_cursor_y, target_y, dt, 0.09)
 		end
 		local want_hover = (ui_input_mode == "mouse") and menu_hover_i ~= nil
 		local hover_target = want_hover and 1 or 0
-		local hk = math.min(1, dt / 0.04)
-		menu_hover_a = menu_hover_a + (hover_target - menu_hover_a) * hk
+		menu_hover_a = menu_ease(menu_hover_a, hover_target, dt, 0.05)
 	end
 
-		--coinanimation
+	--coinanimation
 	coinanimation = coinanimation + dt*6.75
 	while coinanimation >= 6 do
 		coinanimation = coinanimation - 5
@@ -234,62 +225,19 @@ global function menu_update(dt: number)
 	end
 	
 	if mappackscroll then
-		--smooth the scroll
-		if mappackscrollsmooth > mappackscroll then
-			mappackscrollsmooth = mappackscrollsmooth - (mappackscrollsmooth-mappackscroll)*dt*5-0.1*dt
-			if mappackscrollsmooth < mappackscroll then
-				mappackscrollsmooth = mappackscroll
-			end
-		elseif mappackscrollsmooth < mappackscroll then
-			mappackscrollsmooth = mappackscrollsmooth - (mappackscrollsmooth-mappackscroll)*dt*5+0.1*dt
-			if mappackscrollsmooth > mappackscroll then
-				mappackscrollsmooth = mappackscroll
-			end
-		end
+		mappackscrollsmooth = scroll_ease(mappackscrollsmooth, mappackscroll, dt)
 	end
 	
 	if onlinemappackscroll then
-		--smooth the scroll
-		if onlinemappackscrollsmooth > onlinemappackscroll then
-			onlinemappackscrollsmooth = onlinemappackscrollsmooth - (onlinemappackscrollsmooth-onlinemappackscroll)*dt*5-0.1*dt
-			if onlinemappackscrollsmooth < onlinemappackscroll then
-				onlinemappackscrollsmooth = onlinemappackscroll
-			end
-		elseif onlinemappackscrollsmooth < onlinemappackscroll then
-			onlinemappackscrollsmooth = onlinemappackscrollsmooth - (onlinemappackscrollsmooth-onlinemappackscroll)*dt*5+0.1*dt
-			if onlinemappackscrollsmooth > onlinemappackscroll then
-				onlinemappackscrollsmooth = onlinemappackscroll
-			end
-		end
+		onlinemappackscrollsmooth = scroll_ease(onlinemappackscrollsmooth, onlinemappackscroll, dt)
 	end
 	
 	if toconvertmappackscroll then
-		--smooth the scroll
-		if toconvertmappackscrollsmooth > toconvertmappackscroll then
-			toconvertmappackscrollsmooth = toconvertmappackscrollsmooth - (toconvertmappackscrollsmooth-toconvertmappackscroll)*dt*5-0.1*dt
-			if toconvertmappackscrollsmooth < toconvertmappackscroll then
-				toconvertmappackscrollsmooth = toconvertmappackscroll
-			end
-		elseif toconvertmappackscrollsmooth < toconvertmappackscroll then
-			toconvertmappackscrollsmooth = toconvertmappackscrollsmooth - (toconvertmappackscrollsmooth-toconvertmappackscroll)*dt*5+0.1*dt
-			if toconvertmappackscrollsmooth > toconvertmappackscroll then
-				toconvertmappackscrollsmooth = toconvertmappackscroll
-			end
-		end
+		toconvertmappackscrollsmooth = scroll_ease(toconvertmappackscrollsmooth, toconvertmappackscroll, dt)
 	end
 	
-	if mappackhorscroll then
-		if mappackhorscrollsmooth > mappackhorscroll then
-			mappackhorscrollsmooth = mappackhorscrollsmooth - (mappackhorscrollsmooth-mappackhorscroll)*dt*5-0.03*dt
-			if mappackhorscrollsmooth < mappackhorscroll then
-				mappackhorscrollsmooth = mappackhorscroll
-			end
-		elseif mappackhorscrollsmooth < mappackhorscroll then
-			mappackhorscrollsmooth = mappackhorscrollsmooth - (mappackhorscrollsmooth-mappackhorscroll)*dt*5+0.03*dt
-			if mappackhorscrollsmooth > mappackhorscroll then
-				mappackhorscrollsmooth = mappackhorscroll
-			end
-		end
+	if mappackhorscroll ~= nil then
+		mappackhorscrollsmooth = scroll_ease(mappackhorscrollsmooth or 0, mappackhorscroll, dt)
 	end
 	
 	if gamestate == "options" and optionstab == 2 then
@@ -425,53 +373,56 @@ global function menu_draw_title()
 	draw_panel(panel.x as number, panel.y as number, panel.w as number, panel.h as number)
 
 	local rects = lay.rects as {any}
+	local sel = selection as integer
+
+	-- Floating selection bar (lerped Y). Labels stay put.
+	if menu_cursor_ready and #rects > 0 then
+		local r0 = rects[1] as {string:any}
+		menu_draw_row_bg(r0.x as number, menu_cursor_y, r0.w as number, r0.h as number, "sel", 1)
+		menu_draw_cursor((r0.x as number) + 2, menu_cursor_y + 4)
+	end
+
 	for i = 1, #rects do
 		local r = rects[i] as {string:any}
 		local state = "normal"
-		if i == (selection as integer) then
+		if i == sel then
 			state = "selected"
 		elseif ui_input_mode == "mouse" and menu_hover_i == i and menu_hover_a > 0.05 then
 			state = "hover"
+			menu_draw_row_bg(r.x as number, r.y as number, r.w as number, r.h as number, "hover", menu_hover_a)
 		end
-		-- use lerped cursor Y only for selected marker fill alignment
-		if state == "selected" and menu_cursor_ready then
-			local rr = {
-				x = r.x, y = menu_cursor_y, w = r.w, h = r.h,
-				item = r.item, label = r.label, id = r.id, index = r.index, disabled = r.disabled,
-			}
-			draw_menu_item(rr, state, menu_hover_a)
-		else
-			draw_menu_item(r, state, menu_hover_a)
-		end
+		draw_menu_item(r, state)
 	end
 
 	local footer = lay.footer as {string:any}
-	ui_set_color("text_dim")
-	properprint(footer.text as string, (footer.x as number) * scale, (footer.y as number) * scale)
-	love.graphics.setColor(1, 1, 1, 1)
+	menu_draw_footer(footer.x as number, footer.y as number, footer.text as string)
 	
 	if selectworldopen then
-		love.graphics.setColor(0, 0, 0)
-		love.graphics.rectangle("fill", 30*scale, 92*scale, 200*scale, 60*scale)
-		love.graphics.setColor(1, 1, 1)
-		drawrectangle(31, 93, 198, 58)
-		properprint("select world", 83*scale, 105*scale)
+		local sw = menu_layout_selectworld()
+		local sp = sw.panel as {string:any}
+		love.graphics.setColor(0, 0, 0, 0.4)
+		love.graphics.rectangle("fill", 0, 0, 400 * scale, 224 * scale)
+		draw_panel(sp.x as number, sp.y as number, sp.w as number, sp.h as number)
+		local st = sw.title as {string:any}
+		ui_set_color("text")
+		properprint(st.text as string, (st.x as number) * scale, (st.y as number) * scale)
 		for i = 1, 8 do
+			local wx = (sp.x as number) + 16 + (i - 1) * 24
+			local wy = (sp.y as number) + 40
 			if selectworldcursor == i then
-				love.graphics.setColor(1, 1, 1)
+				menu_draw_row_bg(wx - 4, wy - 4, 20, 24, "sel", 1)
+				ui_set_color("text_accent")
+				properprint("v", wx * scale, (wy - 12) * scale)
 			elseif reachedworlds[mappack][i] then
-				love.graphics.setColor(0.8, 0.8, 0.8)
+				ui_set_color("text")
 			elseif selectworldexists[i] then
-				love.graphics.setColor(0.2, 0.2, 0.2)
+				ui_set_color("text_dim")
 			else
-				love.graphics.setColor(0, 0, 0)
+				love.graphics.setColor(0.15, 0.15, 0.18, 1)
 			end
-			
-			properprint(i, (55+(i-1)*20)*scale, 130*scale)
-			if i == selectworldcursor then
-				properprint("v", (55+(i-1)*20)*scale, 120*scale)
-			end
+			properprint(i, wx * scale, wy * scale)
 		end
+		love.graphics.setColor(1, 1, 1, 1)
 	end
 	
 end
@@ -487,44 +438,21 @@ global function menu_draw_options()
 
 	-- tab strip
 	local tabs = menu_layout_options_tabs()
-	for i = 1, #tabs do
-		local t = tabs[i] as {string:any}
-		local on = (t.id as integer) == optionstab
-		if on then
-			ui_set_color("sel")
-			love.graphics.rectangle("fill", (t.x as number) * scale, (t.y as number) * scale, (t.w as number) * scale, (t.h as number) * scale)
-			ui_set_color("text_accent")
-		elseif optionsselection == 1 and on then
-			ui_set_color("text_accent")
-		else
-			ui_set_color(optionsselection == 1 and (optionstab == (t.id as integer)) and "text_accent" or "text_dim")
-			if optionsselection == 1 and optionstab == (t.id as integer) then
-				ui_set_color("text_accent")
-			elseif optionstab == (t.id as integer) then
-				ui_set_color("text")
-			else
-				ui_set_color("text_dim")
-			end
-		end
-		properprint(t.label as string, ((t.x as number) + 4) * scale, ((t.y as number) + 4) * scale)
+	menu_draw_tabs(tabs, optionstab, optionsselection == 1)
+	menu_draw_rule((panel.x as number) + 8, 34, (panel.w as number) - 16)
+
+	local foot_raw = body.footer
+	if foot_raw then
+		local foot = foot_raw as {string:any}
+		menu_draw_footer(foot.x as number, foot.y as number, foot.text as string)
 	end
-	love.graphics.setColor(1, 1, 1, 1)
 
 	if optionstab == 1 then
 		--CONTROLS
-		if optionsselection == 2 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
-		
+		menu_opt_color(optionsselection == 2)
 		properprint("edit player:" .. skinningplayer, 74*scale, 40*scale)
 		
-		if optionsselection == 3 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 3)
 		
 		if mouseowner == skinningplayer then
 			properprint("uses the mouse: yes", 46*scale, 52*scale)
@@ -534,11 +462,7 @@ global function menu_draw_options()
 		
 		for i = 1, #controlstable do
 			if mouseowner ~= skinningplayer or i <= 8 then		
-				if optionsselection == 3+i then
-					love.graphics.setColor(1, 1, 1, 1)
-				else
-					love.graphics.setColor(0.4, 0.4, 0.4, 1)
-				end
+				menu_opt_color(optionsselection == 3+i)
 				
 				properprint(controlstable[i], 30*scale, (70+(i-1)*12)*scale)
 				
@@ -557,36 +481,32 @@ global function menu_draw_options()
 		end
 			
 		if keyprompt then
-			love.graphics.setColor(0, 0, 0, 1)
-			love.graphics.rectangle("fill", 30*scale, 100*scale, 200*scale, 60*scale)
+			love.graphics.setColor(0, 0, 0, 0.45)
+			love.graphics.rectangle("fill", 0, 0, 400*scale, 224*scale)
+			draw_panel(88, 88, 224, 72)
 			love.graphics.setColor(1, 1, 1, 1)
-			drawrectangle(30, 100, 200, 60)
 			if controlstable[optionsselection-3] == "aimx" then
-				properprint("move stick right", 40*scale, 110*scale)
+				properprint("move stick right", 104*scale, 104*scale)
 			elseif controlstable[optionsselection-3] == "aimy" then
-				properprint("move stick down", 40*scale, 110*scale)
+				properprint("move stick down", 104*scale, 104*scale)
 			else
-				properprint("press key for \"" .. controlstable[optionsselection-3] .. "\"", 40*scale, 110*scale)
+				properprint("press key for \"" .. controlstable[optionsselection-3] .. "\"", 104*scale, 104*scale)
 			end
-			properprint("press \"esc\" to cancel", 40*scale, 140*scale)
+			properprint("press \"esc\" to cancel", 104*scale, 136*scale)
 			
 			if buttonerror then
 				love.graphics.setColor(0.8, 0, 0)
-				properprint("you can only set", 40*scale, 120*scale)
-				properprint("buttons for this", 40*scale, 130*scale)
+				properprint("you can only set", 104*scale, 116*scale)
+				properprint("buttons for this", 104*scale, 126*scale)
 			elseif axiserror then
 				love.graphics.setColor(0.8, 0, 0)
-				properprint("you can only set", 40*scale, 120*scale)
-				properprint("axes for this", 40*scale, 130*scale)
+				properprint("you can only set", 104*scale, 116*scale)
+				properprint("axes for this", 104*scale, 126*scale)
 			end
 		end
 	elseif optionstab == 2 then
 		--SKINS
-		if optionsselection == 2 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 2)
 		
 		properprint("edit player:" .. skinningplayer, 74*scale, 32*scale)
 		
@@ -626,11 +546,7 @@ global function menu_draw_options()
 		love.graphics.setScissor()
 		
 		--Character change
-		if optionsselection == 3 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 3)
 		
 		properprint("{", 65*scale, 54*scale)
 		properprint("}", 110*scale, 54*scale)
@@ -638,22 +554,14 @@ global function menu_draw_options()
 		
 		if v.colorables then
 			--HAT
-			if optionsselection == 4 then
-				love.graphics.setColor(1, 1, 1, 1)
-			else
-				love.graphics.setColor(0.4, 0.4, 0.4, 1)
-			end
+			menu_opt_color(optionsselection == 4)
 			if (mariohats[skinningplayer] as {any})[1] == 0 then
 				properprint("hat: none", (83)*scale, 90*scale)
 			else
 				properprint("hat: " .. tostring((mariohats[skinningplayer] as {any})[1]), (99-string.len(tostring((mariohats[skinningplayer] as {any})[1]))*4)*scale, 90*scale)
 			end
 
-			if optionsselection == 5 then
-				love.graphics.setColor(1, 1, 1, 1)
-			else
-				love.graphics.setColor(0.4, 0.4, 0.4, 1)
-			end
+			menu_opt_color(optionsselection == 5)
 			
 			--NEW SKIN CUSTOMIZATION
 			local v = characters[mariocharacter[skinningplayer]]
@@ -756,11 +664,7 @@ global function menu_draw_options()
 		love.graphics.setColor(alpha, alpha, alpha)
 		love.graphics.draw(huebarmarkerimg, math.floor(28 + (portalhues[skinningplayer][2])*178)*scale, 190*scale, 0, scale, scale)
 	elseif optionstab == 3 then
-		if optionsselection == 2 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 2)
 		properprint("size:", 30*scale, 40*scale)
 		if fullscreen then
 			if fullscreenmode == "touchfrominside" then
@@ -773,11 +677,7 @@ global function menu_draw_options()
 		end
 		
 		
-		if optionsselection == 3 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 3)
 		
 		properprint("shader1:", 30*scale, 55*scale)
 		if shaderssupported == false then
@@ -786,11 +686,7 @@ global function menu_draw_options()
 			properprint(string.lower(shaderlist[currentshaderi1 as integer]), (180-string.len(shaderlist[currentshaderi1 as integer])*8)*scale, 55*scale)
 		end
 		
-		if optionsselection == 4 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 4)
 		properprint("shader2:", 30*scale, 65*scale)
 		if shaderssupported == false then
 			properprint("unsupported", (180-string.len("unsupported")*8)*scale, 65*scale)
@@ -798,53 +694,33 @@ global function menu_draw_options()
 			properprint(string.lower(shaderlist[currentshaderi2 as integer]), (180-string.len(shaderlist[currentshaderi2 as integer])*8)*scale, 65*scale)
 		end
 		
-		love.graphics.setColor(0.4, 0.4, 0.4, 1)
+		ui_set_color("text_dim")
 		properprint("shaders will really", 30*scale, 80*scale)
 		properprint("reduce performance!", 30*scale, 90*scale)
 		
-		if optionsselection == 5 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 5)
 		properprint("game volume:", 30*scale, 105*scale)
 		drawrectangle(138, 108, 90, 1)
 		drawrectangle(138, 105, 1, 7)
 		drawrectangle(227, 105, 1, 7)
 		love.graphics.draw(volumesliderimg, math.floor((137+89*volumesfx)*scale), 105*scale, 0, scale, scale)
 		
-		if optionsselection == 6 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 6)
 		properprint("music volume:", 30*scale, 120*scale)
 		drawrectangle(138, 123, 90, 1)
 		drawrectangle(138, 120, 1, 7)
 		drawrectangle(227, 120, 1, 7)
 		love.graphics.draw(volumesliderimg, math.floor((137+89*volumemusic)*scale), 120*scale, 0, scale, scale)
 		
-		if optionsselection == 7 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 7)
 		
 		properprint("reset game mappacks", 30*scale, 135*scale)
 		
-		if optionsselection == 8 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 8)
 		
 		properprint("reset all settings", 30*scale, 150*scale)
 		
-		if optionsselection == 9 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 9)
 		
 		properprint("vsync:", 30*scale, 165*scale)
 		if vsync then
@@ -853,13 +729,13 @@ global function menu_draw_options()
 			properprint("off", (180-24)*scale, 165*scale)
 		end
 		
-		love.graphics.setColor(0.4, 0.4, 0.4, 1)
+		ui_set_color("text_dim")
 		properprint("you can lock the|mouse with f12", 30*scale, 180*scale)
 		
-		love.graphics.setColor(1, 1, 1, 1)
+		ui_set_color("text")
 		properprint(versionstring, 134*scale, 207*scale)
 	elseif optionstab == 4 then
-		love.graphics.setColor(1, 1, 1, 1)
+		ui_set_color("text")
 		if not gamefinished then
 			properprint("unlock this by completing", 30*scale, 40*scale)
 			properprint("the original levels pack!", 30*scale, 50*scale)
@@ -867,20 +743,12 @@ global function menu_draw_options()
 			properprint("have fun with these!", 30*scale, 45*scale)
 		end
 		
-		if optionsselection == 2 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 2)
 		
 		properprint("mode:", 30*scale, 65*scale)
 		properprint("{" .. playertype .. "}", (180-(string.len(playertype)+2)*8)*scale, 65*scale)
 		
-		if optionsselection == 3 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 3)
 		
 		properprint("knockback:", 30*scale, 80*scale)
 		if portalknockback then
@@ -889,11 +757,7 @@ global function menu_draw_options()
 			properprint("off", (180-24)*scale, 80*scale)
 		end
 		
-		if optionsselection == 4 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 4)
 		
 		properprint("bullettime:", 30*scale, 95*scale)
 		properprint("use mousewheel", 30*scale, 105*scale)
@@ -903,11 +767,7 @@ global function menu_draw_options()
 			properprint("off", (180-24)*scale, 95*scale)
 		end
 		
-		if optionsselection == 5 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 5)
 		
 		properprint("huge mario:", 30*scale, 120*scale)
 		if bigmario then
@@ -916,11 +776,7 @@ global function menu_draw_options()
 			properprint("off", (180-24)*scale, 120*scale)
 		end
 		
-		if optionsselection == 6 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 6)
 		
 		properprint("goomba attack:", 30*scale, 135*scale)
 		if goombaattack then
@@ -929,11 +785,7 @@ global function menu_draw_options()
 			properprint("off", (180-24)*scale, 135*scale)
 		end
 		
-		if optionsselection == 7 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 7)
 		
 		properprint("sonic rainboom:", 30*scale, 150*scale)
 		if sonicrainboom then
@@ -942,11 +794,7 @@ global function menu_draw_options()
 			properprint("off", (180-24)*scale, 150*scale)
 		end
 		
-		if optionsselection == 8 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 8)
 		
 		properprint("playercollision:", 30*scale, 165*scale)
 		if playercollisions then
@@ -955,11 +803,7 @@ global function menu_draw_options()
 			properprint("off", (180-24)*scale, 165*scale)
 		end
 		
-		if optionsselection == 9 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 9)
 		
 		properprint("infinite time:", 30*scale, 180*scale)
 		if infinitetime then
@@ -968,11 +812,7 @@ global function menu_draw_options()
 			properprint("off", (180-24)*scale, 180*scale)
 		end
 		
-		if optionsselection == 10 then
-			love.graphics.setColor(1, 1, 1, 1)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4, 1)
-		end
+		menu_opt_color(optionsselection == 10)
 		
 		properprint("infinite lives:", 30*scale, 195*scale)
 		if infinitelives then
@@ -1078,44 +918,20 @@ global function loadbackground(backgroundlevel: any): any
 end
 
 global function updatescroll()
-	local vis = 6
-	if inrange(mappackselection, 1 + mappackscroll, vis + mappackscroll, true) == false then
-		if mappackselection < 1 + mappackscroll then
-			mappackscroll = mappackselection - 1
-		else
-			mappackscroll = mappackselection - vis
-		end
-	end
-	if mappackscroll < 0 then
-		mappackscroll = 0
+	if mappacktype == "local" or mappacktype == nil then
+		menu_mappack_move(0)
 	end
 end
 
 global function onlineupdatescroll()
-	local vis = 6
-	if inrange(onlinemappackselection, 1 + onlinemappackscroll, vis + onlinemappackscroll, true) == false then
-		if onlinemappackselection < 1 + onlinemappackscroll then
-			onlinemappackscroll = onlinemappackselection - 1
-		else
-			onlinemappackscroll = onlinemappackselection - vis
-		end
-	end
-	if onlinemappackscroll < 0 then
-		onlinemappackscroll = 0
+	if mappacktype == "online" then
+		menu_mappack_move(0)
 	end
 end
 
 global function toconvertupdatescroll()
-	local vis = 6
-	if inrange(toconvertmappackselection, 1 + toconvertmappackscroll, vis + toconvertmappackscroll, true) == false then
-		if toconvertmappackselection < 1 + toconvertmappackscroll then
-			toconvertmappackscroll = toconvertmappackselection - 1
-		else
-			toconvertmappackscroll = toconvertmappackselection - vis
-		end
-	end
-	if toconvertmappackscroll < 0 then
-		toconvertmappackscroll = 0
+	if mappacktype == "toconvert" then
+		menu_mappack_move(0)
 	end
 end
 
@@ -1871,11 +1687,16 @@ global function menu_keyreleased(_: any)
 end
 
 global function menu_mousepressed(x: any, y: any, button: any)
+	local ux = (x as number) / scale
+	local uy = (y as number) / scale
+	if gamestate == "mappackmenu" then
+		-- wheel + click handled inside mappack module
+		menu_mappack_mousepressed(ux, uy, button)
+		return
+	end
 	if button ~= "l" then
 		return
 	end
-	local ux = (x as number) / scale
-	local uy = (y as number) / scale
 	if gamestate == "menu" then
 		if selectworldopen then
 			return
@@ -1907,8 +1728,6 @@ global function menu_mousepressed(x: any, y: any, button: any)
 		elseif i then
 			selection = i
 		end
-	elseif gamestate == "mappackmenu" then
-		menu_mappack_mousepressed(ux, uy, button)
 	elseif gamestate == "options" then
 		-- tabs + rows via layout; guielement widgets if any still get love.mousepressed loop
 		local tabs = menu_layout_options_tabs()

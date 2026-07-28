@@ -28,8 +28,18 @@ WHT2 = (220, 220, 230, 255)
 
 
 def sheet(frames: int, size: int = 16) -> tuple[Image.Image, ImageDraw.ImageDraw]:
-    im = Image.new("RGBA", (size, size * frames), (0, 0, 0, 0))
-    return im, ImageDraw.Draw(im)
+	# Draw frames stacked vertically for convenience, then pack_h() → Mari0 layout.
+	im = Image.new("RGBA", (size, size * frames), (0, 0, 0, 0))
+	return im, ImageDraw.Draw(im)
+
+
+def pack_h(im: Image.Image, frames: int, size: int) -> Image.Image:
+	"""Vertical (size × size*frames) → horizontal (size*frames × size) for Mari0 quads."""
+	out = Image.new("RGBA", (size * frames, size), (0, 0, 0, 0))
+	for i in range(frames):
+		frame = im.crop((0, i * size, size, (i + 1) * size))
+		out.paste(frame, (i * size, 0))
+	return out
 
 
 def px(d: ImageDraw.ImageDraw, x: int, y: int, c, w: int = 1, h: int = 1) -> None:
@@ -63,26 +73,27 @@ MASK_FLY = [True] * 31  # ignore everything
 
 
 def base_enemy(**kw) -> dict:
-    d = {
-        "quadcount": 2,
-        "quadno": 1,
-        "animationtype": "mirror",
-        "animationspeed": 0.2,
-        "static": False,
-        "active": True,
-        "category": 4,
-        "mask": MASK_NORMAL,
-        "emancipatecheck": True,
-        "autodelete": True,
-        "offsetX": 6,
-        "offsetY": 3,
-        "quadcenterX": 8,
-        "quadcenterY": 8,
-        "width": 0.75,
-        "height": 0.75,
-    }
-    d.update(kw)
-    return d
+	d = {
+		"quadcount": 2,
+		"quadno": 1,
+		"animationtype": "mirror",
+		"animationspeed": 0.2,
+		"static": False,
+		"active": True,
+		"category": 4,
+		"mask": MASK_NORMAL,
+		"emancipatecheck": True,
+		"autodelete": True,
+		"nospritesets": True,
+		"offsetX": 6,
+		"offsetY": 3,
+		"quadcenterX": 8,
+		"quadcenterY": 8,
+		"width": 0.75,
+		"height": 0.75,
+	}
+	d.update(kw)
+	return d
 
 
 # --- drawers (y0 = frame top) ---
@@ -209,17 +220,17 @@ def draw_latcher(d, y0, frame):
 
 
 def gen_16(name, drawer, frames=2):
-    im, d = sheet(frames, 16)
-    for i in range(frames):
-        drawer(d, i * 16, i)
-    save(im, name)
+	im, d = sheet(frames, 16)
+	for i in range(frames):
+		drawer(d, i * 16, i)
+	save(pack_h(im, frames, 16), name)
 
 
 def gen_thwomp():
-    im, d = sheet(2, 32)
-    for i in range(2):
-        draw_thwomp(d, i * 32, i, 32)
-    save(im, "thwomp")
+	im, d = sheet(2, 32)
+	for i in range(2):
+		draw_thwomp(d, i * 32, i, 32)
+	save(pack_h(im, 2, 32), "thwomp")
 
 
 def main():
