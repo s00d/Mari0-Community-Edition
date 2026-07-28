@@ -19,6 +19,8 @@ global function physicsupdate(dt: number)
 				local v = w[i]
 				if v.static == false and v.active then
 					local body = v as Body
+					local skip_map_physics = group_name == "player" and level_mapmode
+					if not skip_map_physics then
 					--GRAVITY
 					v.speedy = v.speedy + (v.gravity or yacceleration)*dt*0.5
 					
@@ -149,6 +151,11 @@ global function physicsupdate(dt: number)
 					
 					--GRAVITY
 					v.speedy = v.speedy + (v.gravity or yacceleration)*dt*0.5
+					end -- not skip_map_physics
+					if skip_map_physics then
+						v.speedx = 0
+						v.speedy = 0
+					end
 				end
 			end
 		end

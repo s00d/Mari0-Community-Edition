@@ -132,6 +132,10 @@ global function init_game_runtime_globals()
 	intermission = false
 	haswarpzone = false
 	underwater = false
+	level_mapmode = false
+	mapmode_zoom = 1
+	mapmode_pad_x = 0
+	mapmode_pad_y = 0
 	bonusstage = false
 	custombackground = false
 	customforeground = false
@@ -144,6 +148,10 @@ global function init_game_runtime_globals()
 	levelweapons = {} as {string}
 	background = {}
 	mappackendless = false
+	level_mapmode = false
+	mapmode_zoom = 1
+	mapmode_pad_x = 0
+	mapmode_pad_y = 0
 	endlessseed = 0
 
 	-- levelscreen / spawn / levelio

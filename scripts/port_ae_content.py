@@ -679,7 +679,7 @@ def write_showcase_pack(enemies: list[str]) -> None:
 		shutil.copy2(icon_src, PACK / "icon.png")
 
 	# Minimal CE-format flat level: ground + spawn + sample enemies
-	BD, LD, MD = "¤", "×", "·"
+	BD, LD, MD, CD, EQ = "¤", "×", "·", "¸", "¨"
 	w, h = 60, 15
 	# tile 1 = empty air-ish; 2 = solid ground (smb ground often ~2 or higher)
 	# Use tile 2 for floor like many CE packs
@@ -696,7 +696,7 @@ def write_showcase_pack(enemies: list[str]) -> None:
 		grid[8][x] = floor_tid
 
 	ents: dict[tuple[int, int], str] = {}
-	ents[(3, h - 3)] = "8"  # spawn entity id in CE entitylist
+	ents[(3, h - 3)] = "spawn"
 	# Place a selection of AE enemies by name
 	sample = [e for e in (
 		"muncher", "ninji", "sidestepper", "splunkin", "shyguy", "goombrat",
@@ -731,14 +731,12 @@ def write_showcase_pack(enemies: list[str]) -> None:
 		parts.append(f"{tokens[i]}{MD}{run}" if run > 1 else tokens[i])
 		i = j
 	meta = (
-		f"{BD}height¨{h}{BD}backgroundr¨92{BD}backgroundg¨148{BD}backgroundb¨252"
-		f"{BD}spriteset¨1{BD}music¨overworld.ogg{BD}timelimit¨400"
-		f"{BD}scrollfactor¨0{BD}fscrollfactor¨0"
+		f"{CD}backgroundr{EQ}92{CD}backgroundg{EQ}148{CD}backgroundb{EQ}252"
+		f"{CD}spriteset{EQ}1{CD}music{EQ}overworld.ogg{CD}timelimit{EQ}400"
+		f"{CD}scrollfactor{EQ}0{CD}fscrollfactor{EQ}0"
 	)
-	# CE levels start with width¸height then body — look at smb format
-	# smb uses: 15¸1·467¤... so height first then RLE
 	body = BD.join(parts)
-	(PACK / "1-1.txt").write_text(f"{h}¸{body}{meta}\n")
+	(PACK / "1-1.txt").write_text(f"{h}{CD}{body}{meta}\n")
 	print(f"pack {PACK.relative_to(ROOT)}")
 
 

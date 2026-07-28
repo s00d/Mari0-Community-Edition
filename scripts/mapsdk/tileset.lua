@@ -32,9 +32,11 @@ for i, name in ipairs(M.PROP_ORDER) do
 end
 
 -- SMB3 Foundry object-name → property vote weights.
--- Background Hills are solid terrain in SMB3 (not decorative).
+-- Background Hills / bushes / clouds are scenery (walk-through), not terrain.
+-- Solid hills are names like "Flat Land - Hilly", "Hilly Wall", "Hill Corner".
 local DECORATIVE = {
 	"background cloud", "background bush", "background coconut", "background aquatic",
+	"background hills", "small background hills",
 	"cloud background", "oval background", "swirly background", "starry background",
 	"clouds a", "clouds b", "clouds c", "cloud-colored",
 	"white mushrooms, flowers", "palm tree", "sets background",
@@ -55,7 +57,6 @@ function M.classify(name)
 
 	if n == "coins" or n:find("silver coins", 1, true) or n == "frozen coins" or n == "invisible coin" then
 		props.coin = 1
-		props.collision = -5
 		if n:find("invisible", 1, true) then
 			props.invisible = 1
 		end
@@ -64,12 +65,6 @@ function M.classify(name)
 
 	for i = 1, #DECORATIVE do
 		if n:find(DECORATIVE[i], 1, true) then
-			if n:find("hill", 1, true) then
-				-- Background Hills = solid SMB3 terrain
-				props.collision = 3
-				return props
-			end
-			props.collision = -5
 			return props
 		end
 	end
@@ -114,19 +109,25 @@ function M.classify(name)
 		props.platform = 2
 		return props
 	end
-	if n:find("platform", 1, true) and n:find("extends to ground", 1, true) then
-		props.collision = 3
-		return props
-	end
 	if n:find("platform", 1, true) and not n:find("wire", 1, true) then
 		props.collision = 2
 		props.platform = 2
 		return props
 	end
 
-	-- Default: treat structured objects as solid (ground, pipes, walls, hills, …)
 	props.collision = 2
 	return props
+end
+
+function M.classify_at(name, dy, height)
+	local n = string.lower(tostring(name or ""))
+	if n:find("extends to ground", 1, true) and n:find("platform", 1, true) then
+		if dy == 0 then
+			return { collision = 2, platform = 2 }
+		end
+		return {}
+	end
+	return M.classify(name)
 end
 
 --- Vote props for (object_set, tile_id) from dump level JSON tables.
@@ -152,9 +153,9 @@ function M.derive_tile_props(levels)
 			for _, o in ipairs(data.objects or {}) do
 				local r = o.rendered
 				if r and o.name then
-					local props = M.classify(o.name)
 					local x0, y0, w, h = r.x or 0, r.y or 0, r.w or 0, r.h or 0
 					for dy = 0, h - 1 do
+						local props = M.classify_at(o.name, dy, h)
 						for dx = 0, w - 1 do
 							local y, x = y0 + dy, x0 + dx
 							local row = tm[y + 1] -- Lua 1-based if converted; also accept 0-based via raw
@@ -167,7 +168,9 @@ function M.derive_tile_props(levels)
 									tid = tid % 256
 									if tid ~= 0 then
 										for prop, weight in pairs(props) do
-											bump(os_, tid, prop, weight)
+											if weight > 0 then
+												bump(os_, tid, prop, weight)
+											end
 										end
 									end
 								end
@@ -185,7 +188,7 @@ function M.derive_tile_props(levels)
 		local props = {}
 		local collision_score = scores.collision or 0
 		for prop, score in pairs(scores) do
-			if score > 0 then
+			if score > 0 and prop ~= "coin" then
 				local keep = true
 				if prop == "platform" and collision_score > 0 and score < collision_score * 0.5 then
 					keep = false
@@ -197,6 +200,9 @@ function M.derive_tile_props(levels)
 		end
 		if collision_score > 0 then
 			props.collision = true
+		end
+		if (scores.coin or 0) > 0 and collision_score <= 0 then
+			props.coin = true
 		end
 		out[key] = props
 	end

@@ -5,6 +5,7 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 	--TILES
 	local xscrollfrac = math.fmod(xscroll, 1)
 	local yscrollfrac = math.fmod(yscroll, 1)
+	local tile_y_off = mapmode_tile_y_off()
 	local batchx, batchy = scroll_batch_offset(xscroll), scroll_batch_offset(yscroll)
 	love.graphics.draw(smbspritebatch, batchx, batchy)
 	love.graphics.draw(portalspritebatch, batchx, batchy)
@@ -56,13 +57,13 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 				else
 				local tilenumber = t[1]
 				local tq = (tilenumber ~= nil) and tilequads[tilenumber] or nil
-				if tq and tq:getproperty("coinblock", cox, coy) and tq:getproperty("invisible", cox, coy) == false then --coinblock
-					love.graphics.draw(coinblockimg, coinblockquads[spriteset][coinframe], math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac-bounceyoffset)*16-8)*scale), 0, scale, scale)
-				elseif coinmap[cox] and coinmap[cox][coy] then --coin
-					love.graphics.draw(coinimg, coinquads[spriteset][coinframe], math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac-bounceyoffset)*16-8)*scale), 0, scale, scale)
+				if not level_mapmode and tq and tq:getproperty("coinblock", cox, coy) and tq:getproperty("invisible", cox, coy) == false then --coinblock
+					love.graphics.draw(coinblockimg, coinblockquads[spriteset][coinframe], math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac-bounceyoffset)*16+tile_y_off)*scale), 0, scale, scale)
+				elseif not level_mapmode and coinmap[cox] and coinmap[cox][coy] then --coin
+					love.graphics.draw(coinimg, coinquads[spriteset][coinframe], math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac-bounceyoffset)*16+tile_y_off)*scale), 0, scale, scale)
 				elseif tq and (bounceyoffset ~= 0 or (tilenumber as number) > 10000) then
 					if not tq:getproperty("invisible", cox, coy) then
-						love.graphics.draw(tq.image, tq:quad(flooredxscroll+x, flooredyscroll+y), math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac-bounceyoffset)*16-8)*scale), 0, scale, scale)
+						love.graphics.draw(tq.image, tq:quad(flooredxscroll+x, flooredyscroll+y), math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac-bounceyoffset)*16+tile_y_off)*scale), 0, scale, scale)
 					end
 				end
 				
@@ -72,7 +73,7 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 				
 				if editormode then
 					if tq and tq:getproperty("invisible", cox, coy) and t[1] ~= 1 then
-						love.graphics.draw(tq.image, tq:quad(), math.floor((x-1-xscrollfrac)*16*scale), ((y-1-yscrollfrac)*16-8)*scale, 0, scale, scale)
+						love.graphics.draw(tq.image, tq:quad(), math.floor((x-1-xscrollfrac)*16*scale), ((y-1-yscrollfrac)*16+tile_y_off)*scale, 0, scale, scale)
 					end
 					
 					if #t > 1 and t[2] ~= "link" then
@@ -90,14 +91,14 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 								end
 								
 								love.graphics.setColor(1, 0, 0, alpha)
-								love.graphics.rectangle("fill", math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac)*16-8)*scale), 16*scale, 16*scale)
+								love.graphics.rectangle("fill", math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac)*16+tile_y_off)*scale), 16*scale, 16*scale)
 								love.graphics.setColor(1, 1, 1, alpha)
 								love.graphics.draw(v.graphic, v.quad, math.floor((x-1-xscrollfrac)*16*scale+xoff), math.floor(((y-1-yscrollfrac)*16)*scale+yoff), 0, scale, scale)
 							end
 						else
 							local eq = entityquads[tilenumber as number]
 							if eq and eq.image and eq.quad then
-								love.graphics.draw(eq.image, eq.quad, math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac)*16-8)*scale), 0, scale, scale)
+								love.graphics.draw(eq.image, eq.quad, math.floor((x-1-xscrollfrac)*16*scale), math.floor(((y-1-yscrollfrac)*16+tile_y_off)*scale), 0, scale, scale)
 							end
 						end
 						love.graphics.setColor(1, 1, 1, 1)
@@ -217,6 +218,7 @@ end
 
 global function drawforeground()
 	--TILES FOREGROUND
+	local tile_y_off = mapmode_tile_y_off()
 	local batchx, batchy = scroll_batch_offset(xscroll), scroll_batch_offset(yscroll)
 	love.graphics.draw(smbspritebatchfront, batchx, batchy)
 	love.graphics.draw(portalspritebatchfront, batchx, batchy)
@@ -282,12 +284,12 @@ global function drawforeground()
 				
 				if tq and tq:getproperty("foreground", cox, coy) then
 					if tq:getproperty("coinblock", cox, coy) and not tq:getproperty("invisible", cox, coy) then --coinblock
-						love.graphics.draw(coinblockimg, coinblockquads[spriteset][coinframe], math.floor((x-1-math.fmod(xscroll, 1))*16*scale), math.floor(((y-1-math.fmod(yscroll, 1))*16-8)*scale), 0, scale, scale)
+						love.graphics.draw(coinblockimg, coinblockquads[spriteset][coinframe], math.floor((x-1-math.fmod(xscroll, 1))*16*scale), math.floor(((y-1-math.fmod(yscroll, 1))*16+tile_y_off)*scale), 0, scale, scale)
 					elseif coinmap[x] and coinmap[x][y] then --coin
-						love.graphics.draw(coinimg, coinquads[spriteset][coinframe], math.floor((x-1-xscroll)*16*scale), math.floor(((y-1-yscroll)*16-8)*scale), 0, scale, scale)
+						love.graphics.draw(coinimg, coinquads[spriteset][coinframe], math.floor((x-1-xscroll)*16*scale), math.floor(((y-1-yscroll)*16+tile_y_off)*scale), 0, scale, scale)
 					elseif (tilenumber as number) > 10000 then
 						if not tq:getproperty("invisible", cox, coy) then
-							love.graphics.draw(tq.image, tq:quad(flooredxscroll+x, flooredyscroll+y), math.floor((x-1-math.fmod(xscroll, 1))*16*scale), math.floor(((y-1-math.fmod(yscroll, 1))*16-8)*scale), 0, scale, scale)
+							love.graphics.draw(tq.image, tq:quad(flooredxscroll+x, flooredyscroll+y), math.floor((x-1-math.fmod(xscroll, 1))*16*scale), math.floor(((y-1-math.fmod(yscroll, 1))*16+tile_y_off)*scale), 0, scale, scale)
 						end
 					end
 					
@@ -386,9 +388,10 @@ global function game_draw_props()
 	love.graphics.setColor(1, 1, 1)
 	--flag
 	if flagx then
-		love.graphics.draw(flagimg, math.floor((flagimgx-1-xscroll)*16*scale), ((flagimgy-yscroll)*16-8)*scale, 0, scale, scale)
+		local flag_y_off = mapmode_tile_y_off()
+		love.graphics.draw(flagimg, math.floor((flagimgx-1-xscroll)*16*scale), ((flagimgy-yscroll)*16+flag_y_off)*scale, 0, scale, scale)
 		if levelfinishtype == "flag" then
-			properprint2(flagscore, math.floor((flagimgx+4/16-xscroll)*16*scale), ((14-flagimgy-yscroll+(flagy-13)*2)*16-8)*scale, 0, scale, scale)
+			properprint2(flagscore, math.floor((flagimgx+4/16-xscroll)*16*scale), ((14-flagimgy-yscroll+(flagy-13)*2)*16+flag_y_off)*scale, 0, scale, scale)
 		end
 	end
 
@@ -776,16 +779,26 @@ global function game_draw_objects()
 end
 
 global function scenedraw()
+	if level_mapmode then
+		love.graphics.push()
+		love.graphics.translate(mapmode_pad_x, mapmode_pad_y)
+		if mapmode_zoom > 1 then
+			love.graphics.scale(mapmode_zoom, mapmode_zoom)
+		end
+	end
+
 	drawlevel()
+	game_draw_props()
+	game_draw_objects()
+	game_draw_fx()
+	drawforeground()
+
+	if level_mapmode then
+		love.graphics.pop()
+	end
 
 	if bdrawui then
 		game_draw_hud()
 	end
-
-	game_draw_props()
-	game_draw_objects()
-	game_draw_fx()
-
-	drawforeground()
 end
 

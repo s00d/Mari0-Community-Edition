@@ -32,7 +32,7 @@ global function spawnenemy(x: number, y: number)
 	local r = map[x][y]
 	if #r > 1 then
 		local wasenemy = false
-		if allowenemy and tablecontains(enemies, r[2]) and not editormode then
+		if allowenemy and tablecontains(enemies, r[2]) and enemiesdata[r[2] as string] and enemiesdata[r[2] as string].width and not editormode then
 			if not tilequads[map[x][y][1] ]:getproperty("breakable", x, y) and not tilequads[map[x][y][1] ]:getproperty("coinblock", x, y) then
 				table.insert(objects["enemy"], enemy:new(x, y, r[2] as string, r))
 				wasenemy = true

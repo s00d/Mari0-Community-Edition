@@ -115,6 +115,11 @@ global function loadenemy(filename: string)
 		normalize_enemy_props(enemiesdata[s])
 		
 		apply_enemy_defaults(enemiesdata[s], defaultvalues)
+		if enemiesdata[s].width == nil or enemiesdata[s].height == nil then
+			print("enemy JSON missing size: " .. s)
+			enemiesdata[s] = nil
+			return
+		end
 		
 		--Load graphics if it exists (mappack folder first; else keep base copy from usebase)
 		if love.filesystem.getInfo(folder .. s .. ".png") then

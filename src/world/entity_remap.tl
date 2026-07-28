@@ -65,7 +65,8 @@ global VARIANT_REMAP: {number:{string:any}} = {
 	[27] = {kind = "emance", dir = "ver"},
 	[28] = {kind = "door", dir = "ver"},
 	[29] = {kind = "door", dir = "hor"},
-	[31] = {kind = "pipe_dest", ce_id = 31},
+	[30] = {kind = "wallindicator"},
+	[31] = {kind = "pipespawn"},
 	[36] = {kind = "lightbridge", dir = "right"},
 	[37] = {kind = "lightbridge", dir = "left"},
 	[38] = {kind = "lightbridge", dir = "down"},
@@ -115,7 +116,6 @@ global PASS_THROUGH: {number:boolean} = {
 	[23] = true, -- mazestart
 	[24] = true, -- mazeend
 	[25] = true, -- mazegate
-	[30] = true, -- wallindicator
 	[32] = true, -- platformfall
 	[33] = true, -- bulletbillstart
 	[34] = true, -- bulletbillend
@@ -164,9 +164,10 @@ global CE_ENTITY_TYPES: {number:string} = {
 	[1] = "remove", [2] = "powerup", [3] = "cheepcheep", [5] = "manycoins",
 	[8] = "spawn", [11] = "flag", [14] = "vine", [18] = "platform",
 	[20] = "box", [21] = "pipe", [23] = "mazestart", [24] = "mazeend",
-	[25] = "mazegate", [26] = "emance", [28] = "door", [30] = "wallindicator",
-	[31] = "pipespawn", [32] = "platformfall", [33] = "bulletbillstart",
-	[34] = "bulletbillend", [35] = "drain", [36] = "lightbridge", [40] = "button",
+	[25] = "mazegate", [26] = "emance", [28] = "door", [30] = "pedestal",
+	[31] = "wallindicator",
+	[32] = "pipespawn", [33] = "platformfall", [34] = "bulletbillstart",
+	[35] = "bulletbillend", [36] = "drain", [37] = "lightbridge", [40] = "button",
 	[41] = "platformspawner", [43] = "groundlightver", [44] = "groundlighthor",
 	[45] = "groundlightupright", [46] = "groundlightrightdown",
 	[47] = "groundlightdownleft", [48] = "groundlightleftup",
@@ -188,6 +189,15 @@ global function remap_kind(old_id: number): string
 		return "pass"
 	end
 	return "unknown"
+end
+
+-- Mari0 1.6 pipespawn was entity id 31; CE shifted wallindicator to 31 and pipespawn to 32.
+-- Classic mappacks (smb, dlc_smb2J, …) still store 31 with a numeric sublevel source index.
+global function normalize_legacy_map_entity(r: {any})
+	local ent = r[2]
+	if ent == 31 and type(r[3]) == "number" then
+		r[2] = 32
+	end
 end
 
 --[[ Validate remaps against enemy JSON files and CE entity slots.
@@ -263,7 +273,7 @@ global function validate_remap(opts: {string:any}|nil): {string}
 	return problems
 end
 
-return {
+	return {
 	OLD_ENTITY_NAMES = OLD_ENTITY_NAMES,
 	ENEMY_REMAP = ENEMY_REMAP,
 	VARIANT_REMAP = VARIANT_REMAP,
@@ -272,5 +282,6 @@ return {
 	SEESAW_PRESETS = SEESAW_PRESETS,
 	CE_ENTITY_TYPES = CE_ENTITY_TYPES,
 	remap_kind = remap_kind,
+	normalize_legacy_map_entity = normalize_legacy_map_entity,
 	validate_remap = validate_remap,
 }

@@ -513,6 +513,19 @@ global portaltilesimg: Image
 global coinanimation: number
 global intermission: any
 global underwater: any
+global level_mapmode: boolean
+global mapmode_zoom: number
+global mapmode_pad_x: number
+global mapmode_pad_y: number
+global mapmode_tile_y_off: function(): number
+global mapmode_update_view: function(mario)
+global mapmode_player_cell: function(mario): integer, integer
+global mapmode_cell_center: function(integer, integer, mario): number, number
+global mapmode_snap_to_start: function(mario)
+global mapmode_try_enter_level: function(mario): boolean
+global mapmode_cell_walkable: function(integer, integer): boolean
+global mapmode_snap_player: function(mario)
+global mapmode_apply_movement: function(mario, number)
 global EQUALSIGN: {any:string}
 global seesawtype: {any:{any}}
 global pausemenuoptions: {string}
@@ -1530,6 +1543,7 @@ global convertmappack: function(any)
 global converttostandard: function(Entity, number, number): number, number
 global validate_remap: function({string:any}|nil): {string}
 global remap_kind: function(number): string
+global normalize_legacy_map_entity: function({any})
 global ENEMY_REMAP: {number:string}
 global VARIANT_REMAP: {number:{string:any}}
 global PASS_THROUGH: {number:boolean}
@@ -1840,7 +1854,7 @@ global updatescrollfactor: function(): any
 global updatesizes: function()
 global upkey: function(any): any
 global vercollision: function(Entity, Entity, any, any, any, any, number): boolean
-global warpzone: function(any, any)
+global warpzone: function(any, any, any)
 
 -- Typed free-function replacement for legacy string:split (see core.stringutil).
 global strsplit: function(any, any): {string}

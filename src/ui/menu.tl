@@ -891,7 +891,9 @@ global function loadbackground(backgroundlevel: any): any
 	if not love.filesystem.getInfo(mappack_path(tostring(mappack)) .. "/" .. tostring(backgroundlevel)) then
 		return false
 	else
-		loadmap((backgroundlevel as string):sub(1, -5))
+		if not loadmap((backgroundlevel as string):sub(1, -5)) then
+			return false
+		end
 	end
 	
 	--Adjust start X scroll

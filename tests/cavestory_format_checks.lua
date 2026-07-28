@@ -87,4 +87,6 @@ check("tsc mid unchanged", dec:byte(math.floor(#src / 2) + 1) == src:byte(math.f
 local okp = pcall(fmt.read_pxm, "XXX")
 check("pxm reject", not okp)
 
+check("cavestory settings.txt", io.open(root .. "/mappacks/cavestory/settings.txt", "r") ~= nil)
+
 return failed

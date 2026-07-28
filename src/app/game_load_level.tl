@@ -40,6 +40,8 @@ global function game_load(suspended?: any)
 	mariolivecount = 3
 	mappackendless = false
 	endlessseed = 0
+	local start_world: number|string|nil = nil
+	local start_level: number|nil = nil
 	local settings_path = mappack_path(mappack) .. "/settings.txt"
 	if love.filesystem.getInfo(settings_path) then
 		local s = love.filesystem.read(settings_path)
@@ -56,6 +58,12 @@ global function game_load(suspended?: any)
 				rawset(_G, "_metroid_settings_flag", true)
 			elseif s2[1] == "maxhp" and tonumber(s2[2]) then
 				globintSH("maxhp", "set", tonumber(s2[2]))
+			elseif s2[1] == "start" and s2[2] then
+				local sw, sl = string.match(s2[2], "^(%w+)%-(%d+)$")
+				if sw and sl then
+					start_world = tonumber(sw) or sw
+					start_level = tonumber(sl)
+				end
 			end
 		end
 	end
@@ -87,8 +95,8 @@ global function game_load(suspended?: any)
 	
 	-- Online match: host already chose mappack/world/level via start packet.
 	if not (SERVER or CLIENT) then
-		marioworld = 1
-		mariolevel = 1
+		marioworld = start_world or 1
+		mariolevel = start_level or 1
 		mariosublevel = 0
 		respawnsublevel = 0
 	else
@@ -289,6 +297,10 @@ global function loadlevel(level: string|number): boolean
 	intermission = false
 	haswarpzone = false
 	underwater = false
+	level_mapmode = false
+	mapmode_zoom = 1
+	mapmode_pad_x = 0
+	mapmode_pad_y = 0
 	bonusstage = false
 	custombackground = false
 	customforeground = false
@@ -486,14 +498,24 @@ global function loadlevel(level: string|number): boolean
 			
 			table.insert(spawns, {x=astartx, y=astarty})
 			
-			playerobjs[i] = create_mario_player((astartx as number)+add, (astarty as number)-1, i, animation, mariosizes[i], playertype)
+			local spawn_y_off = level_mapmode and 0 or -1
+			playerobjs[i] = create_mario_player((astartx as number)+add, (astarty as number)+spawn_y_off, i, animation, mariosizes[i], playertype)
 		else
 			playerobjs[i] = create_mario_player(1.5 + (i-1)*mul-6/16+1.5, 13, i, animation, mariosizes[i], playertype)
 		end
 	end
 	
+	if level_mapmode and playerobjs[1] then
+		mapmode_update_view(playerobjs[1])
+		mapmode_snap_to_start(playerobjs[1])
+	else
+		mapmode_zoom = 1
+		mapmode_pad_x = 0
+		mapmode_pad_y = 0
+	end
+	
 	--ADD ENEMIES ON START SCREEN
-	if editormode == false then
+	if editormode == false and not level_mapmode then
 		if metroidmode and metroid_bootstrap_from_player then
 			metroid_bootstrap_from_player()
 		else
@@ -797,6 +819,9 @@ global function updatespritebatch()
 	end
 
 	local function screen_coords(x: integer, y: integer): number, number
+		if level_mapmode then
+			return (x - 1) * 16 * scale, y * 16 * scale
+		end
 		return (x - 1) * 16 * scale, (y * 16 - 8) * scale
 	end
 
@@ -936,7 +961,7 @@ global function nextlevel()
 	end
 	
 	love.audio.stop()
-	
+
 	mariolevel = (mariolevel as number) + 1
 	if not love.filesystem.getInfo(mappack_level_path(mappack as string, marioworld, mariolevel)) then
 		mariolevel = 1
@@ -946,19 +971,19 @@ global function nextlevel()
 	levelscreen_load("next")
 end
 
-global function warpzone(w: any, l: any)
+global function warpzone(w: any, l: any, sub?: any)
 	
 	love.audio.stop()
 	mariolevel = l as number
 	marioworld = w as number|string
-	mariosublevel = 0
+	mariosublevel = tonumber(sub) or 0
 	prevsublevel = false
 	
 	-- minus 1 world glitch just because I can.
 	if not displaywarpzonetext and w == 4 and l == 1 then
 		marioworld = "M"
 	end
-	
+
 	levelscreen_load("next")
 end
 

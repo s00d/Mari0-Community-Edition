@@ -39,4 +39,15 @@ ir2.tiles[1][2] = 5
 local okpad = mapsdk.ir.fit_height(ir2, 4, 1)
 check("fit_height pad", okpad and ir2.height == 4 and ir2.tiles[1][4] == 5)
 
+-- SMB3 tileset classify: BG hills/bushes are scenery; real hilly ground stays solid
+local tileset = dofile(root .. "/scripts/mapsdk/tileset.lua")
+local function coll(name)
+	return (tileset.classify(name).collision) or 0
+end
+check("bg hills nonsolid", coll("Background Hills A") < 0)
+check("bg bushes nonsolid", coll("Background Bushes") < 0)
+check("bg like at bottom hilly nonsolid", coll("Background like at bottom of hilly level") < 0)
+check("flat land hilly solid", coll("Flat Land - Hilly") > 0)
+check("hilly wall solid", coll("Hilly Wall") > 0)
+
 return failed

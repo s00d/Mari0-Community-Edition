@@ -47,6 +47,7 @@ function Boot.require_game()
 	require "world.globstate"
 	require "world.abilities"
 	require "world.roomcam"
+	require "world.mapmode"
 	require "world.reachability"
 	require "world.metroidsave"
 	require "world.enemymodifiers"

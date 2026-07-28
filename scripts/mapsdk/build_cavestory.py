@@ -62,7 +62,7 @@ NPC_MAP = {
     5: "goomba",
     15: None,
     16: None,
-    18: "pipe",
+    18: None,  # door — no Mario pipe marker yet
     26: "koopaflying",
     27: "fire",
     28: "koopaflying",
@@ -73,7 +73,7 @@ NPC_MAP = {
     39: None,
     46: None,
     57: "koopaflying",
-    59: "pipe",
+    59: None,  # eye door
     60: None,
     64: "goomba",
     65: "koopaflying",

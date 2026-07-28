@@ -117,6 +117,18 @@ do
 	check("door link open", ent[5] == "link" and ent[6] == "open" and ent[7] == 3 and ent[8] == 4)
 	ent, err = convertentity({999}, {strict = true})
 	check("unknown strict fail", err ~= nil)
+	ent, err = convertentity({31, 2}, {strict = true})
+	check("pipespawn 1.6→32", ent[1] == 32 and ent[2] == 2 and err == nil)
+end
+
+-- Legacy pipespawn id at load time
+do
+	local cell = {17, 31, 2}
+	normalize_legacy_map_entity(cell)
+	check("legacy pipespawn id", cell[2] == 32 and cell[3] == 2)
+	local wall = {1, 31, "false"}
+	normalize_legacy_map_entity(wall)
+	check("wallindicator unchanged", wall[2] == 31 and wall[3] == "false")
 end
 
 -- Remap validation

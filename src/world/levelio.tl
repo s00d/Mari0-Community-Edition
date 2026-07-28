@@ -378,6 +378,9 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 			end
 			
 			if #r > 1 then
+				if normalize_legacy_map_entity then
+					normalize_legacy_map_entity(r)
+				end
 				-- Numeric CE entitylist ids, or string names from mapsdk converters
 				-- ("spawn"/"flag"/… and custom enemy JSON basenames).
 				local ent = r[2]
@@ -471,6 +474,8 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 			haswarpzone = true
 		elseif s3[1] == "underwater" then
 			underwater = true
+		elseif s3[1] == "mapmode" and (s3[2] == "true" or s3[2] == "1") then
+			level_mapmode = true
 		elseif s3[1] == "music" then
 			if tonumber(s3[2]) then
 				local mi = tonumber(s3[2])

@@ -80,6 +80,10 @@ local function build_variant(vr: {string:any}, entin: {any}): {any}
 		return {18, entin[2], entid_up and 0 or 3.31, (not entid_up) and 0 or 3.31, 4}
 	elseif kind == "pipe_dest" then
 		return {vr.ce_id, (entin[2] as number) + 1}
+	elseif kind == "pipespawn" then
+		return {32, entin[2]}
+	elseif kind == "wallindicator" then
+		return {31, entin[2] or "false"}
 	elseif kind == "emance" then
 		return {26, vr.dir, "false"}
 	elseif kind == "door" then

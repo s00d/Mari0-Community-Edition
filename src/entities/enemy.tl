@@ -58,6 +58,13 @@ function enemy:init(x: number, y: number, t: string, a: any)
 		self.movement = self.movementrandoms[math.random(#self.movementrandoms)] as string
 	end
 	
+	if not self.width or not self.height then
+		print("enemy missing size: " .. tostring(t))
+		self.active = false
+		self.static = true
+		return
+	end
+	
 	self.x = x-.5-self.width/2+(self.spawnoffsetx or 0)
 	self.y = y-self.height+(self.spawnoffsety or 0)
 	

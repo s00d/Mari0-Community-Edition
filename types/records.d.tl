@@ -1854,6 +1854,7 @@ global record mario is Entity, Body
 	animationmisc: string|any
 	animationmisc2: any
 	animationmisc3: any
+	animationmisc4: any
 	animationstate: string
 	animationtimer: number
 	animationtimer2: number
@@ -1906,6 +1907,11 @@ global record mario is Entity, Body
 	looktimer: number
 	mask: {boolean}
 	mazevar: number
+	mapsteptimer: number
+	mapstepfromx: number
+	mapstepfromy: number
+	mapsteptox: number
+	mapsteptoy: number
 	offsetX: number
 	offsetY: number
 	passivemoved: boolean
@@ -2001,6 +2007,7 @@ global record mario is Entity, Body
 	update_drains: function(mario, number)
 	updateangle: function(mario)
 	movement: function(mario, number)
+	mapmovement: function(mario, number)
 	runanimation: function(mario, number)
 	underwatermovement: function(mario, number)
 	setquad: function(self: mario, a?: any, b?: any)

@@ -273,6 +273,8 @@ global function game_update(dt: number)
 	
 	if metroidmode and roomcam_update then
 		roomcam_update(dt)
+	elseif level_mapmode and playerobjs[1] and not playerobjs[1].dead then
+		mapmode_update_view(playerobjs[1])
 	-- not minimapdragging: treat nil as false (play-mode editor_load skip used to leave it nil)
 	elseif autoscroll and not minimapdragging then
 		--scrolling

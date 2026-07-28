@@ -202,6 +202,11 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	self.fireanimationtimer = fireanimationtime
 	
 	self.mazevar = 0
+	self.mapsteptimer = 0
+	self.mapstepfromx = x
+	self.mapstepfromy = y
+	self.mapsteptox = x
+	self.mapsteptoy = y
 	
 	self.bubbletimer = 0
 	self.bubbletime = bubblestime[math.random(#bubblestime)]
@@ -498,7 +503,7 @@ function mario:update_animation(dt: number): boolean
 				if type(self.animationmisc) == "number" then --sublevel
 					levelscreen_load("sublevel", self.animationmisc)
 				else --warpzone
-					warpzone(self.animationmisc2, self.animationmisc3)
+					warpzone(self.animationmisc2, self.animationmisc3, self.animationmisc4)
 				end
 			end
 		end
@@ -538,7 +543,7 @@ function mario:update_animation(dt: number): boolean
 				if type(self.animationmisc) == "number" then --sublevel
 					levelscreen_load("sublevel", self.animationmisc)
 				else --warpzone
-					warpzone(self.animationmisc2, self.animationmisc3)
+					warpzone(self.animationmisc2, self.animationmisc3, self.animationmisc4)
 				end
 			end
 		end
@@ -1120,6 +1125,13 @@ local function char_num(char: Character|nil, key: string, default: number): numb
 end
 
 function mario:update_gravity(_dt: number)
+	if level_mapmode then
+		self.gravity = 0
+		self.falling = false
+		self.jumping = false
+		self.gravitydirection = math.pi/2
+		return
+	end
 	if self.jumping then
 		if self.underwater then
 			self.gravity = char_num(self.char, "uwyaccelerationjumping", uwyaccelerationjumping)
@@ -1217,6 +1229,10 @@ end
 
 function mario:update_controls(dt: number): boolean
 	if self.controlsenabled then
+		-- SMB3 overworld: enter level from warppipe node on this cell.
+		if level_mapmode and mapmode_try_enter_level(self) then
+			return true
+		end
 		--check for pipe pipe pipe�
 		if inmap(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16)) and downkey(self.playernumber) and self.falling == false and self.jumping == false then
 			local t2 = map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][2]
@@ -1224,15 +1240,18 @@ function mario:update_controls(dt: number): boolean
 				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", tonumber((map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3] as number)-1))
 				return true
 			elseif t2 and entitylist[t2] and entitylist[t2].t == "warppipe" then
-				self.animationmisc2 = tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3]) or 1
-				self.animationmisc3 = tonumber(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][4]) or 1
+				local px = math.floor(self.x+30/16)
+				local py = math.floor(self.y+self.height+20/16)
+				self.animationmisc2 = tonumber(map[px][py][3]) or 1
+				self.animationmisc3 = tonumber(map[px][py][4]) or 1
+				self.animationmisc4 = tonumber(map[px][py][5]) or 0
 				
-				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", "pipe" .. tostring(map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3]))
+				self:pipe(px, py, "down", "pipe" .. tostring(map[px][py][3]))
 				return true
 			end				
 		end
 		
-		if self.falling == false and self.jumping == false and self.size > 1 then
+		if self.falling == false and self.jumping == false and self.size > 1 and not level_mapmode then
 			if downkey(self.playernumber) then
 				if self.ducking == false then
 					self:duck(true)
@@ -1261,7 +1280,9 @@ function mario:update_controls(dt: number): boolean
 			end
 		end
 		
-		if not self.underwater then
+		if level_mapmode then
+			self:mapmovement(dt)
+		elseif not self.underwater then
 			self:movement(dt)
 		else
 			self:underwatermovement(dt)
@@ -1328,6 +1349,7 @@ function mario:update_controls(dt: number): boolean
 		end
 		
 		--DEATH BY PIT
+		if not level_mapmode then
 		if self.gravitydirection > math.pi/4*1 and self.gravitydirection <= math.pi/4*3 then --down
 			if self.y >= mapheight then
 				self:die("pit")
@@ -1336,6 +1358,7 @@ function mario:update_controls(dt: number): boolean
 			if self.y <= -1 then
 				self:die("pit")
 			end
+		end
 		end
 		
 		
@@ -1419,6 +1442,13 @@ function mario:updateangle()
 				self.pointingangle = 0 --this is really silly, but will crash the game if I don't do this. It's because it's -0 or something. I'm not good with computers.
 			end
 		end
+	end
+end
+
+function mario:mapmovement(dt: number)
+	mapmode_apply_movement(self, dt)
+	if self.animationstate == "running" then
+		self:runanimation(dt)
 	end
 end
 
