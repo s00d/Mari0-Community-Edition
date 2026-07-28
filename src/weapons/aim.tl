@@ -1,4 +1,4 @@
---[[ Shared beam aim + entity pick for gravitygun / freezeray / lightgun.
+--[[ Shared beam aim + entity pick for gravitygun.
      Light bridges are intentionally transparent to beams ("light doesn't block light"):
      traceline walks tiles only; lightbridgebody is not in PICK_LISTS. ]]
 
@@ -7,7 +7,7 @@ local STEP = 0.2
 local PROBE = 0.55
 local CONE_DOT = 0.72
 
-local PICK_LISTS = {"box", "iceblock", "enemy"}
+local PICK_LISTS = {"box", "enemy"}
 
 local atan2 = math.atan2 or math.atan
 
@@ -136,7 +136,7 @@ local function pick_cone(pl: {string:any}, sx: number, sy: number, dx: number, d
 	return best
 end
 
--- Entity pick (boxes + iceblocks + enemies). Used for grab / freeze.
+-- Entity pick (boxes + enemies). Used for grab.
 local function pick_entity(pl: {string:any}, maxrange?: number): {string:any}|nil
 	local range = maxrange or MAX_RANGE
 	local sx, sy, dx, dy, ang = aim(pl)

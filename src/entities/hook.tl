@@ -105,7 +105,7 @@ function hook:hitstuff(a: any, b: Entity)
 	end
 
 	-- Movable body: swing-attach (anchor follows body).
-	if a == "box" or a == "iceblock" or a == "lightbridgebody" then
+	if a == "box" or a == "lightbridgebody" then
 		local ax = self.x + self.width / 2
 		local ay = self.y + self.height / 2
 		(hs.attach_body as function({string:any}, {string:any}, number, number))(pl, b as {string:any}, ax, ay)

@@ -24,8 +24,9 @@ end
 global function palette_entity_categories(p: any): {string}
 	local seen: {string:boolean} = {}
 	local out: {string} = { "all" }
-	local ents = (p as EditorPalettes).entities
-	if not ents then return out end
+	local raw = (p as {string:any}).entities
+	if type(raw) ~= "table" then return out end
+	local ents = raw as {any}
 	for i = 1, #ents do
 		local e = ents[i] as {string:any}
 		local c = tostring(e.category or "misc")
@@ -44,9 +45,10 @@ end
 
 global function palette_entities_filtered(p: any, category: string|nil): {any}
 	local cat = category or EDITOR_PALETTE_CATEGORY
-	local ents = (p as EditorPalettes).entities
 	local out: {any} = {}
-	if not ents then return out end
+	local raw = (p as {string:any}).entities
+	if type(raw) ~= "table" then return out end
+	local ents = raw as {any}
 	for i = 1, #ents do
 		local e = ents[i] as {string:any}
 		if cat == "all" or tostring(e.category or "") == cat then

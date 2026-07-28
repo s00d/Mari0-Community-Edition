@@ -4,8 +4,6 @@ local portalgun = require("weapons.portalgun") as {string:any}
 local gelcannon = require("weapons.gelcannon") as {string:any}
 local gravitygun = require("weapons.gravitygun") as {string:any}
 local hookshot = require("weapons.hookshot") as {string:any}
-local lightgun = require("weapons.lightgun") as {string:any}
-local freezeray = require("weapons.freezeray") as {string:any}
 
 local registry: {string:{string:any}} = {
 	portal = portalgun,
@@ -13,8 +11,6 @@ local registry: {string:{string:any}} = {
 	gel = gelcannon, -- alias (legacy playertype / levelweapons)
 	gravitygun = gravitygun,
 	hookshot = hookshot,
-	lightgun = lightgun,
-	freezeray = freezeray,
 }
 
 local icon_cache: {string:any} = {}
@@ -73,7 +69,7 @@ local function default_loadout(): {string}
 		end
 	end
 	-- Testing unlock: all registered weapons available.
-	return { "portal", "gravitygun", "gelcannon", "hookshot", "lightgun", "freezeray" }
+	return { "portal", "gravitygun", "gelcannon", "hookshot" }
 end
 
 local function setup_player(pl_any: any)
@@ -119,7 +115,6 @@ local function release(pl_any: any, reason: string)
 	end
 	(gravitygun.release_obj as function({string:any}, string))(pl, reason or "release")
 	(hookshot.detach as function({string:any}, string, boolean))(pl, reason or "release", false)
-	(lightgun.remove_bridge as function({string:any}))(pl)
 end
 
 local function switch(pl_any: any, dir: number)
@@ -162,10 +157,8 @@ local function fire(pl_any: any, button: any)
 			local RECOIL: {string:number} = {
 				portal = 1.5,
 				gravitygun = 2.0,
-				freezeray = 1.0,
 				gelcannon = 0.4,
 				hookshot = 1.2,
-				lightgun = 0.8,
 			}
 			local r = RECOIL[(w.id as string) or ""] or 1.0
 			pl.speedx = ((pl.speedx as number) or 0) - dx * r
@@ -204,7 +197,7 @@ local function update(pl_any: any, dt: number)
 			end
 		end
 	end
-	-- Always tick gravity-gun / hookshot / lightgun even if another weapon is selected mid-hold
+	-- Always tick gravity-gun / hookshot even if another weapon is selected mid-hold
 	-- (unequip should have released; keep as safety if state leaked).
 	local w = current(pl)
 	if w and w.update then
@@ -214,12 +207,6 @@ local function update(pl_any: any, dt: number)
 	end
 	if pl.grapple and (not w or w.id ~= "hookshot") then
 		(hookshot.update as function({string:any}, number))(pl, dt)
-	end
-	if pl.lb_bridge and (not w or w.id ~= "lightgun") then
-		(lightgun.update as function({string:any}, number))(pl, dt)
-	end
-	if pl.fz_beam and (not w or w.id ~= "freezeray") and freezeray.update then
-		(freezeray.update as function({string:any}, number))(pl, dt)
 	end
 end
 
@@ -259,10 +246,6 @@ local function draw(pl_any: any)
 		(w.draw as function({string:any}))(pl)
 	elseif pl.grapple then
 		(hookshot.draw as function({string:any}))(pl)
-	elseif pl.lb_flash and lightgun.draw then
-		(lightgun.draw as function({string:any}))(pl)
-	elseif pl.fz_beam and freezeray.draw then
-		(freezeray.draw as function({string:any}))(pl)
 	end
 end
 
@@ -305,8 +288,6 @@ local Weapons: WeaponsModule = {
 	registry = registry,
 	gravitygun = gravitygun,
 	hookshot = hookshot,
-	lightgun = lightgun,
-	freezeray = freezeray,
 	get = get,
 	current = current,
 	icon_image = icon_image,

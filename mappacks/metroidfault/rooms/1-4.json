@@ -12,7 +12,7 @@
       "flags": "scroll_h",
       "doors": [
         {
-          "kind": "red",
+          "kind": "open",
           "to": "cryo",
           "dx": 24,
           "dy": 7,
@@ -25,12 +25,6 @@
           "ability": "portal",
           "dx": 4,
           "dy": 11
-        },
-        {
-          "uid": "l4_freeze",
-          "ability": "freezeray",
-          "dx": 12,
-          "dy": 10
         }
       ]
     },

@@ -1,5 +1,5 @@
 {
-  "actions":[["dotobool","q_ticket_4471_paid","true"],["giveweapon","freezeray"],["addpoints","5000"],["dialogbox","TICKET #4471: player falls through floor — closed as WONTFIX","tracker"]],
+  "conditions":[["ifbool","q_ticket_4471_paid","false"]],
   "triggers":[["whenboolis","q_ticket_4471_done","true"]],
-  "conditions":[["ifbool","q_ticket_4471_paid","false"]]
+  "actions":[["dotobool","q_ticket_4471_paid","true"],["giveweapon","hookshot"],["addpoints","5000"],["dialogbox","TICKET #4471: player falls through floor — closed as WONTFIX","tracker"]]
 }

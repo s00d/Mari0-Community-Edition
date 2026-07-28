@@ -25,12 +25,6 @@
           "ability": "portal",
           "dx": 5,
           "dy": 11
-        },
-        {
-          "uid": "l8_freeze",
-          "ability": "freezeray",
-          "dx": 8,
-          "dy": 11
         }
       ]
     },

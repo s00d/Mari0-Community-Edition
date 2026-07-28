@@ -88,7 +88,7 @@ function gel:leftcollide(a: any, b: Entity): boolean|nil
 		map_cell_set_gel(map[x][y], GEL_SIDE_RIGHT, self.id)
 	elseif a == "lightbridgebody" and b.dir == "ver" then
 		entity_set_gel(b, GEL_SIDE_RIGHT, self.id)
-	elseif a == "box" or a == "iceblock" then
+	elseif a == "box" then
 		entity_set_gel(b, GEL_SIDE_RIGHT, self.id)
 	end
 	return nil
@@ -116,7 +116,7 @@ function gel:rightcollide(a: any, b: Entity): boolean|nil
 		map_cell_set_gel(map[x][y], GEL_SIDE_LEFT, self.id)
 	elseif a == "lightbridgebody" and b.dir == "ver" then
 		entity_set_gel(b, GEL_SIDE_LEFT, self.id)
-	elseif a == "box" or a == "iceblock" then
+	elseif a == "box" then
 		entity_set_gel(b, GEL_SIDE_LEFT, self.id)
 	end
 	return nil
@@ -172,7 +172,7 @@ function gel:floorcollide(a: any, b: Entity): boolean|nil
 		end
 	elseif a == "lightbridgebody" and b.dir == "hor" then
 		entity_set_gel(b, GEL_SIDE_TOP, self.id)
-	elseif a == "box" or a == "iceblock" then
+	elseif a == "box" then
 		entity_set_gel(b, GEL_SIDE_TOP, self.id)
 	end
 	return nil
@@ -192,7 +192,7 @@ function gel:ceilcollide(a: any, b: Entity): boolean|nil
 		end
 	elseif a == "lightbridgebody" and b.dir == "hor" then
 		entity_set_gel(b, GEL_SIDE_BOTTOM, self.id)
-	elseif a == "box" or a == "iceblock" then
+	elseif a == "box" then
 		entity_set_gel(b, GEL_SIDE_BOTTOM, self.id)
 	end
 	return nil

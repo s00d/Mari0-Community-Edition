@@ -56,11 +56,11 @@ do
 			check("reward has actions", type(data.actions) == "table" and #data.actions > 0)
 			local has_give = false
 			for _, a in ipairs(data.actions) do
-				if a[1] == "giveweapon" and a[2] == "freezeray" then
+				if a[1] == "giveweapon" and a[2] == "hookshot" then
 					has_give = true
 				end
 			end
-			check("reward giveweapon freezeray", has_give)
+			check("reward giveweapon hookshot", has_give)
 		end
 	end
 

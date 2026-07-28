@@ -21,12 +21,6 @@
       ],
       "items": [
         {
-          "uid": "l7_light",
-          "ability": "lightgun",
-          "dx": 6,
-          "dy": 10
-        },
-        {
           "uid": "l7_hook",
           "ability": "hookshot",
           "dx": 10,

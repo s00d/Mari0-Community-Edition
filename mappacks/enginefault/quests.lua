@@ -17,7 +17,7 @@ QUESTS = {
 			{ int = "q4471_falls", need = 3, desc = "fall through the floor 3 times (known issue)" },
 			{ flag = "q4471_fixed", desc = "return to the Compiler" },
 		},
-		reward = { weapon = "freezeray", points = 5000 },
+		reward = { weapon = "hookshot", points = 5000 },
 		joke = "closed as WONTFIX",
 	},
 }

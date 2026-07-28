@@ -111,13 +111,9 @@ do
 	check("registry gel alias", Weapons.get("gel") == Weapons.get("gelcannon"))
 	check("registry gravitygun", Weapons.get("gravitygun") ~= nil)
 	check("registry hookshot", Weapons.get("hookshot") ~= nil and Weapons.get("hookshot").id == "hookshot")
-	check("registry lightgun", Weapons.get("lightgun") ~= nil and Weapons.get("lightgun").id == "lightgun")
-	check("registry freezeray", Weapons.get("freezeray") ~= nil and Weapons.get("freezeray").id == "freezeray")
 	check("portal icon path", tostring(Weapons.get("portal").icon):find("portalgun%.png") ~= nil)
 	check("gel icon path", tostring(Weapons.get("gelcannon").icon):find("gelcannon%.png") ~= nil)
 	check("hookshot icon path", tostring(Weapons.get("hookshot").icon):find("hookshot%.png") ~= nil)
-	check("lightgun icon path", tostring(Weapons.get("lightgun").icon):find("lightgun%.png") ~= nil)
-	check("freezeray icon path", tostring(Weapons.get("freezeray").icon):find("freezeray%.png") ~= nil)
 
 	levelweapons = nil
 	playertype = "portal"
@@ -127,21 +123,15 @@ do
 	check("default has gravitygun", loadout[2] == "gravitygun")
 	check("default has gelcannon", loadout[3] == "gelcannon")
 	check("default has hookshot", loadout[4] == "hookshot")
-	check("default has lightgun", loadout[5] == "lightgun")
-	check("default has freezeray", loadout[6] == "freezeray")
-	check("default len 6", #loadout == 6)
+	check("default len 4", #loadout == 4)
 
-	local pl = { weapons = { "portal", "gravitygun", "gelcannon", "hookshot", "lightgun", "freezeray" }, weaponi = 1, weapondelay = {} }
+	local pl = { weapons = { "portal", "gravitygun", "gelcannon", "hookshot" }, weaponi = 1, weapondelay = {} }
 	Weapons.switch(pl, 1)
 	check("switch +1", pl.weaponi == 2 and pl.weapons[pl.weaponi] == "gravitygun")
 	Weapons.switch(pl, 1)
 	check("switch to gel", pl.weaponi == 3 and pl.weapons[pl.weaponi] == "gelcannon")
 	Weapons.switch(pl, 1)
 	check("switch to hookshot", pl.weaponi == 4 and pl.weapons[pl.weaponi] == "hookshot")
-	Weapons.switch(pl, 1)
-	check("switch to lightgun", pl.weaponi == 5 and pl.weapons[pl.weaponi] == "lightgun")
-	Weapons.switch(pl, 1)
-	check("switch to freezeray", pl.weaponi == 6 and pl.weapons[pl.weaponi] == "freezeray")
 	Weapons.switch(pl, 1)
 	check("switch wrap", pl.weaponi == 1)
 end
@@ -796,243 +786,6 @@ do
 		}
 		Weapons.release(p3, "death")
 		check("Weapons.release detaches grapple", p3.grapple == false)
-	end
-end
-
--- 13) lightgun: one bridge, replace, RMB clear, unequip clear
-do
-	local ok_lg, lightgun = pcall(require, "weapons.lightgun")
-	check("load weapons.lightgun", ok_lg)
-	if ok_lg then
-		local bodies = {}
-		local bridges = {}
-		local function make_bridge(cox, coy, r)
-			local dir = "right"
-			if r and r[3] then dir = r[3] end
-			local self = {
-				cox = cox, coy = coy, dir = dir, power = true,
-				childtable = {}, destroy = false, handheld = nil,
-			}
-			function self:updaterange()
-				for _, c in ipairs(self.childtable) do
-					c.destroy = true
-				end
-				self.childtable = {}
-				if not self.power then
-					return
-				end
-				local body = { destroy = false, parent = self }
-				table.insert(bodies, body)
-				table.insert(self.childtable, body)
-			end
-			self:updaterange()
-			return self
-		end
-		lightbridge = {
-			new = function(_, x, y, r)
-				return make_bridge(x, y, r)
-			end,
-		}
-		objects = { lightbridge = bridges, lightbridgebody = bodies }
-		traceline = function()
-			return 5, 3, "left", 0, 5, 3
-		end
-		xscroll, yscroll, scale = 0, 0, 1
-		love = { mouse = { getPosition = function() return 80, 40 end } }
-		playsound = function() end
-
-		local pl = {
-			x = 1, y = 2, pointingangle = -math.pi / 2,
-			weapondelay = {}, weapons = { "lightgun" }, weaponi = 1,
-		}
-		lightgun.fire(pl, "l")
-		check("lightgun one bridge", #bridges == 1 and pl.lb_bridge ~= nil)
-		check("lightgun dir from face", pl.lb_bridge.dir == "left", tostring(pl.lb_bridge and pl.lb_bridge.dir))
-		local first = pl.lb_bridge
-		local body_count_1 = #bodies
-
-		pl.weapondelay.lightgun = 0
-		traceline = function()
-			return 8, 4, "up", 0, 8, 4
-		end
-		lightgun.fire(pl, "l")
-		local alive = 0
-		for _, b in ipairs(bridges) do
-			if not b.destroy then alive = alive + 1 end
-		end
-		check("lightgun second fire still one", alive == 1 and pl.lb_bridge ~= first)
-		check("lightgun old bodies destroyed", first.destroy == true)
-
-		pl.weapondelay.lightgun = 0
-		lightgun.fire(pl, "r")
-		check("lightgun RMB clears", pl.lb_bridge == nil)
-		local alive2 = 0
-		for _, b in ipairs(bridges) do
-			if not b.destroy then alive2 = alive2 + 1 end
-		end
-		check("lightgun RMB no live bridges", alive2 == 0)
-
-		pl.weapondelay.lightgun = 0
-		traceline = function()
-			return 5, 3, "right", 0, 5, 3
-		end
-		lightgun.fire(pl, "l")
-		check("lightgun placed again", pl.lb_bridge ~= nil)
-		lightgun.unequip(pl)
-		check("lightgun unequip clears", pl.lb_bridge == nil)
-
-		-- Weapons.release clears bridge
-		pl.weapondelay.lightgun = 0
-		lightgun.fire(pl, "l")
-		Weapons.release(pl, "death")
-		check("Weapons.release clears bridge", pl.lb_bridge == nil)
-
-		local _ = body_count_1 -- silence unused
-	end
-end
-
--- 14) freezeray: 6 cases from design plan
-do
-	local ok_fz, freezeray = pcall(require, "weapons.freezeray")
-	check("load weapons.freezeray", ok_fz)
-	local ok_ib = pcall(require, "entities.iceblock")
-	check("load entities.iceblock", ok_ib)
-	if ok_fz and ok_ib then
-		-- stub box for iceblock metatable
-		if not box then
-			box = {
-				init = function(self, x, y)
-					self.cox, self.coy = x, y
-					self.x, self.y = x - 14 / 16, y - 12 / 16
-					self.width, self.height = 0.75, 0.75
-					self.speedx, self.speedy = 0, 0
-					self.grabbable = true
-					self.drawable = true
-					self.active = true
-					self.destroying = false
-				end,
-				update = function() return false end,
-			}
-			setmetatable(iceblock, { __index = box })
-		end
-		adduserect = function() return {} end
-		blockdebristable = {}
-		blockdebris = {
-			new = function(_, x, y, sx, sy)
-				return { x = x, y = y, speedx = sx, speedy = sy }
-			end,
-		}
-		playsound = function() end
-		enemiesdata = { goomba = { width = 0.75, height = 0.75 } }
-		enemy = {
-			new = function(_, x, y, t)
-				return {
-					t = t, x = x, y = y, width = 0.75, height = 0.75,
-					animationdirection = "left", drawable = true, kill = false,
-				}
-			end,
-		}
-
-		local function reset_world()
-			objects = { enemy = {}, iceblock = {}, box = {} }
-			blockdebristable = {}
-		end
-
-		-- 1) fire on enemy → kill + one iceblock
-		reset_world()
-		local victim = {
-			t = "goomba", x = 2, y = 1, cox = 3, coy = 2,
-			width = 0.75, height = 0.75, animationdirection = "right",
-			graphic = "g", quad = "q", offsetX = 1, offsetY = 2,
-			quadcenterX = 3, quadcenterY = 4,
-			freezeimmune = false, dead = false, shot = false, kill = false, drawable = true,
-		}
-		objects.enemy[1] = victim
-		traceline = function(sx, sy)
-			return false, false, false, false, sx + 10, sy
-		end
-		checkrect = function()
-			return { "enemy", 1 }
-		end
-		xscroll, yscroll, scale = 0, 0, 1
-		love = { mouse = { getPosition = function() return 40, 20 end } }
-		local pl = { x = 0, y = 0.5, pointingangle = -math.pi / 2, weapondelay = {} }
-		freezeray.fire(pl, "l")
-		check("fz freeze marks kill", victim.kill == true and victim.drawable == false)
-		check("fz one iceblock", #objects.iceblock == 1)
-		check("fz beam always", (pl.fz_beam or 0) > 0)
-		check("fz cooldown set", (pl.weapondelay.freezeray or 0) > 0)
-
-		-- 2) fire miss → beam + cooldown, no block
-		reset_world()
-		pl = { x = 0, y = 0.5, pointingangle = -math.pi / 2, weapondelay = {} }
-		checkrect = function() return {} end
-		freezeray.fire(pl, "l")
-		check("fz miss beam set", (pl.fz_beam or 0) > 0)
-		check("fz miss cooldown", (pl.weapondelay.freezeray or 0) > 0)
-		check("fz miss no block", #objects.iceblock == 0)
-
-		-- 3) thaw restores enemy with same t
-		reset_world()
-		local ib = iceblock:new({
-			t = "goomba", x = 2, y = 1, cox = 3, coy = 2,
-			width = 0.75, height = 0.75, animationdirection = "left",
-			graphic = "g", quad = "q",
-		})
-		table.insert(objects.iceblock, ib)
-		ib.thaw = 0.001
-		local removed = ib:update(0.01)
-		check("fz thaw returns true", removed == true)
-		check("fz thaw restores enemy", #objects.enemy == 1 and objects.enemy[1].t == "goomba")
-
-		-- 4) shatter does not restore
-		reset_world()
-		ib = iceblock:new({
-			t = "goomba", x = 2, y = 1, cox = 3, coy = 2,
-			width = 0.75, height = 0.75, animationdirection = "left",
-			graphic = "g", quad = "q",
-		})
-		table.insert(objects.iceblock, ib)
-		ib.speedy = 20
-		removed = ib:update(0.01)
-		check("fz shatter returns true", removed == true)
-		check("fz shatter no enemy", #objects.enemy == 0)
-
-		-- 5) beamed thaw → Weapons.release
-		reset_world()
-		local release_called = false
-		local old_release = Weapons.release
-		Weapons.release = function(p, reason)
-			release_called = (reason == "thaw")
-			if old_release then old_release(p, reason) end
-		end
-		ib = iceblock:new({
-			t = "goomba", x = 2, y = 1, cox = 3, coy = 2,
-			width = 0.75, height = 0.75, animationdirection = "left",
-			graphic = "g", quad = "q",
-		})
-		local holder = { pickup = ib, gg_state = "held", gg_pulling = nil }
-		ib.beamed = holder
-		ib.thaw = 0
-		ib:melt()
-		check("fz beamed thaw releases", release_called == true)
-		Weapons.release = old_release
-
-		-- 6) freezeimmune not frozen
-		reset_world()
-		victim = {
-			t = "goomba", x = 2, y = 1, cox = 3, coy = 2,
-			width = 0.75, height = 0.75,
-			freezeimmune = true, dead = false, shot = false, kill = false, drawable = true,
-			gg_group = "enemy",
-		}
-		objects.enemy[1] = victim
-		checkrect = function() return { "enemy", 1 } end
-		pl = { x = 0, y = 0.5, pointingangle = -math.pi / 2, weapondelay = {} }
-		freezeray.fire(pl, "l")
-		check("fz immune not killed", victim.kill ~= true)
-		check("fz immune no block", #objects.iceblock == 0)
-		check("fz immune still beams", (pl.fz_beam or 0) > 0)
 	end
 end
 

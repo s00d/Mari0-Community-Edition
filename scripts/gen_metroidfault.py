@@ -140,13 +140,12 @@ LEVELS: list[dict] = [
             "iceboss": (50, 0, RW, RH, "scroll_h|boss|save", "ice"),
         },
         "gates": {
-            ("chill", "cryo"): ("red", "open"),
+            ("chill", "cryo"): ("open", "open"),
             ("cryo", "iceboss"): ("open", "open"),
         },
         "items": {
             "chill": [
                 {"uid": "l4_portal", "ability": "portal", "dx": 4, "dy": 11},
-                {"uid": "l4_freeze", "ability": "freezeray", "dx": 12, "dy": 10},
             ],
             "iceboss": [{"uid": "l4_highjump", "ability": "highjump", "dx": 20, "dy": 11}],
         },
@@ -231,7 +230,6 @@ LEVELS: list[dict] = [
         },
         "items": {
             "roost": [
-                {"uid": "l7_light", "ability": "lightgun", "dx": 6, "dy": 10},
                 {"uid": "l7_hook", "ability": "hookshot", "dx": 10, "dy": 11},
             ],
         },
@@ -260,7 +258,6 @@ LEVELS: list[dict] = [
         "items": {
             "vault": [
                 {"uid": "l8_portal", "ability": "portal", "dx": 5, "dy": 11},
-                {"uid": "l8_freeze", "ability": "freezeray", "dx": 8, "dy": 11},
             ],
             "core": [{"uid": "l8_grav", "ability": "gravitygun", "dx": 18, "dy": 10}],
         },

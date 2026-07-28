@@ -3,9 +3,7 @@
 global ABILITIES: {string:{string:string}} = {
 	portal = { name = "Portal Device", gate = "blue" },
 	gravitygun = { name = "Grav Manipulator", gate = "green" },
-	freezeray = { name = "Cryo Beam", gate = "red" },
 	hookshot = { name = "Grapple", gate = "gap" },
-	lightgun = { name = "Light Bridge", gate = "chasm" },
 	gelcannon = { name = "Gel Sprayer", gate = "wall" },
 	morphball = { name = "Morph Ball", gate = "morph" },
 	highjump = { name = "High Jump", gate = "high" },
@@ -13,15 +11,14 @@ global ABILITIES: {string:{string:string}} = {
 
 global ABILITY_TEXT: {string:string} = {
 	portal = "Create linked portals.", gravitygun = "Grab and fling objects.",
-	freezeray = "Freeze enemies into platforms.", hookshot = "Grapple across gaps.",
-	lightgun = "Bridge empty space.", gelcannon = "Spray propulsion gels.",
+	hookshot = "Grapple across gaps.", gelcannon = "Spray propulsion gels.",
 	morphball = "Fit through one-tile shafts.", highjump = "Jump higher.",
 }
 
 global DOOR_TYPES: {string:function(any, any): boolean} = {
 	open = function(_: any, _: any): boolean return true end,
 	blue = function(pl: any, _: any): boolean return has_weapon(pl, "portal") or has_ability(pl, "portal") end,
-	red = function(pl: any, _: any): boolean return has_weapon(pl, "freezeray") or has_ability(pl, "freezeray") end,
+	red = function(pl: any, _: any): boolean return has_weapon(pl, "hookshot") or has_ability(pl, "hookshot") end,
 	green = function(pl: any, _: any): boolean return has_weapon(pl, "gravitygun") or has_ability(pl, "gravitygun") end,
 	bomb = function(pl: any, _: any): boolean
 		local ch = pl and (pl as {string:any}).char as {string:any}
@@ -56,7 +53,7 @@ end
 
 global function has_ability(pl_any: any, id: string): boolean
 	if globoolSH("ability_" .. id, "check") then return true end
-	if id == "portal" or id == "gravitygun" or id == "freezeray" or id == "hookshot" or id == "lightgun" or id == "gelcannon" then
+	if id == "portal" or id == "gravitygun" or id == "hookshot" or id == "gelcannon" then
 		return has_weapon(pl_any, id)
 	end
 	local pl = pl_any as {string:any}
@@ -66,7 +63,7 @@ end
 
 local function apply_ability_effects(pl_any: any, id: string)
 	local pl = pl_any as {string:any}
-	if Weapons and Weapons.give and (id == "portal" or id == "gravitygun" or id == "freezeray" or id == "hookshot" or id == "lightgun" or id == "gelcannon") then
+	if Weapons and Weapons.give and (id == "portal" or id == "gravitygun" or id == "hookshot" or id == "gelcannon") then
 		Weapons.give(pl, id)
 	end
 	if id == "morphball" and pl then
@@ -120,7 +117,7 @@ global function fake_player_from_abilities(have: {string:boolean}): {string:any}
 		if on then
 			if id == "morphball" then char.morphball = true
 			elseif id == "bomb" then char.bomb = true
-			elseif id == "portal" or id == "gravitygun" or id == "freezeray" or id == "hookshot" or id == "lightgun" or id == "gelcannon" then
+			elseif id == "portal" or id == "gravitygun" or id == "hookshot" or id == "gelcannon" then
 				table.insert(weapons, id)
 			end
 		end
