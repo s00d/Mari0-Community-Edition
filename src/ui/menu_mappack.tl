@@ -105,7 +105,6 @@ global function menu_mappack_teardown_filter()
 end
 
 local function set_selection(src_i: integer)
-	local L = current_lists()
 	if mappacktype == "online" then
 		onlinemappackselection = src_i
 		if onlinemappacklist and onlinemappacklist[src_i] then
