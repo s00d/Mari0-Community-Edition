@@ -129,6 +129,26 @@ do
 	local wall = {1, 31, "false"}
 	normalize_legacy_map_entity(wall)
 	check("wallindicator unchanged", wall[2] == 31 and wall[3] == "false")
+	local plat = {134, 41, 13}
+	normalize_legacy_map_entity(plat)
+	check("legacy platformspawner 41→42", plat[2] == 42 and plat[3] == 13)
+	local plat2 = {1, 41, "down", 3, 3.5, 2.18}
+	normalize_legacy_map_entity(plat2)
+	check("legacy platformspawner down", plat2[2] == 42 and plat2[3] == "down")
+	local btn = {1, 40}
+	normalize_legacy_map_entity(btn)
+	check("legacy floor button 40→41", btn[2] == 41)
+	local cur = {1, 42, "up", 5}
+	normalize_legacy_map_entity(cur)
+	check("current platformspawner unchanged", cur[2] == 42 and cur[3] == "up")
+end
+
+-- 1.6 pass-through emit ids
+do
+	local ent, err = convertentity({40, "down"}, {strict = true})
+	check("1.6 button→CE 41", ent[1] == 41 and ent[2] == "down" and err == nil)
+	ent, err = convertentity({41, "down", 3, 3.5, 2.18}, {strict = true})
+	check("1.6 platformspawner→CE 42", ent[1] == 42 and ent[2] == "down" and err == nil)
 end
 
 -- Remap validation

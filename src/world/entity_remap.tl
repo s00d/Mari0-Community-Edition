@@ -120,7 +120,7 @@ global PASS_THROUGH: {number:boolean} = {
 	[33] = true, -- bulletbillstart
 	[34] = true, -- bulletbillend
 	[35] = true, -- drain
-	[40] = true, -- button
+	[40] = true, -- actionblock (1.6 id 40 was button → emit 41)
 	[43] = true, [44] = true, [45] = true, [46] = true, [47] = true, [48] = true, -- groundlights
 	[60] = true, -- bulletbill
 	[67] = true, -- boxtube
@@ -142,11 +142,11 @@ global ENTITY_LINK_TYPES: {number:{string}} = {
 	[28] = {"open"}, -- door
 	[30] = {"power"}, -- wallindicator
 	[36] = {"power"}, -- lightbridge
-	[43] = {"power"}, [44] = {"power"}, [45] = {"power"},
-	[46] = {"power"}, [47] = {"power"}, [48] = {"power"},
-	[49] = {"power"}, -- faithplate
-	[52] = {"power"}, -- laser
-	[61] = {"power"}, -- geldispenser
+	[44] = {"power"}, [45] = {"power"}, [46] = {"power"},
+	[47] = {"power"}, [48] = {"power"}, [49] = {"power"},
+	[50] = {"power"}, -- faithplate
+	[53] = {"power"}, -- laser
+	[62] = {"power"}, -- geldispenser
 	[67] = {"drop"}, -- boxtube
 	[74] = {"power"}, -- walltimer
 	[84] = {"in"}, -- notgate
@@ -167,13 +167,14 @@ global CE_ENTITY_TYPES: {number:string} = {
 	[25] = "mazegate", [26] = "emance", [28] = "door", [30] = "pedestal",
 	[31] = "wallindicator",
 	[32] = "pipespawn", [33] = "platformfall", [34] = "bulletbillstart",
-	[35] = "bulletbillend", [36] = "drain", [37] = "lightbridge", [40] = "button",
-	[41] = "platformspawner", [43] = "groundlightver", [44] = "groundlighthor",
-	[45] = "groundlightupright", [46] = "groundlightrightdown",
-	[47] = "groundlightdownleft", [48] = "groundlightleftup",
-	[49] = "faithplate", [52] = "laser", [56] = "laserdetector",
-	[60] = "bulletbill", [61] = "geldispenser", [67] = "boxtube",
-	[68] = "pushbutton", [74] = "walltimer", [79] = "castlefire",
+	[35] = "bulletbillend", [36] = "drain", [37] = "lightbridge", [40] = "actionblock",
+	[41] = "button", [42] = "platformspawner", [43] = "animationtrigger",
+	[44] = "groundlightver", [45] = "groundlighthor",
+	[46] = "groundlightupright", [47] = "groundlightrightdown",
+	[48] = "groundlightdownleft", [49] = "groundlightleftup",
+	[50] = "faithplate", [53] = "laser", [57] = "laserdetector",
+	[61] = "bulletbill", [62] = "geldispenser",
+	[67] = "boxtube", [68] = "pushbutton", [74] = "walltimer", [79] = "castlefire",
 	[80] = "seesaw", [81] = "warppipe", [83] = "lakitoend", [84] = "notgate",
 	[85] = "gel", [89] = "firestart", [90] = "bowser", [91] = "axe",
 	[92] = "platformbonus", [93] = "spring", [95] = "flyingfishstart",
@@ -191,13 +192,65 @@ global function remap_kind(old_id: number): string
 	return "unknown"
 end
 
+-- 1.6 pass-through ids → current CE entitylist slot (actionblock/animationtrigger shifted +1 from 40).
+local PASS_THROUGH_CE_EMIT: {number:number} = {
+	[40] = 41, -- button
+	[43] = 44, [44] = 45, [45] = 46, [46] = 47, [47] = 48, [48] = 49, -- groundlights
+	[60] = 61, -- bulletbill
+}
+
+local function is_platformspawner_cell(r: {any}): boolean
+	local p3 = r[3]
+	return p3 == "up" or p3 == "down" or (tonumber(p3) ~= nil)
+end
+
+local function is_legacy_floor_button_cell(r: {any}): boolean
+	local p3 = r[3]
+	return p3 == nil or p3 == "down" or p3 == "up" or p3 == "left" or p3 == "right" or p3 == "link"
+end
+
 -- Mari0 1.6 pipespawn was entity id 31; CE shifted wallindicator to 31 and pipespawn to 32.
--- Classic mappacks (smb, dlc_smb2J, …) still store 31 with a numeric sublevel source index.
+-- Portal / early CE mappacks still store platformspawner at 41 (now button) and groundlights at 43–48.
 global function normalize_legacy_map_entity(r: {any})
 	local ent = r[2]
-	if ent == 31 and type(r[3]) == "number" then
-		r[2] = 32
+	if type(ent) ~= "number" then
+		return
 	end
+	local e = ent as number
+
+	if e == 31 and type(r[3]) == "number" then
+		r[2] = 32
+		return
+	end
+
+	if e == 42 and is_platformspawner_cell(r) then
+		return
+	end
+	if e == 41 and not is_platformspawner_cell(r) and is_legacy_floor_button_cell(r) then
+		return
+	end
+
+	if e == 41 and is_platformspawner_cell(r) then
+		r[2] = 42
+		return
+	end
+
+	if e == 40 and is_legacy_floor_button_cell(r) then
+		r[2] = 41
+		return
+	end
+
+	if e >= 43 and e <= 48 and r[3] == "link" then
+		r[2] = e + 1
+	end
+end
+
+global function pass_through_ce_id(old_id: number): number
+	local mapped = PASS_THROUGH_CE_EMIT[old_id]
+	if mapped then
+		return mapped
+	end
+	return old_id
 end
 
 --[[ Validate remaps against enemy JSON files and CE entity slots.
@@ -231,15 +284,15 @@ global function validate_remap(opts: {string:any}|nil): {string}
 		elseif kind == "lightbridge" then
 			ce = 36
 		elseif kind == "platformspawner" then
-			ce = 41
+			ce = 42
 		elseif kind == "faithplate" then
-			ce = 49
+			ce = 50
 		elseif kind == "laser" then
-			ce = 52
+			ce = 53
 		elseif kind == "laserdetector" then
-			ce = 56
+			ce = 57
 		elseif kind == "geldispenser" then
-			ce = 61
+			ce = 62
 		elseif kind == "pushbutton" then
 			ce = 68
 		elseif kind == "castlefire" then
@@ -264,9 +317,10 @@ global function validate_remap(opts: {string:any}|nil): {string}
 	end
 
 	for id, _ in pairs(PASS_THROUGH) do
-		local t = ce_types[id]
+		local ce_id = pass_through_ce_id(id)
+		local t = ce_types[ce_id]
 		if not t or t == "" then
-			table.insert(problems, string.format("PASS_THROUGH[%s] has empty CE entitylist slot", tostring(id)))
+			table.insert(problems, string.format("PASS_THROUGH[%s] emits empty CE slot %s", tostring(id), tostring(ce_id)))
 		end
 	end
 
@@ -283,5 +337,6 @@ end
 	CE_ENTITY_TYPES = CE_ENTITY_TYPES,
 	remap_kind = remap_kind,
 	normalize_legacy_map_entity = normalize_legacy_map_entity,
+	pass_through_ce_id = pass_through_ce_id,
 	validate_remap = validate_remap,
 }

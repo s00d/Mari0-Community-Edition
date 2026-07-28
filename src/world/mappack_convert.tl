@@ -91,15 +91,15 @@ local function build_variant(vr: {string:any}, entin: {any}): {any}
 	elseif kind == "lightbridge" then
 		return {36, vr.dir, tostring(tablecontains(entin, "link"))}
 	elseif kind == "platformspawner" then
-		return {41, vr.dir, entin[2], 3.5, 2.18}
+		return {42, vr.dir, entin[2], 3.5, 2.18}
 	elseif kind == "faithplate" then
-		return {49, vr.vx, vr.vy, "false"}
+		return {50, vr.vx, vr.vy, "false"}
 	elseif kind == "laser" then
-		return {52, vr.dir, tostring(tablecontains(entin, "link"))}
+		return {53, vr.dir, tostring(tablecontains(entin, "link"))}
 	elseif kind == "laserdetector" then
-		return {56, vr.dir, "false"}
+		return {57, vr.dir, "false"}
 	elseif kind == "geldispenser" then
-		return {61, vr.dir, vr.gel_id, "false"}
+		return {62, vr.dir, vr.gel_id, "false"}
 	elseif kind == "pushbutton" then
 		return {68, vr.dir, "down"}
 	elseif kind == "castlefire" then
@@ -139,7 +139,11 @@ global function convertentity(entin_in: any, opts: {string:any}|nil): {any}, str
 	elseif PASS_THROUGH[entid] then
 		local i = 1
 		while entin[i] ~= "link" and i <= #entin do
-			newent[i] = entin[i]
+			if i == 1 and pass_through_ce_id then
+				newent[i] = pass_through_ce_id(entid)
+			else
+				newent[i] = entin[i]
+			end
 			i = i + 1
 		end
 	else

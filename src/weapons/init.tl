@@ -275,7 +275,10 @@ local function draw_hud(pl_any: any)
 		local img = w and icon_image(w.icon as string)
 		if img then
 			love.graphics.setColor(1, 1, 1, i == pl.weaponi and 1 or 0.55)
-			love.graphics.draw(img, x * scale, y * scale, 0, scale / 2, scale / 2)
+			-- Center 16px icon inside 17px selection box (box draws at x-1,y-1).
+			local ox = ((w.icon_ox as number) or 0) - 0.5
+			local oy = ((w.icon_oy as number) or 0) - 0.5
+			love.graphics.draw(img, (x + ox) * scale, (y + oy) * scale, 0, scale / 2, scale / 2)
 		else
 			love.graphics.setColor(i == pl.weaponi and 1 or 0.4, 0.8, 0.2, 1)
 			love.graphics.rectangle("fill", x * scale, y * scale, 16 * scale, 16 * scale)

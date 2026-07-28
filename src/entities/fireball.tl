@@ -56,6 +56,18 @@ function fireball:init(x: number, y: number, dir, v)
 	self.emancipatecheck = true
 end
 
+local function fireball_notify_thrower(self: fireball)
+	local thrower = self.fireballthrower
+	if not thrower then
+		return
+	end
+	local bag = thrower as {string:any}
+	local cb = bag.fireballcallback
+	if cb then
+		(cb as function({string:any}))(bag)
+	end
+end
+
 function fireball:update(dt: number): boolean
 	--rotate back to 0 (portals)
 	self.rotation = 0
@@ -85,7 +97,7 @@ function fireball:update(dt: number): boolean
 	end
 	
 	if self.x < xscroll-1 or self.x > xscroll+width+1 or self.y > mapheight and self.active then
-		(self.fireballthrower as mario):fireballcallback()
+		fireball_notify_thrower(self)
 		self.destroy = true
 	end
 	
@@ -148,7 +160,7 @@ end
 
 function fireball:explode()
 	if self.active then
-		(self.fireballthrower as mario):fireballcallback()
+		fireball_notify_thrower(self)
 		
 		self.destroysoon = true
 		self.quadi = 5
