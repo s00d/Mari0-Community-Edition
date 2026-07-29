@@ -190,9 +190,7 @@ local function extract_tile(cox: number, coy: number): {string:any}|nil
 	local tq = tilequads[tid]
 
 	map[cox][coy][1] = 1
-	if objects and objects["tile"] then
-		objects["tile"][tilekey(cox, coy)] = nil
-	end
+	physics_world_set_tile(tilekey(cox, coy), nil)
 	if init_map_cell_gels then
 		init_map_cell_gels(map[cox][coy])
 	end

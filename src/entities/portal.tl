@@ -148,7 +148,7 @@ function portal:removeportal(i: number)
 		
 		modifyportalwalls()
 		for j = 1, 6 do
-			objects["portalwall"][self.number .. "-" .. i .. "-" .. j] = nil
+			physics_world_set_portalwall(self.number .. "-" .. i .. "-" .. j, nil)
 		end
 		updateranges()
 	end

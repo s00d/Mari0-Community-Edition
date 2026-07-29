@@ -2616,7 +2616,7 @@ function mapwidthapply()
 			end
 			
 			if tilequads[newmap[x][y][1]]:getproperty("collision", x, y) then
-				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1, 1, 1, true) as Entity
+				physics_world_set_tile(tilekey(x, y), tile:new(x-1, y-1, 1, 1, true) as Entity)
 			end
 		end
 	end
@@ -2669,6 +2669,7 @@ function mapwidthapply()
 	end
 	
 	objects["screenboundary"]["right"].x = mapwidth
+	physics_world_refresh()
 	generatespritebatch(0, 0)
 	
 	--editorclose()
@@ -2889,9 +2890,9 @@ function placetile(x: number, y: number, t: any, ent: any, preventMultiTile: any
 			-- collision objects for resulting tile
 			local nt = map[cox][coy][1] as number
 			if tilequads[nt]:getproperty("collision") == true then
-				objects["tile"][tilekey(cox, coy)] = tile:new(cox-1, coy-1, 1, 1, true) as Entity
+				physics_world_set_tile(tilekey(cox, coy), tile:new(cox-1, coy-1, 1, 1, true) as Entity)
 			else
-				objects["tile"][tilekey(cox, coy)] = nil
+				physics_world_set_tile(tilekey(cox, coy), nil)
 			end
 			generatespritebatch(0, 0)
 			return
@@ -2905,9 +2906,9 @@ function placetile(x: number, y: number, t: any, ent: any, preventMultiTile: any
 		end
 	
 		if tilequads[currenttile as number]:getproperty("collision") == true and tilequads[map[cox][coy][1] as number]:getproperty("collision") == false then
-			objects["tile"][tilekey(cox, coy)] = tile:new(cox-1, coy-1, 1, 1, true) as Entity
+			physics_world_set_tile(tilekey(cox, coy), tile:new(cox-1, coy-1, 1, 1, true) as Entity)
 		elseif tilequads[currenttile as number]:getproperty("collision") == false and tilequads[map[cox][coy][1] as number]:getproperty("collision") == true then
-			objects["tile"][tilekey(cox, coy)] = nil
+			physics_world_set_tile(tilekey(cox, coy), nil)
 		end
 		if map[cox][coy][1] ~= currenttile then
 			map[cox][coy][1] = currenttile

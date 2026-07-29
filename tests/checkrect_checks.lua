@@ -24,11 +24,19 @@ local function out_has(out, typ, key)
 end
 
 require("physics.late") -- aabb
+require("physics.world")
 require("physics.checkrect")
+
+local function sync_physics()
+	if physics_world_refresh then
+		physics_world_refresh()
+	end
+end
 
 -- empty world
 do
 	objects = {}
+	sync_physics()
 	local out = checkrect(0, 0, 1, 1, "all")
 	check("empty all", #out == 0)
 end
@@ -42,6 +50,7 @@ do
 			[3] = {x = 0.2, y = 0.2, width = 1, height = 1, active = false, static = false},
 		},
 	}
+	sync_physics()
 	local out = checkrect(0, 0, 1, 1, "all")
 	check("hit player 1", out_has(out, "player", 1))
 	check("miss far player 2", not out_has(out, "player", 2))
@@ -59,6 +68,7 @@ do
 			[1] = {x = 0.2, y = 0.2, width = 1, height = 1, active = true, static = false},
 		},
 	}
+	sync_physics()
 	local out = checkrect(0, 0, 1, 1, {"box"})
 	check("list only box", #out == 2 and out[1] == "box" and out[2] == 1)
 	out = checkrect(0, 0, 1, 1, {"player", "box"})
@@ -75,6 +85,7 @@ do
 			[1] = {x = 0, y = 0, width = 1, height = 1, active = true, static = false},
 		},
 	}
+	sync_physics()
 	local out = checkrect(0, 0, 1, 1, "all")
 	check("all skips static", not out_has(out, "tile", 1) and out_has(out, "box", 1))
 	out = checkrect(0, 0, 1, 1, "all", true)
@@ -94,6 +105,7 @@ do
 		box = {[1] = b},
 		goomba = {[1] = c},
 	}
+	sync_physics()
 	local out = checkrect(0, 0, 1, 1, {"exclude", a})
 	check("exclude self", not out_has(out, "player", 1))
 	check("exclude keeps box", out_has(out, "box", 1))
@@ -112,6 +124,7 @@ do
 			[1] = {x = 0, y = 0, width = 1, height = 1, active = true, static = false},
 		},
 	}
+	sync_physics()
 	local out = checkrect(0, 0, 1, 1, {4})
 	check("enemy cat 4 only", out_has(out, "enemy", 1) and not out_has(out, "enemy", 2))
 	check("enemy list no player", not out_has(out, "player", 1))

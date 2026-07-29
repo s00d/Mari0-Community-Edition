@@ -1529,6 +1529,18 @@ global checkportalHOR: function(Entity, number): boolean
 global checkportalVER: function(Entity, number): boolean
 global checkportalremove: function(any, any)
 global checkrect: function(x: number, y: number, width: number, height: number, list: any, statics?: any): {integer:any}
+global physics_world_reset: function()
+global physics_world_refresh: function()
+global physics_world_prune: function()
+global physics_world_upsert: function(item: any, group: string, key: any)
+global physics_world_remove: function(item: any)
+global physics_world_query: function(x: number, y: number, w: number, h: number, filter?: any): {integer: any}, number
+global physics_world_meta: function(item: any): string|nil, any
+global physics_world_upsert_slot: function(group: string, key: any, body: any)
+global physics_world_remove_slot: function(group: string, key: any)
+global physics_world_set_tile: function(key: any, body: any|nil)
+global physics_world_set_portalwall: function(key: string, body: any|nil)
+global physics_world_insert_platform: function(body: any)
 global closerightclickmenu: function()
 global collectblock: function(any): any
 global collectcoin: function(x: number, y: number, i?: any): any

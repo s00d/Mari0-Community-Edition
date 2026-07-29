@@ -107,6 +107,10 @@ function M.setup_fixture(object_count)
 		enemies[i] = make_body(i, x, y, i == 1)
 	end
 
+	require("physics.world")
+	physics_world_reset()
+	physics_world_refresh()
+
 	return objects
 end
 

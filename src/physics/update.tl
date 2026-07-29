@@ -2,6 +2,8 @@
 -- Depends at runtime on: objects, PHYSICS_LATE_*, convert*, checkportal*,
 -- handlegroup, checkcollision, inmap, tilequads, map, tilekey, checkforemances, inportal.
 
+require("physics.world")
+
 if rawget(_G, "prof_push") == nil then
 	rawset(_G, "prof_push", function(_: string) end)
 	rawset(_G, "prof_pop", function(_: string|nil) end)
@@ -9,6 +11,7 @@ end
 
 global function physicsupdate(dt: number)
 	prof_push("physicsupdate")
+	physics_world_prune()
 	local lobjects = objects
 	
 	for gi = 1, #PHYSICS_GROUP_ORDER do
@@ -20,6 +23,7 @@ global function physicsupdate(dt: number)
 				if v.static == false and v.active then
 					local body = v as Body
 					local skip_map_physics = group_name == "player" and level_mapmode
+					physics_world_upsert(v, group_name, i)
 					if not skip_map_physics then
 					--GRAVITY
 					v.speedy = v.speedy + (v.gravity or yacceleration)*dt*0.5
@@ -52,12 +56,19 @@ global function physicsupdate(dt: number)
 					--COLLISIONS ROFL
 					local horcollision = false
 					local vercollision = false
+
+					local sx = v.speedx or 0
+					local sy = v.speedy or 0
+					local smx = v.x + math.min(0, sx * dt)
+					local smy = v.y + math.min(0, sy * dt)
+					local smw = v.width + math.abs(sx * dt)
+					local smh = v.height + math.abs(sy * dt)
 					
 					--VS OTHER OBJECTS PRE TILE GROUP
 					for hi = 1, #PHYSICS_GROUP_ORDER do
 						local h = PHYSICS_GROUP_ORDER[hi]
 						local u = lobjects[h]
-						if u and h ~= "tile" and not PHYSICS_LATE_SET[h as string] then
+						if u and next(u as {any: any}) ~= nil and h ~= "tile" and not PHYSICS_LATE_SET[h as string] then
 							local hor, ver = handlegroup(i, h, u as {any:Body}, body, group_name, dt, passed)
 							if hor then
 								horcollision = true
@@ -68,30 +79,27 @@ global function physicsupdate(dt: number)
 						end
 					end
 					
-					--VS TILES (Because I only wanna check close ones)
-					local xstart = math.floor(v.x+v.speedx*dt-2/16)+1
-					local ystart = math.floor(v.y+v.speedy*dt-2/16)+1
-					
-					local xfrom = xstart
-					local xto = xstart+math.ceil(v.width+0.0001)
-					local dir = 1
-					
-					if v.speedx < 0 then
-						xfrom, xto = xto, xfrom
-						dir = -1
+					--VS TILES (bump broadphase)
+					local function tile_filter(item: any): boolean
+						return physics_world_meta(item) == "tile"
 					end
-					
+					local tile_items: {integer: any}
+					local tile_len: number
+					tile_items, tile_len = physics_world_query(smx, smy, smw, smh, tile_filter)
 					local tiles = lobjects["tile"]
-					for x = xfrom, xto, dir do
-						for y = ystart, ystart+math.ceil(v.height+0.0001) do
-							--check if invisible block
-							if inmap(x, y) and (not tilequads[map[x][y][1]]:getproperty("invisible", x, y) or group_name == "player") then
-								local tk = tilekey(x, y)
-								local t = tiles[tk]
-								if t then
-									--    Same object          Active        Not masked
-									if (i ~= tk or group_name ~= "tile") and t.active and v.mask[t.category] ~= true then
-										local collision1, collision2 = checkcollision(v, t, "tile", tk, group_name, i, dt, passed)
+					for tii = 1, tile_len do
+						local t = tile_items[tii as integer] as Body
+						if t and t.active then
+							local _mg: string|nil
+							local tk: any
+							_mg, tk = physics_world_meta(t)
+							if tk and tiles and (tiles as {any: Body})[tk] == t then
+								local tile_ent = t as Entity
+								local mx = tile_ent.cox as number
+								local my = tile_ent.coy as number
+								if inmap(mx, my) and (not tilequads[map[mx][my][1]]:getproperty("invisible", mx, my) or group_name == "player") then
+									if (i ~= tk or group_name ~= "tile") and v.mask[t.category] ~= true then
+										local collision1, collision2 = checkcollision(v, tile_ent, "tile", tk, group_name, i, dt, passed)
 										if collision1 then
 											horcollision = true
 										elseif collision2 then
@@ -106,7 +114,7 @@ global function physicsupdate(dt: number)
 					--VS: LATE OBJECTS
 					for _, h in ipairs(PHYSICS_LATE_LIST) do
 						local u = objects[h]
-						if u then
+						if u and next(u as {any: any}) ~= nil then
 							local hor, ver = handlegroup(i, h, u as {any:Body}, body, group_name, dt, passed)
 							if hor then
 								horcollision = true
@@ -128,6 +136,8 @@ global function physicsupdate(dt: number)
 					if horcollision == false then
 						v.x = v.x + v.speedx*dt
 					end
+
+					physics_world_upsert(v, group_name, i)
 					
 					if v.gravitydirection and v.gravitydirection ~= math.pi/2 then
 						v.speedx, v.speedy = converttostandard(v, v.speedx, v.speedy)

@@ -55,10 +55,12 @@ function animatedbooltimer:update(dt: number)
 		local props = self.quadobj.properties[newi]
 		
 		if oldcol ~= props.collision then
+			local key = tilekey(self.x, self.y)
 			if props.collision then
-				objects["tile"][tilekey(self.x, self.y)] = tile:new(self.x-1, self.y-1)
+				local t = tile:new(self.x-1, self.y-1)
+				physics_world_set_tile(key, t)
 			else
-				objects["tile"][tilekey(self.x, self.y)] = nil
+				physics_world_set_tile(key, nil)
 				checkportalremove(self.x, self.y)
 			end
 		end

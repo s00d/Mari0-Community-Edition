@@ -96,4 +96,7 @@ global function reset_level_state()
 	rawset(_G, "smbspritebatchfront", nil)
 	rawset(_G, "portalspritebatch", nil)
 	rawset(_G, "portalspritebatchfront", nil)
+	if physics_world_reset then
+		physics_world_reset()
+	end
 end

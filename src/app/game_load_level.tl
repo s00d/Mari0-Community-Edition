@@ -563,6 +563,9 @@ global function loadlevel(level: string|number): boolean
 	if keepalive_pump then
 		keepalive_pump()
 	end
+	if physics_world_refresh then
+		physics_world_refresh()
+	end
 	return needs_to_be_saved
 end
 
@@ -602,12 +605,12 @@ global function changemapwidth(width: number)
 				map[x][y] = {1}
 				init_map_cell_gels(map[x][y])
 				map[x][y].portaloverride = {}
-				objects["tile"][tilekey(x, y)] = nil
+				physics_world_set_tile(tilekey(x, y), nil)
 			end
 		
 			for y = (mapheight as number)-1, mapheight as number do
 				map[x][y] = {2}
-				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
+				physics_world_set_tile(tilekey(x, y), tile:new(x-1, y-1))
 				init_map_cell_gels(map[x][y])
 				map[x][y].portaloverride = {}
 			end
@@ -616,7 +619,7 @@ global function changemapwidth(width: number)
 
 	mapwidth = width
 	objects["screenboundary"]["right"].x = mapwidth as number
-	
+	physics_world_upsert_slot("screenboundary", "right", objects["screenboundary"]["right"])
 	if playerobjs[1].x > (mapwidth as number) then
 		playerobjs[1].x = (mapwidth as number)-1
 	end
@@ -635,18 +638,19 @@ global function changemapheight(height: number)
 				map[x][y].portaloverride = {}
 				
 				if tilequads[currenttile]:getproperty("collision", x, y) then
-					objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1, 1, 1, true)
+					physics_world_set_tile(tilekey(x, y), tile:new(x-1, y-1, 1, 1, true))
 				else
-					objects["tile"][tilekey(x, y)] = nil
-				end			
+					physics_world_set_tile(tilekey(x, y), nil)
+				end
 			end
 		end
 	end
 	
 	mapheight = height
 	
-	for _, v in pairs(objects["screenboundary"] as {any:any}) do
+	for key, v in pairs(objects["screenboundary"] as {any:any}) do
 		(v as Entity).height = 1000+(mapheight as number)
+		physics_world_upsert_slot("screenboundary", key, v)
 	end
 	
 	if playerobjs[1].y > (mapheight as number) then

@@ -265,6 +265,9 @@ do
 		"portalwall far: swept broadphase misses",
 		aabb(smx, smy, smw, smh, wall.x, 20 - 1 / 32, wall.width, eth) == false
 	)
+	require("physics.world")
+	physics_world_reset()
+	physics_world_upsert(wall, "portalwall", "top")
 	local hor, ver = handlegroup(1, "portalwall", { top = wall }, mario, "player", dt, false)
 	check("portalwall top: handlegroup catches fall", hor == false and ver == true, "hor=" .. tostring(hor) .. " ver=" .. tostring(ver))
 	check("portalwall top: stands on wall", math.abs(mario.y - (wall.y - H)) < 1e-9, "y=" .. mario.y)

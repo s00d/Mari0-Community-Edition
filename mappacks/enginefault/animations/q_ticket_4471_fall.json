@@ -1,5 +1,5 @@
 {
   "actions":[["dotoint","q4471_falls","add","1"],["dotobool","q4471_fall_gate","true"],["dialogbox","fall logged. (gc will reset gate next mapload)","tracker"]],
-  "triggers":[["playerygreater","13"]],
-  "conditions":[["worldequals","1"],["levelequals","2"],["ifint","q_ticket_4471_step","equal","1"],["ifbool","q4471_fall_gate","false"]]
+  "conditions":[["worldequals","1"],["levelequals","2"],["ifint","q_ticket_4471_step","equal","1"],["ifbool","q4471_fall_gate","false"]],
+  "triggers":[["playerygreater","13"]]
 }

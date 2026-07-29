@@ -364,17 +364,17 @@ ENEMY_SPAWN_HANDLERS["castlefire"] = function(x: number, y: number, r: {any}, _?
 end
 
 ENEMY_SPAWN_HANDLERS["platform"] = function(x: number, y: number, r: {any}, _?: boolean): boolean
-	table.insert(objects["platform"], platform:new(x, y, r) as Entity) --Platform
+	physics_world_insert_platform(platform:new(x, y, r) as Entity) --Platform
 	return false
 end
 
 ENEMY_SPAWN_HANDLERS["platformfall"] = function(x: number, y: number, r: {any}, _?: boolean): boolean
-	table.insert(objects["platform"], platform:new(x, y, {0, 0, r[3]}, "fall") as Entity) --Platform fall
+	physics_world_insert_platform(platform:new(x, y, {0, 0, r[3]}, "fall") as Entity) --Platform fall
 	return false
 end
 
 ENEMY_SPAWN_HANDLERS["platformbonus"] = function(x: number, y: number, _: {any}, _?: boolean): boolean
-	table.insert(objects["platform"], platform:new(x, y, {0, 0, 3}, "justright") as Entity)
+	physics_world_insert_platform(platform:new(x, y, {0, 0, 3}, "justright") as Entity)
 	return false
 end
 

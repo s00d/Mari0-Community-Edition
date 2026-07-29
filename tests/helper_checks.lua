@@ -455,11 +455,21 @@ do
 		calls = calls + 1
 		return true, false
 	end
+	require("physics.world")
+	local function sync_bump(group_name, u)
+		physics_world_reset()
+		for key, body in pairs(u) do
+			if body and body.active ~= false then
+				physics_world_upsert(body, group_name, key)
+			end
+		end
+	end
 	local v = {mask = {}, category = 3, x = 0, y = 0, width = 1, height = 1}
 	local u = {
 		a = {active = true, category = 2, mask = {}, x = 0, y = 0, width = 1, height = 1},
 		b = {active = false, category = 2, mask = {}, x = 5, y = 0, width = 1, height = 1},
 	}
+	sync_bump("enemy", u)
 	local hor, ver = handlegroup(1, "enemy", u, v, "player", 0.016, false)
 	check("handlegroup hor", hor == true)
 	check("handlegroup skips inactive", calls == 1)
@@ -470,6 +480,7 @@ do
 		a = {active = true, category = 2, mask = {}, x = 0, y = 1.02, width = 1, height = 0},
 	}
 	check("handlegroup approach no current aabb", aabb(v.x, v.y, v.width, v.height, u.a.x, u.a.y, u.a.width, u.a.height) == false)
+	sync_bump("portalwall", u)
 	hor, ver = handlegroup(1, "portalwall", u, v, "player", 0.016, false)
 	check("handlegroup approach still checks", calls == 1 and hor == true)
 	-- far pairs must stay culled by swept broadphase
@@ -477,12 +488,14 @@ do
 	u = {
 		a = {active = true, category = 2, mask = {}, x = 0, y = 10, width = 1, height = 1},
 	}
+	sync_bump("enemy", u)
 	hor, ver = handlegroup(1, "enemy", u, v, "player", 0.016, false)
 	check("handlegroup far pair culled", calls == 0 and hor == false)
 	-- same object skipped
 	calls = 0
 	u = { [5] = {active = true, category = 2, mask = {}, x = 0, y = 0, width = 1, height = 1} }
 	v = {mask = {}, category = 3, x = 0, y = 0, width = 1, height = 1}
+	sync_bump("player", u)
 	hor, ver = handlegroup(5, "player", u, v, "player", 0.016, false)
 	check("handlegroup skip self", calls == 0 and hor == false)
 	checkcollision = real_checkcollision

@@ -50,9 +50,9 @@ function platformspawner:update(dt: number): boolean
 	self.timer = self.timer + dt
 	if self.timer > self.spawndelay then
 		if self.dir == "up" then
-			table.insert(objects["platform"], platform:new(self.x, self.y+1, {0, 0, self.size, 0, 0, 0, self.speed}, "justup"))
+			physics_world_insert_platform(platform:new(self.x, self.y+1, {0, 0, self.size, 0, 0, 0, self.speed}, "justup"))
 		else
-			table.insert(objects["platform"], platform:new(self.x, self.y-0.5, {0, 0, self.size, 0, 0, 0, self.speed}, "justdown"))
+			physics_world_insert_platform(platform:new(self.x, self.y-0.5, {0, 0, self.size, 0, 0, 0, self.speed}, "justdown"))
 		end
 		
 		self.timer = self.timer - self.spawndelay

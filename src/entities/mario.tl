@@ -680,7 +680,7 @@ function mario:update_animation(dt: number): boolean
 					if tilequads[map[self.animationbridgex][y][1]]:getproperty("bridge", self.animationbridgex, y) then
 						removedtile = true
 						map[self.animationbridgex][y][1] = 1
-						objects["tile"][tilekey(self.animationbridgex, y)] = nil
+						physics_world_set_tile(tilekey(self.animationbridgex, y), nil)
 					end
 				end
 				
@@ -3336,7 +3336,7 @@ global function destroyblock(x: number, y: number): any
 	end
 	
 	map[x][y][1] = 1
-	objects["tile"][tilekey(x, y)] = nil
+	physics_world_set_tile(tilekey(x, y), nil)
 	init_map_cell_gels(map[x][y])
 	playsound("blockbreak")
 	addpoints(50)
@@ -3849,6 +3849,7 @@ function mario:flag()
 	firework = false
 	castleflagy = castleflagstarty
 	objects["screenboundary"]["flag"].active = false
+	physics_world_upsert(objects["screenboundary"]["flag"], "screenboundary", "flag")
 	
 	--get score
 	flagscore = flagscores[1]
@@ -3888,7 +3889,7 @@ function mario:axe()
 	end
 	
 	for i, _ in pairs(objects["platform"]) do
-		objects["platform"][i] = nil
+		physics_world_remove_slot("platform", i)
 	end
 
 	self.raccoontimer = 0
@@ -3915,7 +3916,7 @@ function mario:axe()
 	bridgedisappear = false
 	self.animationtimer2 = castleanimationbridgedisappeardelay
 	bowserfall = false
-	objects["screenboundary"]["axe"] = nil
+	physics_world_remove_slot("screenboundary", "axe")
 	
 	if objects["bowser"][1] and not objects["bowser"][1].shot then
 		local v = objects["bowser"][1]

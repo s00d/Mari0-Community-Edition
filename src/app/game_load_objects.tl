@@ -396,14 +396,16 @@ global function reachedx(currentx: any)
 			for cox = mapwidth, x, -1 do
 				--move objects
 				if objects["tile"][tilekey(cox, y)] then
-					objects["tile"][tilekey(cox + 1, y)] = tile:new(cox, y-1) as Entity
-					objects["tile"][tilekey(cox, y)] = nil
+					local new_key = tilekey(cox + 1, y)
+					local t = tile:new(cox, y-1) as Entity
+					physics_world_set_tile(tilekey(cox, y), nil)
+					physics_world_set_tile(new_key, t)
 				end
 			end
 			
 			--create object for block
 			if tilequads[map[repeatX as number][y][1]]:getproperty("collision", repeatX, y) then
-				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
+				physics_world_set_tile(tilekey(x, y), tile:new(x-1, y-1) as Entity)
 			end
 		end
 		mapwidth = mapwidth + 1
@@ -412,11 +414,13 @@ global function reachedx(currentx: any)
 			flagx = (flagx as number) + 1
 			flagimgx = flagimgx + 1
 			objects["screenboundary"]["flag"].x = objects["screenboundary"]["flag"].x + 1
+			physics_world_upsert_slot("screenboundary", "flag", objects["screenboundary"]["flag"])
 		end
 		
 		if axex then
 			axex = (axex as number) + 1
 			objects["screenboundary"]["axe"].x = objects["screenboundary"]["axe"].x + 1
+			physics_world_upsert_slot("screenboundary", "axe", objects["screenboundary"]["axe"])
 		end
 		
 		if firestartx then
@@ -424,6 +428,7 @@ global function reachedx(currentx: any)
 		end
 		
 		objects["screenboundary"]["right"].x = objects["screenboundary"]["right"].x + 1
+		physics_world_upsert_slot("screenboundary", "right", objects["screenboundary"]["right"])
 		
 		--move mazestarts and ends
 		for i = 1, #mazestarts do

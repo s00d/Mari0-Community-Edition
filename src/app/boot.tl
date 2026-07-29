@@ -78,6 +78,7 @@ function Boot.require_game()
 	require "world.mappack_convert"
 	require "util.userectutil"
 	require "physics.collision"
+	require "physics.world"
 	require "physics.checkrect"
 	require "physics.portal"
 	require "physics.handlegroup"

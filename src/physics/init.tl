@@ -45,6 +45,7 @@
 --31: UPFIRE
 
 -- Thin facade: movers + AABB query live in dedicated modules.
+require("physics.world")
 require("physics.checkrect")
 require("physics.order")
 require("physics.update")

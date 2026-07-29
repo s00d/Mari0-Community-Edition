@@ -84,9 +84,12 @@ function animatedquad:updateproperties()
 				local x = vv.x
 				local y = vv.y
 				if self.props.collision then
-					objects["tile"][tilekey(x as number, y as number)] = tile:new((x as number)-1, (y as number)-1) as Entity
+					local key = tilekey(x as number, y as number)
+					local t = tile:new((x as number)-1, (y as number)-1) as Entity
+					physics_world_set_tile(key, t)
 				else
-					objects["tile"][tilekey(x, y)] = nil
+					local key = tilekey(x, y)
+					physics_world_set_tile(key, nil)
 					checkportalremove(x as number, y as number)
 				end
 			end

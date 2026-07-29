@@ -7,39 +7,39 @@ global function modifyportalwalls()
 		for i = 1, 2 do
 			if ((pb as {string:any})["x" .. i] as number) then
 				if (b as {string:any})["facing" .. i] == "up" then
-					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-3"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new(((b as {string:any})["x" .. i] as number)+1, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 0, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new(((b as {string:any})["x" .. i] as number)+1, ((b as {string:any})["y" .. i] as number)-1, 0, 0, true)
+					physics_world_set_portalwall(a .. "-" .. i .. "-1", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-2", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 1, 0, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-3", portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 1, 0, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-4", portalwall:new(((b as {string:any})["x" .. i] as number)+1, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-5", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 0, 0, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-6", portalwall:new(((b as {string:any})["x" .. i] as number)+1, ((b as {string:any})["y" .. i] as number)-1, 0, 0, true))
 					
 					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 1, 0, portals[a], i, "remove")
 				elseif (b as {string:any})["facing" .. i] == "down" then
-					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new(((b as {string:any})["x" .. i] as number)-2, ((b as {string:any})["y" .. i] as number)-1, 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-3"] = portalwall:new(((b as {string:any})["x" .. i] as number)-2, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(((b as {string:any})["x" .. i] as number)-2, ((b as {string:any})["y" .. i] as number), 0, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 0, 0, true)
+					physics_world_set_portalwall(a .. "-" .. i .. "-1", portalwall:new(((b as {string:any})["x" .. i] as number)-2, ((b as {string:any})["y" .. i] as number)-1, 1, 0, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-2", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 1, 0, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-3", portalwall:new(((b as {string:any})["x" .. i] as number)-2, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-4", portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-1, 0, 1, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-5", portalwall:new(((b as {string:any})["x" .. i] as number)-2, ((b as {string:any})["y" .. i] as number), 0, 0, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-6", portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 0, 0, true))
 					
 					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), -1, 0, portals[a], i, "remove")
 				elseif (b as {string:any})["facing" .. i] == "left" then
-					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-2, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-3"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-2, 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 0, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-2, 0, 0, true)
+					physics_world_set_portalwall(a .. "-" .. i .. "-1", portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-2, 0, 1, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-2", portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-1, 0, 1, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-3", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-2, 1, 0, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-4", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 1, 0, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-5", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 0, 0, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-6", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-2, 0, 0, true))
 					
 					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 0, -1, portals[a], i, "remove")
 				elseif (b as {string:any})["facing" .. i] == "right" then
-					objects["portalwall"][a .. "-" .. i .. "-1"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-2"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 0, 1, true)
-					objects["portalwall"][a .. "-" .. i .. "-3"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-4"] = portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)+1, 1, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-5"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-1, 0, 0, true)
-					objects["portalwall"][a .. "-" .. i .. "-6"] = portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)+1, 0, 0, true)
+					physics_world_set_portalwall(a .. "-" .. i .. "-1", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-2", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 0, 1, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-3", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 1, 0, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-4", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)+1, 1, 0, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-5", portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-1, 0, 0, true))
+					physics_world_set_portalwall(a .. "-" .. i .. "-6", portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)+1, 0, 0, true))
 					
 					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 0, 1, portals[a], i, "remove")
 				end
@@ -66,43 +66,43 @@ global function modifyportalwalls()
 							if w then
 								if conside == "right" then
 									if w.x == conx and w.y == cony-1 and w.height == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										physics_world_set_portalwall(c .. "-" .. i .. "-" .. k, nil)
 									end
 									if w.x == conx and w.y == cony and w.height == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										physics_world_set_portalwall(c .. "-" .. i .. "-" .. k, nil)
 									end
 									if w.x == conx-1 and w.y == cony and w.width == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										physics_world_set_portalwall(c .. "-" .. i .. "-" .. k, nil)
 									end
 								elseif conside == "left" then
 									if w.x == conx-1 and w.y == cony-2 and w.height == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										physics_world_set_portalwall(c .. "-" .. i .. "-" .. k, nil)
 									end
 									if w.x == conx-1 and w.y == cony-1 and w.height == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										physics_world_set_portalwall(c .. "-" .. i .. "-" .. k, nil)
 									end
 									if w.x == conx-1 and w.y == cony-1 and w.width == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										physics_world_set_portalwall(c .. "-" .. i .. "-" .. k, nil)
 									end
 								elseif conside == "up" then
 									if w.x == conx-1 and w.y == cony-1 and w.width == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										physics_world_set_portalwall(c .. "-" .. i .. "-" .. k, nil)
 									end
 									if w.x == conx and w.y == cony-1 and w.width == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										physics_world_set_portalwall(c .. "-" .. i .. "-" .. k, nil)
 									end
 									if w.x == conx and w.y == cony-1 and w.height == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										physics_world_set_portalwall(c .. "-" .. i .. "-" .. k, nil)
 									end
 								else
 									if w.x == conx-2 and w.y == cony and w.width == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										physics_world_set_portalwall(c .. "-" .. i .. "-" .. k, nil)
 									end
 									if w.x == conx-1 and w.y == cony and w.width == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										physics_world_set_portalwall(c .. "-" .. i .. "-" .. k, nil)
 									end
 									if w.x == conx-1 and w.y == cony-1 and w.height == 1 then
-										objects["portalwall"][c .. "-" .. i .. "-" .. k] = nil
+										physics_world_set_portalwall(c .. "-" .. i .. "-" .. k, nil)
 									end
 								end
 							end
@@ -123,24 +123,36 @@ global function modifyportaltiles(x: any, y: any, xplus: any, yplus: any, port: 
 	if not x or not y then
 		return
 	end
+
+	local function tile_add(tx: number, ty: number)
+		local key = tilekey(tx, ty)
+		local t = tile:new(tx - 1, ty - 1) as Entity
+		physics_world_set_tile(key, t)
+	end
+
+	local function tile_remove(tx: number, ty: number)
+		local key = tilekey(tx, ty)
+		physics_world_set_tile(key, nil)
+	end
+
 	if i == 1 then
 		if p.facing2 ~= false then
 			if mode == "add" then
-				objects["tile"][tilekey(xn, yn)] = tile:new(xn-1, yn-1) as Entity
-				objects["tile"][tilekey(xn+xp, yn+yp)] = tile:new(xn-1+xp, yn-1+yp) as Entity
+				tile_add(xn, yn)
+				tile_add(xn + xp, yn + yp)
 			else
-				objects["tile"][tilekey(xn, yn)] = nil
-				objects["tile"][tilekey(xn+xp, yn+yp)] = nil
+				tile_remove(xn, yn)
+				tile_remove(xn + xp, yn + yp)
 			end
 		end
 	else
 		if p.facing1 ~= false then
 			if mode == "add" then
-				objects["tile"][tilekey(xn, yn)] = tile:new(xn-1, yn-1) as Entity
-				objects["tile"][tilekey(xn+xp, yn+yp)] = tile:new(xn-1+xp, yn-1+yp) as Entity
+				tile_add(xn, yn)
+				tile_add(xn + xp, yn + yp)
 			else
-				objects["tile"][tilekey(xn, yn)] = nil
-				objects["tile"][tilekey(xn+xp, yn+yp)] = nil
+				tile_remove(xn, yn)
+				tile_remove(xn + xp, yn + yp)
 			end
 		end
 	end

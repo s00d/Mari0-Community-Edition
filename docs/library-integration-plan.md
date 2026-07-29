@@ -21,7 +21,7 @@
 | # | Библиотека | lib/ | types/ | Интеграция в v1 | Статус |
 |---|------------|------|--------|-----------------|--------|
 | 1 | **anim8** | `lib/anim8.lua` | `types/anim8.d.tl` | `anim8_core` + `anim8_player` / `anim8_enemy` / `anim8_effects` / `anim8_tile` | **готово** |
-| 2 | bump | `lib/bump.lua` | `types/bump.d.tl` | — | не начато |
+| 2 | **bump** | `lib/bump.lua` | `types/bump.d.tl` | `physics/world` + checkrect/handlegroup broadphase | **готово** |
 | 3 | hump | `lib/hump/*` | `types/hump/*` | — | не начато |
 | 4 | sti | `lib/sti/*` | `types/sti.d.tl` | — | не начато |
 | 5 | baton | `lib/baton.lua` | `types/baton.d.tl` | — | не начато |
@@ -45,18 +45,35 @@
 - [x] Per-instance `clone()` для всех anim8-циклов
 - [x] `make teal` проходит; рендер v1 (`setquad`, `drawplayer`) не менялся
 
-**Следующий этап:** bump (этап 2).
+**Следующий этап:** bump (этап 2) — готово, см. ниже.
 
 ---
 
-## Этап 2 — bump
+## Этап 2 — bump (готово)
 
-**Задача:** AABB-коллизии через bump, сохранив внешний контракт там, где это возможно.
+**Задача:** AABB spatial index через bump, сохранив resolve/порталы/маски v1.
 
-- Точка входа: `src/physics/` (world, collision, move)
-- Сохранить: фильтры сторон/порталов, сигнатуры `world:move`-подобных вызовов для entity-кода
-- Не менять: tile map format, `map[x][y]` структуру, spawn registry
-- Проверка: `tests/collision_checks.lua`, `tests/physics_order_checks.lua`, порталы на платформах
+- [x] `src/physics/world.tl` — `bump.newWorld(2)`, upsert (zero-size epsilon), query, prune, refresh (load/tests)
+- [x] Lifecycle: reset + один refresh при loadlevel; каждый кадр — `prune` + upsert movers (до/после collision); spawn/despawn — upsert/remove
+- [x] Tile mutations: `modifyportaltiles`, block break, animated tiles, portalwalls → upsert/remove
+- [x] `checkrect` → `queryRect` + post-filter (без fallback scan)
+- [x] `handlegroup` + tile broadphase в `physicsupdate` → bump query + group filter; `checkcollision` без изменений
+- [x] **Не** используем `world:move` responses для gameplay resolve
+
+### Этап 2b — runtime hooks (готово)
+
+- [x] Симметричный `physics_world_set_tile` (objects + bump); `physics_world_remove_slot` / `physics_world_upsert_slot`
+- [x] Runtime: editor paint/resize, `changemapwidth`/`height`, maze extension, gravity gun, bridge/axe, `portal:removeportal`
+- [x] Bulk load (`levelio`, initial tile spawn) → один `physics_world_refresh` на load; без `sync_group`
+
+### Этап 2c — polish (готово)
+
+- [x] `changemapheight` → upsert всех `screenboundary` после смены `height`
+- [x] Flag pole finish → `physics_world_upsert` после `active = false`
+- [x] Runtime platform spawn → `physics_world_insert_platform`
+- [x] Убраны мёртвые fallback-ветки `else objects[...]`; прямые вызовы хелперов в hot path
+
+**Следующий этап:** hump (этап 3).
 
 ---
 
