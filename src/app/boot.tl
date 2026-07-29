@@ -89,6 +89,7 @@ function Boot.require_game()
 	require "physics.update"
 	global HumpTimer = require("hump.timer") as HumpTimerModule
 	global Flux = require("flux") as FluxModule
+	require "util.screenshake"
 	sha1 = require("sha1") as function(string): string
 	
 	require "entities.animatedquad"

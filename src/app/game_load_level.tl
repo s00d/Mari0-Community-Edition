@@ -234,7 +234,7 @@ global function loadlevel(level: string|number): boolean
 	mazesolved = {}
 	mazesolved[0] = true
 	mazeinprogress = false
-	earthquake = 0
+	screenshake(0)
 	sunrot = 0
 	gelcannontimer = 0
 	pausemenuselected = 1

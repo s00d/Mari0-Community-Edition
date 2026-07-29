@@ -43,7 +43,7 @@ end
 local function pulse_muzzle(wx: number, wy: number)
 	muzzle = 1.0
 	muzzle_cx, muzzle_cy = screen_uv(wx, wy)
-	earthquake = math.max((earthquake as number) or 0, 0.12)
+	screenshake(0.12)
 end
 
 local function sync(dt: number)
@@ -70,7 +70,7 @@ local function sync(dt: number)
 					local t = (h.phasetimer as number) or 0
 					s = 0.55 + math.min(0.55, t * 0.5)
 					mode = 0.0
-					earthquake = math.max((earthquake as number) or 0, 0.06 + s * 0.08)
+					screenshake(0.06 + s * 0.08)
 				elseif st == "blast" then
 					s = (h.blast_flash as number) or 0
 					mode = 1.0

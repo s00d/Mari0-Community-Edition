@@ -101,7 +101,8 @@ inmap = function() return false end
 map = {}
 tilequads = {}
 objects = { enemy = {} }
-earthquake = 0
+screenshake = function() end
+screenshake_amp = function() return 0 end
 playsound = function() end
 enemy = {
 	new = function(_, x, y, t)

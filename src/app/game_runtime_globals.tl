@@ -77,7 +77,7 @@ global function init_game_runtime_globals()
 	mazesolved[0] = true
 	mazeinprogress = false
 	mazegates = {}
-	earthquake = 0
+	screenshake(0)
 	sunrot = 0
 	gelcannontimer = 0
 	pausemenuselected = 1

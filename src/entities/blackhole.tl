@@ -302,7 +302,7 @@ local function do_blast(self: blackhole)
 	if playsound then
 		playsound("boom")
 	end
-	earthquake = math.max((earthquake as number) or 0, 0.35)
+	screenshake(0.35)
 end
 
 function blackhole:update(dt: number): boolean

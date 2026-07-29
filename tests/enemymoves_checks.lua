@@ -45,7 +45,8 @@ inrange = function() return false end
 map = {}
 tilequads = {}
 objects = { enemy = {}, fireball = {}, lightbridgebody = {} }
-earthquake = 0
+screenshake = function() end
+screenshake_amp = function() return 0 end
 playsound = function() end
 round = function(n) return math.floor(n + 0.5) end
 fireball = {

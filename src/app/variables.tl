@@ -374,7 +374,6 @@ for i = 1, konamilength do
 	konamitable[i as integer] = ""
 end
 
-earthquakespeed = 40
 bullettime = false
 portalknockback = false
 bigmario = false

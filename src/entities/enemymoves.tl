@@ -914,7 +914,7 @@ global function enemymove_thwomp_floor(self: enemy)
 	if self.slamstate == "drop" then
 		self.slamstate = "rest"
 		self.slamtimer = 0
-		earthquake = math.max(earthquake or 0, 0.4)
+		screenshake(0.4)
 		playsfx("thwomp")
 	end
 end
@@ -923,7 +923,7 @@ global function enemymove_charger_wall(self: enemy, a: any, b: Entity|nil)
 	if self.chargestate == "run" then
 		self.chargestate = "stun"
 		self.chargetimer = 0
-		earthquake = math.max(earthquake or 0, 0.25)
+		screenshake(0.25)
 		if a == "tile" and b ~= nil and destroyblock and tilequads and map then
 			local tile = b as Entity
 			local cox = tile.cox

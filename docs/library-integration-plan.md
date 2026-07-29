@@ -25,7 +25,7 @@
 | 3 | hump | `lib/hump/*` | `types/hump/*` | `hump_compat`, `scroll_update`, `world_camera`, timer UI | **в работе (replace+delete)** |
 | 4 | sti | `lib/sti/*` | `types/sti.d.tl` | — | не начато |
 | 5 | baton | `lib/baton.lua` | `types/baton.d.tl` | `src/app/input_bindings.tl` | готово |
-| 6 | flux | `lib/flux.lua` | `types/flux.d.tl` | — | не начато |
+| 6 | flux | `lib/flux.lua` | `types/flux.d.tl` | portal/menu/intro/shake/roomcam/notice | **готово** |
 | 7 | slab | `lib/slab/*` | `types/slab.d.tl` | — | не начато |
 
 Вспомогательные (без отдельного этапа интеграции): `lume`, `inspect` — подключать по мере необходимости внутри шагов выше.
@@ -128,10 +128,16 @@
 
 ---
 
-## Этап 6 — flux
+## Этап 6 — flux (готово)
 
 **Задача:** визуальные tweens (UI, camera shake, portal open) вместо ручных `timer`/`lerp` где уже есть аналог.
 
+- [x] `portal:createportal` → `Flux.to(openscale)` (без `+dt*15` в update)
+- [x] menu cursor / hover / mappack scrolls → `Flux.to`; удалён `menu_ease`
+- [x] intro logo/load alpha → Flux timeline
+- [x] `screenshake` / `screenshake_amp` → Flux decay; удалён manual `earthquake` decay
+- [x] roomcam blend → Flux `cam_blend.k`
+- [x] notice slide in/out → Flux `y_factor`
 - Не трогать: физику Mario, сетевой tick
 - Проверка: portal open animation, menu transitions
 

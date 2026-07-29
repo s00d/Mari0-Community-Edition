@@ -1,7 +1,8 @@
---[[ Teal port of root intro.lua ]]
+--[[ Teal port of root intro.lua — logo/load fades via Flux ]]
 
 local played_wilhelm = false
 local intro_finish_handle: any = nil
+local intro_fx = { a = 0, load_a = 1 }
 
 global function intro_load()
 	gamestate = "intro"
@@ -13,6 +14,14 @@ global function intro_load()
 	
 	allowskip = false
 	played_wilhelm = false
+	intro_fx.a = 0
+	intro_fx.load_a = 1
+
+	local hold = introduration - 2 * introfadetime
+	Flux.to(intro_fx, introfadetime, { a = 1 }):ease("linear")
+		:after(hold, { a = 1 })
+		:after(introfadetime, { a = 0 }):ease("linear")
+	Flux.to(intro_fx, 0.3, { load_a = 0 }):ease("linear"):delay(0.5)
 
 	if intro_finish_handle then
 		HumpTimer.cancel(intro_finish_handle)
@@ -51,14 +60,7 @@ global function intro_draw()
 	end
 	
 	if introprogress >= 0 and introprogress < introduration then
-		local a: number = 1
-		if introprogress < introfadetime then
-			a = introprogress/introfadetime
-		elseif introprogress >= introduration-introfadetime then
-			a = (1-(introprogress-(introduration-introfadetime))/introfadetime)
-		end
-		
-		love.graphics.setColor(1, 1, 1, a)
+		love.graphics.setColor(1, 1, 1, intro_fx.a)
 		
 		if introprogress > introfadetime+0.3 and introprogress < introduration - introfadetime then
 			local y = (introprogress-0.2-introfadetime) / (introduration-2*introfadetime) * 206 * 5
@@ -73,10 +75,9 @@ global function intro_draw()
 			love.graphics.draw(logo, love.graphics.getWidth()/2, love.graphics.getHeight()/2, 0, logoscale, logoscale, 142, 150)
 		end
 		
-		local a2 = math.max(0, (1-(introprogress-.5)/0.3))
-		love.graphics.setColor(0.6, 0.6, 0.6, a2)
+		love.graphics.setColor(0.6, 0.6, 0.6, intro_fx.load_a)
 		properprint("loading mari0 ce..", love.graphics.getWidth()/2-string.len("loading mari0 ce..")*4*scale, love.graphics.getHeight()/2-170*logoscale-7*scale)
-		love.graphics.setColor(0.2, 0.2, 0.2, a2)
+		love.graphics.setColor(0.2, 0.2, 0.2, intro_fx.load_a)
 		properprint(loadingtext, love.graphics.getWidth()/2-string.len(loadingtext)*4*scale, love.graphics.getHeight()/2+165*logoscale)
 	end
 end

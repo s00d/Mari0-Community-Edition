@@ -72,7 +72,7 @@ function bomb:update(dt: number): boolean
 			end
 		end
 	end
-	earthquake = math.max((earthquake as number) or 0, 0.3)
+	screenshake(0.3)
 	if playsound then
 		playsound("blockhit")
 	end

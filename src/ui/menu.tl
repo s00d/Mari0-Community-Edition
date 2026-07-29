@@ -4,15 +4,48 @@ require "assets.spritebatch_util"
 
 local Anim8Effects = require("assets.anim8_effects")
 
--- Cursor bar slides; labels stay fixed (no sliding text).
-local menu_cursor_y: number = 0
+-- Cursor bar / hover / mappack scroll — Flux drives the values.
+local menu_fx: {string:number} = {
+	cursor_y = 0,
+	hover_a = 0,
+	mappack = 0,
+	online = 0,
+	convert = 0,
+	hor = 0,
+}
+local menu_fx_target: {string:number} = {
+	cursor_y = -1,
+	hover_a = -1,
+	mappack = -1,
+	online = -1,
+	convert = -1,
+	hor = -1,
+}
 local menu_cursor_ready: boolean = false
-local menu_hover_a: number = 0
 local menu_hover_i: integer|nil = nil
 global mappack_skipped_count: number = 0
 
-local function scroll_ease(cur: number, target: number, dt: number): number
-	return menu_ease(cur, target, dt, 0.12)
+local function flux_to(obj: {string:number}, key: string, target: number, time: number, ease: string)
+	if menu_fx_target[key] == target then
+		return
+	end
+	menu_fx_target[key] = target
+	local vars: {string:number} = {}
+	vars[key] = target
+	Flux.to(obj, time, vars):ease(ease)
+end
+
+local function scroll_flux(key: string, target: number|nil): number
+	if target == nil then
+		return menu_fx[key]
+	end
+	flux_to(menu_fx, key, target as number, 0.12, "quadout")
+	return menu_fx[key]
+end
+
+local function scroll_snap(key: string, value: number)
+	menu_fx[key] = value
+	menu_fx_target[key] = value
 end
 
 local function main_layout(): {string:any}
@@ -115,7 +148,10 @@ global function menu_load()
 	end
 	menu_defs_bind()
 	menu_cursor_ready = false
-	menu_hover_a = 0
+	menu_fx.cursor_y = 0
+	menu_fx.hover_a = 0
+	menu_fx_target.cursor_y = -1
+	menu_fx_target.hover_a = -1
 	menu_hover_i = nil
 	ui_set_input_mode("kbd")
 	
@@ -135,6 +171,7 @@ global function menu_load()
 	onlinemappackselection = 1
 	toconvertmappackselection = 1
 	mappackhorscroll = 0
+	scroll_snap("hor", 0)
 	mappackhorscrollsmooth = 0
 	colorsetedit = 1
 	love.graphics.setBackgroundColor(backgroundcolor[1])
@@ -210,15 +247,14 @@ global function menu_update(dt: number)
 		selection = sel
 		local target_y = ((rects[sel] as {string:any}).y as number)
 		if not menu_cursor_ready then
-			menu_cursor_y = target_y
+			menu_fx.cursor_y = target_y
+			menu_fx_target.cursor_y = target_y
 			menu_cursor_ready = true
 		else
-			-- Smooth cursor bar only (~90ms); labels never slide.
-			menu_cursor_y = menu_ease(menu_cursor_y, target_y, dt, 0.09)
+			flux_to(menu_fx, "cursor_y", target_y, 0.09, "quadout")
 		end
 		local want_hover = (ui_input_mode == "mouse") and menu_hover_i ~= nil
-		local hover_target = want_hover and 1 or 0
-		menu_hover_a = menu_ease(menu_hover_a, hover_target, dt, 0.05)
+		flux_to(menu_fx, "hover_a", want_hover and 1 or 0, 0.05, "quadout")
 	end
 
 	--coinanimation
@@ -233,20 +269,11 @@ global function menu_update(dt: number)
 		animatedtiles[i]:update(dt)
 	end
 	
-	if mappackscroll then
-		mappackscrollsmooth = scroll_ease(mappackscrollsmooth, mappackscroll, dt)
-	end
-	
-	if onlinemappackscroll then
-		onlinemappackscrollsmooth = scroll_ease(onlinemappackscrollsmooth, onlinemappackscroll, dt)
-	end
-	
-	if toconvertmappackscroll then
-		toconvertmappackscrollsmooth = scroll_ease(toconvertmappackscrollsmooth, toconvertmappackscroll, dt)
-	end
-	
+	mappackscrollsmooth = scroll_flux("mappack", mappackscroll)
+	onlinemappackscrollsmooth = scroll_flux("online", onlinemappackscroll)
+	toconvertmappackscrollsmooth = scroll_flux("convert", toconvertmappackscroll)
 	if mappackhorscroll ~= nil then
-		mappackhorscrollsmooth = scroll_ease(mappackhorscrollsmooth or 0, mappackhorscroll, dt)
+		mappackhorscrollsmooth = scroll_flux("hor", mappackhorscroll)
 	end
 	
 	if gamestate == "options" and optionstab == 2 then
@@ -379,11 +406,11 @@ global function menu_draw_title()
 	local rects = lay.rects as {any}
 	local sel = selection as integer
 
-	-- Floating selection bar (lerped Y). Labels stay put.
+	-- Floating selection bar (Flux Y). Labels stay put.
 	if menu_cursor_ready and #rects > 0 then
 		local r0 = rects[1] as {string:any}
-		menu_draw_row_bg(r0.x as number, menu_cursor_y, r0.w as number, r0.h as number, "sel", 1)
-		menu_draw_cursor((r0.x as number) + 2, menu_cursor_y + 4)
+		menu_draw_row_bg(r0.x as number, menu_fx.cursor_y, r0.w as number, r0.h as number, "sel", 1)
+		menu_draw_cursor((r0.x as number) + 2, menu_fx.cursor_y + 4)
 	end
 
 	for i = 1, #rects do
@@ -391,9 +418,9 @@ global function menu_draw_title()
 		local state = "normal"
 		if i == sel then
 			state = "selected"
-		elseif ui_input_mode == "mouse" and menu_hover_i == i and menu_hover_a > 0.05 then
+		elseif ui_input_mode == "mouse" and menu_hover_i == i and menu_fx.hover_a > 0.05 then
 			state = "hover"
-			menu_draw_row_bg(r.x as number, r.y as number, r.w as number, r.h as number, "hover", menu_hover_a)
+			menu_draw_row_bg(r.x as number, r.y as number, r.w as number, r.h as number, "hover", menu_fx.hover_a)
 		end
 		draw_menu_item(r, state)
 	end
@@ -1023,6 +1050,7 @@ global function loadmappacks()
 	
 	mappackscroll = 0
 	updatescroll()
+	scroll_snap("mappack", mappackscroll)
 	mappackscrollsmooth = mappackscroll
 end
 
@@ -1084,6 +1112,7 @@ global function loadonlinemappacks()
 	
 	onlinemappackscroll = 0
 	onlineupdatescroll()
+	scroll_snap("online", onlinemappackscroll)
 	onlinemappackscrollsmooth = onlinemappackscroll
 end
 
@@ -1137,6 +1166,7 @@ global function loadtoconvertmappacks()
 	
 	toconvertmappackscroll = 0
 	toconvertupdatescroll()
+	scroll_snap("convert", toconvertmappackscroll)
 	toconvertmappackscrollsmooth = toconvertmappackscroll
 end
 

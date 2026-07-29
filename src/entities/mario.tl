@@ -4053,7 +4053,7 @@ function mario:portaled(dir: any)
 	
 	if didrainboom then
 		table.insert(rainbooms, rainboom:new(self.x+self.width/2, self.y+self.height/2, dir))
-		earthquake = rainboomearthquake
+		screenshake(rainboomearthquake)
 		self.rainboomallowed = false
 		playsound("rainboom")
 		

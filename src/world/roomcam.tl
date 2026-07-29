@@ -12,6 +12,8 @@ global metroid_playtime: number = 0
 local ROOM_FADE: number = 0.25
 local trans_from_x: number = 0
 local trans_from_y: number = 0
+local cam_blend = { k = 1 }
+local cam_blend_tween: FluxTween|nil = nil
 
 local function clamp(v: number, lo: number, hi: number): number
 	if hi < lo then return lo end
@@ -188,6 +190,12 @@ global function room_enter(r: MetroidRoom, prev: MetroidRoom|nil)
 	trans_from_x = xscroll or 0
 	trans_from_y = yscroll or 0
 	roomtransition = ROOM_FADE
+	cam_blend.k = 0
+	local prev_tween = cam_blend_tween
+	if prev_tween ~= nil then
+		(prev_tween as FluxTween):stop()
+	end
+	cam_blend_tween = Flux.to(cam_blend, ROOM_FADE, { k = 1 }):ease("quadout")
 	map_reveal(r.id)
 	if prev then despawn_room(prev) end
 	spawn_room(r)
@@ -206,12 +214,12 @@ global function roomcam_update(dt: number)
 	if r == nil then return end
 	if r ~= currentroom then room_enter(r, currentroom); currentroom = r end
 	local tx, ty = room_camera_target(r, cx, cy, width or 25, height or 14)
-	if roomtransition > 0 then
-		roomtransition = math.max(0, roomtransition - dt)
-		local k = 1 - roomtransition / ROOM_FADE
-		xscroll = lerp(trans_from_x, tx, k)
-		yscroll = lerp(trans_from_y, ty, k)
+	if cam_blend.k < 1 then
+		roomtransition = ROOM_FADE * (1 - cam_blend.k)
+		xscroll = lerp(trans_from_x, tx, cam_blend.k)
+		yscroll = lerp(trans_from_y, ty, cam_blend.k)
 	else
+		roomtransition = 0
 		xscroll = tx; yscroll = ty
 	end
 end

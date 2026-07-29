@@ -161,7 +161,7 @@ function gravityball:explode()
 	if playsound then
 		playsound("blockhit")
 	end
-	earthquake = math.max((earthquake as number) or 0, 0.12)
+	screenshake(0.12)
 end
 
 function gravityball:leftcollide(a: any, b: Entity): boolean

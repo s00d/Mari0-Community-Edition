@@ -342,7 +342,7 @@ function animation:update(dt: number)
 			elseif v[1] == "playsound" then
 				playsound(v[2])
 			elseif v[1] == "screenshake" then
-				earthquake = self:decodenuminput(v[2]) or 1
+				screenshake(self:decodenuminput(v[2]) or 1)
 			elseif v[1] == "addcoins" then
 				collectcoin(nil, nil, self:decodenuminput(v[2]) or 1)
 			elseif v[1] == "addpoints" then

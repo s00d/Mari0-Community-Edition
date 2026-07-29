@@ -1,8 +1,11 @@
 global record FluxTween
-	ease: function(FluxTween, ...: any): FluxTween
-	oncomplete: function(FluxTween, ...: any): FluxTween
-	delay: function(FluxTween, ...: any): FluxTween
-	stop: function(FluxTween): FluxTween
+	ease: function(FluxTween, string): FluxTween
+	oncomplete: function(FluxTween, function()): FluxTween
+	onstart: function(FluxTween, function()): FluxTween
+	onupdate: function(FluxTween, function()): FluxTween
+	delay: function(FluxTween, number): FluxTween
+	after: function(FluxTween, ...: any): FluxTween
+	stop: function(FluxTween)
 end
 
 global record FluxModule

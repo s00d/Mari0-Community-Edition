@@ -198,7 +198,6 @@ global theme_init: function()
 global draw_panel: function(number, number, number, number)
 global draw_panel_inset: function(number, number, number, number)
 global ui_set_color: function(string)
-global menu_ease: function(number, number, number, number): number
 global menu_draw_overlay: function()
 global menu_draw_row_bg: function(number, number, number, number, string, number)
 global menu_draw_cursor: function(number, number)
@@ -493,7 +492,6 @@ global record NoticeModule
 	fadetime: number
 	update: function(number)
 	draw: function()
-	gety: function(number, number, number, number): number
 end
 global notice: NoticeModule
 global record AnimationDef
@@ -577,7 +575,8 @@ global mapmode_apply_movement: function(mario, number)
 global EQUALSIGN: {any:string}
 global seesawtype: {any:{any}}
 global pausemenuoptions: {string}
-global earthquake: number
+global screenshake: function(number)
+global screenshake_amp: function(): number
 global animatedtiles: {animatedquad}
 global backgroundcolor: {{number}}
 global mazestarts: {number}
@@ -1437,7 +1436,6 @@ global debugprints: boolean
 global decoysimg: Image
 global delayerimg: Image
 global dlclist: {string}
-global earthquakespeed: number
 global editor_mode_labels: function(any, any, any, any): string, string|boolean
 global excursionfunnel2img: Image
 global excursionfunnelend2img: Image

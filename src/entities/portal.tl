@@ -103,6 +103,9 @@ function portal:createportal(i: number, cox: any, coy: any, side: any, tendency:
 			modifyportalwalls()
 			updateranges()
 			self.openscale[i as integer] = 0
+			local scale_vars: {integer:number} = {}
+			scale_vars[i as integer] = 1
+			Flux.to(self.openscale, 1 / 15, scale_vars):ease("quadout")
 		else
 			--recreate the temporarily removed portal
 			local d = portal_dyn(self)
@@ -145,6 +148,10 @@ function portal:removeportal(i: number)
 		d["x" .. i] = false
 		d["y" .. i] = false
 		d["facing" .. i] = false
+		self.openscale[i as integer] = 0
+		local scale_vars: {integer:number} = {}
+		scale_vars[i as integer] = 0
+		Flux.to(self.openscale, 0, scale_vars)
 		
 		modifyportalwalls()
 		for j = 1, 6 do
@@ -157,10 +164,6 @@ end
 function portal:update(dt: number)
 	local anim = (self as {string:any})["portal_anim"] as Anim8Animation|nil
 	self.portalframe = Anim8Effects.step_portal(anim, dt)
-	
-	for i = 1, 2 do
-		self.openscale[i as integer] = math.min(1, self.openscale[i as integer]+dt*15)
-	end
 end
 
 function portal:draw()

@@ -136,17 +136,6 @@ global function ui_set_color(name: string)
 	end
 end
 
--- Exponential ease toward target (tau ≈ time constant). Snaps when close.
-global function menu_ease(cur: number, target: number, dt: number, tau: number): number
-	local d = target - cur
-	if math.abs(d) < 0.35 then
-		return target
-	end
-	local t = math.max(0.001, tau)
-	local k = 1 - math.exp(-dt / t)
-	return cur + d * k
-end
-
 global function menu_draw_overlay()
 	local c = UI.COL.overlay
 	love.graphics.setColor(c[1], c[2], c[3], c[4] or 0.48)

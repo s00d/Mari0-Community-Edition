@@ -563,7 +563,8 @@ do
 	for i = 1, 7 do
 		fireballquad[i] = "q" .. i
 	end
-	earthquake = 0
+	screenshake = function() end
+	screenshake_amp = function() return 0 end
 	local sounds = {}
 	playsound = function(name)
 		sounds[#sounds + 1] = name
@@ -816,7 +817,8 @@ do
 			},
 		}
 		playsound = function() end
-		earthquake = 0
+		screenshake = function() end
+		screenshake_amp = function() return 0 end
 		traceline = function(sx, sy)
 			return false, false, nil, 0, sx + 8, sy
 		end

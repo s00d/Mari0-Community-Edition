@@ -1,4 +1,4 @@
---[[ Teal port of root notice.lua ]]
+--[[ Teal port of root notice.lua — slide in/out via Flux ]]
 
 notice = {}
 notice.red = {1, 0.5, 0.5}
@@ -11,14 +11,28 @@ function notice.new(text: any, color: any, duration: any)
 	local duration = (duration or notice.duration) as number
 	local text = text or ""
 	local color = color or notice.white
-	table.insert(notice.notices, {text=(text as string):lower(), color=color, life=duration, duration=duration})
+	local n = {
+		text = (text as string):lower(),
+		color = color,
+		life = duration,
+		duration = duration,
+		y_factor = 1,
+		fading = false,
+	}
+	Flux.to(n, notice.fadetime, { y_factor = 0 }):ease("quadout")
+	table.insert(notice.notices, n)
 end
 
 function notice.update(dt: number)
 	for i = #notice.notices, 1, -1 do
-		local v = notice.notices[i] as {any:any}
+		local v = notice.notices[i] as {string:any}
 		v["life"] = (v["life"] as number) - dt
-		if (v["life"] as number) <= 0 then
+		local life = v["life"] as number
+		if life <= notice.fadetime and not (v["fading"] as boolean) then
+			v["fading"] = true
+			Flux.to(v, notice.fadetime, { y_factor = 1 }):ease("quadin")
+		end
+		if life <= 0 then
 			table.remove(notice.notices, i)
 		end
 	end
@@ -27,10 +41,9 @@ end
 function notice.draw()
 	local y: number = 0
 	for i = #notice.notices, 1, -1 do
-		local v = notice.notices[i] as {any:any}
+		local v = notice.notices[i] as {string:any}
 		local text = v["text"] as string
-		local life = v["life"] as number
-		local duration = v["duration"] as number
+		local y_factor = v["y_factor"] as number
 		
 		--get width by finding longest line
 		local split = strsplit(text, "|")
@@ -43,7 +56,7 @@ function notice.draw()
 		
 		local height = #split*10+3
 		
-		actualy = notice.gety(y, life, height, duration)
+		actualy = y - height * (y_factor * y_factor)
 		
 		local targetrect = {width*16 - longest*8-5, actualy, longest*8+5, height}
 		local scissor = {(width*16 - longest*8-5)*scale, y*scale, (longest*8+5)*scale, (actualy-y+height)*scale}
@@ -64,14 +77,4 @@ function notice.draw()
 	end
 	
 	love.graphics.setColor(1, 1, 1)
-end
-
-function notice.gety(y: number, life: number, height: number, duration: number): number
-	if life > duration-notice.fadetime then
-		return y - height*((life-(duration-notice.fadetime))/notice.fadetime)^2
-	elseif life < notice.fadetime then
-		return y - height*((notice.fadetime-life)/notice.fadetime)^2
-	else
-		return y
-	end
 end

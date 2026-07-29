@@ -32,9 +32,8 @@ global function game_update(dt: number)
 	animationsystem_update(dt)
 	
 	
-	--earthquake reset
-	if earthquake > 0 then
-		earthquake = math.max(0, earthquake-dt*earthquake*2-0.001)
+	--screenshake sun spin while active
+	if screenshake_amp() > 0 then
 		sunrot = sunrot + dt
 	end
 	
