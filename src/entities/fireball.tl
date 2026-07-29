@@ -2,6 +2,8 @@
 
 rawset(_G, "fireball", rawget(_G, "fireball") or {})
 
+local Anim8Effects = require("assets.anim8_effects")
+
 function fireball.new(_: fireball, x: number, y: number, dir: any, v: any): fireball
 	local self = setmetatable({}, { __index = fireball }) as fireball
 	self:init(x, y, dir, v)
@@ -52,6 +54,8 @@ function fireball:init(x: number, y: number, dir, v)
 	self.gravitydirection = math.pi/2
 	self.timer = 0
 	self.quadi = 1
+	(self as {string:any})["loop_anim"] = Anim8Effects.new_fireball_loop()
+	(self as {string:any})["die_anim"] = nil
 	
 	self.emancipatecheck = true
 end
@@ -72,27 +76,16 @@ function fireball:update(dt: number): boolean
 	--rotate back to 0 (portals)
 	self.rotation = 0
 	
-	--animate
-	self.timer = self.timer + dt
+	local bag = self as {string:any}
 	if self.destroysoon == false then
-		while self.timer > staranimationdelay do
-			self.quadi = self.quadi + 1
-			if self.quadi == 5 then
-				self.quadi = 1
-			end
-			self.quad = fireballquad[self.quadi]
-			self.timer = self.timer - staranimationdelay
-		end
+		self.quad = Anim8Effects.step_fireball_loop(bag["loop_anim"] as Anim8Animation|nil, dt)
 	else
-		while self.timer > staranimationdelay do
-			self.quadi = self.quadi + 1
-			if self.quadi == 8 then
-				self.destroy = true
-				self.quadi = 7
-			end
-			
-			self.quad = fireballquad[self.quadi]
-			self.timer = self.timer - staranimationdelay
+		local quad: any
+		local done: boolean
+		quad, done = Anim8Effects.step_fireball_die(bag["die_anim"] as Anim8Animation|nil, dt)
+		self.quad = quad
+		if done then
+			self.destroy = true
 		end
 	end
 	
@@ -163,8 +156,10 @@ function fireball:explode()
 		fireball_notify_thrower(self)
 		
 		self.destroysoon = true
+		local bag = self as {string:any}
+		bag["die_anim"] = Anim8Effects.new_fireball_die()
 		self.quadi = 5
-		self.quad = fireballquad[self.quadi]
+		self.quad = fireballquad[5]
 		self.active = false
 	end
 end

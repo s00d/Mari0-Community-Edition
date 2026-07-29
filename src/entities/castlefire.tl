@@ -3,6 +3,8 @@
 rawset(_G, "castlefire", rawget(_G, "castlefire") or {})
 rawset(_G, "castlefirefire", rawget(_G, "castlefirefire") or {})
 
+local Anim8Effects = require("assets.anim8_effects")
+
 function castlefire.new(_: castlefire, x: number, y: number, r: {any}): castlefire
 	local self = setmetatable({}, { __index = castlefire }) as castlefire
 	self:init(x, y, r)
@@ -48,6 +50,7 @@ function castlefire:init(x: number, y: number, r)
 	self.angle = 0
 	self.timer = 0
 	self.timer2 = 0
+	(self as {string:any})["sprite_anim"] = Anim8Effects.new_fireball_loop()
 	
 	self:updatepos()
 	self:updatequad()
@@ -72,14 +75,10 @@ function castlefire:update(dt: number)
 	end
 	
 	self.timer2 = self.timer2 + dt
-	while self.timer2 > castlefireanimationdelay do
-		self.timer2 = self.timer2 - castlefireanimationdelay
-		self.quadi = self.quadi + 1
-		if self.quadi > 4 then
-			self.quadi = 1
-		end
-		self:updatequad()
-	end
+	local anim = (self as {string:any})["sprite_anim"] as Anim8Animation|nil
+	Anim8Effects.step_fireball_loop(anim, dt)
+	self.quadi = anim and (anim as Anim8Animation).position or self.quadi
+	self:updatequad()
 end
 
 function castlefire:updatepos()

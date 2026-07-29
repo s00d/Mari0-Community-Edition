@@ -3,6 +3,8 @@
 --omygoshomygoshomygosh
 rawset(_G, "rainboom", rawget(_G, "rainboom") or {})
 
+local Core = require("assets.anim8_core")
+
 function rainboom.new(_: rainboom, x: number, y: number, dir: any): rainboom
 	local self = setmetatable({}, { __index = rainboom }) as rainboom
 	self:init(x, y, dir)
@@ -27,10 +29,10 @@ function rainboom:init(x: number, y: number, dir)
 end
 
 function rainboom:update(dt: number): boolean
-	self.timer = self.timer + dt
-	while self.timer > rainboomdelay do
+	local ticked: boolean
+	self.timer, ticked = Core.tick_interval(self.timer, dt, rainboomdelay)
+	if ticked then
 		self.frame = self.frame + 1
-		self.timer = self.timer - rainboomdelay
 	end
 	
 	if self.frame > rainboomframes then

@@ -1,5 +1,7 @@
 --[[ Teal port of root enemies.lua ]]
 
+local Anim8Enemy = require("assets.anim8_enemy")
+
 local enemies_loaded_mappack: string|nil = nil
 
 local function enemies_refresh_spriteset()
@@ -15,6 +17,7 @@ local function enemies_refresh_spriteset()
 			else
 				ed.quad = (qb[spriteset as integer] as Dyn)[ed.quadno]
 			end
+			ed.anim8_cycle = Anim8Enemy.build_cycle(ed as {string:any})
 		end
 	end
 end
@@ -169,6 +172,7 @@ global function loadenemy(filename: string)
 			else
 				enemiesdata[s].quad = (qb[spriteset as integer] as Dyn)[enemiesdata[s].quadno]
 			end
+			enemiesdata[s].anim8_cycle = Anim8Enemy.build_cycle(enemiesdata[s] as {string:any})
 		end
 		
 		table.insert(enemies, s)

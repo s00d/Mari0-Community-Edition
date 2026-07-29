@@ -1,9 +1,12 @@
---[[ Enemy class (Teal port of root enemy.lua).  ]]
+--[[ Teal port of root enemy.lua ]]
 
 rawset(_G, "enemy", rawget(_G, "enemy") or {})
 
 require("weapons.punt")
 require("entities.enemymoves")
+
+local Core = require("assets.anim8_core")
+local Anim8Enemy = require("assets.anim8_enemy")
 
 function enemy.new(_: enemy, x: number, y: number, t: string, a: any): enemy
 	local self = setmetatable({}, { __index = enemy }) as enemy
@@ -75,6 +78,12 @@ function enemy:init(x: number, y: number, t: string, a: any)
 		self.quadi = self.animationstart
 		self.quad = self.quadgroup[self.quadi as integer]
 		self.animationtimer = 0
+		if not self.anim8_cycle then
+			self.anim8_cycle = Anim8Enemy.build_cycle(self as {string:any})
+		end
+		if self.anim8_cycle then
+			self.anim8_cycle = (self.anim8_cycle as Anim8Animation):clone()
+		end
 	end
 	
 	if self.stompanimation then
@@ -260,26 +269,29 @@ function enemy:update(dt: number): boolean
 	end
 	
 	if self.animationtype == "mirror" then
-		self.animationtimer = self.animationtimer + dt
-		while self.animationtimer > self.animationspeed do
-			self.animationtimer = self.animationtimer - self.animationspeed
-			if self.animationdirection == "left" then
-				self.animationdirection = "right"
-			else
-				self.animationdirection = "left"
-			end
-		end
+		local dir: string
+		self.animationtimer, dir = Core.flip_on_interval(self.animationtimer, dt, self.animationspeed, self.animationdirection)
+		self.animationdirection = dir
 	elseif self.animationtype == "frames" then
-		self.animationtimer = self.animationtimer + dt
-		while self.animationtimer > self.animationspeed do
-			self.animationtimer = self.animationtimer - self.animationspeed
-			self.quadi = self.quadi + 1
-			if self.quadi > self.animationstart + self.animationframes - 1 then
-				self.quadi = self.quadi - self.animationframes
+		local cycle_n = self.anim8_cycle
+		if not cycle_n then
+			cycle_n = Anim8Enemy.build_cycle(self as {string:any})
+			if cycle_n then
+				self.anim8_cycle = cycle_n
+				if not (self as {string:any})["_anim8_warned"] then
+					(self as {string:any})["_anim8_warned"] = true
+					print("enemy frames rebuilt anim8_cycle: " .. tostring(self.t))
+				end
 			end
-			self.quad = self.quadgroup[self.quadi as integer]
 		end
-		
+		if cycle_n then
+			local cycle = cycle_n as Anim8Animation
+			cycle:update(dt)
+			self.quadi = self.animationstart + cycle.position - 1
+			local offset = (self.throwanimationstate or 0) as integer
+			self.quad = self.quadgroup[self.quadi + offset]
+		end
+
 		if self.speedx > 0 then
 			self.animationdirection = "left"
 		else

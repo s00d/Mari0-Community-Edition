@@ -1,5 +1,7 @@
 --[[ Teal port of root characterloader.lua ]]
 
+local Anim8Player = require("assets.anim8_player")
+
 global function loadcharacter(charname: string): Character|boolean
 	
 	local folder = "assets/characters/" .. charname .. "/"
@@ -175,7 +177,12 @@ global function loadcharacter(charname: string): Character|boolean
 			char.bigcustomframe[i][j] = love.graphics.newQuad((add+7+j)*char.bigquadwidth, (i-1)*char.bigquadheight, char.bigquadwidth, char.bigquadheight, char.bigimgwidth, char.bigimgheight)
 		end
 	end
-	
+
+	Anim8Player.attach(char, {
+		grow = growframedelay,
+		tail = raccoontailwagdelay,
+		spin = raccoonspindelay,
+	})
 	return char
 end
 

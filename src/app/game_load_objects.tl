@@ -1,5 +1,7 @@
 --[[ game_load object helpers / audio / UI bits ]]
 
+local UiRunPreview = require("assets.ui_run_preview")
+
 global function drawreplay(j: any, i: any)
 	local j = j as integer
 	local self = ((replaydata[j] as {string:any}).data as {any})[i as integer] as {string:any}
@@ -318,13 +320,15 @@ global function drawplayercard(x: number, y: number, colors: {{number}}, hats: a
 		portal2 = (portalcolor as {integer: {{number}}})[playerconfig as integer][2]
 	end
 
+	local preview_frame = UiRunPreview.frame()
+
 	drawplayer(nil, x+18, y+28, scale,
 		v.smalloffsetX, v.smalloffsetY, 0,
 		v.smallquadcenterX, v.smallquadcenterY,
 		"running", false, false,
-		hats, v.animations, v.run[angle][runanimationframe],
+		hats, v.animations, v.run[angle][preview_frame],
 		0, false, false, colors, 1, portal1, portal2,
-		runanimationframe, nil, nil, nil, nil, nil, v)
+		preview_frame, nil, nil, nil, nil, nil, v)
 
 	properprint(nick, (x+36)*scale, (y+6)*scale)
 	if ping then

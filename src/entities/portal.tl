@@ -2,6 +2,8 @@
 
 rawset(_G, "portal", rawget(_G, "portal") or {})
 
+local Anim8Effects = require("assets.anim8_effects")
+
 local function portal_dyn(self: portal): {string:any}
 	return self as {string:any}
 end
@@ -16,8 +18,8 @@ function portal:init(number: any, c1: any, c2: any)
 	self.number = number as number
 	self.portal1color = (c1 or {60 / 255, 188 / 255, 252 / 255}) as {number}
 	self.portal2color = (c2 or {232 / 255, 130 / 255, 30 / 255}) as {number}
-	self.animationtimer = 0
 	self.portalframe = 1
+	(self as {string:any})["portal_anim"] = Anim8Effects.new_portal()
 	self.openscale = {0, 0}
 	
 	self.x1, self.y1, self.facing1, self.x2, self.y2, self.facing2 = false, false, false, false, false, false
@@ -153,14 +155,8 @@ function portal:removeportal(i: number)
 end
 
 function portal:update(dt: number)
-	self.animationtimer = self.animationtimer + dt
-	while self.animationtimer > portalanimationdelay do
-		self.animationtimer = 0
-		self.portalframe = self.portalframe + 1
-		if self.portalframe > portalanimationcount then
-			self.portalframe = 1
-		end
-	end
+	local anim = (self as {string:any})["portal_anim"] as Anim8Animation|nil
+	self.portalframe = Anim8Effects.step_portal(anim, dt)
 	
 	for i = 1, 2 do
 		self.openscale[i as integer] = math.min(1, self.openscale[i as integer]+dt*15)

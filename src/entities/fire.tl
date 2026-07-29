@@ -2,6 +2,8 @@
 
 rawset(_G, "fire", rawget(_G, "fire") or {})
 
+local Anim8Effects = require("assets.anim8_effects")
+
 function fire.new(_: fire, x: number, y: number): fire
 	local self = setmetatable({}, { __index = fire }) as fire
 	self:init(x, y)
@@ -53,23 +55,14 @@ function fire:init(x: number, y: number)
 	self.rotation = 0 --for portals
 	self.timer = 0
 	self.quadi = 1
+	(self as {string:any})["fire_anim"] = Anim8Effects.new_fire()
 	
 	playsound("fire")
 end
 
 function fire:update(dt: number)
-	--animate
-	self.timer = self.timer + dt
-	while self.timer > fireanimationdelay do
-		if self.quadi == 2 then
-			self.quadi = 1
-		else
-			self.quadi = 2
-		end
-		
-		self.quad = firequad[self.quadi]
-		self.timer = self.timer - fireanimationdelay
-	end
+	local anim = (self as {string:any})["fire_anim"] as Anim8Animation|nil
+	self.quad = Anim8Effects.step_fire(anim, dt)
 	
 	self.x = self.x + self.speedx*dt
 	

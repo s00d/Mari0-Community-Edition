@@ -1,12 +1,11 @@
 --[[ Lobby UI: roster, chat, start/quit. MagicDNS keep only when enabled+available. ]]
 
+local UiRunPreview = require("assets.ui_run_preview")
+
 global function lobby_load()
 	gamestate = "lobby"
-	if not runanimationtimer then
-		runanimationtimer = 0
-		runanimationframe = 1
-		runanimationdelay = 0.1
-	end
+	local char_name = mariocharacter[playerconfig] or mariocharacter[1] or "mario"
+	UiRunPreview.attach_char(characters[char_name] or characters["mario"])
 	if not playerlist then
 		playerlist = {}
 	end
@@ -43,14 +42,7 @@ global function lobby_load()
 end
 
 global function lobby_update(dt: number)
-	runanimationtimer = runanimationtimer + dt
-	while runanimationtimer > runanimationdelay do
-		runanimationtimer = runanimationtimer - runanimationdelay
-		runanimationframe = runanimationframe - 1
-		if runanimationframe == 0 then
-			runanimationframe = 3
-		end
-	end
+	UiRunPreview.update(dt)
 
 	-- Never call MagicDNS keep unless explicitly enabled and HTTP works.
 	if SERVER and usemagic and magicdns_available and magicdns_available() then

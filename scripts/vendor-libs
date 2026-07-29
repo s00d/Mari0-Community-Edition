@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Vendor pure-Lua LÖVE libs into lib/ (Love 12 / .love safe).
+# Pins are git raw / shallow clones — update URLs deliberately.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+LIB="$ROOT/lib"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+
+mkdir -p "$LIB/hump" "$LIB/sti/plugins" "$LIB/slab"
+
+fetch_raw() {
+	local url="$1" dest="$2"
+	curl -fsSL -o "$dest" "$url"
+	echo "vendored $(basename "$dest")"
+}
+
+fetch_raw https://raw.githubusercontent.com/kikito/anim8/v2.3.1/anim8.lua "$LIB/anim8.lua"
+fetch_raw https://raw.githubusercontent.com/kikito/bump.lua/v3.1.7/bump.lua "$LIB/bump.lua"
+fetch_raw https://raw.githubusercontent.com/rxi/flux/master/flux.lua "$LIB/flux.lua"
+fetch_raw https://raw.githubusercontent.com/rxi/lume/master/lume.lua "$LIB/lume.lua"
+fetch_raw https://raw.githubusercontent.com/tesselode/baton/v1.0.2/baton.lua "$LIB/baton.lua"
+fetch_raw https://raw.githubusercontent.com/kikito/inspect.lua/v3.1.3/inspect.lua "$LIB/inspect.lua"
+
+for f in camera gamestate signal timer vector; do
+	fetch_raw "https://raw.githubusercontent.com/vrld/hump/master/${f}.lua" "$LIB/hump/${f}.lua"
+done
+
+# Keep existing luarocks pins
+"$ROOT/scripts/vendor-rocks"
+
+# STI + Slab via shallow clone (multi-file)
+git clone --depth 1 https://github.com/karai17/Simple-Tiled-Implementation.git "$TMP/sti"
+cp "$TMP/sti/sti/"*.lua "$LIB/sti/"
+cp -R "$TMP/sti/sti/plugins/"* "$LIB/sti/plugins/" 2>/dev/null || true
+
+git clone --depth 1 https://github.com/flamendless/Slab.git "$TMP/slab"
+rm -rf "$LIB/slab"
+mkdir -p "$LIB/slab"
+cp -R "$TMP/slab/Internal" "$LIB/slab/"
+cp "$TMP/slab/"{Slab.lua,API.lua,Style.lua,SlabDebug.lua,SlabDefinition.lua,init.lua} "$LIB/slab/" 2>/dev/null || true
+
+cat > "$LIB/README.md" << 'EOF'
+# Vendored pure-Lua libs (Love 12 / .love safe)
+
+Synced by `scripts/vendor-libs` (+ `scripts/vendor-rocks` for dkjson/sha1).
+Do not hand-edit library sources; re-run the scripts after bumping pins.
+
+| Module | Source | Why |
+|--------|--------|-----|
+| `dkjson` / `sha1` | luarocks pins | JSON / hash |
+| `anim8` | kikito/anim8 v2.3.1 | sprite frames |
+| `bump` | kikito/bump.lua v3.1.7 | AABB collisions |
+| `flux` | rxi/flux | tweens |
+| `lume` | rxi/lume | utils |
+| `baton` | tesselode/baton v1.0.2 | input |
+| `inspect` | kikito/inspect.lua | debug dump |
+| `hump.*` | vrld/hump | camera / gamestate / signal / timer / vector |
+| `sti` | karai17/STI | Tiled maps |
+| `slab` | flamendless/Slab | editor UI |
+
+Vector math: `hump.vector` (rxi/vector.lua repo is gone).
+EOF
+
+echo "OK: lib/ refreshed (vendor-libs)"

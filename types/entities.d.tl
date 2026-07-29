@@ -55,6 +55,7 @@ global record EnemyDef
 	quadbase: any
 	quadgroup: any
 	drawable: boolean
+	anim8_cycle: Anim8Animation|nil
 end
 
 -- Character record lives in types/love.d.tl (needed before Entity.char).
@@ -130,6 +131,7 @@ global record Enemy
 	quadi: integer
 	quad: Quad
 	quadgroup: {Quad}
+	anim8_cycle: Anim8Animation|nil
 	movement: string
 	customtimer: {any}
 	spawnoffsetx: number

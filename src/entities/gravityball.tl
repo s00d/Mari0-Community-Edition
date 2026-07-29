@@ -4,11 +4,11 @@ rawset(_G, "gravityball", rawget(_G, "gravityball") or {})
 
 require("weapons.punt")
 
+local Anim8Effects = require("assets.anim8_effects")
+
 local SPEED = 22
 local LIFETIME = 3
 local TRAIL_N = 8
-local EXPLODE_FRAMES = {5, 6, 7}
-local FRAME_TIME = 0.05
 
 function gravityball.new(_: gravityball, x: number, y: number, dx: number, dy: number, owner: any): gravityball
 	local self = setmetatable({}, { __index = gravityball }) as gravityball
@@ -43,15 +43,15 @@ function gravityball:init(x: number, y: number, dx: number, dy: number, owner: a
 
 	self.owner = owner
 	self.timer = 0
-	self.frametimer = 0
 	self.state = "flying"
-	self.frame = 1
 	self.bounces_left = 2
 	self.gelreactive = true
 
 	self.drawable = true
 	self.graphic = fireballimg
 	self.quad = fireballquad[1]
+	(self as {string:any})["loop_anim"] = Anim8Effects.new_fireball_loop()
+	(self as {string:any})["die_anim"] = nil
 	self.offsetX = 4
 	self.offsetY = 4
 	self.quadcenterX = 4
@@ -70,15 +70,14 @@ function gravityball:update(dt: number): boolean
 	self.rotation = 0
 	self.timer = self.timer + dt
 
+	local bag = self as {string:any}
 	if self.state == "exploding" then
-		self.frametimer = self.frametimer + dt
-		while self.frametimer > FRAME_TIME do
-			self.frametimer = self.frametimer - FRAME_TIME
-			self.frame = self.frame + 1
-			if self.frame > #EXPLODE_FRAMES then
-				return true
-			end
-			self.quad = fireballquad[EXPLODE_FRAMES[self.frame as integer]]
+		local quad: any
+		local done: boolean
+		quad, done = Anim8Effects.step_fireball_die(bag["die_anim"] as Anim8Animation|nil, dt)
+		self.quad = quad
+		if done then
+			return true
 		end
 		return false
 	end
@@ -88,7 +87,7 @@ function gravityball:update(dt: number): boolean
 	slot.x = self.x
 	slot.y = self.y
 
-	self.quad = fireballquad[math.floor(self.timer / 0.04) % 4 + 1]
+	self.quad = Anim8Effects.step_fireball_loop(bag["loop_anim"] as Anim8Animation|nil, dt)
 
 	if self.timer > LIFETIME then
 		self:explode()
@@ -156,9 +155,9 @@ function gravityball:explode()
 	self.offsetY = 8
 	self.quadcenterX = 8
 	self.quadcenterY = 8
-	self.frame = 1
-	self.frametimer = 0
-	self.quad = fireballquad[EXPLODE_FRAMES[1]]
+	local bag = self as {string:any}
+	bag["die_anim"] = Anim8Effects.new_fireball_die()
+	self.quad = fireballquad[5]
 	if playsound then
 		playsound("blockhit")
 	end

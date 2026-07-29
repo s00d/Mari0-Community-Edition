@@ -577,6 +577,8 @@ function Boot.load_media()
 	end
 	
 	add("Images, quads")
+
+	require("assets.anim8_effects").init()
 	
 	--AUDIO--
 	--sounds

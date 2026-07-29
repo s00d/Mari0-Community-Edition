@@ -92,6 +92,8 @@ global record Character
 	bigswim: {any:{any:any}}
 	bigduck: {any:any}
 	bigcustomframe: {any:{any:any}}
+	-- anim8 template cycles at load time; clone per Mario via anim8_player.init_instance
+	anim8_template: {string:any}|nil
 end
 
 -- Heterogeneous world objects. Number/boolean fields used in arithmetic or
@@ -206,7 +208,6 @@ global interface Entity is {any}
 	thickness: number
 	mazevar: number
 	size: number
-	runanimationprogress: number
 	starred: boolean
 	invincible: boolean
 	pickup: any

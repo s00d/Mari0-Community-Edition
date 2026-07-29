@@ -213,6 +213,7 @@ function LoveLoad.run(arg: any)
 	touchfrominsidemissing = desktopsize.height - height * 16 * touchfrominsidescaling
 
 	add("Variables")
+	require("app.variables")
 	changescale(scale, true)
 	add("Resolution change")
 	require("assets.characterloader")

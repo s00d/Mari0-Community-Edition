@@ -2,6 +2,8 @@
 
 rawset(_G, "coinblockanimation", rawget(_G, "coinblockanimation") or {})
 
+local Core = require("assets.anim8_core")
+
 function coinblockanimation.new(_: coinblockanimation, x: number, y: number): coinblockanimation
 	local self = setmetatable({}, { __index = coinblockanimation }) as coinblockanimation
 	self:init(x, y)
@@ -17,10 +19,10 @@ function coinblockanimation:init(x: number, y: number)
 end
 
 function coinblockanimation:update(dt: number): boolean
-	self.timer = self.timer + dt
-	while self.timer > coinblockdelay do
+	local ticked: boolean
+	self.timer, ticked = Core.tick_interval(self.timer, dt, coinblockdelay)
+	if ticked then
 		self.frame = self.frame + 1
-		self.timer = self.timer - coinblockdelay
 	end
 	
 	if self.frame >= 31 then

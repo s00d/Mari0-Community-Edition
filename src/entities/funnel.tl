@@ -2,6 +2,8 @@
 
 rawset(_G, "funnel", rawget(_G, "funnel") or {})
 
+local Core = require("assets.anim8_core")
+
 function funnel.new(_: funnel, x: number, y: number, r: {any}): funnel
 	local self = setmetatable({}, { __index = funnel }) as funnel
 	self:init(x, y, r)
@@ -87,8 +89,9 @@ function funnel:update(dt: number)
 		end
 		
 		self.timer2 = self.timer2 + dt
-		while self.timer2 > excursionbaseanimationtime do
-			self.timer2 = self.timer2 - excursionbaseanimationtime
+		local ticked: boolean
+		self.timer2, ticked = Core.tick_interval(self.timer2, dt, excursionbaseanimationtime)
+		if ticked then
 			if self.reverse == 1 then
 				self.quad = (self.quad as number) + 1
 				if (self.quad as number) > 8 then

@@ -2,6 +2,8 @@
 
 rawset(_G, "blockdebris", rawget(_G, "blockdebris") or {})
 
+local Core = require("assets.anim8_core")
+
 function blockdebris.new(_: blockdebris, x: number, y: number, speedx: any, speedy: any): blockdebris
 	local self = setmetatable({}, { __index = blockdebris }) as blockdebris
 	self:init(x, y, speedx, speedy)
@@ -20,9 +22,9 @@ function blockdebris:init(x: number, y: number, speedx, speedy)
 end
 
 function blockdebris:update(dt: number): boolean
-	self.timer = self.timer + dt
-	while self.timer > blockdebrisanimationtime do
-		self.timer = self.timer - blockdebrisanimationtime
+	local ticked: boolean
+	self.timer, ticked = Core.tick_interval(self.timer, dt, blockdebrisanimationtime)
+	if ticked then
 		if self.frame == 1 then
 			self.frame = 2
 		else

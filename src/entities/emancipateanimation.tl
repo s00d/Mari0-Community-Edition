@@ -2,6 +2,8 @@
 
 rawset(_G, "emancipateanimation", rawget(_G, "emancipateanimation") or {})
 
+local Core = require("assets.anim8_core")
+
 function emancipateanimation.new(_: emancipateanimation, x: number, y: number, width: any, height: any, img: any, quad: any, speedx: any, speedy: any, rotation: any, offsetX: any, offsetY: any, quadcenterX: any, quadcenterY: any): emancipateanimation
 	local self = setmetatable({}, { __index = emancipateanimation }) as emancipateanimation
 	self:init(x, y, width, height, img, quad, speedx, speedy, rotation, offsetX, offsetY, quadcenterX, quadcenterY)
@@ -45,10 +47,10 @@ function emancipateanimation:update(dt: number): boolean
 	self.rotation = self.rotation + self.rotationspeed*dt
 	
 	if self.timer < emancipateanimationtime-emancipatefadeouttime then
-		self.timer2 = self.timer2 + dt
-		while self.timer2 > emancipationfizzledelay do
+		local ticked: boolean
+		self.timer2, ticked = Core.tick_interval(self.timer2, dt, emancipationfizzledelay)
+		if ticked then
 			table.insert(emancipationfizzles, emancipationfizzle:new(self.x+math.random()*self.width, self.y+math.random()*self.height, self.speedx, self.speedy))
-			self.timer2 = self.timer2 -emancipationfizzledelay
 		end
 	end
 	

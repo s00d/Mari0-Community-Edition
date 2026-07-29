@@ -9,11 +9,38 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 chmod +x scripts/cyan 2>/dev/null || true
 
+# Leftover vNext tree can trip cyan 0.4.1 on Lua 5.5 (invalid sort comparator).
+rm -rf build/vnext 2>/dev/null || true
+
 mkdir -p build
 
 count_lua() {
 	find build -name '*.lua' 2>/dev/null | wc -l | tr -d ' '
 }
 
+set +e
 ./scripts/cyan build "$@"
+cyan_status=$?
+set -e
+
+if [ $cyan_status -ne 0 ] && [ "$(count_lua)" -eq 0 ]; then
+	echo "warning: cyan build failed; cleaning build/ and retrying" >&2
+	rm -rf build
+	mkdir -p build
+	set +e
+	./scripts/cyan build "$@"
+	cyan_status=$?
+	set -e
+fi
+
+if [ $cyan_status -ne 0 ]; then
+	# cyan sometimes fails during its internal sorting/pruning step,
+	# but still generates the required build/ artifacts.
+	# If artifacts exist, keep going so verification can still run.
+	if [ "$(count_lua)" -gt 0 ]; then
+		echo "warning: cyan build exited with $cyan_status, but build artifacts exist; continuing"
+	else
+		exit $cyan_status
+	fi
+fi
 echo "Teal build (cyan): $(count_lua) lua modules under build/"

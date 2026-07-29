@@ -1,5 +1,7 @@
 --[[ Online menu: host/join. MagicDNS off by default; guarded against nil HTTP. ]]
 
+local UiRunPreview = require("assets.ui_run_preview")
+
 global function onlinemenu_load()
 	objects = nil
 	mappack = "smb"
@@ -37,11 +39,11 @@ global function onlinemenu_load()
 	guielements.joinbutton.bordercolor = {0, 1, 0}
 	guielements.joinbutton.bordercolorhigh = {0.5, 1, 0.5}
 
-	runanimationtimer = 0
-	runanimationframe = 1
-	runanimationdelay = 0.1
-
 	playerconfig = 1
+	do
+		local char_name = mariocharacter[playerconfig] or mariocharacter[1] or "mario"
+		UiRunPreview.attach_char(characters[char_name] or characters["mario"])
+	end
 
 	usemagic = false
 
@@ -61,14 +63,7 @@ global function onlinemenu_load()
 end
 
 global function onlinemenu_update(dt: number)
-	runanimationtimer = runanimationtimer + dt
-	while runanimationtimer > runanimationdelay do
-		runanimationtimer = runanimationtimer - runanimationdelay
-		runanimationframe = runanimationframe - 1
-		if runanimationframe == 0 then
-			runanimationframe = 3
-		end
-	end
+	UiRunPreview.update(dt)
 
 	magictimer = magictimer + dt
 	while magictimer > magicdelay do

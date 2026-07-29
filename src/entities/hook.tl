@@ -2,6 +2,8 @@
 
 rawset(_G, "hook", rawget(_G, "hook") or {})
 
+local Anim8Effects = require("assets.anim8_effects")
+
 local HOOK_SPEED = 22
 local MAX_LEN = 9
 
@@ -62,7 +64,8 @@ function hook:update(dt: number): boolean
 	end
 
 	if self.quad and fireballquad then
-		self.quad = fireballquad[math.floor(((self.travelled as number) / 0.2) % 4) + 1]
+		local frame = (math.floor(((self.travelled as number) / 0.2) % 4) + 1) as integer
+		self.quad = Anim8Effects.fireball_loop_quad_at(nil, frame)
 	end
 	return false
 end

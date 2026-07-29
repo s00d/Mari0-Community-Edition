@@ -2,6 +2,8 @@
 
 rawset(_G, "animatedquad", rawget(_G, "animatedquad") or {})
 
+local Anim8Tile = require("assets.anim8_tile")
+
 function animatedquad.new(_: animatedquad, imgpath: any, s: any, number: any): animatedquad
 	local self = setmetatable({}, { __index = animatedquad }) as animatedquad
 	self:init(imgpath, s, number)
@@ -58,6 +60,14 @@ function animatedquad:init(imgpath, s, number)
 	for j = #self.delays+1, #self.quadlist do
 		self.delays[j] = self.delays[math.fmod(j-1, delaycount)+1]
 	end
+
+	if not self.triggered and not self.boolean then
+		local self_ref = self
+		(self as {string:any})["tile_anim"] = Anim8Tile.build_loop(self.quadlist, self.delays as {number}, function(state: {any:any})
+			self_ref.quadi = state.quadi as integer
+			self_ref:updateproperties()
+		end)
+	end
 	
 end
 
@@ -98,6 +108,12 @@ function animatedquad:updateproperties()
 end
 
 function animatedquad:update(dt: number)
+	local tile_anim = (self as {string:any})["tile_anim"] as {any:any}|nil
+	if tile_anim and not self.triggered and not self.boolean then
+		self.quadi = Anim8Tile.update(tile_anim, dt)
+		return
+	end
+
 	self.timer = (self.timer as number) + dt
 	local qi = self.quadi as integer
 	while (self.timer as number) > (self.delays[qi] as number) do

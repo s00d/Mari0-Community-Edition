@@ -391,7 +391,7 @@ global function callcollision(dir: any, obj: Entity, a: any, b: Entity, c: any, 
 			end
 		end		
 		
-		if not obj.runanimationprogress or obj.size == 1 then --cheap check for player
+		if not obj.runframe or obj.size == 1 then --cheap check for player
 			local sidesn = map[x][y].gelSides
 			if sidesn then
 				local sides = sidesn as {number:number}

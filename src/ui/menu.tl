@@ -2,6 +2,8 @@
 
 require "assets.spritebatch_util"
 
+local Anim8Effects = require("assets.anim8_effects")
+
 -- Cursor bar slides; labels stay fixed (no sliding text).
 local menu_cursor_y: number = 0
 local menu_cursor_ready: boolean = false
@@ -140,8 +142,7 @@ global function menu_load()
 	controlstable = {"left", "right", "up", "down", "run", "jump", "reload", "use", "aimx", "aimy", "portal1", "portal2", "weaponnext", "weaponprev"} as {number:string}
 	
 	portalanimation = 1
-	portalanimationtimer = 0
-	portalanimationdelay = 0.08
+	Anim8Effects.menu_portal_reset()
 	
 	infmarioY = 0
 	infmarioR = 0
@@ -249,14 +250,7 @@ global function menu_update(dt: number)
 	end
 	
 	if gamestate == "options" and optionstab == 2 then
-		portalanimationtimer = portalanimationtimer + dt
-		while portalanimationtimer > portalanimationdelay do
-			portalanimation = portalanimation + 1
-			if portalanimation > 6 then
-				portalanimation = 1
-			end
-			portalanimationtimer = portalanimationtimer - portalanimationdelay
-		end
+		portalanimation = Anim8Effects.menu_portal_step(dt)
 		
 		infmarioY = infmarioY + infmarioYspeed*dt
 		while infmarioY > 64 do

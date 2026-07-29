@@ -2,6 +2,10 @@
 
 rawset(_G, "mario", rawget(_G, "mario") or {})
 
+local Anim8Player = require("assets.anim8_player")
+local Core = require("assets.anim8_core")
+local Anim8Effects = require("assets.anim8_effects")
+
 function mario.new(_: mario, x: number, y: number, i: any, animation: any, size: any, t: any): mario
 	local self = setmetatable({}, { __index = mario }) as mario
 	self:init(x, y, i, animation, size, t)
@@ -15,6 +19,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	
 	self.alwaysactive = true
 	self.char = characters[mariocharacter[i as integer] as string]
+	Anim8Player.init_instance(self)
 	
 	self.playernumber = (i or 1) as integer
 	if bigmario then
@@ -157,9 +162,6 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	self.jumpframe = 1
 	self.swimframe = 1
 	self.climbframe = 1
-	self.runanimationprogress = 1
-	self.jumpanimationprogress = 1
-	self.swimanimationprogress = 1
 	self.animationstate = "idle" --idle, running, jumping, falling, swimming, sliding, climbing, dead
 	self.animationdirection = "right" --left, right. duh
 	self.platform = false
@@ -261,7 +263,7 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 		self.active = false
 		self.pointingangle = -math.pi/2
 		self.animationdirection = "right"
-		self.climbframe = 2
+		Anim8Player.set_climb_frame(self, 2)
 		self.animationstate = "climbing"
 		self:setquad()
 		self.x = 4-3/16
@@ -400,35 +402,35 @@ function mario:apply_form(form: string)
 end
 
 function mario:update_raccoon_effects(dt: number)
-	--Tailwag!
 	if self:has_raccoon() and (self.tailwag or self.tailwagtimer > 0) then
 		if self.tailwagtimer == 0 then
 			self.tailwag = false
 			playsound("tailwag")
 		end
 		self.tailwagtimer = self.tailwagtimer + dt
-		while self.tailwagtimer > raccoontailwagdelay do
-			self.tailwagframe = self.tailwagframe + 1
-			self.tailwagtimer = self.tailwagtimer - raccoontailwagdelay
-			if self.tailwagframe > 3 then
-				self.tailwagframe = 1
-				self.tailwagtimer = 0
-			end
+		local key = "tailwag_glide"
+		if self.raccoontimer > 0 and self.falling then
+			key = "tailwag_fall"
 		end
+		self.tailwagframe = Anim8Player.step(Anim8Player.get(self, key), dt, 1 / raccoontailwagdelay)
 	end
 	
-	--Spin!
 	if self:has_raccoon() and self.raccoonspinframe then
 		if self.raccoonspintimer == 0 then
 			playsound("tailwag")
 		end
 		self.raccoonspintimer = self.raccoonspintimer + dt
-		while self.raccoonspintimer > raccoonspindelay and self.raccoonspinframe do
-			self.raccoonspintimer = self.raccoonspintimer - raccoonspindelay
-			self.raccoonspinframe = (self.raccoonspinframe as number) + 1
-			if (self.raccoonspinframe as number) >= 4 then
-				self.raccoonspinframe = false
-			end
+		local key = "spin_ground"
+		if self.falling or self.jumping then
+			key = "spin_air"
+		end
+		local anim = Anim8Player.get(self, key)
+		local prev = anim and (anim as Anim8Animation).position or 1
+		local pos = Anim8Player.step(anim, dt, 1 / raccoonspindelay)
+		if prev == 3 and pos == 1 then
+			self.raccoonspinframe = false
+		else
+			self.raccoonspinframe = pos
 		end
 	end
 end
@@ -436,21 +438,20 @@ end
 function mario:update_star(dt: number)
 	if self.startimer < mariostarduration and not self.dead then
 		self.startimer = self.startimer + dt
-		self.starblinktimer = self.starblinktimer + dt
 		
 		local lmariostarblinkrate = mariostarblinkrate
 		if self.startimer >= mariostarduration-mariostarrunout then
 			lmariostarblinkrate = mariostarblinkrateslow
 		end
 
-		while self.starblinktimer > lmariostarblinkrate do
+		local ticked: boolean
+		self.starblinktimer, ticked = Core.tick_interval(self.starblinktimer, dt, lmariostarblinkrate)
+		if ticked then
 			self.starcolori = self.starcolori + 1
 			if self.starcolori > 4 then
 				self.starcolori = self.starcolori - 4
 			end
 			self.colors = starcolors[self.starcolori]
-			
-			self.starblinktimer = self.starblinktimer - lmariostarblinkrate
 		end
 		
 		if self.startimer >= mariostarduration-mariostarrunout and self.startimer-dt < mariostarduration-mariostarrunout then
@@ -492,12 +493,13 @@ function mario:update_animation(dt: number): boolean
 		self:setquad()
 		return true
 	elseif self.animation == "pipedown" and self.animationy and self.animationx then
-		self.animationtimer = self.animationtimer + dt
-		if self.animationtimer < pipeanimationtime then
-			self.y = (self.animationy as number) - 28/16 + self.animationtimer/pipeanimationtime*pipeanimationdistancedown
-		else
+		local t: number
+		local y: number
+		t, y = Core.lerp_tick(self.animationtimer, dt, pipeanimationtime, (self.animationy as number) - 28/16, (self.animationy as number) - 28/16 + pipeanimationdistancedown)
+		self.animationtimer = t
+		self.y = y
+		if self.animationtimer >= pipeanimationtime then
 			self.y = (self.animationy as number) - 28/16 + pipeanimationdistancedown
-			
 			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
 				updatesizes()
 				if type(self.animationmisc) == "number" then --sublevel
@@ -510,13 +512,12 @@ function mario:update_animation(dt: number): boolean
 		return true
 	elseif self.animation == "pipeup" and self.animationy and self.animationx then
 		self.animationtimer = self.animationtimer + dt
-		if self.animationtimer < pipeupdelay then
-		
-		elseif self.animationtimer < pipeanimationtime+pipeupdelay then
-			self.y = (self.animationy as number) + 20/16 - (self.animationtimer-pipeupdelay)/pipeanimationtime*pipeanimationdistancedown
-		else
+		if self.animationtimer >= pipeupdelay then
+			local t = math.min(self.animationtimer - pipeupdelay, pipeanimationtime)
+			self.y = Core.lerp_value(t, pipeanimationtime, (self.animationy as number) + 20/16, (self.animationy as number) + 20/16 - pipeanimationdistancedown)
+		end
+		if self.animationtimer >= pipeanimationtime+pipeupdelay then
 			self.y = (self.animationy as number) + 20/16 - pipeanimationdistancedown
-			
 			if self.animationtimer >= pipeanimationtime then
 				self.active = true
 				self.controlsenabled = true
@@ -526,18 +527,17 @@ function mario:update_animation(dt: number): boolean
 		end
 		return true
 	elseif self.animation == "piperight" and self.animationy and self.animationx then
-		self.animationtimer = self.animationtimer + dt
-		if self.animationtimer < pipeanimationtime then
-			self.x = (self.animationx as number) - 28/16 + self.animationtimer/pipeanimationtime*pipeanimationdistanceright
-			
-			--Run animation
-			if self.animationstate == "running" then
-				self:runanimation(dt)
-			end
-			self:setquad()
-		else
+		local t: number
+		local x: number
+		t, x = Core.lerp_tick(self.animationtimer, dt, pipeanimationtime, (self.animationx as number) - 28/16, (self.animationx as number) - 28/16 + pipeanimationdistanceright)
+		self.animationtimer = t
+		self.x = x
+		if self.animationstate == "running" then
+			self:runanimation(dt)
+		end
+		self:setquad()
+		if self.animationtimer >= pipeanimationtime then
 			self.x = (self.animationx as number) - 28/16 + pipeanimationdistanceright
-			
 			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
 				updatesizes()
 				if type(self.animationmisc) == "number" then --sublevel
@@ -557,13 +557,9 @@ function mario:update_animation(dt: number): boolean
 				
 			if self.y > (flagy as number)-9+4/16 + flagydistance-self.height then
 				self.y = (flagy as number)-9+4/16 + flagydistance-self.height
-				self.climbframe = 2
+				Anim8Player.set_climb_frame(self, 2)
 			else
-				if math.fmod(self.animationtimer, flagclimbframedelay*2) >= flagclimbframedelay then
-					self.climbframe = 1
-				else
-					self.climbframe = 2
-				end
+				self.climbframe = Anim8Player.step_climb(self, dt, flagclimbframedelay)
 			end
 			
 			self.animationstate = "climbing"
@@ -673,7 +669,8 @@ function mario:update_animation(dt: number): boolean
 		if bridgedisappear then
 			local v = objects["bowser"][1]
 			if v then
-				v.walkframe = round(math.fmod(self.animationtimer, castleanimationbowserframedelay*2)*(1/(castleanimationbowserframedelay*2)))+1
+				local vbag = v as {string:any}
+				v.walkframe = Anim8Effects.step_bowser_walk(vbag["walk_anim"] as Anim8Animation|nil, dt)
 			end
 			self.animationtimer2 = self.animationtimer2 + dt
 			while self.animationtimer2 > castleanimationbridgedisappeardelay and self.animationbridgex > 0 do
@@ -818,10 +815,7 @@ function mario:update_animation(dt: number): boolean
 	elseif self.animation == "vine" then
 		self.y = self.y - vinemovespeed*dt
 		
-		self.vinemovetimer = self.vinemovetimer + dt
-		
-		self.climbframe = math.ceil(math.fmod(self.vinemovetimer, vineframedelay*2)/vineframedelay)
-		self.climbframe = math.max(self.climbframe, 1)
+		self.climbframe = Anim8Player.step_climb(self, dt, vineframedelay)
 		self:setquad()
 		
 		if self.y < -4 then
@@ -835,10 +829,7 @@ function mario:update_animation(dt: number): boolean
 		end
 		
 		if self.vineanimationclimb then
-			self.vinemovetimer = self.vinemovetimer + dt
-			
-			self.climbframe = math.ceil(math.fmod(self.vinemovetimer, vineframedelay*2)/vineframedelay)
-			self.climbframe = math.max(self.climbframe, 1)
+			self.climbframe = Anim8Player.step_climb(self, dt, vineframedelay)
 			
 			self.y = self.y - vinemovespeed*dt
 			if self.y <= mapheight-vineanimationgrowheight+vineanimationstop+0.4*(self.playernumber-1) then
@@ -846,7 +837,7 @@ function mario:update_animation(dt: number): boolean
 				self.vineanimationdropoff = true
 				self.animationtimer = 0
 				self.y = mapheight-vineanimationgrowheight+vineanimationstop+0.4*(self.playernumber-1)
-				self.climbframe = 2
+				Anim8Player.set_climb_frame(self, 2)
 				self.pointingangle = math.pi/2
 				self.animationdirection = "left"
 				self.x = self.x+9/16
@@ -865,8 +856,7 @@ function mario:update_animation(dt: number): boolean
 	
 	elseif self.animation == "shrink" then
 		self.animationtimer = self.animationtimer + dt
-		--set frame lol
-		local frame = math.ceil(math.fmod(self.animationtimer, growframedelay*3)/shrinkframedelay)
+		local frame = Anim8Player.step_grow(self, dt)
 	
 		if frame == 1 then
 			self.graphic = self.biggraphic
@@ -890,13 +880,7 @@ function mario:update_animation(dt: number): boolean
 			end
 		end
 		
-		local invis = math.ceil(math.fmod(self.animationtimer, invicibleblinktime*2)/invicibleblinktime)
-		
-		if invis == 1 then
-			self.drawable = true
-		else
-			self.drawable = false
-		end
+		self.drawable = Core.blink_visible(self.animationtimer, invicibleblinktime)
 		
 		if self.animationtimer - dt < shrinktime and self.animationtimer > shrinktime then
 			self:goinvincible()
@@ -905,13 +889,7 @@ function mario:update_animation(dt: number): boolean
 	elseif self.animation == "invincible" then
 		self.animationtimer = self.animationtimer + dt
 		
-		local invis = math.ceil(math.fmod(self.animationtimer, invicibleblinktime*2)/invicibleblinktime)
-		
-		if invis == 1 then
-			self.drawable = true
-		else
-			self.drawable = false
-		end
+		self.drawable = Core.blink_visible(self.animationtimer, invicibleblinktime)
 		
 		if self.animationtimer - dt < invincibletime and self.animationtimer > invincibletime then
 			self.animation = false
@@ -921,8 +899,7 @@ function mario:update_animation(dt: number): boolean
 		
 	elseif self.animation == "grow1" then
 		self.animationtimer = self.animationtimer + dt
-		--set frame lol
-		local frame = math.ceil(math.fmod(self.animationtimer, growframedelay*3)/growframedelay)
+		local frame = Anim8Player.step_grow(self, dt)
 		
 		if frame == 3 then
 			self.animationstate = "idle"
@@ -960,8 +937,7 @@ function mario:update_animation(dt: number): boolean
 		
 	elseif self.animation == "grow2" then
 		self.animationtimer = self.animationtimer + dt
-		--set frame lol
-		local frame = math.ceil(math.fmod(self.animationtimer, growframedelay*3)/growframedelay)
+		local frame = Anim8Player.step_grow(self, dt)
 		self.colors = starcolors[frame]
 		
 		if self.animationtimer - dt < growtime and self.animationtimer > growtime then
@@ -999,23 +975,17 @@ function mario:update_vine(dt: number): boolean
 		self.gravity = 0
 		self.animationstate = "climbing"
 		if upkey(self.playernumber) then
-			self.vinemovetimer = self.vinemovetimer + dt
-			
-			self.climbframe = math.ceil(math.fmod(self.vinemovetimer, vineframedelay*2)/vineframedelay)
-			self.climbframe = math.max(self.climbframe, 1)
+			self.climbframe = Anim8Player.step_climb(self, dt, vineframedelay)
 			
 			self.y = self.y-vinemovespeed*dt
 			
 			local t = checkrect(self.x, self.y, self.width, self.height, {"tile", "portalwall"})
 			if #t ~= 0 then
 				self.y = objects[t[1]][t[2]].y + objects[t[1]][t[2]].height
-				self.climbframe = 2
+				Anim8Player.set_climb_frame(self, 2)
 			end
 		elseif downkey(self.playernumber) then
-			self.vinemovetimer = self.vinemovetimer + dt
-			
-			self.climbframe = math.ceil(math.fmod(self.vinemovetimer, vineframedelaydown*2)/vineframedelaydown)
-			self.climbframe = math.max(self.climbframe, 1)
+			self.climbframe = Anim8Player.step_climb(self, dt, vineframedelaydown)
 			
 			checkportalHOR(self, self.y+vinemovedownspeed*dt)
 			
@@ -1024,10 +994,10 @@ function mario:update_vine(dt: number): boolean
 			local t = checkrect(self.x, self.y, self.width, self.height, {"tile", "portalwall"})
 			if #t ~= 0 then
 				self.y = objects[t[1]][t[2]].y - self.height
-				self.climbframe = 2
+				Anim8Player.set_climb_frame(self, 2)
 			end
 		else
-			self.climbframe = 2
+			Anim8Player.set_climb_frame(self, 2)
 			self.vinemovetimer = 0
 		end
 			
@@ -1157,11 +1127,8 @@ function mario:update_gravity(_dt: number)
 end
 
 function mario:update_fire_animation(dt: number)
-	if self.fireanimationtimer < fireanimationtime then
-		self.fireanimationtimer = self.fireanimationtimer + dt
-		if self.fireanimationtimer > fireanimationtime then
-			self.fireanimationtimer = fireanimationtime
-		end
+	if Core.hold_active(self.fireanimationtimer, fireanimationtime) then
+		self.fireanimationtimer = Core.hold_tick(self.fireanimationtimer, dt, fireanimationtime)
 	end
 end
 
@@ -1381,6 +1348,7 @@ function mario:update_controls(dt: number): boolean
 			end
 		end
 	end
+	self:climbanimation(dt)
 	return false
 end
 
@@ -1507,11 +1475,7 @@ function mario:movement(dt: number)
 	end
 	
 	if self.animationstate == "jumping" then
-		self.jumpanimationprogress = self.jumpanimationprogress + dt*runanimationspeed
-		while self.jumpanimationprogress > self.char.jumpframes+1 do
-			self.jumpanimationprogress = self.jumpanimationprogress - self.char.jumpframes
-		end
-		self.jumpframe = math.floor(self.jumpanimationprogress)
+		self.jumpframe = Anim8Player.step(Anim8Player.get(self, "jump"), dt, runanimationspeed)
 	end
 		
 	--HORIZONTAL MOVEMENT
@@ -1620,13 +1584,13 @@ function mario:movement(dt: number)
 					self.speedx = self.speedx - frictionair*dt
 					if self.speedx < minspeed then
 						self.speedx = 0
-						self.runframe = 1
+						Anim8Player.reset_run(self)
 					end
 				else
 					self.speedx = self.speedx + frictionair*dt
 					if self.speedx > -minspeed then
 						self.speedx = 0
-						self.runframe = 1
+						Anim8Player.reset_run(self)
 					end
 				end
 			else
@@ -1638,7 +1602,7 @@ function mario:movement(dt: number)
 					end
 					if self.speedx < minspeed then
 						self.speedx = 0
-						self.runframe = 1
+						Anim8Player.reset_run(self)
 						self.animationstate = "idle"
 					end
 				else
@@ -1649,7 +1613,7 @@ function mario:movement(dt: number)
 					end
 					if self.speedx > -minspeed then
 						self.speedx = 0
-						self.runframe = 1
+						Anim8Player.reset_run(self)
 						self.animationstate = "idle"
 					end
 				end
@@ -1755,13 +1719,13 @@ function mario:movement(dt: number)
 					self.speedx = self.speedx - frictionair*dt
 					if self.speedx < 0 then
 						self.speedx = 0
-						self.runframe = 1
+						Anim8Player.reset_run(self)
 					end
 				else
 					self.speedx = self.speedx + frictionair*dt
 					if self.speedx > 0 then
 						self.speedx = 0
-						self.runframe = 1
+						Anim8Player.reset_run(self)
 					end
 				end
 			else
@@ -1773,7 +1737,7 @@ function mario:movement(dt: number)
 					end
 					if self.speedx < 0 then
 						self.speedx = 0
-						self.runframe = 1
+						Anim8Player.reset_run(self)
 						self.animationstate = "idle"
 					end
 				else
@@ -1784,7 +1748,7 @@ function mario:movement(dt: number)
 					end
 					if self.speedx > 0 then
 						self.speedx = 0
-						self.runframe = 1
+						Anim8Player.reset_run(self)
 						self.animationstate = "idle"
 					end
 				end
@@ -1794,22 +1758,21 @@ function mario:movement(dt: number)
 end
 
 function mario:runanimation(dt: number)
-	self.runanimationprogress = self.runanimationprogress + (math.abs(self.speedx)+4)/5*dt*(self.char.rundelay or runanimationspeed)
-	while self.runanimationprogress > self.char.runframes+1 do
-		self.runanimationprogress = self.runanimationprogress - self.char.runframes
+	local scale = (math.abs(self.speedx)+4)/5 * (self.char.rundelay or runanimationspeed)
+	self.runframe = Anim8Player.step(Anim8Player.get(self, "run"), dt, scale)
+end
+
+function mario:climbanimation(dt: number)
+	if self.animationstate == "climbing" and not self.vine and self.animation ~= "flag" then
+		self.climbframe = Anim8Player.step(Anim8Player.get(self, "climb"), dt, runanimationspeed)
 	end
-	self.runframe = math.floor(self.runanimationprogress)
 end
 
 function mario:underwatermovement(dt: number)
 	if self.jumping or self.falling then
 		--Swim animation
 		if self.animationstate == "jumping" or self.animationstate == "falling" then
-			self.swimanimationprogress = self.swimanimationprogress + runanimationspeed*dt
-			while self.swimanimationprogress >= 3 do
-				self.swimanimationprogress = self.swimanimationprogress - 2
-			end
-			self.swimframe = math.floor(self.swimanimationprogress)
+			self.swimframe = Anim8Player.step(Anim8Player.get(self, "swim"), dt, runanimationspeed)
 			self:setquad()
 		end
 	else
@@ -1937,13 +1900,13 @@ function mario:underwatermovement(dt: number)
 				self.speedx = self.speedx - uwfrictionair*dt
 				if self.speedx < 0 then
 					self.speedx = 0
-					self.runframe = 1
+					Anim8Player.reset_run(self)
 				end
 			else
 				self.speedx = self.speedx + uwfrictionair*dt
 				if self.speedx > 0 then
 					self.speedx = 0
-					self.runframe = 1
+					Anim8Player.reset_run(self)
 				end
 			end
 		else
@@ -1955,7 +1918,7 @@ function mario:underwatermovement(dt: number)
 				end
 				if self.speedx < 0 then
 					self.speedx = 0
-					self.runframe = 1
+					Anim8Player.reset_run(self)
 					self.animationstate = "idle"
 				end
 			else
@@ -1966,7 +1929,7 @@ function mario:underwatermovement(dt: number)
 				end
 				if self.speedx > 0 then
 					self.speedx = 0
-					self.runframe = 1
+					Anim8Player.reset_run(self)
 					self.animationstate = "idle"
 				end
 			end
@@ -1979,14 +1942,7 @@ function mario:underwatermovement(dt: number)
 end
 
 function mario:setquad(anim: any, s: any)
-	local angleframe: number
-	if self.char.nopointing then
-		angleframe = 1
-	elseif not self.portalsavailable[1] and not self.portalsavailable[2] and not self.char.nogunanimations then
-		angleframe = 3
-	else
-		angleframe = (getAngleFrame(self.pointingangle, self.rotation) or 1) as number
-	end
+	local angleframe = Anim8Player.angleframe(self)
 	
 	local animationstate = anim or self.animationstate
 	local size = s or self.size
@@ -2207,6 +2163,7 @@ function mario:grow()
 		else
 			self.animation = "grow2"
 		end
+		Anim8Player.reset_grow(self)
 		
 		self.drawable = true
 		self.invincible = false
@@ -2232,6 +2189,7 @@ function mario:grow_raccoon()
 	else
 		self.animation = "grow2"
 	end
+	Anim8Player.reset_grow(self)
 	self.drawable = true
 	self.invincible = false
 	self.animationtimer = 0
@@ -2254,6 +2212,7 @@ function mario:shrink()
 	self.colors = mariocolors[self.playernumber as integer]
 	
 	self.animation = "shrink"
+	Anim8Player.reset_grow(self)
 	self.drawable = true
 	self.invincible = true
 	self.animationtimer = 0
@@ -3062,7 +3021,7 @@ function mario:grabvine(b: Entity)
 	self.speedx = 0
 	self.speedy = 0
 	self.animationstate = "climbing"
-	self.climbframe = 2
+	Anim8Player.set_climb_frame(self, 2)
 	self.vinemovetimer = 0
 	self:setquad()
 	self.vinex = b.cox
@@ -3880,7 +3839,7 @@ function mario:flag()
 	self.speedy = 0
 	self.x = (flagx as number)-2/16
 	self.gravity = 0
-	self.climbframe = 2
+	Anim8Player.set_climb_frame(self, 2)
 	self.active = false
 	self.infunnel = false
 	self:setquad()

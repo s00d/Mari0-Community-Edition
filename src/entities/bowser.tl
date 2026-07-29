@@ -2,6 +2,8 @@
 
 rawset(_G, "bowser", rawget(_G, "bowser") or {})
 
+local Anim8Effects = require("assets.anim8_effects")
+
 function bowser.new(_: bowser, x: number, y: number, i: any): bowser
 	local self = setmetatable({}, { __index = bowser }) as bowser
 	self:init(x, y, i)
@@ -52,6 +54,7 @@ function bowser:init(x: number, y: number, i)
 	self.animationdirection = "right"
 	self.fireframe = 1
 	self.timer = 0
+	(self as {string:any})["walk_anim"] = Anim8Effects.new_bowser_walk()
 	self.hammertimer = 0
 	self.hammertime = 1 --Stop!
 	self.hammers = false
@@ -87,15 +90,7 @@ function bowser:update(dt: number): boolean
 		self.rotation = unrotate(self.rotation, self.gravitydirection, dt)
 		
 		if not self.fall then
-			self.animationtimer = self.animationtimer + dt
-			while self.animationtimer > bowseranimationspeed do
-				self.animationtimer = self.animationtimer - bowseranimationspeed
-				if self.walkframe == 1 then
-					self.walkframe = 2
-				else
-					self.walkframe = 1
-				end
-			end
+			self.walkframe = Anim8Effects.step_bowser_walk((self as {string:any})["walk_anim"] as Anim8Animation|nil, dt)
 			
 			if self.x < self.targetx then
 				self.speedx = bowserspeedforwards

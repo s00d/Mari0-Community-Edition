@@ -1,5 +1,8 @@
 --[[ Enemy movement dispatch table. Existing CE moves + endless AI. ]]
 
+local Core = require("assets.anim8_core")
+local Anim8Enemy = require("assets.anim8_enemy")
+
 global ENEMY_MOVES: {string:function(enemy, number)} = {}
 
 local function closest_player(self: enemy): mario|nil
@@ -365,7 +368,7 @@ ENEMY_MOVES["squid"] = function(self: enemy, dt: number)
 				self.speedy = 0
 			
 				if self.animationtype == "squid" then
-					self.quad = self.quadgroup[2]
+					Anim8Enemy.apply_squid_quad(self, "upward")
 				end
 			
 				--get if to change direction
@@ -414,7 +417,7 @@ ENEMY_MOVES["squid"] = function(self: enemy, dt: number)
 			end
 		
 			if self.animationtype == "squid" then
-				self.quad = self.quadgroup[1]
+				Anim8Enemy.apply_squid_quad(self, "downward")
 			end
 		end
 end
@@ -575,7 +578,16 @@ ENEMY_MOVES["bones"] = function(self: enemy, dt: number)
 		self.bonestimer = n(self.bonestimer, 0) + dt
 		self.speedx = 0
 		if self.quadgroup then
-			local qi = 4 + math.floor(self.bonestimer * 8) % 2
+			local bag = self as {string:any}
+			local ticked: boolean
+			bag.bonestick, ticked = Core.tick_interval((bag.bonestick or 0) as number, dt, 0.125)
+			if bag.bonesframe == nil then
+				bag.bonesframe = 0
+			end
+			if ticked then
+				bag.bonesframe = 1 - (bag.bonesframe as number)
+			end
+			local qi = 4 + (bag.bonesframe as number)
 			self.quadno = qi
 			if self.quadgroup[qi] then
 				self.quad = self.quadgroup[qi]

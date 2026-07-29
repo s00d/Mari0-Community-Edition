@@ -1,15 +1,19 @@
-# Vendored LuaRocks (pure Lua, Love-safe)
+# Vendored pure-Lua libs (Love 12 / .love safe)
 
-Synced by `scripts/vendor-rocks` from rockspecs declared in
-`mari0-ce-dependencies-1.rockspec`. Do not hand-edit; re-run the script.
+Synced by `scripts/vendor-libs` (+ `scripts/vendor-rocks` for dkjson/sha1).
+Do not hand-edit library sources; re-run the scripts after bumping pins.
 
-| Module | Rock | Why |
-|--------|------|-----|
-| `dkjson` | dkjson 2.10-1 | Pure Lua JSON; Love `.love` friendly (no C `lua-cjson`) |
-| `sha1` | sha1 0.5-1 | Pure Lua SHA-1 (kikito); callable module |
-| `middleclass` | middleclass 3.0-1 | Same major as historical vendor; transitional until records |
+| Module | Source | Why |
+|--------|--------|-----|
+| `dkjson` / `sha1` | luarocks pins | JSON / hash |
+| `anim8` | kikito/anim8 v2.3.1 | sprite frames |
+| `bump` | kikito/bump.lua v3.1.7 | AABB collisions |
+| `flux` | rxi/flux | tweens |
+| `lume` | rxi/lume | utils |
+| `baton` | tesselode/baton v1.0.2 | input |
+| `inspect` | kikito/inspect.lua | debug dump |
+| `hump.*` | vrld/hump | camera / gamestate / signal / timer / vector |
+| `sti` | karai17/STI | Tiled maps |
+| `slab` | flamendless/Slab | editor UI |
 
-## Teal / unused-local footguns
-
-Do **not** silence unused warnings by rewriting `a, b = f()` into `local _, _ = f()` when `a`/`b` are **globals** (or otherwise needed). That drops the assignment and leaves nils → runtime compare/index crashes (seen with `mousex`/`mousey`). Prefer: keep the real names, initialize globals, or delete truly dead code.
-
+Vector math: `hump.vector` (rxi/vector.lua repo is gone).

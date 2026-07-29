@@ -1,6 +1,7 @@
 -- Major Mari0 runtime globals for Teal (ambient via love.d.tl → require("game")).
 -- Prefer concrete records from entities.d.tl. Narrow `any` only at legacy boundaries.
 
+require("anim8")
 require("entities")
 require("records")
 require("marioforms")

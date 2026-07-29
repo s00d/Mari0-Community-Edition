@@ -933,6 +933,7 @@ global record enemy is Entity, Body
 	quadcentery: number
 	quadgroup: {any:any}
 	quadi: number
+	anim8_cycle: Anim8Animation|nil
 	reflects: number
 	removeonmariocontact: boolean
 	resettime: number
@@ -1884,6 +1885,7 @@ global record mario is Entity, Body
 	bubbletimer: number
 	category: number
 	char: Character
+	anim8: {string:any}|nil
 	form: string
 	climbframe: number
 	colors: {any}
@@ -1917,7 +1919,6 @@ global record mario is Entity, Body
 	maxhp: number
 	infunnel: boolean
 	invincible: boolean
-	jumpanimationprogress: number
 	jumpframe: number
 	jumping: any
 	lastcollision: {any}
@@ -1955,7 +1956,6 @@ global record mario is Entity, Body
 	rainboomallowed: boolean
 	remote: boolean
 	rotation: number
-	runanimationprogress: number
 	runframe: number
 	shot: boolean
 	size: number
@@ -1973,7 +1973,6 @@ global record mario is Entity, Body
 	starred: boolean
 	startimer: number
 	static: boolean
-	swimanimationprogress: number
 	swimframe: number
 	t: string
 	weapons: {string}
@@ -2028,6 +2027,7 @@ global record mario is Entity, Body
 	movement: function(mario, number)
 	mapmovement: function(mario, number)
 	runanimation: function(mario, number)
+	climbanimation: function(mario, number)
 	underwatermovement: function(mario, number)
 	setquad: function(self: mario, a?: any, b?: any)
 	jump: function(self: mario, a?: any)
