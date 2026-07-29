@@ -7,6 +7,16 @@ global function punt_tick(obj: {string:any}, dt: number)
 	end
 end
 
+-- Mario calls enemy:stomp(mario.x, mario); shell kick needs that x.
+local function call_stomp(target: {string:any}, from_x: number|nil, from: {string:any}|nil): any
+	local x = from_x
+	if x == nil then
+		-- Kick right when no stomper (blast / direct kill).
+		x = ((target.x as number) or 0) - 1
+	end
+	return (target.stomp as function({string:any}, number, {string:any}|nil): any)(target, x as number, from)
+end
+
 -- true = collision absorbed (target killed)
 global function punt_hit(self: {string:any}, othertype: string, other: {string:any}): boolean
 	local t = self.punttimer as number|nil
@@ -14,7 +24,7 @@ global function punt_hit(self: {string:any}, othertype: string, other: {string:a
 		return false
 	end
 	if other.stompable and other.stomp then
-		(other.stomp as function({string:any}))(other)
+		call_stomp(other, self.x as number, self)
 	elseif other.shotted then
 		(other.shotted as function({string:any}, string, boolean, boolean, boolean))(other, "right", false, false, false)
 	else
@@ -32,7 +42,7 @@ end
 -- Direct kill from blast (no flight). Prefer punt_kill_entity for new call sites.
 global function punt_kill(obj: {string:any}): boolean
 	if obj.stompable and obj.stomp then
-		(obj.stomp as function({string:any}))(obj)
+		call_stomp(obj, nil, nil)
 	elseif obj.shotted then
 		(obj.shotted as function({string:any}, string, boolean, boolean, boolean))(obj, "right", false, false, false)
 	else
@@ -50,7 +60,7 @@ global function punt_kill_entity(target: {string:any}): boolean
 		return false
 	end
 	if target.stompable then
-		if (target.stomp as function({string:any}): any)(target) == false then
+		if call_stomp(target, nil, nil) == false then
 			return false
 		end
 	elseif target.shotted then

@@ -111,9 +111,11 @@ do
 	check("registry gel alias", Weapons.get("gel") == Weapons.get("gelcannon"))
 	check("registry gravitygun", Weapons.get("gravitygun") ~= nil)
 	check("registry hookshot", Weapons.get("hookshot") ~= nil and Weapons.get("hookshot").id == "hookshot")
+	check("registry blackhole", Weapons.get("blackhole") ~= nil and Weapons.get("blackhole").id == "blackhole")
 	check("portal icon path", tostring(Weapons.get("portal").icon):find("portalgun%.png") ~= nil)
 	check("gel icon path", tostring(Weapons.get("gelcannon").icon):find("gelcannon%.png") ~= nil)
 	check("hookshot icon path", tostring(Weapons.get("hookshot").icon):find("hookshot%.png") ~= nil)
+	check("blackhole icon path", tostring(Weapons.get("blackhole").icon):find("blackhole%.png") ~= nil)
 
 	levelweapons = nil
 	playertype = "portal"
@@ -123,15 +125,18 @@ do
 	check("default has gravitygun", loadout[2] == "gravitygun")
 	check("default has gelcannon", loadout[3] == "gelcannon")
 	check("default has hookshot", loadout[4] == "hookshot")
-	check("default len 4", #loadout == 4)
+	check("default has blackhole", loadout[5] == "blackhole")
+	check("default len 5", #loadout == 5)
 
-	local pl = { weapons = { "portal", "gravitygun", "gelcannon", "hookshot" }, weaponi = 1, weapondelay = {} }
+	local pl = { weapons = { "portal", "gravitygun", "gelcannon", "hookshot", "blackhole" }, weaponi = 1, weapondelay = {} }
 	Weapons.switch(pl, 1)
 	check("switch +1", pl.weaponi == 2 and pl.weapons[pl.weaponi] == "gravitygun")
 	Weapons.switch(pl, 1)
 	check("switch to gel", pl.weaponi == 3 and pl.weapons[pl.weaponi] == "gelcannon")
 	Weapons.switch(pl, 1)
 	check("switch to hookshot", pl.weaponi == 4 and pl.weapons[pl.weaponi] == "hookshot")
+	Weapons.switch(pl, 1)
+	check("switch to blackhole", pl.weaponi == 5 and pl.weapons[pl.weaponi] == "blackhole")
 	Weapons.switch(pl, 1)
 	check("switch wrap", pl.weaponi == 1)
 end
@@ -786,6 +791,74 @@ do
 		}
 		Weapons.release(p3, "death")
 		check("Weapons.release detaches grapple", p3.grapple == false)
+	end
+end
+
+-- 13) blackhole: fire → suck pulls box closer → blast flings
+do
+	local ok_bh, _bh_mod = pcall(require, "weapons.blackhole")
+	check("load weapons.blackhole", ok_bh)
+	local ok_ent = pcall(require, "entities.blackhole")
+	check("load entities.blackhole", ok_ent)
+	if ok_bh and ok_ent then
+		local box_obj = {
+			x = 3.0, y = 1.0, width = 0.75, height = 0.75,
+			speedx = 0, speedy = 0, gravity = 40, movement = "truffleshuffle",
+			destroying = false, dead = false, active = true,
+		}
+		objects = { blackhole = {}, box = { box_obj }, enemy = {}, tile = {} }
+		xscroll, yscroll, scale = 0, 0, 1
+		love = {
+			mouse = {
+				getPosition = function()
+					return 80, 40
+				end,
+			},
+		}
+		playsound = function() end
+		earthquake = 0
+		traceline = function(sx, sy)
+			return false, false, nil, 0, sx + 8, sy
+		end
+		checkrect = function()
+			return {}
+		end
+
+		local pl = {
+			x = 0, y = 0.5, pointingangle = -math.pi / 2,
+			weapondelay = {}, weapons = { "blackhole" }, weaponi = 1,
+			speedx = 0, speedy = 0,
+		}
+		Weapons.fire(pl, "l")
+		check("blackhole one spawned", #objects.blackhole == 1)
+		check("blackhole cooldown", (pl.weapondelay.blackhole or 0) > 0)
+		local hole = objects.blackhole[1]
+		check("blackhole flying", hole.state == "flying")
+
+		-- Force suck phase
+		hole.state = "sucking"
+		hole.phasetimer = 0
+		hole.speedx = 0
+		hole.speedy = 0
+		hole.active = false
+		hole.x = 2.0
+		hole.y = 1.0
+		local dist_before = math.sqrt((box_obj.x - hole.x) ^ 2 + (box_obj.y - hole.y) ^ 2)
+		for _ = 1, 45 do
+			hole:update(1 / 60)
+		end
+		local dist_after = math.sqrt((box_obj.x - hole.x) ^ 2 + (box_obj.y - hole.y) ^ 2)
+		check("blackhole suck pulls closer", dist_after < dist_before - 0.05,
+			string.format("before=%.3f after=%.3f", dist_before, dist_after))
+		check("blackhole has victim", #(hole.victims or {}) >= 1)
+
+		-- Force blast
+		hole.phasetimer = 10
+		hole:update(1 / 60)
+		check("blackhole blasted", hole.state == "blast")
+		local spd = math.sqrt((box_obj.speedx or 0) ^ 2 + (box_obj.speedy or 0) ^ 2)
+		check("blackhole fling speed", spd > 5, tostring(spd))
+		check("blackhole clears beamed", box_obj.beamed == nil and box_obj.bh_grabbed == nil)
 	end
 end
 

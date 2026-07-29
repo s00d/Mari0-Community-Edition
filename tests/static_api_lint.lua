@@ -68,6 +68,7 @@ local banned_flat_requires = {
 	"bulletbill",
 	"fireball",
 	"gravityball",
+	"blackhole",
 	"hook",
 	"castlefire",
 	"fire",

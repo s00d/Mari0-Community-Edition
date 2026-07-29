@@ -1035,9 +1035,10 @@ function enemy:stomp(x: any, b: Entity): any
 				self.speedx = 0
 				self.animationtype = "none"
 			elseif self.speedx == 0 then
-				if self.x > (x as number) then
+				local sx = (x as number|nil) or ((self.x as number) - 1)
+				if self.x > sx then
 					self.speedx = self.smallspeed
-					self.x = (x as number)+12/16+self.smallspeed*gdt
+					self.x = sx+12/16+self.smallspeed*gdt
 					if b then
 						self.size = b.size
 					else
@@ -1046,7 +1047,7 @@ function enemy:stomp(x: any, b: Entity): any
 					self.killsenemies = true
 				else
 					self.speedx = -self.smallspeed
-					self.x = (x as number)-self.width-self.smallspeed*gdt
+					self.x = sx-self.width-self.smallspeed*gdt
 					if b then
 						self.size = b.size
 					else

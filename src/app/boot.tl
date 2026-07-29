@@ -153,6 +153,7 @@ function Boot.require_game()
 	require "entities.fireball"
 	require "entities.bomb"
 	require "entities.gravityball"
+	require "entities.blackhole"
 	require "entities.hook"
 	require "ui.gui"
 	require "entities.blockdebris"
@@ -691,7 +692,7 @@ function Boot.run_load()
 
 	Boot.load_media()
 	theme_init()
-	shaders:init()
+	shaders:init(3) -- pass 3 = gameplay FX (blackholefx); menu uses 1–2
 	add("Shaders init")
 	for _, v in ipairs(dlclist) do
 		delete_mappack(v)

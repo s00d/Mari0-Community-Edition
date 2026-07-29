@@ -28,6 +28,7 @@ global record WeaponsModule
 	registry: {string:{string:any}}
 	gravitygun: {string:any}
 	hookshot: {string:any}
+	blackhole: {string:any}
 	get: function(string): {string:any}
 	current: function(any): {string:any}
 	icon_image: function(string): any
@@ -401,11 +402,12 @@ global soundlist: {any:SoundEntry}
 global record ShadersController
 	scale: any
 	set: function(ShadersController, any, any)
+	setParameter: function(ShadersController, string, string, ...: any): boolean, string
 	update: function(ShadersController, any)
 	refresh: function(ShadersController, ...: any): any
 	predraw: function(ShadersController, ...: any): any
 	postdraw: function(ShadersController, ...: any): any
-	init: function(ShadersController)
+	init: function(ShadersController, integer|nil)
 end
 
 global shaders: ShadersController

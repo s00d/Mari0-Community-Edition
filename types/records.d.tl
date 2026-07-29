@@ -1382,6 +1382,47 @@ global record gravityball is Body
 	new: function(gravityball, number, number, number, number, any): gravityball
 end
 
+global record blackhole is Body
+	active: boolean
+	autodelete: boolean
+	blast_flash: number
+	category: number
+	drawable: boolean
+	emancipatecheck: boolean
+	gravity: number
+	gravitydirection: number
+	height: number
+	mask: {boolean}
+	orbit_a: number
+	owner: any
+	phasetimer: number
+	portalable: boolean
+	rotation: number
+	speedx: number
+	speedy: number
+	state: string
+	static: boolean
+	tiles_pulled: number
+	timer: number
+	trail: {{string:number}}
+	traili: number
+	victims: {any}
+	width: number
+	x: number
+	y: number
+	init: function(blackhole, number, number, number, number, any)
+	update: function(blackhole, number): boolean
+	leftcollide: function(blackhole, any, Entity): boolean
+	rightcollide: function(blackhole, any, Entity): boolean
+	floorcollide: function(blackhole, any, Entity): boolean
+	ceilcollide: function(blackhole, any, Entity): boolean
+	passivecollide: function(blackhole, any, Entity): boolean
+	hitstuff: function(blackhole, any, Entity)
+	emancipate: function(blackhole): any
+	draw: function(blackhole)
+	new: function(blackhole, number, number, number, number, any): blackhole
+end
+
 global record hook is Body
 	active: boolean
 	autodelete: boolean

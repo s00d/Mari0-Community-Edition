@@ -35,6 +35,7 @@ OBJECT_GROUP_KEYS = {
 	"fireball",
 	"bomb",
 	"gravityball",
+	"blackhole",
 	"hook",
 	"platform",
 	"platformspawner",

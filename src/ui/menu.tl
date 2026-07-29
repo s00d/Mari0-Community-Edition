@@ -103,6 +103,14 @@ global function menu_load()
 	love.audio.stop()
 	editormode = false
 	gamestate = "menu"
+	do
+		local ok, fx = pcall(function(): any
+			return require("weapons.blackhole_fx")
+		end)
+		if ok and type(fx) == "table" and (fx as {string:any}).clear then
+			((fx as {string:any}).clear as function())()
+		end
+	end
 	menu_defs_bind()
 	menu_cursor_ready = false
 	menu_hover_a = 0

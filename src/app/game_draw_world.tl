@@ -505,6 +505,14 @@ global function game_draw_props()
 	end
 
 	love.graphics.setColor(1, 1, 1)
+	--Black holes (procedural VFX)
+	if objects["blackhole"] then
+		for _, w in pairs(objects["blackhole"]) do
+			(w as blackhole):draw()
+		end
+	end
+
+	love.graphics.setColor(1, 1, 1)
 	--Bubbles
 	for _, w in pairs(bubbles) do
 		if onscreen(w.x, w.y, 0.5, 0.5) then

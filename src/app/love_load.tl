@@ -109,17 +109,18 @@ function LoveLoad.run(arg: any)
 	local identity_parts = strsplit(love.filesystem.getSaveDirectory(), "/")
 	magicdns_identity = string.upper(identity_parts[#identity_parts])
 
-	shaderlist = love.filesystem.getDirectoryItems("assets/shaders/") as {number:string}
-	local rem: integer | nil
-	for i, v in pairs(shaderlist) do
-		if v == "init.lua" then
-			rem = i as integer
-		else
-			shaderlist[i] = string.sub(v, 1, string.len(v) - 5)
+	local shaderfiles = love.filesystem.getDirectoryItems("assets/shaders/") as {number:string}
+	shaderlist = {} as {number:string}
+	-- Menu cosmetics only; gameplay FX (blackholefx) stays off the options list.
+	local skipshader: {string:boolean} = {
+		["init.lua"] = true,
+		["blackholefx.frag"] = true,
+	}
+	for _, v in pairs(shaderfiles) do
+		if not skipshader[v as string] and string.sub(v as string, -5) == ".frag" then
+			table.insert(shaderlist, string.sub(v as string, 1, string.len(v as string) - 5))
 		end
 	end
-
-	table.remove(shaderlist, rem)
 
 	table.insert(shaderlist, 1, "none")
 

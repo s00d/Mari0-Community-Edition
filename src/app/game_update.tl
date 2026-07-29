@@ -8,6 +8,7 @@ local texts_delete_scratch: {any} = {}
 local portal_delete_scratch: {any} = {}
 -- Reused list of entity tables (refs refreshed each frame; no new array alloc).
 local static_updatelists: {any} = {}
+local blackhole_fx = require("weapons.blackhole_fx") as {string:any}
 
 local function flush_spritebatch()
 	updatespritebatch()
@@ -736,6 +737,10 @@ global function game_update(dt: number)
 		if not v.disableaiming then
 			(v as mario):updateangle()
 		end
+	end
+
+	if blackhole_fx.sync then
+		(blackhole_fx.sync as function(number))(dt)
 	end
 
 	-- AE coalesce: flush spritebatch once per frame after all dirty marks.

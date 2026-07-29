@@ -4,6 +4,7 @@ local portalgun = require("weapons.portalgun") as {string:any}
 local gelcannon = require("weapons.gelcannon") as {string:any}
 local gravitygun = require("weapons.gravitygun") as {string:any}
 local hookshot = require("weapons.hookshot") as {string:any}
+local blackhole = require("weapons.blackhole") as {string:any}
 
 local registry: {string:{string:any}} = {
 	portal = portalgun,
@@ -11,6 +12,7 @@ local registry: {string:{string:any}} = {
 	gel = gelcannon, -- alias (legacy playertype / levelweapons)
 	gravitygun = gravitygun,
 	hookshot = hookshot,
+	blackhole = blackhole,
 }
 
 local icon_cache: {string:any} = {}
@@ -69,7 +71,7 @@ local function default_loadout(): {string}
 		end
 	end
 	-- Testing unlock: all registered weapons available.
-	return { "portal", "gravitygun", "gelcannon", "hookshot" }
+	return { "portal", "gravitygun", "gelcannon", "hookshot", "blackhole" }
 end
 
 local function setup_player(pl_any: any)
@@ -159,6 +161,7 @@ local function fire(pl_any: any, button: any)
 				gravitygun = 2.0,
 				gelcannon = 0.4,
 				hookshot = 1.2,
+				blackhole = 2.0,
 			}
 			local r = RECOIL[(w.id as string) or ""] or 1.0
 			pl.speedx = ((pl.speedx as number) or 0) - dx * r
@@ -291,6 +294,7 @@ local Weapons: WeaponsModule = {
 	registry = registry,
 	gravitygun = gravitygun,
 	hookshot = hookshot,
+	blackhole = blackhole,
 	get = get,
 	current = current,
 	icon_image = icon_image,
