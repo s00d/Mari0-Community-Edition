@@ -9,15 +9,14 @@ local muzzle_cy = 0.5
 local enabled = false
 
 local function screen_uv(wx: number, wy: number): number, number
-	local w = (width as number) or 25
-	local h = (height as number) or 14
-	if w <= 0 then w = 1 end
-	if h <= 0 then h = 1 end
-	local xs = (xscroll as number) or 0
-	local ys = (yscroll as number) or 0
-	local u = (wx - xs) / w
-	local v = (wy - ys - 0.5) / h
-	return u, v
+	local vw = world_viewport_w()
+	local vh = world_viewport_h()
+	if vw <= 0 then vw = 1 end
+	if vh <= 0 then vh = 1 end
+	-- Shader runs on screen buffer; map tile center through camera.
+	local sx = world_screen_px_x(wx * 16)
+	local sy = world_screen_px_y(wy * 16)
+	return sx / vw, sy / vh
 end
 
 local function apply(strength: number, mode: number, cx: number, cy: number)

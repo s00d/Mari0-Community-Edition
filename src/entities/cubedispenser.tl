@@ -121,7 +121,7 @@ function cubedispenser:update(dt: number): boolean
 end
 
 function cubedispenser:draw()
-	love.graphics.draw(cubedispenserimg, math.floor((self.cox-xscroll-1)*16*scale), (self.coy-yscroll-1.5)*16*scale, 0, scale, scale, 0, 0)
+	love.graphics.draw(cubedispenserimg, tile_draw_x(self.cox - 1), tile_draw_y_raw(self.coy - 1.5), 0, world_draw_scale(), world_draw_scale(), 0, 0)
 end
 
 function cubedispenser:removebox()

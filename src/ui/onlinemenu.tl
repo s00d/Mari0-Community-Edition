@@ -26,7 +26,6 @@ global function onlinemenu_load()
 
 	guielements.portentry = guielement:new("input", 274, 87, 5, nil, "7331", 5, 1, true)
 
-	-- MagicDNS disabled by default (Love 12 often lacks ssl/http).
 	local magic_ok = magicdns_available and magicdns_available()
 	guielements.magiccheckbox = guielement:new("checkbox", 220, 147, togglemagic, false)
 	guielements.magiccheckbox.active = magic_ok ~= false
@@ -50,10 +49,6 @@ global function onlinemenu_load()
 	magictimer = 0
 	magicdelay = 0.15
 	magics = {}
-
-	if not SERVER and not CLIENT then
-		rawset(_G, "netstatus", "offline")
-	end
 
 	if love.keyboard and love.keyboard.setTextInput then
 		pcall(function()
@@ -159,7 +154,8 @@ global function onlinemenu_draw()
 
 	draw_panel(0, 200, 400, 24)
 	ui_set_color("status")
-	properprint("status: " .. tostring(netstatus or "offline"), 8 * scale, 208 * scale)
+	local st = (Net and Net.status and Net.status()) or "offline"
+	properprint("status: " .. tostring(st), 8 * scale, 208 * scale)
 	love.graphics.setColor(1, 1, 1, 1)
 end
 
@@ -193,8 +189,7 @@ global function creategame()
 	port = tonumber(guielements.portentry.value) or port
 	localnick = guielements.nickentry.value as string
 	love.filesystem.write("nickname.txt", localnick)
-	server_load()
-	if not SERVER then
+	if not Net.host(port as number, localnick as string) then
 		return
 	end
 	if usemagic then
@@ -242,7 +237,7 @@ global function joingame()
 		ip = s
 	end
 
-	client_load()
+	Net.join(ip as string, port as number, localnick as string)
 end
 
 magicdns_validresponses = {"MADE", "KEPT", "REMOVED", "FOUND", "NOTFOUND", "ERROR"}

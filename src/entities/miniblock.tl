@@ -61,5 +61,5 @@ function miniblock:draw()
 	end
 	
 	local yadd = math.sin(self.timer)*0.1+0.15
-	love.graphics.draw(img, tilequads[self.i]:quad(), math.floor((self.x-xscroll)*16*scale), math.floor((self.y-yscroll-.5-yadd)*16*scale), 0, scale/2, scale/2, 8, 16)
+	love.graphics.draw(img, tilequads[self.i]:quad(), tile_draw_x(self.x), math.floor(tile_draw_y_raw(self.y-.5-yadd)), 0, scale/2, scale/2, 8, 16)
 end

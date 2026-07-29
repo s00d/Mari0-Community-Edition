@@ -61,7 +61,7 @@ function laserdetector:draw()
 	elseif self.dir == "up" then
 		rot = math.pi*1.5
 	end
-	love.graphics.draw(laserdetectorimg, math.floor((self.cox-xscroll-0.5)*16*scale), (self.coy-yscroll-1)*16*scale, rot, scale, scale, 8, 8)
+	love.graphics.draw(laserdetectorimg, tile_draw_x(self.cox-0.5), tile_draw_y_raw(self.coy-1), rot, world_draw_scale(), world_draw_scale(), 8, 8)
 end
 
 function laserdetector:addoutput(a, t)

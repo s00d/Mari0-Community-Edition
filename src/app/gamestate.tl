@@ -1,6 +1,5 @@
 --[[ Lightweight gamestate dispatcher (Teal).
-     Legacy code still uses global `gamestate` string; this module
-     tracks handlers and provides a typed entry point for migration.
+     Legacy code still uses global `gamestate` string.
 ]]
 
 local Gamestate = {
@@ -26,6 +25,15 @@ function Gamestate.get(): string
 		Gamestate.current = g as string
 	end
 	return Gamestate.current
+end
+
+function Gamestate.is(name: string): boolean
+	return Gamestate.get() == name
+end
+
+function Gamestate.in_menu_family(): boolean
+	local g = Gamestate.get()
+	return g == "menu" or g == "mappackmenu" or g == "onlinemenu" or g == "options" or g == "lobby"
 end
 
 function Gamestate.update(dt: number)

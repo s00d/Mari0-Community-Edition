@@ -52,5 +52,5 @@ function portalparticle:draw()
 	local r, g, b = unpack(self.color)
 	local a = (1 - self.timer/portalparticleduration)
 	love.graphics.setColor(r, g, b, a)
-	love.graphics.draw(portalparticleimg, math.floor((self.x-xscroll)*16*scale), math.floor((self.y-yscroll-.5)*16*scale), 0, scale, scale, .5, .5)
+	love.graphics.draw(portalparticleimg, tile_draw_x(self.x), math.floor(tile_draw_y_raw(self.y-.5)), 0, scale, scale, .5, .5)
 end

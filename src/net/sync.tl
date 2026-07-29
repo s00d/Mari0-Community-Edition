@@ -1,114 +1,25 @@
---[[ Host-authoritative input + player snapshots.
+--[[ Host-auth input edges + player snapshot apply. Pure Lua (no sock). ]]
 
-Current model: host runs sim, clients send inputs (~30 Hz), host broadcasts
-player snaps (~20 Hz) with soft local correction.
+local Schema = require("net.schema")
 
-Lockstep roadmap (model B):
-  F0 security (slot/seq/rate/datagram) — done in transport/session
-  F1 statehash exchange — net.statehash
-  F2 dmath transcendentals — core.dmath
-  F3 TODO: input delay window (DELAY frames + last-N window per packet)
-  F4 TODO: start msg seed + build hash; refuse version mismatch
-  F5 TODO: delete pack_snapshot/apply_snapshot/SOFT_CORRECT after F3-F4 green
-Decision after F2: validate x86 vs ARM sim_hash before F3.
-]]
-
-local INPUT_HZ = 30
-local SNAP_HZ = 20
-local SOFT_CORRECT = 0.75
+local Sync = {}
 
 local held: {integer:{string:any}} = {}
 local held_prev: {integer:{string:any}} = {}
 local last_snap: {{string:any}}|nil = nil
 local input_accum = 0.0
 local snap_accum = 0.0
+local local_slot = 1
 
-local KEYS = {"left", "right", "up", "down", "jump", "run", "use", "reload", "portal1", "portal2"}
-
-local function empty_held(): {string:any}
-	local h: {string:any} = {}
-	for _, k in ipairs(KEYS) do
-		h[k] = false
-	end
-	h.ang = 0
-	return h
+function Sync.set_local_slot(slot: integer)
+	local_slot = slot
 end
 
-local function copy_held(src: {string:any}|nil): {string:any}
-	local h = empty_held()
-	if src == nil then
-		return h
-	end
-	local s = src as {string:any}
-	for _, k in ipairs(KEYS) do
-		h[k] = s[k] == true
-	end
-	h.ang = tonumber(s.ang) or 0
-	return h
+function Sync.local_slot(): integer
+	return local_slot
 end
 
-local function read_local_held(slot: integer): {string:any}
-	local h = empty_held()
-	if not controls or not controls[slot] then
-		return h
-	end
-	local function down(action: string): boolean
-		local c = controls[slot][action]
-		if not c then
-			return false
-		end
-		return checkkey(c) == true
-	end
-	h.left = down("left")
-	h.right = down("right")
-	h.up = down("up")
-	h.down = down("down")
-	h.jump = down("jump")
-	h.run = down("run")
-	h.use = down("use")
-	h.reload = down("reload")
-	h.portal1 = down("portal1")
-	h.portal2 = down("portal2")
-	if playerobjs and playerobjs[slot] then
-		h.ang = (playerobjs[slot].pointingangle as number) or 0
-	end
-	return h
-end
-
-local function pack_input(slot: integer, h: {string:any}, seq?: integer): {string:any}
-	return {
-		t = "input",
-		slot = slot,
-		seq = seq or 0,
-		left = h.left == true,
-		right = h.right == true,
-		up = h.up == true,
-		down = h.down == true,
-		jump = h.jump == true,
-		run = h.run == true,
-		use = h.use == true,
-		reload = h.reload == true,
-		portal1 = h.portal1 == true,
-		portal2 = h.portal2 == true,
-		ang = tonumber(h.ang) or 0,
-	}
-end
-
-local function unpack_input(msg: {string:any}): integer, {string:any}
-	local slot = (tonumber(msg.slot) or 0) as integer
-	local h = empty_held()
-	for _, k in ipairs(KEYS) do
-		h[k] = msg[k] == true
-	end
-	h.ang = tonumber(msg.ang) or 0
-	return slot, h
-end
-
-local function set_held(slot: integer, h: {string:any})
-	held[slot] = copy_held(h)
-end
-
-local function clear_held()
+function Sync.clear()
 	for k in pairs(held) do
 		held[k] = nil
 	end
@@ -118,10 +29,13 @@ local function clear_held()
 	last_snap = nil
 	input_accum = 0
 	snap_accum = 0
-	rawset(_G, "net_held", held)
 end
 
-local function is_held(slot: integer, action: string): boolean|nil
+function Sync.set_held(slot: integer, h: {string:any})
+	held[slot] = Schema.copy_held(h)
+end
+
+function Sync.held_for(slot: integer, action: string): boolean|nil
 	local h = held[slot]
 	if not h then
 		return nil
@@ -129,41 +43,48 @@ local function is_held(slot: integer, action: string): boolean|nil
 	return h[action] == true
 end
 
-local function round3(n: number): number
-	if n >= 0 then
-		return math.floor(n * 1000 + 0.5) / 1000
+function Sync.read_local_held(slot: integer): {string:any}
+	local h = Schema.empty_held()
+	if not controls or not controls[slot] then
+		return h
 	end
-	return math.ceil(n * 1000 - 0.5) / 1000
+	for _, action in ipairs(Schema.KEYS) do
+		h[action] = ui_action_down(slot, action)
+	end
+	if playerobjs and playerobjs[slot] then
+		h.ang = (playerobjs[slot].pointingangle as number) or 0
+	end
+	return h
 end
 
-local function pack_player(i: integer): {string:any}|nil
-	if not playerobjs or not playerobjs[i] then
-		return nil
+function Sync.should_send_input(dt: number): boolean
+	input_accum = input_accum + dt
+	if input_accum >= 1 / Schema.INPUT_HZ then
+		input_accum = input_accum - 1 / Schema.INPUT_HZ
+		return true
 	end
-	local p = playerobjs[i]
-	return {
-		i = i,
-		x = round3((p.x as number) or 0),
-		y = round3((p.y as number) or 0),
-		sx = round3((p.speedx as number) or 0),
-		sy = round3((p.speedy as number) or 0),
-		ang = round3((p.pointingangle as number) or 0),
-		sz = (p.size as number) or 1,
-		dead = p.dead == true,
-	}
+	return false
 end
 
-local function pack_snapshot(seq?: integer): {string:any}
-	local plist: {{string:any}} = {}
+function Sync.should_send_snap(dt: number): boolean
+	snap_accum = snap_accum + dt
+	if snap_accum >= 1 / Schema.SNAP_HZ then
+		snap_accum = snap_accum - 1 / Schema.SNAP_HZ
+		return true
+	end
+	return false
+end
+
+function Sync.pack_snapshot(seq: integer): {string:any}
+	local rows: {{any}} = {}
 	if playerobjs then
 		for i = 1, (players as integer) or 1 do
-			local row = pack_player(i)
-			if row then
-				table.insert(plist, row)
+			if playerobjs[i] then
+				table.insert(rows, Schema.pack_player_row(i, playerobjs[i] as {string:any}))
 			end
 		end
 	end
-	return {t = "snap", seq = seq or 0, p = plist}
+	return Schema.pack_snap(seq, rows)
 end
 
 local function apply_one(row: {string:any}, soft_local: boolean)
@@ -174,11 +95,10 @@ local function apply_one(row: {string:any}, soft_local: boolean)
 	local p = playerobjs[i]
 	local nx = (tonumber(row.x) or p.x) as number
 	local ny = (tonumber(row.y) or p.y) as number
-	if soft_local and i == (netplayernumber as integer) then
+	if soft_local and i == local_slot then
 		local dx = nx - ((p.x as number) or 0)
 		local dy = ny - ((p.y as number) or 0)
-		if (dx * dx + dy * dy) < (SOFT_CORRECT * SOFT_CORRECT) then
-			-- small drift: keep local prediction
+		if (dx * dx + dy * dy) < (Schema.SOFT_CORRECT * Schema.SOFT_CORRECT) then
 			p.speedx = tonumber(row.sx) or p.speedx
 			p.speedy = tonumber(row.sy) or p.speedy
 			if row.ang ~= nil then
@@ -194,45 +114,32 @@ local function apply_one(row: {string:any}, soft_local: boolean)
 	if row.ang ~= nil then
 		p.pointingangle = tonumber(row.ang) or 0
 	end
-	if row.sz ~= nil and p.size ~= row.sz then
-		-- size changes are rare; leave growth anim to host authority later
-	end
 	if row.dead ~= nil then
 		p.dead = row.dead == true
 	end
 end
 
-local function apply_snapshot(msg: {string:any}, soft_local: boolean)
-	local plist = msg.p
-	if type(plist) ~= "table" then
-		return
-	end
-	last_snap = plist as {{string:any}}
-	for j = 1, #(plist as {any}) do
-		local row = (plist as {{string:any}})[j]
-		if row then
-			local i = (tonumber(row.i) or 0) as integer
-			local soft = soft_local and i == (netplayernumber as integer)
-			apply_one(row, soft)
-		end
+function Sync.apply_snapshot(msg: {string:any}, soft_local: boolean)
+	local rows = Schema.unpack_snap_rows(msg)
+	last_snap = rows
+	for j = 1, #rows do
+		local row = rows[j]
+		local soft = soft_local and (tonumber(row.i) or 0) == local_slot
+		apply_one(row, soft)
 	end
 end
 
-local function reapply_last_snap(soft_local: boolean)
-	local snap = last_snap
-	if snap == nil then
+function Sync.reapply_last_snap(soft_local: boolean)
+	if not last_snap then
 		return
 	end
-	local rows = snap as {{string:any}}
-	for j = 1, #rows do
-		local row = rows[j]
-		if row then
-			local i = (tonumber(row.i) or 0) as integer
-			-- Always hard-correct remotes; soft for local if requested.
-			local soft = soft_local and i == (netplayernumber as integer)
-			if i ~= (netplayernumber as integer) or soft_local then
-				apply_one(row, soft)
-			end
+	local snap = last_snap as {{string:any}}
+	for j = 1, #snap do
+		local row = snap[j]
+		local i = (tonumber(row.i) or 0) as integer
+		local soft = soft_local and i == local_slot
+		if i ~= local_slot or soft_local then
+			apply_one(row, soft)
 		end
 	end
 end
@@ -273,22 +180,11 @@ local function fire_edges(slot: integer, prev: {string:any}, cur: {string:any})
 	end
 end
 
-local function host_process_edges()
-	local any = false
-	for _ in pairs(held) do
-		any = true
-		break
-	end
-	if not any then
-		return
-	end
+function Sync.host_process_edges()
 	for slot, cur in pairs(held) do
 		local s = slot as integer
-		if s ~= (netplayernumber as integer) then
-			local prev = held_prev[s]
-			if not prev then
-				prev = empty_held()
-			end
+		if s ~= local_slot then
+			local prev = held_prev[s] or Schema.empty_held()
 			fire_edges(s, prev, cur as {string:any})
 		end
 	end
@@ -296,50 +192,8 @@ local function host_process_edges()
 		held_prev[k] = nil
 	end
 	for slot, cur in pairs(held) do
-		held_prev[slot as integer] = copy_held(cur as {string:any})
+		held_prev[slot as integer] = Schema.copy_held(cur as {string:any})
 	end
 end
 
-local function should_send_input(dt: number): boolean
-	input_accum = input_accum + dt
-	if input_accum >= 1 / INPUT_HZ then
-		input_accum = input_accum - 1 / INPUT_HZ
-		return true
-	end
-	return false
-end
-
-local function should_send_snap(dt: number): boolean
-	snap_accum = snap_accum + dt
-	if snap_accum >= 1 / SNAP_HZ then
-		snap_accum = snap_accum - 1 / SNAP_HZ
-		return true
-	end
-	return false
-end
-
--- Export for checkkey overrides
-rawset(_G, "net_held", held)
-
-local function refresh_net_held_global()
-	rawset(_G, "net_held", held)
-end
-
-return {
-	INPUT_HZ = INPUT_HZ,
-	SNAP_HZ = SNAP_HZ,
-	read_local_held = read_local_held,
-	pack_input = pack_input,
-	unpack_input = unpack_input,
-	set_held = set_held,
-	clear_held = clear_held,
-	is_held = is_held,
-	pack_snapshot = pack_snapshot,
-	apply_snapshot = apply_snapshot,
-	reapply_last_snap = reapply_last_snap,
-	host_process_edges = host_process_edges,
-	should_send_input = should_send_input,
-	should_send_snap = should_send_snap,
-	refresh_net_held_global = refresh_net_held_global,
-	empty_held = empty_held,
-}
+return Sync

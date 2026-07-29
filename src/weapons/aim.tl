@@ -23,6 +23,9 @@ local function cursor_world(): number, number
 	if love and love.mouse and love.mouse.getPosition then
 		mx, my = love.mouse.getPosition()
 	end
+	if screen_to_tile_x and screen_to_tile_y then
+		return screen_to_tile_x(mx), screen_to_tile_y(my)
+	end
 	local xs = (xscroll as number) or 0
 	local ys = (yscroll as number) or 0
 	local sc = (scale as number) or 1

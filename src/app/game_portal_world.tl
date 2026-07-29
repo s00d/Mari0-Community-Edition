@@ -684,3 +684,42 @@ global function checkportalremove(x: any, y: any)
 	end
 end
 
+global function shootportal(plnumber: any, i: any, sourcex: any, sourcey: any, direction: any, mirrored?: any, bounces?: any)
+	if playerobjs[plnumber].portalgundisabled then
+		return
+	end
+	if not (playerobjs[plnumber].portalsavailable as {boolean})[i as integer] then
+		return
+	end
+	if playerobjs[plnumber].pickup then
+		return
+	end
+	local pl = playerobjs[plnumber]
+	if not pl.weapondelay then
+		pl.weapondelay = {}
+	end
+	if ((pl.weapondelay as {string:number}).portal or 0) > 0 or (portaldelay[plnumber as number] or 0) > 0 then
+		return
+	else
+		(pl.weapondelay as {string:number}).portal = portalgundelay
+		portaldelay[plnumber as number] = portalgundelay
+	end
+	local color = playerobjs[plnumber].portal2color
+	if i == 1 then
+		color = playerobjs[plnumber].portal1color
+	end
+	if not mirrored then
+		playerobjs[plnumber].lastportal = i as number
+	end
+	local sxn: number = sourcex as number
+	local syn: number = sourcey as number
+	local dirn: number = direction as number
+	local cox, coy, side, tendency, x, y = traceline(sxn, syn, dirn, nil)
+	local mirror = false
+	if cox and tilequads[map[cox as number][coy as number][1]] and tilequads[map[cox as number][coy as number][1]]:getproperty("mirror", cox as number, coy as number) then
+		mirror = true
+	end
+	playerobjs[plnumber].lastportal = i as number
+	table.insert(portalprojectiles, portalprojectile:new(sourcex as number, sourcey as number, x as number, y as number, color, true, {playerobjs[plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored, bounces))
+end
+

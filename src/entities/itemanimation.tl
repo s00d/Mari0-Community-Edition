@@ -33,7 +33,19 @@ end
 
 function itemanimation:draw()
 	local yoffset = Core.lerp_value(self.timer, mushroomtime, 0, 1)
-	love.graphics.setScissor((self.x-xscroll-6)*16*scale, (self.y-yscroll-6.5)*16*scale, 176*scale, 80*scale)
-	love.graphics.draw(self.v.graphic, self.v.quad, math.floor(((self.x-xscroll-.5-self.v.width/2+((self.v.spawnoffsetx as number) or 0))*16+self.v.offsetX)*scale), math.floor(((self.y-yscroll-yoffset-self.v.height+((self.v.spawnoffsety as number) or 0))*16-self.v.offsetY)*scale), 0, scale, scale, self.v.quadcenterX, self.v.quadcenterY)
+	love.graphics.setScissor(screen_draw_x(self.x - 6), screen_draw_y(self.y - 6.5), 176 * scale, 80 * scale)
+	local ox = ((self.v.spawnoffsetx as number) or 0)
+	local oy = ((self.v.spawnoffsety as number) or 0)
+	love.graphics.draw(
+		self.v.graphic,
+		self.v.quad,
+		entity_draw_x(self.x - .5 - self.v.width / 2 + ox, self.v.offsetX),
+		entity_draw_y(self.y - yoffset - self.v.height + oy, self.v.offsetY),
+		0,
+		world_draw_scale(),
+		world_draw_scale(),
+		self.v.quadcenterX,
+		self.v.quadcenterY
+	)
 	love.graphics.setScissor()
 end

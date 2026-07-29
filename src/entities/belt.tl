@@ -107,11 +107,11 @@ function belt:draw()
 		love.graphics.draw(
 			beltimg,
 			self.quad,
-			math.floor((self.x + i - xscroll) * 16 * scale),
-			((self.y - yscroll) * 16 - 8) * scale,
+			tile_draw_x(self.x + i),
+			tile_draw_y(self.y, -8),
 			0,
-			scale,
-			scale
+			world_draw_scale(),
+			world_draw_scale()
 		)
 	end
 end

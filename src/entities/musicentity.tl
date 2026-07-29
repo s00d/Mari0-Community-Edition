@@ -59,7 +59,7 @@ end
 function musicentity:draw()
 	if self.visible then
 		love.graphics.setColor(1, 1, 1)
-		love.graphics.draw(musicentityimg, math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
+		love.graphics.draw(musicentityimg, tile_draw_x(self.x-1), ((self.y-yscroll-1)*16-8)*scale, 0, world_draw_scale(), world_draw_scale())
 	end
 end
 

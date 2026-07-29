@@ -1,115 +1,136 @@
---[[ config / save / suspend ]]
+--[[ config / save / suspend
+	options.txt records: `name value;` or flag `name;`
+	Slotted names use `/`: `playercontrols/1 left=key:a,right=key:d;`
+	No `:` as record delimiter — baton sources keep `key:a` intact.
+]]
 
 global function saveconfig()
-	if CLIENT or SERVER then
+	if Net and Net.is_online and Net.is_online() then
 		return
 	end
 	
 	local s = ""
 	for i = 1, #(controls as {any}) do
-		s = s .. "playercontrols:" .. i .. ":"
+		s = s .. "playercontrols/" .. i .. " "
+		local row = controls[i] as {string:any}
+		if row["joy"] then
+			s = s .. "joy=" .. tostring(row["joy"]) .. ","
+		end
 		local keys = {} as {string}
-		for j, _ in pairs(controls[i]) do
-			table.insert(keys, j as string)
+		for j, _ in pairs(row) do
+			if j ~= "joy" then
+				table.insert(keys, j as string)
+			end
 		end
 		table.sort(keys)
+		local parts = {} as {string}
 		for ki = 1, #keys do
 			local j = keys[ki]
-			local c = ""
-			for l = 1, #(controls[i][j] as {any}) do
-				c = c .. tostring(controls[i][j][l])
-				if l ~= #(controls[i][j] as {any}) then
-					c = c ..  "-"
-				end
-			end
-			s = s .. j .. "-" .. c
-			if ki == #keys then
-				s = s .. ";"
-			else
-				s = s .. ","
+			local binding = row[j] as {string}|nil
+			if binding and #binding > 0 then
+				table.insert(parts, j .. "=" .. table.concat(binding, "|"))
 			end
 		end
+		if #parts > 0 then
+			s = s .. table.concat(parts, ",")
+		end
+		s = s .. ";"
 	end	
 	
 	for i = 1, #mariocolors do
-		s = s .. "playercolors:" .. i .. ":"
+		s = s .. "playercolors/" .. i .. " "
 		if #mariocolors[i] > 0 then
 			for j = 1, #mariocolors[i] do
 				for k = 1, 3 do
 					s = s .. mariocolors[i][j][k] * 255
-					if j == #mariocolors[i] and k == 3 then
-						s = s .. ";"
-					else
+					if not (j == #mariocolors[i] and k == 3) then
 						s = s .. ","
 					end
 				end
 			end
-		else
-			s = s .. ";"
 		end
-	end
-	
-	for i = 1, #(mariocharacter as {any}) do
-		s = s .. "mariocharacter:" .. i .. ":"
-		s = s .. mariocharacter[i]
 		s = s .. ";"
 	end
 	
+	for i = 1, #(mariocharacter as {any}) do
+		s = s .. "mariocharacter/" .. i .. " " .. mariocharacter[i] .. ";"
+	end
+	
 	for i = 1, #portalhues do
-		s = s .. "portalhues:" .. i .. ":"
-		s = s .. round(portalhues[i][1], 4) .. "," .. round(portalhues[i][2], 4) .. ";"
+		s = s .. "portalhues/" .. i .. " " .. round(portalhues[i][1], 4) .. "," .. round(portalhues[i][2], 4) .. ";"
 	end
 	
 	for i = 1, #(mariohats as {any}) do
-		s = s .. "mariohats:" .. i
+		s = s .. "mariohats/" .. i
 		if #(mariohats[i] as {any}) > 0 then
-			s = s .. ":"
-		end
-		for j = 1, #(mariohats[i] as {any}) do
-			s = s .. tostring(mariohats[i][j])
-			if j == #mariohats[i] then
-				s = s .. ";"
-			else
-				s = s .. ","
+			s = s .. " "
+			for j = 1, #(mariohats[i] as {any}) do
+				s = s .. tostring(mariohats[i][j])
+				if j ~= #mariohats[i] then
+					s = s .. ","
+				end
 			end
 		end
-		if #mariohats[i] == 0 then
-			s = s .. ";"
-		end
+		s = s .. ";"
 	end
 	
-	s = s .. "scale:" .. scale .. ";"
-	s = s .. "shader1:" .. shaderlist[currentshaderi1] .. ";"
-	s = s .. "shader2:" .. shaderlist[currentshaderi2] .. ";"
-	s = s .. "volume:" .. volumesfx .. ";"
-	s = s .. "musicvolume:" .. volumemusic .. ";"
-	s = s .. "mouseowner:" .. mouseowner .. ";"
-	s = s .. "mappack:" .. mappack .. ";"
+	s = s .. "scale " .. scale .. ";"
+	s = s .. "shader1 " .. shaderlist[currentshaderi1] .. ";"
+	s = s .. "shader2 " .. shaderlist[currentshaderi2] .. ";"
+	s = s .. "volume " .. volumesfx .. ";"
+	s = s .. "musicvolume " .. volumemusic .. ";"
+	s = s .. "mouseowner " .. mouseowner .. ";"
+	s = s .. "mappack " .. mappack .. ";"
 	if vsync then
 		s = s .. "vsync;"
 	end
 	if gamefinished then
 		s = s .. "gamefinished;"
 	end
-	s = s .. "fullscreen:" .. tostring(fullscreen) .. ";"
-	s = s .. "fullscreenmode:" .. fullscreenmode .. ";"
+	s = s .. "fullscreen " .. tostring(fullscreen) .. ";"
+	s = s .. "fullscreenmode " .. fullscreenmode .. ";"
 	for i, v in pairs(reachedworlds) do
-		s = s .. "reachedworlds:" .. i .. ":"
+		s = s .. "reachedworlds/" .. i .. " "
 		for j = 1, 8 do
 			if v[j] then
 				s = s .. 1
 			else
 				s = s .. 0
 			end
-			if j == 8 then
-				s = s .. ";"
-			else
+			if j ~= 8 then
 				s = s .. ","
 			end
 		end
+		s = s .. ";"
 	end
 	
 	love.filesystem.write("options.txt", s)
+end
+
+local function config_kind_id(key: string): string, string|nil
+	local slash = key:find("/", 1, true)
+	if not slash then
+		return key, nil
+	end
+	return key:sub(1, slash - 1), key:sub(slash + 1)
+end
+
+local function parse_controls_payload(row: {string:any}, payload: string)
+	s3 = strsplit(payload, ",")
+	for j = 1, #s3 do
+		local eq = (s3[j] as string):find("=", 1, true)
+		if eq then
+			local name = (s3[j] as string):sub(1, eq - 1)
+			local val = (s3[j] as string):sub(eq + 1)
+			if name == "joy" then
+				row["joy"] = tonumber(val) as integer
+			elseif val ~= "" then
+				row[name] = strsplit(val, "|")
+			else
+				row[name] = {}
+			end
+		end
+	end
 end
 
 global function loadconfig()
@@ -124,94 +145,104 @@ global function loadconfig()
 	s1 = strsplit(s, ";")
 	
 	for i = 1, #s1-1 do
-		s2 = strsplit(s1[i], ":")
-		if s2[1] == "playercontrols" then
-			if controls[tonumber(s2[2]) as integer] == nil then
-				controls[tonumber(s2[2]) as integer] = {}
+		local line = s1[i] as string
+		if line == "" then
+			-- skip
+		else
+			local sp = line:find(" ", 1, true)
+			local key: string
+			local val: string = ""
+			if sp then
+				key = line:sub(1, sp - 1)
+				val = line:sub(sp + 1)
+			else
+				key = line
 			end
-			s3 = strsplit(s2[3], ",")
-			for j = 1, #s3 do
-				s4 = strsplit(s3[j], "-")
-				controls[tonumber(s2[2]) as integer][s4[1]] = {}
-				for k = 2, #s4 do
-					if tonumber(s4[k]) ~= nil then
-						controls[tonumber(s2[2]) as integer][s4[1]][k-1] = tonumber(s4[k]) as number
-					else
-						controls[tonumber(s2[2]) as integer][s4[1]][k-1] = s4[k]
+			local kind, id = config_kind_id(key)
+
+			if kind == "playercontrols" and id then
+				local slot = tonumber(id) as integer
+				if controls[slot] == nil then
+					controls[slot] = {}
+				end
+				parse_controls_payload(controls[slot] as {string:any}, val)
+				players = math.max(players, slot)
+			elseif kind == "playercolors" and id then
+				local slot = tonumber(id) as integer
+				if mariocolors[slot] == nil then
+					mariocolors[slot] = {}
+				end
+				s3 = strsplit(val, ",")
+				mariocolors[slot] = {}
+				for ci = 1, #s3/3 do
+					mariocolors[slot][ci as integer] = {
+						tonumber(s3[(1+(ci-1)*3) as integer]) / 255,
+						tonumber(s3[(2+(ci-1)*3) as integer]) / 255,
+						tonumber(s3[(3+(ci-1)*3) as integer]) / 255,
+					}
+				end
+			elseif kind == "portalhues" and id then
+				local slot = tonumber(id) as integer
+				if portalhues[slot] == nil then
+					portalhues[slot] = {}
+				end
+				s3 = strsplit(val, ",")
+				portalhues[slot] = {tonumber(s3[1]), tonumber(s3[2])}
+			elseif kind == "mariohats" and id then
+				local playerno = tonumber(id) as integer
+				mariohats[playerno] = {}
+				if val ~= "" then
+					s3 = strsplit(val, ",")
+					for hi = 1, #s3 do
+						mariohats[playerno][hi] = tonumber(s3[hi])
 					end
 				end
-			end
-			players = math.max(players, tonumber(s2[2]) as integer)
-		elseif s2[1] == "playercolors" then
-			if mariocolors[tonumber(s2[2]) as integer] == nil then
-				mariocolors[tonumber(s2[2]) as integer] = {}
-			end
-			s3 = strsplit(s2[3], ",")
-			mariocolors[tonumber(s2[2]) as integer] = {}
-			for i = 1, #s3/3 do
-				mariocolors[tonumber(s2[2]) as integer][i as integer] = {tonumber(s3[(1+(i-1)*3) as integer]) / 255, tonumber(s3[(2+(i-1)*3) as integer]) / 255, tonumber(s3[(3+(i-1)*3) as integer]) / 255}
-			end
-		elseif s2[1] == "portalhues" then
-			if portalhues[tonumber(s2[2]) as integer] == nil then
-				portalhues[tonumber(s2[2]) as integer] = {}
-			end
-			s3 = strsplit(s2[3], ",")
-			portalhues[tonumber(s2[2]) as integer] = {tonumber(s3[1]), tonumber(s3[2])}
-		elseif s2[1] == "mariohats" then
-			local playerno = tonumber(s2[2])
-			mariohats[playerno as integer] = {}
-			if s2[3] and s2[3] ~= "mariohats" then
-				s3 = strsplit(s2[3], ",")
-				for i = 1, #s3 do
-					mariohats[playerno as integer][i] = tonumber(s3[i])
+			elseif kind == "mariocharacter" and id then
+				mariocharacter[tonumber(id) as integer] = val
+			elseif kind == "scale" then
+				scale = tonumber(val)
+			elseif kind == "shader1" then
+				for si = 1, #shaderlist do
+					if shaderlist[si] == val then
+						currentshaderi1 = si as integer
+					end
 				end
-			end
-		elseif s2[1] == "scale" then
-			scale = tonumber(s2[2])
-		elseif s2[1] == "shader1" then
-			for i = 1, #shaderlist do
-				if shaderlist[i] == s2[2] then
-					currentshaderi1 = i as integer
+			elseif kind == "shader2" then
+				for si = 1, #shaderlist do
+					if shaderlist[si] == val then
+						currentshaderi2 = si as integer
+					end
 				end
-			end
-		elseif s2[1] == "shader2" then
-			for i = 1, #shaderlist do
-				if shaderlist[i] == s2[2] then
-					currentshaderi2 = i as integer
+			elseif kind == "volume" then
+				volumesfx = tonumber(val)
+				love.audio.setVolume(volumesfx)
+			elseif kind == "musicvolume" then
+				volumemusic = tonumber(val)
+			elseif kind == "mouseowner" then
+				mouseowner = tonumber(val) as integer
+			elseif kind == "mappack" then
+				-- Inline path: loadconfig runs in LoveLoad before Boot.require_game
+				-- defines mappack_path (world.levelio). Calling it here threw every launch.
+				if val ~= "" and love.filesystem.getInfo("mappacks/" .. val .. "/settings.txt") then
+					mappack = val
 				end
-			end
-		elseif s2[1] == "volume" then
-			volumesfx = tonumber(s2[2])
-			love.audio.setVolume( volumesfx )
-		elseif s2[1] == "musicvolume" then
-			volumemusic = tonumber(s2[2])
-		elseif s2[1] == "mouseowner" then
-			mouseowner = tonumber(s2[2]) as integer
-		elseif s2[1] == "mappack" then
-			-- Inline path: loadconfig runs in LoveLoad before Boot.require_game
-			-- defines mappack_path (world.levelio). Calling it here threw every launch.
-			local pack = s2[2]
-			if pack and love.filesystem.getInfo("mappacks/" .. pack .. "/settings.txt") then
-				mappack = pack
-			end
-		elseif s2[1] == "gamefinished" then
-			gamefinished = true
-		elseif s2[1] == "vsync" then
-			vsync = true
-		elseif s2[1] == "reachedworlds" then
-			reachedworlds[s2[2]] = {}
-			local s3 = strsplit(s2[3], ",")
-			for i = 1, #s3 do
-				if tonumber(s3[i]) == 1 then
-					reachedworlds[s2[2]][i as integer] = true
+			elseif kind == "gamefinished" then
+				gamefinished = true
+			elseif kind == "vsync" then
+				vsync = true
+			elseif kind == "reachedworlds" and id then
+				reachedworlds[id] = {}
+				s3 = strsplit(val, ",")
+				for ri = 1, #s3 do
+					if tonumber(s3[ri]) == 1 then
+						reachedworlds[id][ri as integer] = true
+					end
 				end
+			elseif kind == "fullscreen" then
+				fullscreen = val == "true"
+			elseif kind == "fullscreenmode" then
+				fullscreenmode = val
 			end
-		elseif s2[1] == "mariocharacter" then
-			mariocharacter[tonumber(s2[2]) as integer] = s2[3]
-		elseif s2[1] == "fullscreen" then
-			fullscreen = s2[2] == "true"
-		elseif s2[1] == "fullscreenmode" then
-			fullscreenmode = s2[2]
 		end
 	end
 	
@@ -219,19 +250,17 @@ global function loadconfig()
 		portalcolor[i] = {getrainbowcolor(portalhues[i][1]), getrainbowcolor(portalhues[i][2])}
 	end
 	
+	if input_bindings_init then
+		input_bindings_init()
+	end
+	
 	players = 1
 end
 
 global function defaultconfig()
 	--------------
-	-- CONTORLS --
+	-- CONTROLS (baton source strings: key:a, button:1, hat:1l, axis:4-) --
 	--------------
-	
-	-- Joystick stuff:
-	-- joy, #, hat, #, direction (r, u, ru, etc)
-	-- joy, #, axe, #, pos/neg
-	-- joy, #, but, #
-	-- You cannot set Hats and Axes as the jump button. Bummer.
 	
 	mouseowner = 1
 	
@@ -239,37 +268,42 @@ global function defaultconfig()
 	
 	local i = 1
 	controls[i] = {}
-	controls[i]["right"] = {"d"}
-	controls[i]["left"] = {"a"}
-	controls[i]["down"] = {"s"}
-	controls[i]["up"] = {"w"}
-	controls[i]["run"] = {"lshift"}
-	controls[i]["jump"] = {" "}
-	controls[i]["aimx"] = {""} --mouse aiming, so no need
-	controls[i]["aimy"] = {""}
-	controls[i]["portal1"] = {""}
-	controls[i]["portal2"] = {""}
-	controls[i]["reload"] = {"r"}
-	controls[i]["use"] = {"e"}
-	controls[i]["weaponnext"] = {"tab"}
-	controls[i]["weaponprev"] = {""}
+	controls[i]["right"] = {"key:d"}
+	controls[i]["left"] = {"key:a"}
+	controls[i]["down"] = {"key:s"}
+	controls[i]["up"] = {"key:w"}
+	controls[i]["run"] = {"key:lshift"}
+	controls[i]["jump"] = {"key:space"}
+	controls[i]["aimx"] = {}
+	controls[i]["aimy"] = {}
+	controls[i]["portal1"] = {}
+	controls[i]["portal2"] = {}
+	controls[i]["reload"] = {"key:r"}
+	controls[i]["use"] = {"key:e"}
+	controls[i]["weaponnext"] = {"key:tab"}
+	controls[i]["weaponprev"] = {}
 	
 	for i = 2, 4 do
-		controls[i] = {}		
-		controls[i]["right"] = {"joy", i-1, "hat", 1, "r"}
-		controls[i]["left"] = {"joy", i-1, "hat", 1, "l"}
-		controls[i]["down"] = {"joy", i-1, "hat", 1, "d"}
-		controls[i]["up"] = {"joy", i-1, "hat", 1, "u"}
-		controls[i]["run"] = {"joy", i-1, "but", 3}
-		controls[i]["jump"] = {"joy", i-1, "but", 1}
-		controls[i]["aimx"] = {"joy", i-1, "axe", 5, "neg"}
-		controls[i]["aimy"] = {"joy", i-1, "axe", 4, "neg"}
-		controls[i]["portal1"] = {"joy", i-1, "but", 5}
-		controls[i]["portal2"] = {"joy", i-1, "but", 6}
-		controls[i]["reload"] = {"joy", i-1, "but", 4}
-		controls[i]["use"] = {"joy", i-1, "but", 2}
-		controls[i]["weaponnext"] = {"joy", i-1, "but", 8}
-		controls[i]["weaponprev"] = {"joy", i-1, "but", 7}
+		controls[i] = {}
+		controls[i]["joy"] = i - 1
+		controls[i]["right"] = {"hat:1r"}
+		controls[i]["left"] = {"hat:1l"}
+		controls[i]["down"] = {"hat:1d"}
+		controls[i]["up"] = {"hat:1u"}
+		controls[i]["run"] = {"button:3"}
+		controls[i]["jump"] = {"button:1"}
+		controls[i]["aimx"] = {"axis:5-"}
+		controls[i]["aimy"] = {"axis:4-"}
+		controls[i]["portal1"] = {"button:5"}
+		controls[i]["portal2"] = {"button:6"}
+		controls[i]["reload"] = {"button:4"}
+		controls[i]["use"] = {"button:2"}
+		controls[i]["weaponnext"] = {"button:8"}
+		controls[i]["weaponprev"] = {"button:7"}
+	end
+	
+	if input_bindings_init then
+		input_bindings_init()
 	end
 	-------------------
 	-- PORTAL COLORS --

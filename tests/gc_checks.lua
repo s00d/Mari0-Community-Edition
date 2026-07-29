@@ -120,15 +120,10 @@ else
 	check("draw collect gated by recording", true)
 end
 
--- NullNet facade still the offline entry (no hidden UDP in love_callbacks).
+-- Offline Net.update is a no-op (no UDP until Net.host / Net.join).
 check(
-	"love_callbacks uses netplay_update facade",
-	cb:find("netplay_update", 1, true) ~= nil
-)
-check(
-	"love_callbacks does not require net.session",
-	cb:find('require("net.session"', 1, true) == nil
-		and cb:find('require "net.session"', 1, true) == nil
+	"love_callbacks uses Net.update",
+	cb:find("Net.update", 1, true) ~= nil
 )
 
 if select("#", ...) > 0 then

@@ -112,7 +112,7 @@ function portalprojectile:draw()
 	if self.timer < self.time then
 		love.graphics.setColor(unpack(self.color))
 		
-		love.graphics.draw(portalprojectileimg, math.floor((self.x-xscroll)*16*scale), math.floor((self.y-yscroll-0.5)*16*scale), 0, scale, scale, 6, 6)
+		love.graphics.draw(portalprojectileimg, tile_draw_x(self.x), math.floor(tile_draw_y_raw(self.y-0.5)), 0, world_draw_scale(), world_draw_scale(), 6, 6)
 	end
 end
 
@@ -156,7 +156,7 @@ function portalprojectileparticle:draw()
 	local r, g, b = unpack(self.color)
 	love.graphics.setColor(r, g, b, self.alpha)
 	
-	love.graphics.draw(portalprojectileparticleimg, math.floor((self.x-xscroll)*16*scale), math.floor((self.y-yscroll-.5)*16*scale), 0, scale, scale, 2, 2)
+	love.graphics.draw(portalprojectileparticleimg, tile_draw_x(self.x), math.floor(tile_draw_y_raw(self.y-.5)), 0, world_draw_scale(), world_draw_scale(), 2, 2)
 end
 
 function portalprojectile:createportal()

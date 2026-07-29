@@ -495,4 +495,6 @@ scrollingleftcomplete = width/3-width/10
 upscrollborder = 4
 downscrollborder = 4
 superscroll = 100
+
+editor_slab_debug = false
 portaldotstimer = 0

@@ -9,8 +9,8 @@ function scrollingtext.new(_: scrollingtext, s: any, x: any, y: any): scrollingt
 end
 
 function scrollingtext:init(s: any, x: any, y: any)
-	self.x = (x as number)-xscroll
-	self.y = (y as number)-yscroll
+	self.x = x as number
+	self.y = y as number
 	self.s = s
 	self.timer = 0
 end
@@ -20,10 +20,17 @@ function scrollingtext:update(dt: number): boolean
 	if self.timer > scrollingscoretime then
 		return true
 	end
-	
+
 	return false
 end
 
 function scrollingtext:draw()
-	properprintbackground(self.s, self.x*16*scale, (self.y-.5-self.timer)*16*scale, true, nil, scale)
+	properprintbackground(
+		self.s,
+		tile_draw_x(self.x),
+		tile_draw_y(self.y - 0.5 - self.timer, 0),
+		true,
+		nil,
+		world_draw_scale()
+	)
 end

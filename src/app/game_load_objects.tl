@@ -484,11 +484,12 @@ end
 
 global function properprint2(s: any, x: number, y: number, _: any)
 	-- Small score font: only numberglyphs ("012458"). Never draw a nil Quad.
+	local sc = world_draw_scale()
 	for i = 1, string.len(tostring(s)) do
 		local char = string.sub(s as string, i, i)
 		local q = font2quads[char]
 		if q then
-			love.graphics.draw(fontimage2, q, (x as number)+((i-1)*4)*scale, y as number, 0, scale, scale)
+			love.graphics.draw(fontimage2, q, (x as number)+((i-1)*4)*sc, y as number, 0, sc, sc)
 		end
 	end
 end

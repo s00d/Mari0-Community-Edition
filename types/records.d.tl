@@ -595,6 +595,8 @@ global record coinblockanimation is Entity, Body
 	draw: function(coinblockanimation)
 	frame: number
 	timer: number
+	finished: boolean|nil
+	tick_id: number|nil
 	x: number
 	y: number
 	init: function(coinblockanimation, number, number)
@@ -1474,6 +1476,7 @@ global record fireworkboom is Entity, Body
 	category: number
 	mask: {boolean}
 	timer: number
+	finished: boolean|nil
 	x: number
 	y: number
 	init: function(fireworkboom, any, any)
@@ -2532,6 +2535,8 @@ global record rainboom is Entity, Body
 	frame: number
 	r: any
 	timer: number
+	finished: boolean|nil
+	tick_id: number|nil
 	x: number
 	y: number
 	init: function(rainboom, number, number, any)
@@ -2886,6 +2891,8 @@ global record squarewave is Entity, Body
 	time1: number
 	time2: number
 	timer: number
+	cycle_id: number|nil
+	phase_offset: number|nil
 	visible: boolean
 	x: number
 	y: number

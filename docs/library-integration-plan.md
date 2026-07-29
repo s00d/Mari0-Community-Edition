@@ -11,7 +11,7 @@
 
 1. **Одна библиотека за шаг** — закончить, проверить (`make teal`, `make test`, ручной smoke), только потом следующая.
 2. **Формат данных не трогаем** — новые библиотеки меняют только runtime-логику/рендер/физику, не JSON/N-M/TMX/Lua-экспорты mappack'ов.
-3. **Минимальные прослойки** — compat-модуль в `src/assets/` или рядом с существующим кодом; не плодить `vnext/`, конвертеры «на лету» и дублирующие пайплайны.
+3. **Замена + удаление** — compat-слой допустим только как временный мост (< 1 PR). PR успешен, если net LOC в затронутом модуле **уменьшается** (цель ~−30% за фазу).
 4. **Рендер v1 сохраняем**, пока явно не переносим состояние (как с `runframe` для anim8).
 
 ---
@@ -22,9 +22,9 @@
 |---|------------|------|--------|-----------------|--------|
 | 1 | **anim8** | `lib/anim8.lua` | `types/anim8.d.tl` | `anim8_core` + `anim8_player` / `anim8_enemy` / `anim8_effects` / `anim8_tile` | **готово** |
 | 2 | **bump** | `lib/bump.lua` | `types/bump.d.tl` | `physics/world` + checkrect/handlegroup broadphase | **готово** |
-| 3 | hump | `lib/hump/*` | `types/hump/*` | — | не начато |
+| 3 | hump | `lib/hump/*` | `types/hump/*` | `hump_compat`, `scroll_update`, `world_camera`, timer UI | **в работе (replace+delete)** |
 | 4 | sti | `lib/sti/*` | `types/sti.d.tl` | — | не начато |
-| 5 | baton | `lib/baton.lua` | `types/baton.d.tl` | — | не начато |
+| 5 | baton | `lib/baton.lua` | `types/baton.d.tl` | `src/app/input_bindings.tl` | готово |
 | 6 | flux | `lib/flux.lua` | `types/flux.d.tl` | — | не начато |
 | 7 | slab | `lib/slab/*` | `types/slab.d.tl` | — | не начато |
 
@@ -73,11 +73,29 @@
 - [x] Runtime platform spawn → `physics_world_insert_platform`
 - [x] Убраны мёртвые fallback-ветки `else objects[...]`; прямые вызовы хелперов в hot path
 
-**Следующий этап:** hump (этап 3).
+**Следующий этап:** sti (этап 4).
 
 ---
 
-## Этап 3 — hump
+## Этап 3 — hump (replace+delete, в работе)
+
+Откат псевдо-прослоек (фаза 0): удалены `game_flow.tl`, `game_spawn_timers.tl`, `app/camera.tl`, `GameFlow` signal emit→impl.
+
+| Фаза | Сделано |
+|------|---------|
+| 0 | −~300 LOC wrappers; `tests/hump_no_wrapper_checks.lua` |
+| 1a | `util/world_camera.tl` + `drawlevel_tiles` на `wpx`/`wpy` (без `xscrollfrac`) |
+| 2a | `delayer` / `walltimer` → `HumpTimer` (удалены ручные timer loops) |
+| 3 | `Gamestate.is` / `in_menu_family`; один dispatcher без hump.gamestate stack |
+| retro | `physics/world.tl`: общий `physics_world_set_group_slot` |
+
+Остаётся: `game_draw_objects` / `game_draw_props` / `drawforeground` на world camera (−400…800 LOC).
+
+Проверка: `tests/hump_no_wrapper_checks.lua`, `tests/hump_timer_checks.lua`, `tests/camera_follow_checks.lua`, `make teal`, `make test`.
+
+---
+
+## Этап 3 — hump (архив: compat-подход, отменён)
 
 **Задача:** camera / gamestate / signal / timer / vector — без массовой переписки gameplay.
 
@@ -103,11 +121,10 @@
 
 ## Этап 5 — baton
 
-**Задача:** action maps поверх текущего input, **имена действий сохранить** (`left`, `right`, `jump`, `portal`, weapon fire и т.д.).
+**Сделано:** один модуль `src/app/input_bindings.tl` — baton `down`/`pressed`/`released`, без `game_portal_input`, без legacy-миграций и без dispatch-таблиц. `shootportal` в `game_portal_world.tl`. Options: `playercontrols/1 left=key:a,jump=key:space;` (пробел = разделитель записи; `:` только внутри baton).
 
-- Точка входа: `src/app/ui_input.tl` / key bindings
-- Gameplay-код продолжает вызывать `leftkey(i)`, `jumpkey(i)` или thin wrappers
-- Проверка: splitscreen, editor shortcuts не ломаются
+- Gameplay: `leftkey(i)` / `runkey(i)` → `baton:down()`; discrete actions в `ui_input_update` через `pressed`/`released`
+- Проверка: splitscreen, editor shortcuts, rebind в options
 
 ---
 

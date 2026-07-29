@@ -4,6 +4,14 @@
 -- Arm on first update; load on the next. Skiplevelscreen loads sync immediately.
 local pending_level_load: string|number|nil = nil
 local pending_level_armed = false
+local levelscreen_timeout_handle: any = nil
+
+local function cancel_levelscreen_timeout()
+	if levelscreen_timeout_handle then
+		HumpTimer.cancel(levelscreen_timeout_handle)
+		levelscreen_timeout_handle = nil
+	end
+end
 
 local function queue_level_load(level: string|number)
 	pending_level_load = level
@@ -108,8 +116,20 @@ global function levelscreen_load(reason: any, levelarg?: any)
 	end
 	
 	if skiplevelscreen and gamestate ~= "gameover" and gamestate ~= "mappackfinished" then
+		cancel_levelscreen_timeout()
 		flush_pending_level_load()
 		startlevel(gamestate == "levelscreen")
+	else
+		cancel_levelscreen_timeout()
+		levelscreen_timeout_handle = HumpTimer.after(blacktime, function()
+			levelscreen_timeout_handle = nil
+			if gamestate == "levelscreen" or gamestate == "sublevelscreen" then
+				flush_pending_level_load()
+				startlevel(gamestate == "levelscreen")
+			else
+				menu_load()
+			end
+		end)
 	end
 end
 
@@ -125,16 +145,6 @@ global function levelscreen_update(dt: number)
 	end
 
 	levelscreentimer = levelscreentimer + dt
-	if levelscreentimer > blacktime then
-		if gamestate == "levelscreen" or gamestate == "sublevelscreen" then
-			flush_pending_level_load()
-			startlevel(gamestate == "levelscreen")
-		else
-			menu_load()
-		end
-		
-		return
-	end
 end
 
 global function levelscreen_draw()
@@ -187,10 +197,11 @@ global function levelscreen_draw()
 			
 			
 			if mappack == "smb" and marioworld == 1 and mariolevel == 1 then
+				local run_bindings = controls[1]["run"] as {integer: string}
 				local s = "remember that you can run with "
-				for i = 1, #controls[1]["run"] do
-					s = s .. tostring(controls[1]["run"][i])
-					if i ~= #controls[1]["run"] then
+				for i = 1, #run_bindings do
+					s = s .. binding_display(run_bindings[i])
+					if i ~= #run_bindings then
 						s = s .. "-"
 					end
 				end
@@ -199,20 +210,22 @@ global function levelscreen_draw()
 			end
 			
 			if mappack == "portal" and marioworld == 1 and mariolevel == 1 then
+				local reload_bindings = controls[1]["reload"] as {integer: string}
 				local s = "you can remove your portals with "
-				for i = 1, #controls[1]["reload"] do
-					s = s .. tostring(controls[1]["reload"][i])
-					if i ~= #controls[1]["reload"] then
+				for i = 1, #reload_bindings do
+					s = s .. binding_display(reload_bindings[i])
+					if i ~= #reload_bindings then
 						s = s .. "-"
 					end
 				end
 				ui_set_color("text_dim")
 				properprint(s, (width/2*16)*scale-string.len(s)*4*scale, 190*scale)
 				
+				local use_bindings = controls[1]["use"] as {integer: string}
 				local s = "you can grab cubes and push buttons with "
-				for i = 1, #controls[1]["use"] do
-					s = s .. tostring(controls[1]["use"][i])
-					if i ~= #controls[1]["use"] then
+				for i = 1, #use_bindings do
+					s = s .. binding_display(use_bindings[i])
+					if i ~= #use_bindings then
 						s = s .. "-"
 					end
 				end

@@ -5,6 +5,7 @@ require("anim8")
 require("entities")
 require("records")
 require("marioforms")
+require("flux")
 
 global record MouseProxy
 	getX: function(): number
@@ -21,8 +22,18 @@ global record GamestateModule
 	register: function(string, {string:function})
 	set: function(string)
 	get: function(): string
+	is: function(string): boolean
+	in_menu_family: function(): boolean
 	update: function(number)
 	draw: function()
+end
+
+global record HumpTimerModule
+	update: function(number)
+	after: function(number, function): any
+	every: function(number, function, integer|nil): any
+	cancel: function(any)
+	clear: function()
 end
 
 global record WeaponsModule
@@ -120,6 +131,7 @@ global mapwidth: number
 global mapheight: number
 global mariotimer: number
 global gamestate: string
+global editor_slab_debug: boolean
 global editormode: boolean
 global paused: any
 global players: integer
@@ -130,6 +142,13 @@ global fullscreen: boolean
 global fullscreenmode: string
 -- UI input (prefer Ctx.ui later; globals for now)
 global ui_input_mode: string
+global INPUT_ACTIONS: {string}
+global input_bindings_init: function()
+global input_bindings_rebuild: function(integer)
+global ui_input_update: function(number)
+global ui_action_down: function(integer, string): boolean
+global ui_action_get: function(integer, string): number
+global binding_display: function(string): string
 global mouseui_x: number
 global mouseui_y: number
 global screen_to_ui: function(number, number): number, number
@@ -226,6 +245,37 @@ global currentlevel: string|number|{any:any}
 global session: World
 global assets: AssetStore
 global Gamestate: GamestateModule
+global HumpTimer: HumpTimerModule
+global Flux: FluxModule
+global scroll_update: function(number)
+global world_camera_drawing: boolean
+global world_camera_attach: function()
+global world_camera_detach: function()
+global editor_camera_sync: function()
+global wpx: function(number): number
+global wpy: function(number): number
+global world_batch_offset: function(number): number
+global world_spritebatch_offset: function(number): number
+global draw_world_tiles: function()
+global draw_world_foreground: function()
+global world_viewport_w: function(): number
+global world_viewport_h: function(): number
+global world_screen_x: function(number): number
+global world_screen_y: function(number): number
+global tile_draw_x: function(number): number
+global tile_draw_y: function(number, number): number
+global tile_draw_y_raw: function(number): number
+global world_draw_scale: function(): number
+global world_flip_scale: function(number): number
+global entity_draw_x: function(number, number): number
+global entity_draw_y: function(number, number): number
+global screen_draw_x: function(number): number
+global screen_draw_y: function(number): number
+global screen_to_tile_x: function(number): number
+global screen_to_tile_y: function(number): number
+global world_screen_px_x: function(number): number
+global world_screen_px_y: function(number): number
+global weapon_draw_xy: function(number, number): number, number
 global Logger: LoggerModule
 global Boot: BootModule
 
@@ -291,7 +341,7 @@ global portals: {number:portal}
 global portalsavailable: {any:boolean}
 global levelweapons: {string}
 global Weapons: WeaponsModule
-global controls: {any:{string:{any}}}
+global controls: {any:{any:any}}
 global mouse: MouseProxy
 global mousex: number
 global mousey: number
@@ -366,9 +416,6 @@ global record PromptState
 end
 global prompt: PromptState
 global rgbselection: number
-global client_load: function()
-global server_load: function()
-global server_start: function()
 
 -- Level / world visuals
 global spriteset: integer
@@ -572,12 +619,69 @@ global record OnlinePlayer
 	colors: {{number}}
 	hats: any
 	nick: string
+	slot: integer|nil
+	host: boolean|nil
 end
 global record ChatMessage
 	id: string
 	message: string
 end
 global playerlist: {OnlinePlayer}
+global chatmessages: {ChatMessage}
+
+global record NetModule
+	host: function(port: number, nick: string): boolean
+	join: function(addr: string, port: number, nick: string): boolean
+	update: function(dt: number)
+	quit: function()
+	start_match: function()
+	chat: function(text: string)
+	status: function(): string
+	in_match: function(): boolean
+	is_online: function(): boolean
+	role: function(): string
+	local_slot: function(): integer
+	held_for: function(slot: integer, action: string): boolean|nil
+	peers: function(): {{string:any}}
+	chats: function(): {{string:any}}
+end
+global Net: NetModule
+
+global record SockClient
+	getIndex: function(SockClient): integer
+	send: function(SockClient, string, any)
+	disconnectLater: function(SockClient)
+	disconnectNow: function(SockClient, integer|nil)
+	disconnect: function(SockClient, integer|nil)
+	setSerialization: function(SockClient, ...: any)
+	setSendMode: function(SockClient, string)
+	resetSendSettings: function(SockClient)
+	connect: function(SockClient)
+	update: function(SockClient)
+	on: function(SockClient, string, function(any))
+end
+
+global record SockServer
+	update: function(SockServer)
+	on: function(SockServer, string, function(any, SockClient))
+	sendToAll: function(SockServer, string, any)
+	sendToAllBut: function(SockServer, SockClient, string, any)
+	setSerialization: function(SockServer, ...: any)
+	setSendMode: function(SockServer, string)
+	resetSendSettings: function(SockServer)
+	destroy: function(SockServer)
+end
+
+global record SockModule
+	newServer: function(string, number, integer|nil): SockServer
+	newClient: function(string, number): SockClient
+end
+
+global record BitserModule
+	dumps: function(any): string
+	loads: function(string): any
+end
+
 global emancipationgrills: {any:Entity}
 global marioscore: number
 global flagy: number
@@ -592,7 +696,6 @@ global currentstate: number
 global introduration: number
 global introfadetime: number
 global rightclickwidth: number
-global runanimationtimer: number
 global coinframe: integer
 global modcustomtilesimg: {number:Image}
 global scrollfactor: number
@@ -637,7 +740,6 @@ global minimapheight: number
 global mtclipboard: {{any}}
 global lightdrawY: number
 global groundlighttable: {string}
-global runanimationframe: number
 global usemagic: boolean
 global modcustomspritebatch: {number:any}
 global blockbouncex: {any:number}
@@ -663,7 +765,6 @@ global fireanimationtime: number
 global soundenabled: boolean
 global editordebug: any
 global portalknockback: boolean
-global s4: {string}
 global starcolors: {number:{{number}}}
 global firepoints: {any:number}
 global mariostarduration: number
@@ -704,7 +805,6 @@ global add_spawn_restriction: function(sx: number, sy: number)
 global gamefinished: boolean
 global frameskip: any
 global mkstation: boolean
-global SERVER: string|boolean
 global BLOCKDELIMITER: {any:string}
 global airslidefactor: number
 global mariocombo: {any}
@@ -867,7 +967,6 @@ global blackafterintro: number
 global levelscreenback: any
 global huechangespeed: number
 global continueavailable: boolean
-global menuselectimg: Image
 global selectworldopen: boolean
 global currentfiledownload: number
 global mappackname: {any}
@@ -876,7 +975,6 @@ global onlinemappackicon: {Image}
 global onlinemappackauthor: {any}
 global toconvertmappackauthor: {any}
 global touchfrominsidemissing: number
-global runanimationdelay: number
 global adjective: string
 global noun: string
 global actualy: number
@@ -990,11 +1088,7 @@ global portaldotsouter: number
 global portaldotsinner: number
 global firstpersonrotate: boolean
 global incognito: boolean
-global gel1groundimg: Image
 global gelgroundimgs: {Image}
-global gel2groundimg: Image
-global gel3groundimg: Image
-global gel4groundimg: Image
 global warpzonenumbers: {any}
 global axequads: {any:any}
 global miniblocks: {any:Entity}
@@ -1032,7 +1126,6 @@ global defaultsoundslist: {string:any}
 global overwrittensounds: {string}
 global directionsquad: {number:any}
 global starttime: number
-global CLIENT: string|boolean
 global s1: {string}
 global s2: {string}
 global s3: {string}
@@ -1159,7 +1252,6 @@ global hammerquad: {any:{any:any}}
 global plantquads: {any:{any:any}}
 global versionerror: boolean
 global targetdt: number
-global screenshotimagedata: any
 global magicdns_delay: number
 global localnicks: {string}
 global magicdelay: number
@@ -1365,7 +1457,6 @@ global gel1img: Image
 global gel2img: Image
 global gel3img: Image
 global gel4img: Image
-global gel5img: Image
 global groundlightdelay: number
 global guirepeatdelay: number
 global hammeranimationspeed: number
@@ -1396,14 +1487,7 @@ global mtsavehighlighttime: number
 global mtsavetimer: number
 global mushroomspeed: number
 global musicentityimg: Image
-global netplayerid: string
-global netplayernumber: number
 global netstatus: string
-global netplay_update: function(dt: number)
-global net_get_status: function(): string
-global net_in_match: function(): boolean
-global net_is_active: function(): boolean
-global net_held: {integer:{string:any}}
 global magicdns_available: function(): boolean
 global notgateimg: Image
 global objectstab: function(): any
@@ -1523,7 +1607,6 @@ global changescale: function(s: number, init?: boolean)
 global changespriteset: function(any): any
 global checkcollision: function(Entity, Entity, any, any, any, any, number, any): boolean, boolean
 global checkforemances: function(dt: number, v: Body, speedx?: number, speedy?: number)
-global checkkey: function(any): any
 global checkmagic: function(s: string): boolean
 global checkportalHOR: function(Entity, number): boolean
 global checkportalVER: function(Entity, number): boolean
@@ -1731,6 +1814,18 @@ global loadhat: function(string)
 global loadlevel: function(level: string|number): boolean
 global reset_level_state: function()
 global fresh_objects: function(): {string:{any:Entity}}, {Entity}
+global obj_group: function(string): {any:Entity}
+global obj_insert: function(string, Entity)
+global obj_each_group: function(string, function(Entity))
+global obj_draw_group: function(string)
+global logicgate_init_xy: function(any, number, number, {any})
+global logicgate_link: function(any): any|nil
+global logicgate_addoutput: function(any, any, any)
+global logicgate_out: function(any, any)
+global logicgate_draw_img: function(any, Image)
+global sti_available: function(): boolean
+global sti_try_load_map: function(string): any|nil
+global editor_slab_draw: function()
 global OBJECT_GROUP_KEYS: {string}
 global loadlevelscreens: function()
 global loadmap: function(filename: string, createobjects?: boolean): boolean
@@ -1960,26 +2055,6 @@ global animationstrings: {any:{string}}
 global GCA: number
 
 global unstatics: any
-global net_quit: function()
-global net_sendchat: function(any): any
-
-global START_ROOM: string
-global roomtransition: number
-global ABILITIES: {string:{string:string}}
-global DOOR_TYPES: {string:function(any, any): boolean}
-global DOOR_COLOR: {string:{number}}
-global rooms_clear: function()
-global map_reveal: function(string)
-global grant_ability: function(any, string)
-global has_weapon: function(any, string): boolean
-global door_can_pass: function(string, any, any): boolean
-global door_try_open: function(string, string, any, any): boolean
-global door_uid: function(number, number): string
-global door_is_open: function(string): boolean
-global door_set_open: function(string, boolean)
-global fake_player_from_abilities: function({string:boolean}): {string:any}
-global world_reachability_check: function(string|nil): {string}
-global createdialogbox: function(any, any)
 
 
 global record GelDef
@@ -2171,4 +2246,3 @@ global metroid_autosave: function()
 global metroid_use_hp: function(): boolean
 global metroid_hurt: function(any, number): boolean
 global metroid_apply_hp_to_player: function(any)
-global createdialogbox: function(any, any)

@@ -3,8 +3,6 @@
 --omygoshomygoshomygosh
 rawset(_G, "rainboom", rawget(_G, "rainboom") or {})
 
-local Core = require("assets.anim8_core")
-
 function rainboom.new(_: rainboom, x: number, y: number, dir: any): rainboom
 	local self = setmetatable({}, { __index = rainboom }) as rainboom
 	self:init(x, y, dir)
@@ -15,8 +13,9 @@ function rainboom:init(x: number, y: number, dir)
 	self.x = x
 	self.y = y
 	self.dir = dir as string
-	self.timer = 0
 	self.frame = 1
+	self.finished = false
+	self.tick_id = 0
 	
 	self.r = 0
 	if dir == "up" then
@@ -26,22 +25,24 @@ function rainboom:init(x: number, y: number, dir)
 	elseif dir == "left" then
 		self.r = math.pi
 	end
+
+	self.tick_id = self.tick_id + 1
+	local token = self.tick_id
+	HumpTimer.every(rainboomdelay, function()
+		if self.tick_id ~= token or self.finished then
+			return
+		end
+		self.frame = self.frame + 1
+		if self.frame > rainboomframes then
+			self.finished = true
+		end
+	end, rainboomframes as integer)
 end
 
-function rainboom:update(dt: number): boolean
-	local ticked: boolean
-	self.timer, ticked = Core.tick_interval(self.timer, dt, rainboomdelay)
-	if ticked then
-		self.frame = self.frame + 1
-	end
-	
-	if self.frame > rainboomframes then
-		return true
-	end
-	
-	return false
+function rainboom:update(_: number): boolean
+	return self.finished
 end
 
 function rainboom:draw()
-	love.graphics.draw(rainboomimg, rainboomquad[self.frame as integer], (self.x-xscroll)*16*scale, (self.y-yscroll-0.5)*16*scale, self.r, scale, scale, 29, 92)
+	love.graphics.draw(rainboomimg, rainboomquad[self.frame as integer], tile_draw_x(self.x), tile_draw_y_raw(self.y-0.5), self.r, scale, scale, 29, 92)
 end

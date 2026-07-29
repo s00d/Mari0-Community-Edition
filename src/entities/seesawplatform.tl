@@ -77,14 +77,14 @@ end
 function seesawplatform:draw()
 	for i = 1, (self.size as number) do
 		if self.dir ~= "justright" then
-			love.graphics.draw(platformimg, math.floor((self.x+i-1-xscroll)*16*scale), math.floor((self.y-yscroll-8/16)*16*scale), 0, scale, scale)
+			love.graphics.draw(platformimg, tile_draw_x(self.x+i-1), math.floor(tile_draw_y_raw(self.y-8/16)), 0, world_draw_scale(), world_draw_scale())
 		else
-			love.graphics.draw(platformbonusimg, math.floor((self.x+i-1-xscroll)*16*scale), math.floor((self.y-yscroll-8/16)*16*scale), 0, scale, scale)
+			love.graphics.draw(platformbonusimg, tile_draw_x(self.x+i-1), math.floor(tile_draw_y_raw(self.y-8/16)), 0, world_draw_scale(), world_draw_scale())
 		end
 	end
 	
 	if math.ceil(self.size as number) ~= (self.size as number) then --draw 1 more on the rightest
-		love.graphics.draw(platformimg, math.floor((self.x+(self.size as number)-1-xscroll)*16*scale), math.floor((self.y-yscroll-8/16)*16*scale), 0, scale, scale)
+		love.graphics.draw(platformimg, tile_draw_x(self.x+(self.size as number)-1), math.floor(tile_draw_y_raw(self.y-8/16)), 0, world_draw_scale(), world_draw_scale())
 	end
 end
 

@@ -30,8 +30,6 @@ function animatedtimer:init(x: number, y: number, tileno)
 end
 
 function animatedtimer:update(dt: number)
-	
-	
 	local oldi = self:geti()
 	self.timer = self.timer + dt*self.dir
 	

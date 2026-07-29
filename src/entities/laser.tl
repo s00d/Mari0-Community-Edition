@@ -239,29 +239,26 @@ function laser:draw()
 	for i = 1, #self.lasertable, 5 do
 		if (self.lasertable[i] as string) == "left" then
 			if (self.lasertable[i+3] as number) < 1 then
-				love.graphics.setScissor(math.floor(((self.lasertable[i+1] as number)+(self.lasertable[i+3] as number)-xscroll-1)*16*scale), ((self.lasertable[i+2] as number)-yscroll-1.5)*16*scale, (-(self.lasertable[i+3] as number)+1)*16*scale, 16*scale)
-				local b = 0
+				local lx = (self.lasertable[i+1] as number) + (self.lasertable[i+3] as number)
+				love.graphics.setScissor(screen_draw_x(lx - 1), screen_draw_y((self.lasertable[i+2] as number) - 1.5), math.floor((-(self.lasertable[i+3] as number) + 1) * 16 * scale), math.floor(16 * scale))
 				for x = (self.lasertable[i+1] as number), math.floor((self.lasertable[i+1] as number)+(self.lasertable[i+3] as number))-1, -1 do
-					b = b + 1
-					love.graphics.draw(laserimg, math.floor((x-xscroll-1)*16*scale), ((self.lasertable[i+2] as number)-yscroll-20/16)*16*scale, 0, scale, scale)
+					love.graphics.draw(laserimg, tile_draw_x(x - 1), tile_draw_y_raw((self.lasertable[i+2] as number) - 20/16), 0, world_draw_scale(), world_draw_scale())
 				end
 			end
 		elseif (self.lasertable[i] as string) == "right" then
 			if (self.lasertable[i+3] as number) > -1 then
-				love.graphics.setScissor(math.floor(((self.lasertable[i+1] as number)-xscroll-1)*16*scale), ((self.lasertable[i+2] as number)-yscroll-1.5)*16*scale, ((self.lasertable[i+3] as number)+1)*16*scale, 16*scale)
-					local b = 0
+				love.graphics.setScissor(screen_draw_x((self.lasertable[i+1] as number) - 1), screen_draw_y((self.lasertable[i+2] as number) - 1.5), math.floor(((self.lasertable[i+3] as number) + 1) * 16 * scale), math.floor(16 * scale))
 				for x = (self.lasertable[i+1] as number), math.ceil((self.lasertable[i+1] as number)+(self.lasertable[i+3] as number))+1 do
-					b = b + 1
-					love.graphics.draw(laserimg, math.floor((x-xscroll-1)*16*scale), ((self.lasertable[i+2] as number)-yscroll-20/16)*16*scale, 0, scale, scale)
+					love.graphics.draw(laserimg, tile_draw_x(x - 1), tile_draw_y_raw((self.lasertable[i+2] as number) - 20/16), 0, world_draw_scale(), world_draw_scale())
 				end
 			end
 		elseif (self.lasertable[i] as string) == "up" then
 			for y = (self.lasertable[i+2] as number), (self.lasertable[i+2] as number)+(self.lasertable[i+4] as number), -1 do
-				love.graphics.draw(laserimg, math.floor(((self.lasertable[i+1] as number)-xscroll-5/16)*16*scale), (y-yscroll-1)*16*scale, math.pi/2, scale, scale, 8, 1)
+				love.graphics.draw(laserimg, tile_draw_x((self.lasertable[i+1] as number) - 5/16), tile_draw_y_raw(y - 1), math.pi/2, world_draw_scale(), world_draw_scale(), 8, 1)
 			end
 		elseif (self.lasertable[i] as string) == "down" then
 			for y = (self.lasertable[i+2] as number), (self.lasertable[i+2] as number)+(self.lasertable[i+4] as number) do
-				love.graphics.draw(laserimg, math.floor(((self.lasertable[i+1] as number)-xscroll-5/16)*16*scale), (y-yscroll-1)*16*scale, math.pi/2, scale, scale, 8, 1)
+				love.graphics.draw(laserimg, tile_draw_x((self.lasertable[i+1] as number) - 5/16), tile_draw_y_raw(y - 1), math.pi/2, world_draw_scale(), world_draw_scale(), 8, 1)
 			end
 		end
 		
@@ -277,7 +274,7 @@ function laser:draw()
 		rot = math.pi
 	end
 
-	love.graphics.draw(lasersideimg, math.floor((self.cox-xscroll-.5)*16*scale), (self.coy-yscroll-1)*16*scale, rot, scale, scale, 8, 8)
+	love.graphics.draw(lasersideimg, tile_draw_x(self.cox-.5), tile_draw_y_raw(self.coy-1), rot, world_draw_scale(), world_draw_scale(), 8, 8)
 end
 
 function laser:updaterange()

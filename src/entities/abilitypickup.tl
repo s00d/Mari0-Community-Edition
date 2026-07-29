@@ -71,12 +71,12 @@ function abilitypickup:draw()
 	local gate = def and def.gate or "open"
 	local col = (DOOR_COLOR and DOOR_COLOR[gate as string]) or {1.0, 0.9, 0.2, 1.0}
 	local bob = math.sin((self.timer or 0) * 4) * 2
-	local px = math.floor((self.x - xscroll) * 16 * scale)
-	local py = math.floor((self.y - yscroll) * 16 * scale + bob)
+	local px = tile_draw_x(self.x)
+	local py = tile_draw_y(self.y, -bob)
 	love.graphics.setColor(col[1] as number, col[2] as number, col[3] as number, 0.95)
-	love.graphics.rectangle("fill", px, py, self.width * 16 * scale, self.height * 16 * scale)
+	love.graphics.rectangle("fill", px, py, self.width * 16 * world_draw_scale(), self.height * 16 * world_draw_scale())
 	love.graphics.setColor(1, 1, 1, 0.9)
-	love.graphics.rectangle("line", px, py, self.width * 16 * scale, self.height * 16 * scale)
+	love.graphics.rectangle("line", px, py, self.width * 16 * world_draw_scale(), self.height * 16 * world_draw_scale())
 	love.graphics.setColor(1, 1, 1, 1)
 end
 

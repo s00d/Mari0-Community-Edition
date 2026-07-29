@@ -336,17 +336,11 @@ local function update(pl: {string:any}, dt: number)
 	rope_step(pl, dt)
 end
 
-local function world_to_screen(wx: number, wy: number): number, number
-	local xs = (xscroll as number) or 0
-	local ys = (yscroll as number) or 0
-	local sc = (scale as number) or 1
-	return math.floor((wx - xs) * 16 * sc), math.floor((wy - ys - 0.5) * 16 * sc)
-end
-
 local function draw(pl: {string:any})
 	if not love or not love.graphics then
 		return
 	end
+	local sc = world_draw_scale()
 	if not pl.grapple then
 		-- in-flight rope from player to hook
 		local list = objects and objects["hook"] as {any:{string:any}}|nil
@@ -359,10 +353,10 @@ local function draw(pl: {string:any})
 				local sy = (pl.y as number) + 6 / 16
 				local hx = (h.x as number) + ((h.width as number) or 0.5) / 2
 				local hy = (h.y as number) + ((h.height as number) or 0.5) / 2
-				local x1, y1 = world_to_screen(sx, sy)
-				local x2, y2 = world_to_screen(hx, hy)
+				local x1, y1 = weapon_draw_xy(sx, sy)
+				local x2, y2 = weapon_draw_xy(hx, hy)
 				love.graphics.setColor(0.85, 0.7, 0.35, 0.9)
-				love.graphics.setLineWidth(((scale as number) or 1) * 1.5)
+				love.graphics.setLineWidth(sc * 1.5)
 				love.graphics.line(x1, y1, x2, y2)
 			end
 		end
@@ -371,12 +365,12 @@ local function draw(pl: {string:any})
 	end
 	local sx = (pl.x as number) + ((pl.width as number) or 0.75) / 2
 	local sy = (pl.y as number) + ((pl.height as number) or 0.75) / 2
-	local x1, y1 = world_to_screen(sx, sy)
-	local x2, y2 = world_to_screen(pl.grapple_x as number, pl.grapple_y as number)
+	local x1, y1 = weapon_draw_xy(sx, sy)
+	local x2, y2 = weapon_draw_xy(pl.grapple_x as number, pl.grapple_y as number)
 	love.graphics.setColor(0.85, 0.7, 0.35, 0.95)
-	love.graphics.setLineWidth(((scale as number) or 1) * 1.75)
+	love.graphics.setLineWidth(sc * 1.75)
 	love.graphics.line(x1, y1, x2, y2)
-	love.graphics.circle("fill", x2, y2, ((scale as number) or 1) * 2.5)
+	love.graphics.circle("fill", x2, y2, sc * 2.5)
 	love.graphics.setColor(1, 1, 1, 1)
 end
 

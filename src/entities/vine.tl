@@ -61,21 +61,31 @@ function vine:update(dt: number)
 end
 
 function vine:draw()
-	local top = (self.limit-yscroll)*16*scale
-	if not self.hidetop then
-		top = (top) - 16*scale
-	end
-	local bottom = math.floor((self.coy-1.5-yscroll)*16*scale)
-	
-	if bottom > top then
-		love.graphics.setScissor(0, top, width*16*scale, bottom-top)
-		
-		love.graphics.draw(vineimg, vinequad[spriteset][1], math.floor((self.x-xscroll-1/16-((1-self.width)/2))*16*scale), (self.y-yscroll-0.5-2/16)*16*scale, 0, scale, scale)
-		for i = 1, math.ceil(self.height-14/16+.7) do
-			love.graphics.draw(vineimg, vinequad[spriteset][2], math.floor((self.x-xscroll-1/16-((1-self.width)/2))*16*scale), (self.y-yscroll-0.5-2/16+i)*16*scale, 0, scale, scale)
+	local top: number
+	local bottom: number
+	if world_camera_drawing then
+		top = world_screen_y(self.limit)
+		if not self.hidetop then
+			top = top - 16 * scale
 		end
-			
-		
+		bottom = world_screen_y(self.coy - 1.5)
+	else
+		top = tile_draw_y_raw(self.limit)
+		if not self.hidetop then
+			top = top - 16 * scale
+		end
+		bottom = math.floor(tile_draw_y_raw(self.coy - 1.5))
+	end
+
+	if bottom > top then
+		love.graphics.setScissor(0, top, width * 16 * scale, bottom - top)
+
+		local vine_x = tile_draw_x(self.x - 1/16 - ((1 - self.width) / 2))
+		love.graphics.draw(vineimg, vinequad[spriteset][1], vine_x, tile_draw_y_raw(self.y - 0.5 - 2/16), 0, world_draw_scale(), world_draw_scale())
+		for i = 1, math.ceil(self.height - 14/16 + .7) do
+			love.graphics.draw(vineimg, vinequad[spriteset][2], vine_x, tile_draw_y_raw(self.y - 0.5 - 2/16 + i), 0, world_draw_scale(), world_draw_scale())
+		end
+
 		love.graphics.setScissor()
 	end
 end

@@ -183,6 +183,6 @@ function textentity:draw()
 	self:update(0)
 	if self.power then
 		love.graphics.setColor(self.red / DISK_COLOR_MAX, self.green / DISK_COLOR_MAX, self.blue / DISK_COLOR_MAX)
-		properprint(self.text, math.floor((self.x-xscroll)*16*scale), math.floor((self.y-yscroll-.5+0.25)*16*scale))
+		properprint(self.text, tile_draw_x(self.x), math.floor(tile_draw_y_raw(self.y-.5+0.25)))
 	end
 end

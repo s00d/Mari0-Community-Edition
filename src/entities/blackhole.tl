@@ -391,20 +391,16 @@ function blackhole:emancipate(): any
 	return nil
 end
 
-local function world_to_screen(wx: number, wy: number): number, number
-	local xs = (xscroll as number) or 0
-	local ys = (yscroll as number) or 0
-	local sc = (scale as number) or 1
-	return math.floor((wx - xs) * 16 * sc), math.floor((wy - ys - 0.5) * 16 * sc)
-end
-
 function blackhole:draw()
 	if not love or not love.graphics then
 		return
 	end
-	local sc = (scale as number) or 1
+	local sc = world_draw_scale()
+	if sc == 0 then
+		sc = 1
+	end
 	local hx, hy = cx(self), cy(self)
-	local sx, sy = world_to_screen(hx, hy)
+	local sx, sy = weapon_draw_xy(hx, hy)
 	local t = self.timer as number
 	local pt = self.phasetimer as number
 	local st = self.state as string
@@ -417,8 +413,8 @@ function blackhole:draw()
 		local i0 = (head - k - 1) % n + 1
 		local i1 = (head - k) % n + 1
 		local a = 1 - k / n
-		local x0, y0 = world_to_screen(trail[i0].x + self.width / 2, trail[i0].y + self.height / 2)
-		local x1, y1 = world_to_screen(trail[i1].x + self.width / 2, trail[i1].y + self.height / 2)
+		local x0, y0 = weapon_draw_xy(trail[i0].x + self.width / 2, trail[i0].y + self.height / 2)
+		local x1, y1 = weapon_draw_xy(trail[i1].x + self.width / 2, trail[i1].y + self.height / 2)
 		love.graphics.setColor(0.35, 0.05, 0.55, a * 0.65)
 		love.graphics.setLineWidth(sc * a * 2.2)
 		love.graphics.line(x0, y0, x1, y1)
@@ -494,7 +490,7 @@ function blackhole:draw()
 			if obj then
 				local ox = (obj.x as number) + ((obj.width as number) or 0.75) / 2
 				local oy = (obj.y as number) + ((obj.height as number) or 0.75) / 2
-				local x2, y2 = world_to_screen(ox, oy)
+				local x2, y2 = weapon_draw_xy(ox, oy)
 				love.graphics.setColor(0.55, 0.15, 0.9, 0.55)
 				love.graphics.setLineWidth(sc)
 				love.graphics.line(sx, sy, x2, y2)

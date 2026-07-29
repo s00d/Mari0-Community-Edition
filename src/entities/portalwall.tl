@@ -23,8 +23,8 @@ function portalwall:draw()--debug
 	love.graphics.setColor(1, 0, 0)
 	love.graphics.setPointSize(5)
 	if self.width ~= 0 or self.height ~= 0 then
-		love.graphics.line((self.x-xscroll)*16*scale, (self.y-.5-yscroll)*16*scale, (self.x-xscroll)*16*scale+self.width*16*scale, (self.y-.5-yscroll)*16*scale+self.height*16*scale)
+		love.graphics.line(tile_draw_x(self.x), tile_draw_y_raw(self.y-.5), tile_draw_x(self.x)+self.width*16*scale, tile_draw_y_raw(self.y-.5)+self.height*16*scale)
 	else
-		love.graphics.line((self.x-xscroll)*16*scale, (self.y-.5-yscroll)*16*scale, (self.x-xscroll)*16*scale+self.width*16*scale, (self.y-.5-yscroll)*16*scale+self.height*16*scale)
+		love.graphics.line(tile_draw_x(self.x), tile_draw_y_raw(self.y-.5), tile_draw_x(self.x)+self.width*16*scale, tile_draw_y_raw(self.y-.5)+self.height*16*scale)
 	end
 end

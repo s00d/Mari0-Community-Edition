@@ -114,7 +114,7 @@ function regiondrag:draw()
 	else
 		love.graphics.setColor(1, 0.5, 0.15, 0.4)
 	end
-	love.graphics.rectangle("fill", (self.x-xscroll)*16*scale, (self.y-yscroll-.5)*16*scale, self.width*16*scale, self.height*16*scale)
+	love.graphics.rectangle("fill", tile_draw_x(self.x), tile_draw_y_raw(self.y-.5), self.width*16*scale, self.height*16*scale)
 	
 	--edges
 	
@@ -129,17 +129,17 @@ function regiondrag:draw()
 		end
 		
 		if i == 1 then
-			x = (self.x-xscroll)*16*scale
-			y = (self.y-yscroll-.5)*16*scale
+			x = tile_draw_x(self.x)
+			y = tile_draw_y_raw(self.y-.5)
 		elseif i == 2 then
-			x = (self.x-xscroll+self.width)*16*scale
-			y = (self.y-yscroll-.5)*16*scale
+			x = tile_draw_x(self.x+self.width)
+			y = tile_draw_y_raw(self.y-.5)
 		elseif i == 3 then
-			x = (self.x-xscroll)*16*scale
-			y = (self.y-yscroll-.5+self.height)*16*scale
+			x = tile_draw_x(self.x)
+			y = tile_draw_y_raw(self.y-.5+self.height)
 		elseif i == 4 then
-			x = (self.x-xscroll+self.width)*16*scale
-			y = (self.y-yscroll-.5+self.height)*16*scale
+			x = tile_draw_x(self.x+self.width)
+			y = tile_draw_y_raw(self.y-.5+self.height)
 		end
 		
 		love.graphics.rectangle("fill", x-regiondragboxwidth*scale, y-regiondragboxwidth*scale, regiondragboxwidth*2*scale, regiondragboxwidth*2*scale)	
@@ -174,19 +174,19 @@ function regiondrag:inhighlight(x, y, i): boolean
 	local vx: number = 0
 	local vy: number = 0
 	if i == 1 then
-		vx = (self.x-xscroll)*16*scale
-		vy = (self.y-yscroll-.5)*16*scale
+		vx = tile_draw_x(self.x)
+		vy = tile_draw_y_raw(self.y-.5)
 	elseif i == 2 then
-		vx = (self.x-xscroll+self.width)*16*scale
-		vy = (self.y-yscroll-.5)*16*scale
+		vx = tile_draw_x(self.x+self.width)
+		vy = tile_draw_y_raw(self.y-.5)
 	elseif i == 3 then
-		vx = (self.x-xscroll)*16*scale
-		vy = (self.y-yscroll-.5+self.height)*16*scale
+		vx = tile_draw_x(self.x)
+		vy = tile_draw_y_raw(self.y-.5+self.height)
 	elseif i == 4 then
-		vx = (self.x-xscroll+self.width)*16*scale
-		vy = (self.y-yscroll-.5+self.height)*16*scale
+		vx = tile_draw_x(self.x+self.width)
+		vy = tile_draw_y_raw(self.y-.5+self.height)
 	elseif i == 5 then
-		return nx >= (self.x-xscroll)*16*scale and nx < (self.x-xscroll+self.width)*16*scale and ny >= (self.y-yscroll-.5)*16*scale and ny < (self.y-yscroll-.5+self.height)*16*scale
+		return nx >= tile_draw_x(self.x) and nx < tile_draw_x(self.x+self.width) and ny >= tile_draw_y_raw(self.y-.5) and ny < tile_draw_y_raw(self.y-.5+self.height)
 	end
 	
 	return nx >= vx-regiondragboxwidth*scale and nx < vx+regiondragboxwidth*scale and ny >= vy-regiondragboxwidth*scale and ny < vy+regiondragboxwidth*scale

@@ -194,38 +194,29 @@ global function physics_world_remove_slot(group: string, key: any)
 	end
 end
 
--- Tile slot helper: objects["tile"][key] + bump sync.
-global function physics_world_set_tile(key: any, body: any|nil)
+-- Portalwall / tile slot helpers share one implementation.
+local function physics_world_set_group_slot(group: string, key: any, body: any|nil)
 	if objects then
-		if not objects["tile"] then
-			objects["tile"] = {}
+		if not objects[group] then
+			objects[group] = {}
 		end
-		local old = (objects["tile"] as {any: Body})[key]
+		local old = (objects[group] as {any: Body})[key]
 		if old and old ~= body then
 			physics_world_remove(old)
 		end
-		(objects["tile"] as {any: any})[key] = body
+		(objects[group] as {any: any})[key] = body
 	end
 	if body then
-		physics_world_upsert(body, "tile", key)
+		physics_world_upsert(body, group, key)
 	end
 end
 
--- Portalwall slot helper.
+global function physics_world_set_tile(key: any, body: any|nil)
+	physics_world_set_group_slot("tile", key, body)
+end
+
 global function physics_world_set_portalwall(key: string, body: any|nil)
-	if objects then
-		if not objects["portalwall"] then
-			objects["portalwall"] = {}
-		end
-		local old = (objects["portalwall"] as {any: Body})[key]
-		if old and old ~= body then
-			physics_world_remove(old)
-		end
-		(objects["portalwall"] as {any: any})[key] = body
-	end
-	if body then
-		physics_world_upsert(body, "portalwall", key)
-	end
+	physics_world_set_group_slot("portalwall", key, body)
 end
 
 -- Platform array append + immediate bump sync (runtime spawn).

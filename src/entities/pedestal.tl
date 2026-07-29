@@ -63,13 +63,13 @@ function pedestal:draw()
 	love.graphics.setColor(1, 1, 1)
 	if self.pickedup then
 		local prog = self.progress / pedestaltime
-		love.graphics.setScissor(math.floor((self.cox-1-xscroll)*16*scale), math.floor((self.coy-1.5-yscroll)*16*scale)+14*prog*scale, 16*scale, (14*(1-prog)+2)*scale)
+		love.graphics.setScissor(tile_draw_x(self.cox-1), math.floor(tile_draw_y_raw(self.coy-1.5))+14*prog*scale, 16*scale, (14*(1-prog)+2)*scale)
 	end
-	love.graphics.draw(pedestalbaseimg, math.floor((self.cox-1-xscroll)*16*scale), math.floor((self.coy-1.5-yscroll)*16*scale), 0, scale, scale)
+	love.graphics.draw(pedestalbaseimg, tile_draw_x(self.cox-1), math.floor(tile_draw_y_raw(self.coy-1.5)), 0, world_draw_scale(), world_draw_scale())
 	love.graphics.setScissor()
 	
 	if not self.pickedup then
-		love.graphics.draw(pedestalgunimg, math.floor((self.cox-1-xscroll)*16*scale), math.floor((self.coy-1.5-yscroll)*16*scale), 0, scale, scale)
+		love.graphics.draw(pedestalgunimg, tile_draw_x(self.cox-1), math.floor(tile_draw_y_raw(self.coy-1.5)), 0, world_draw_scale(), world_draw_scale())
 	
 		if self.blue or self.orange then
 			if self.blue then
@@ -77,7 +77,7 @@ function pedestal:draw()
 			elseif self.orange then
 				love.graphics.setColor(playerobjs[1].portal2color)
 			end
-			love.graphics.rectangle("fill", math.floor((self.cox-1-xscroll+7/16)*16*scale), math.floor((self.coy-1.5-yscroll+2/16)*16*scale), scale, scale)
+			love.graphics.rectangle("fill", tile_draw_x(self.cox-1+7/16), math.floor(tile_draw_y_raw(self.coy-1.5+2/16)), scale, scale)
 		end
 	end
 end

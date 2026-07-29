@@ -321,6 +321,8 @@ global function menu_draw()
 	--I'm not proud of this at all; But I'm even lazier than not proud. Seriously, don't take this as an example of what to do.
 	
 	drawlevel()
+	draw_world_tiles()
+	
 	drawui()
 	
 	for j = 1, players do
@@ -345,7 +347,7 @@ global function menu_draw()
 	end
 	
 	love.graphics.setColor(1, 1, 1, 1)
-	drawforeground()
+	draw_world_foreground()
 	
 	if gamestate == "menu" then
 		menu_draw_title()
@@ -468,14 +470,16 @@ global function menu_draw_options()
 				
 				properprint(controlstable[i], 30*scale, (70+(i-1)*12)*scale)
 				
+				local binding = controls[skinningplayer][controlstable[i]] as {integer: string}|nil
 				local s = ""
 				
-				if controls[skinningplayer][controlstable[i]] then
-					for j = 1, #controls[skinningplayer][controlstable[i]] do
-						s = s .. tostring((((controls[skinningplayer] as {any:any})[controlstable[i as integer]] as {any})[j as integer]))
+				if binding then
+					local b = binding as {integer: string}
+					for j = 1, #b do
+						s = s .. binding_display(b[j])
 					end
 				end
-				if s == " " then
+				if s == " " or s == "space" then
 					s = "space"
 				end
 				properprint(s, 120*scale, (70+(i-1)*12)*scale)
@@ -1383,15 +1387,21 @@ global function menu_keypressed(key: any)
 			end
 		end
 	elseif gamestate == "onlinemenu" then
-		if CLIENT == false and SERVER == false then
+		if not (Net and Net.is_online and Net.is_online()) then
 			if key == "c" then
-				client_load()
+				joingame()
 			elseif key == "s" then
-				server_load()
+				creategame()
 			end
-		elseif SERVER then
+		elseif Net.role() == "host" then
 			if (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
-				server_start()
+				Net.start_match()
+			end
+		end
+	elseif gamestate == "lobby" then
+		if Net and Net.role and Net.role() == "host" then
+			if (key == "return" or key == "enter" or key == "kpenter" or key == " ") then
+				Net.start_match()
 			end
 		end
 	elseif gamestate == "options" then
@@ -1860,17 +1870,19 @@ global function keypromptenter(t: any, ...: any): any
 	local buttononly = {"run", "jump", "reload", "use"}
 	local axisonly = {"aimx", "aimy"}
 	if t ~= "key" or arg[1] ~= "escape" then
+		local row = controls[skinningplayer] as {string:any}
 		if t == "key" then
 			if tablecontains(axisonly, controlstable[optionsselection-3]) then
 				axiserror = true
 			else
-				controls[skinningplayer][controlstable[optionsselection-3]] = {arg[1]}
+				row[controlstable[optionsselection-3]] = {"key:" .. (arg[1] as string)}
 			end
 		elseif t == "joybutton" then
 			if tablecontains(axisonly, controlstable[optionsselection-3]) then
 				axiserror = true
 			else
-				controls[skinningplayer][controlstable[optionsselection-3]] = {"joy", arg[1], "but", arg[2]}
+				row[controlstable[optionsselection-3]] = {"button:" .. tostring(arg[2])}
+				row["joy"] = arg[1] as integer
 			end
 		elseif t == "joyhat" then
 			if tablecontains(buttononly, controlstable[optionsselection-3]) then
@@ -1878,19 +1890,25 @@ global function keypromptenter(t: any, ...: any): any
 			elseif tablecontains(axisonly, controlstable[optionsselection-3]) then
 				axiserror = true
 			else
-				controls[skinningplayer][controlstable[optionsselection-3]] = {"joy", arg[1], "hat", arg[2], arg[3]}
+				row[controlstable[optionsselection-3]] = {"hat:" .. tostring(arg[2]) .. tostring(arg[3])}
+				row["joy"] = arg[1] as integer
 			end
 		elseif t == "joyaxis" then
 			if tablecontains(buttononly, controlstable[optionsselection-3]) then
 				buttonerror = true
 			else
-				controls[skinningplayer][controlstable[optionsselection-3]] = {"joy", arg[1], "axe", arg[2], arg[3]}
+				local sign = arg[3] == "pos" and "+" or "-"
+				row[controlstable[optionsselection-3]] = {"axis:" .. tostring(arg[2]) .. sign}
+				row["joy"] = arg[1] as integer
 			end
 		end
 	end
 	
 	if (not buttonerror and not axiserror) or arg[1] == "escape" then
 		keyprompt = false
+		if input_bindings_rebuild then
+			input_bindings_rebuild(skinningplayer as integer)
+		end
 	end
 end
 

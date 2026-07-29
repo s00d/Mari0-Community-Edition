@@ -435,18 +435,12 @@ local function update(pl: {string:any}, dt: number)
 	end
 end
 
-local function world_to_screen(wx: number, wy: number): number, number
-	local xs = (xscroll as number) or 0
-	local ys = (yscroll as number) or 0
-	local sc = (scale as number) or 1
-	return math.floor((wx - xs) * 16 * sc), math.floor((wy - ys - 0.5) * 16 * sc)
-end
-
 local function draw_trails()
 	local balls = objects["gravityball"] as {any:{string:any}}|nil
 	if balls == nil then
 		return
 	end
+	local sc = world_draw_scale()
 	for _, b in pairs(balls as {any:{string:any}}) do
 		if b.state == "flying" then
 			local trail = b.trail as {{string:number}}
@@ -456,10 +450,10 @@ local function draw_trails()
 				local i0 = (head - k - 1) % n + 1
 				local i1 = (head - k) % n + 1
 				local a = 1 - k / n
-				local x0, y0 = world_to_screen(trail[i0].x, trail[i0].y)
-				local x1, y1 = world_to_screen(trail[i1].x, trail[i1].y)
+				local x0, y0 = weapon_draw_xy(trail[i0].x, trail[i0].y)
+				local x1, y1 = weapon_draw_xy(trail[i1].x, trail[i1].y)
 				love.graphics.setColor(0.45, 0.9, 1.0, a * 0.7)
-				love.graphics.setLineWidth(((scale as number) or 1) * a * 2)
+				love.graphics.setLineWidth(sc * a * 2)
 				love.graphics.line(x0, y0, x1, y1)
 			end
 		end
@@ -487,12 +481,13 @@ local function draw(pl: {string:any})
 	local sy = (pl.y as number) + 6 / 16
 	local ox = (obj.x as number) + ((obj.width as number) or 0.75) / 2
 	local oy = (obj.y as number) + ((obj.height as number) or 0.75) / 2
-	local x1, y1 = world_to_screen(sx, sy)
-	local x2, y2 = world_to_screen(ox, oy)
+	local x1, y1 = weapon_draw_xy(sx, sy)
+	local x2, y2 = weapon_draw_xy(ox, oy)
+	local sc = world_draw_scale()
 	love.graphics.setColor(0.35, 0.85, 1.0, 0.85)
-	love.graphics.setLineWidth(((scale as number) or 1) * 1.5)
+	love.graphics.setLineWidth(sc * 1.5)
 	love.graphics.line(x1, y1, x2, y2)
-	love.graphics.circle("fill", x2, y2, ((scale as number) or 1) * 2.5)
+	love.graphics.circle("fill", x2, y2, sc * 2.5)
 	love.graphics.setColor(1, 1, 1, 1)
 end
 

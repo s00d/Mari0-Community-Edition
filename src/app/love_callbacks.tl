@@ -2,6 +2,47 @@
 
 local LoveFrame = require("app.love_frame")
 
+local MENU_INPUT_STATES: {string: boolean} = {
+	menu = true,
+	mappackmenu = true,
+	onlinemenu = true,
+	options = true,
+}
+
+local function menu_input_active(): boolean
+	return MENU_INPUT_STATES[gamestate as string] == true
+end
+
+local MOUSE_MENU_STATES: {string: boolean} = {
+	menu = true,
+	mappackmenu = true,
+	options = true,
+}
+
+local function menu_mouse_active(): boolean
+	return MOUSE_MENU_STATES[gamestate as string] == true
+end
+
+local MENU_JOYSTICK_STATES: {string: boolean} = {
+	menu = true,
+	options = true,
+}
+
+local function menu_joystick_active(): boolean
+	return MENU_JOYSTICK_STATES[gamestate as string] == true
+end
+
+local function joystick_slot(joystick: Joystick): integer|nil
+	local sticks = love.joystick.getJoysticks() as {Joystick}
+	local jid = joystick:getID()
+	for i, v in ipairs(sticks) do
+		if v:getID() == jid then
+			return i
+		end
+	end
+	return nil
+end
+
 function love.update(dt: any)
 	local dt = dt as number
 	if music then
@@ -17,6 +58,16 @@ function love.update(dt: any)
 	
 	if not LoveFrame.begin_update() then
 		return
+	end
+
+	if HumpTimer then
+		HumpTimer.update(frame_dt)
+	end
+	if Flux then
+		Flux.update(frame_dt)
+	end
+	if ui_input_update then
+		ui_input_update(frame_dt)
 	end
 	
 	--speed
@@ -66,35 +117,17 @@ function love.update(dt: any)
 		
 		keyprompt_update()
 		
-		-- Prefer Gamestate handlers when registered; legacy branches as fallback
-		local gs_handled = false
 		if Gamestate then
-			local gname = Gamestate.get()
-			local h = Gamestate.handlers[gname]
-			if h and h.update then
-				Gamestate.update(dt)
-				gs_handled = true
-			end
-		end
-		if not gs_handled then
-			if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" or gamestate == "lobby" then
-				menu_update(dt as number)
-			elseif gamestate == "levelscreen" or gamestate == "gameover" or gamestate == "sublevelscreen" or gamestate == "mappackfinished" then
-				levelscreen_update(dt)
-			elseif gamestate == "game" then
-				game_update(dt)	
-			elseif gamestate == "intro" then
-				intro_update(dt)	
-			end
+			Gamestate.update(dt)
 		end
 		
 		for _, v in pairs(guielements) do
 			v:update(dt as number)
 		end
 		
-		-- Net facade: NullNet offline (empty update). Live session only after host/join.
-		if netplay_update then
-			netplay_update(dt as number)
+		-- Net: offline no-op; host/client after Net.host / Net.join
+		if Net and Net.update then
+			Net.update(dt as number)
 		end
 		
 		notice.update(dt as number)
@@ -114,24 +147,8 @@ end
 function love.draw()
 	shaders:predraw()
 	
-	local gs_handled = false
 	if Gamestate then
-		local h = Gamestate.handlers[Gamestate.get()]
-		if h and h.draw then
-			Gamestate.draw()
-			gs_handled = true
-		end
-	end
-	if not gs_handled then
-		if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" or gamestate == "lobby" then
-			menu_draw()
-		elseif gamestate == "levelscreen" or gamestate == "gameover" or gamestate == "mappackfinished" then
-			levelscreen_draw()
-		elseif gamestate == "game" then
-			game_draw()
-		elseif gamestate == "intro" then
-			intro_draw()
-		end
+		Gamestate.draw()
 	end
 	
 	notice.draw()
@@ -201,12 +218,12 @@ function love.keypressed(key: any, scancode: any, _: any)
 	
 	if gamestate == "lobby" or gamestate == "onlinemenu" then
 		if key == "escape" then
-			net_quit()
+			Net.quit()
 			return
 		end
 	end
 	
-	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" then
+	if menu_input_active() then
 		ui_note_kbd()
 		table.insert(konamitable, key as string)
 		table.remove(konamitable, 1)
@@ -236,7 +253,7 @@ function love.keyreleased(key: any, scancode: any)
 		key = scancode
 	end
 	if key == "space" then key = " " end
-	if gamestate == "menu" or gamestate == "options" then
+	if menu_joystick_active() then
 		menu_keyreleased(key)
 	elseif gamestate == "game" then
 		game_keyreleased(key)
@@ -292,7 +309,7 @@ function love.mousemoved(x: any, y: any, dx: any, dy: any)
 	if not ui_note_mouse_move(dx as number, dy as number, x as number, y as number) then
 		return
 	end
-	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "options" then
+	if menu_mouse_active() then
 		menu_mousemoved(mouseui_x, mouseui_y)
 	elseif gamestate == "game" and pausemenuopen and not menuprompt and not desktopprompt and not suspendprompt then
 		local ux = mouseui_x / scale
@@ -315,7 +332,7 @@ function love.mousepressed(...: any)
 	elseif button == 3 then button = "m"
 	end
 	x, y = screen_to_ui(x, y)
-	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "options" then
+	if menu_input_active() then
 		menu_mousepressed(x, y, button)
 	elseif gamestate == "game" then
 		game_mousepressed(x, y, button)
@@ -374,7 +391,7 @@ function love.mousereleased(...: any)
 	elseif button == 3 then button = "m"
 	end
 	x, y = screen_to_ui(x, y)
-	if gamestate == "menu" or gamestate == "options" then
+	if menu_joystick_active() then
 		menu_mousereleased(x, y, button)
 	elseif gamestate == "game" then
 		game_mousereleased(x, y, button)
@@ -386,97 +403,68 @@ function love.mousereleased(...: any)
 end
 
 function love.joystickpressed(joystick: any, button: any)
-	local joysticks,found = love.joystick.getJoysticks(),false
-	for i,v in ipairs(joysticks) do
-		if (v as Joystick):getID() == (joystick as Joystick):getID() then
-			joystick,found = i,true
-			break
-		end
+	local slot = joystick_slot(joystick as Joystick)
+	if not slot then
+		return
 	end
-	
-	if found then
-		if keyprompt then
-			keypromptenter("joybutton", joystick, button)
-		elseif gamestate == "menu" or gamestate == "options" then
-			ui_note_kbd()
-			menu_joystickpressed(joystick, button)
-		elseif gamestate == "game" then
-			game_joystickpressed(joystick, button)
-		end
+	if keyprompt then
+		keypromptenter("joybutton", slot, button)
+	elseif menu_joystick_active() then
+		ui_note_kbd()
+		menu_joystickpressed(slot, button)
+	elseif gamestate == "game" then
+		game_joystickpressed(slot, button)
 	end
 end
 
 function love.joystickreleased(joystick: any, button: any)
-	local joysticks,found = love.joystick.getJoysticks(),false
-	for i,v in ipairs(joysticks) do
-		if (v as Joystick):getID() == (joystick as Joystick):getID() then
-			joystick,found = i,true
-			break
-		end
+	local slot = joystick_slot(joystick as Joystick)
+	if not slot then
+		return
 	end
-	
-	if found then
-		if gamestate == "menu" or gamestate == "options" then
-			menu_joystickreleased(joystick, button)
-		elseif gamestate == "game" then
-			game_joystickreleased(joystick, button)
-		end
+	if menu_joystick_active() then
+		menu_joystickreleased(slot, button)
+	elseif gamestate == "game" then
+		game_joystickreleased(slot, button)
 	end
 end
 
 function love.joystickaxis(joystick: any, axis: any, value: any)
-	local joysticks,found = love.joystick.getJoysticks(),false
-	for i,v in ipairs(joysticks) do
-		if (v as Joystick):getID() == (joystick as Joystick):getID() then
-			joystick,found = i,true
-			break
-		end
+	local slot = joystick_slot(joystick as Joystick)
+	if not slot then
+		return
 	end
-	
-	if found then
-		local stickmoved = false
-		local shouldermoved = false
-		
-		local adz = ((axisDeadZones as {any:any})[joystick] as {any:any})[axis] as {string:any}
-		--If this axis is a stick, get whether it just moved out of its deadzone
-		if math.abs(value as number) > joystickaimdeadzone and adz["stick"] then
-			stickmoved = true
-			adz["stick"] = false
-		elseif math.abs(value as number) < joystickaimdeadzone and not adz["stick"] then
-			adz["stick"] = true
-		end
-
-		--If this axis is a shoulder, get whether it just moved out of its deadzone
-		if (value as number) > 0 and adz["shoulder"] then
-			shouldermoved = true
-			adz["shoulder"] = false
-		elseif (value as number) < 0 and not adz["shoulder"] then
-			adz["shoulder"] = true
-		end
-
-		if gamestate == "menu" or gamestate == "options" then
-			menu_joystickaxis(joystick, axis, value, stickmoved, shouldermoved)
-		elseif gamestate == "game" then
-			game_joystickaxis(joystick, axis, value, stickmoved, shouldermoved)
-		end
+	local stickmoved = false
+	local shouldermoved = false
+	local adz = ((axisDeadZones as {any:any})[slot] as {any:any})[axis] as {string:any}
+	if math.abs(value as number) > joystickaimdeadzone and adz["stick"] then
+		stickmoved = true
+		adz["stick"] = false
+	elseif math.abs(value as number) < joystickaimdeadzone and not adz["stick"] then
+		adz["stick"] = true
+	end
+	if (value as number) > 0 and adz["shoulder"] then
+		shouldermoved = true
+		adz["shoulder"] = false
+	elseif (value as number) < 0 and not adz["shoulder"] then
+		adz["shoulder"] = true
+	end
+	if menu_joystick_active() then
+		menu_joystickaxis(slot, axis, value, stickmoved, shouldermoved)
+	elseif gamestate == "game" then
+		game_joystickaxis(slot, axis, value, stickmoved, shouldermoved)
 	end
 end
 
 function love.joystickhat(joystick: any, hat: any, direction: any)
-	local joysticks,found = love.joystick.getJoysticks(),false
-	for i,v in ipairs(joysticks) do
-		if (v as Joystick):getID() == (joystick as Joystick):getID() then
-			joystick,found = i,true
-			break
-		end
+	local slot = joystick_slot(joystick as Joystick)
+	if not slot then
+		return
 	end
-	
-	if found then
-		if gamestate == "menu" or gamestate == "options" then
-			menu_joystickhat(joystick, hat, direction)
-		elseif gamestate == "game" then
-			game_joystickhat(joystick, hat, direction)
-		end
+	if menu_joystick_active() then
+		menu_joystickhat(slot, hat, direction)
+	elseif gamestate == "game" then
+		game_joystickhat(slot, hat, direction)
 	end
 end
 

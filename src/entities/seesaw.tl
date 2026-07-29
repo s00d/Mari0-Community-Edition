@@ -132,18 +132,18 @@ function seesaw:draw()
 	local leftp = self.leftplatform as seesawplatform
 	local rightp = self.rightplatform as seesawplatform
 	--left
-	love.graphics.draw(seesawimg, seesawquad[1], math.floor((self.x-1-xscroll)*16*scale), (self.y-yscroll-1.5)*16*scale, 0, scale, scale)
+	love.graphics.draw(seesawimg, seesawquad[1], tile_draw_x(self.x-1), tile_draw_y_raw(self.y-1.5), 0, world_draw_scale(), world_draw_scale())
 	
 	if self.falloff == false and leftp.y-self.y >= 0 then
-		love.graphics.setScissor((self.x-1-xscroll)*16*scale, (self.y-yscroll-0.5)*16*scale, 16*scale, math.floor((leftp.y-self.y)*16*scale))
+		love.graphics.setScissor(screen_draw_x(self.x - 1), screen_draw_y(self.y - 0.5), 16 * scale, math.floor((leftp.y - self.y) * 16 * scale))
 		for i = 1, math.ceil(leftp.y-self.y) do
-			love.graphics.draw(seesawimg, seesawquad[3], math.floor((self.x-1-xscroll)*16*scale), (self.y-yscroll+i-1.5)*16*scale, 0, scale, scale)
+			love.graphics.draw(seesawimg, seesawquad[3], tile_draw_x(self.x-1), tile_draw_y_raw(self.y+i-1.5), 0, world_draw_scale(), world_draw_scale())
 		end
 		love.graphics.setScissor()
 	else
 		if self.falloffside == "left" then
 			for i = 1, self.dist1+self.dist2-2 do
-				love.graphics.draw(seesawimg, seesawquad[3], math.floor((self.x-1-xscroll)*16*scale), (self.y-yscroll+i-1.5)*16*scale, 0, scale, scale)
+				love.graphics.draw(seesawimg, seesawquad[3], tile_draw_x(self.x-1), tile_draw_y_raw(self.y+i-1.5), 0, world_draw_scale(), world_draw_scale())
 			end
 		end
 	end
@@ -151,22 +151,22 @@ function seesaw:draw()
 	
 	--middle
 	for i = 1, self.range-1 do
-		love.graphics.draw(seesawimg, seesawquad[4], math.floor((self.x-1+i-xscroll)*16*scale), (self.y-yscroll-1.5)*16*scale, 0, scale, scale)
+		love.graphics.draw(seesawimg, seesawquad[4], tile_draw_x(self.x-1+i), tile_draw_y_raw(self.y-1.5), 0, world_draw_scale(), world_draw_scale())
 	end
 		
 	--right
-	love.graphics.draw(seesawimg, seesawquad[2], math.floor((self.x-1+self.range-xscroll)*16*scale), (self.y-yscroll-1.5)*16*scale, 0, scale, scale)
+	love.graphics.draw(seesawimg, seesawquad[2], tile_draw_x(self.x-1+self.range), tile_draw_y_raw(self.y-1.5), 0, world_draw_scale(), world_draw_scale())
 	
 	if self.falloff == false and rightp.y-self.y >= 0 then
-		love.graphics.setScissor((self.x-1+self.range-xscroll)*16*scale, (self.y-yscroll-0.5)*16*scale, 16*scale, math.floor((rightp.y-self.y)*16*scale))
+		love.graphics.setScissor(screen_draw_x(self.x - 1 + self.range), screen_draw_y(self.y - 0.5), 16 * scale, math.floor((rightp.y - self.y) * 16 * scale))
 		for i = 1, math.ceil(rightp.y-self.y) do
-			love.graphics.draw(seesawimg, seesawquad[3], math.floor((self.x+self.range-1-xscroll)*16*scale), (self.y-yscroll+i-1.5)*16*scale, 0, scale, scale)
+			love.graphics.draw(seesawimg, seesawquad[3], tile_draw_x(self.x+self.range-1), tile_draw_y_raw(self.y+i-1.5), 0, world_draw_scale(), world_draw_scale())
 		end
 		love.graphics.setScissor()
 	else
 		if self.falloffside == "right" then
 			for i = 1, self.dist1+self.dist2-2 do
-				love.graphics.draw(seesawimg, seesawquad[3], math.floor((self.x+self.range-1-xscroll)*16*scale), (self.y-yscroll+i-1.5)*16*scale, 0, scale, scale)
+				love.graphics.draw(seesawimg, seesawquad[3], tile_draw_x(self.x+self.range-1), tile_draw_y_raw(self.y+i-1.5), 0, world_draw_scale(), world_draw_scale())
 			end
 		end
 	end

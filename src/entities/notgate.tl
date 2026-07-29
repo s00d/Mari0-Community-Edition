@@ -9,24 +9,11 @@ function notgate.new(_: notgate, x: number, y: number, r: {any}): notgate
 end
 
 function notgate:init(x: number, y: number, r)
-	self.x = x
-	self.y = y
-	self.cox = x
-	self.coy = y
-	self.visible = false
-	self.r = {unpack(r as {any})}
-	table.remove(self.r, 1)
-	table.remove(self.r, 1)
-	
-	--VISIBLE
-	if #self.r > 0 and self.r[1] ~= "link" then
-		self.visible = (self.r[1] == "true")
-		table.remove(self.r, 1)
-	end
-	
+	logicgate_init_xy(self as any, x, y, r as {any})
 	self.outtable = {}
 	self.input1state = "on"
 	self.initial = true
+	self.power = false
 end
 
 function notgate:link(): any|nil
@@ -47,7 +34,11 @@ function notgate:link(): any|nil
 end
 
 function notgate:addoutput(a, t)
-	table.insert(self.outtable, {a, t} as {any})
+	logicgate_addoutput(self, a, t)
+end
+
+function notgate:out(t)
+	logicgate_out(self, t)
 end
 
 function notgate:update(_: number)
@@ -58,18 +49,7 @@ function notgate:update(_: number)
 end
 
 function notgate:draw()
-	if self.visible then
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.draw(notgateimg, math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
-	end
-end
-
-function notgate:out(t)
-	for i = 1, #self.outtable do
-		if (self.outtable[i] as {Entity, any})[1].input then
-			(self.outtable[i] as {Entity, any})[1]:input(t, (self.outtable[i] as {Entity, any})[2])
-		end
-	end
+	logicgate_draw_img(self, notgateimg)
 end
 
 function notgate:input(t, input): any

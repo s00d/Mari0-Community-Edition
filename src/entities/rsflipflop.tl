@@ -9,21 +9,7 @@ function rsflipflop.new(_: rsflipflop, x: number, y: number, r: {any}): rsflipfl
 end
 
 function rsflipflop:init(x: number, y: number, r)
-	self.x = x
-	self.y = y
-	self.cox = x
-	self.coy = y
-	self.visible = false
-	self.r = {unpack(r as {any})}
-	table.remove(self.r, 1)
-	table.remove(self.r, 1)
-	
-	--VISIBLE
-	if #self.r > 0 and self.r[1] ~= "link" then
-		self.visible = (self.r[1] == "true")
-		table.remove(self.r, 1)
-	end
-	
+	logicgate_init_xy(self as any, x, y, r as {any})
 	self.outtable = {}
 	self.output = false
 end
@@ -47,22 +33,15 @@ function rsflipflop:link(): any|nil
 end
 
 function rsflipflop:addoutput(a, t)
-	table.insert(self.outtable, {a, t} as {any})
-end
-
-function rsflipflop:draw()
-	if self.visible then
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.draw(rsflipflopimg, math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
-	end
+	logicgate_addoutput(self, a, t)
 end
 
 function rsflipflop:out(t)
-	for i = 1, #self.outtable do
-		if (self.outtable[i] as {Entity, any})[1].input then
-			(self.outtable[i] as {Entity, any})[1]:input(t, (self.outtable[i] as {Entity, any})[2])
-		end
-	end
+	logicgate_out(self, t)
+end
+
+function rsflipflop:draw()
+	logicgate_draw_img(self, rsflipflopimg)
 end
 
 function rsflipflop:input(t, input): any

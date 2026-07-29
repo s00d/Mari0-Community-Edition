@@ -94,7 +94,7 @@ global function game_load(suspended?: any)
 	jumpitems = { "mushroom", "oneup" }
 	
 	-- Online match: host already chose mappack/world/level via start packet.
-	if not (SERVER or CLIENT) then
+	if not (Net and Net.is_online and Net.is_online()) then
 		marioworld = start_world or 1
 		mariolevel = start_level or 1
 		mariosublevel = 0

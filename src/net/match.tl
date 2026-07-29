@@ -1,6 +1,9 @@
---[[ Match start: assign slots, apply cosmetics, load shared level. ]]
+--[[ Match start: slots, cosmetics, shared level load. ]]
 
-local MAX_PLAYERS = 4
+local Schema = require("net.schema")
+
+local Match = {}
+
 local MAX_WORLD_LEVEL = 99
 local MAX_SUBLEVEL = 99
 
@@ -8,15 +11,10 @@ local function mappack_name_safe(name: string): boolean
 	if name == "" then
 		return false
 	end
-	-- Path traversal / separators — never allow into mappack_path().
 	if name:find("..", 1, true) or name:find("/", 1, true) or name:find("\\", 1, true) then
 		return false
 	end
-	-- Allowlist characters used by shipped / custom pack folder names.
-	if not name:match("^[%w%._%-]+$") then
-		return false
-	end
-	return true
+	return name:match("^[%w%._%-]+$") ~= nil
 end
 
 local function mappack_in_list(name: string): boolean
@@ -46,20 +44,14 @@ local function mappack_exists_on_disk(name: string): boolean
 	return fs.getInfo(base .. "/settings.txt") ~= nil
 end
 
--- True if name is a known/installed pack and not a path traversal attempt.
-local function validate_mappack(name: any): string|nil
+function Match.validate_mappack(name: any): string|nil
 	local s = tostring(name or "")
 	if not mappack_name_safe(s) then
 		return nil
 	end
-	if mappack_in_list(s) then
+	if mappack_in_list(s) or mappack_exists_on_disk(s) then
 		return s
 	end
-	-- List may be empty early (tests / pre-menu); fall back to on-disk settings.
-	if mappack_exists_on_disk(s) then
-		return s
-	end
-	-- Offline unit tests without filesystem: allow current / default smb only.
 	local current = tostring(rawget(_G, "mappack") or "")
 	if s == "smb" or s == current then
 		return s
@@ -67,7 +59,6 @@ local function validate_mappack(name: any): string|nil
 	return nil
 end
 
--- Sanitize world/level/sub for level_filename (N-M / N-M_S / M-N).
 local function sanitize_world(v: any): number|string
 	if tostring(v) == "M" then
 		return "M"
@@ -97,45 +88,30 @@ end
 
 local function ensure_player_tables(n: integer)
 	rawset(_G, "players", n)
-	if not mariolives then
-		rawset(_G, "mariolives", {})
-	end
-	if not mariosizes then
-		rawset(_G, "mariosizes", {})
-	end
-	if not mariocolors then
-		rawset(_G, "mariocolors", {})
-	end
-	if not mariohats then
-		rawset(_G, "mariohats", {})
-	end
-	if not portalcolor then
-		rawset(_G, "portalcolor", {})
-	end
-	if not mariocharacter then
-		rawset(_G, "mariocharacter", {})
-	end
-	if not controls then
-		rawset(_G, "controls", {})
-	end
+	if not mariolives then rawset(_G, "mariolives", {}) end
+	if not mariosizes then rawset(_G, "mariosizes", {}) end
+	if not mariocolors then rawset(_G, "mariocolors", {}) end
+	if not mariohats then rawset(_G, "mariohats", {}) end
+	if not portalcolor then rawset(_G, "portalcolor", {}) end
+	if not mariocharacter then rawset(_G, "mariocharacter", {}) end
+	if not controls then rawset(_G, "controls", {}) end
 	for i = 1, n do
 		if not controls[i] then
-			-- Clone player-1 keyboard defaults if missing.
 			controls[i] = {
-				right = {"d"},
-				left = {"a"},
-				down = {"s"},
-				up = {"w"},
-				run = {"lshift"},
-				jump = {" "},
-				aimx = {""},
-				aimy = {""},
-				portal1 = {""},
-				portal2 = {""},
-				reload = {"r"},
-				use = {"e"},
-				weaponnext = {"tab"},
-				weaponprev = {""},
+				right = {"key:d"},
+				left = {"key:a"},
+				down = {"key:s"},
+				up = {"key:w"},
+				run = {"key:lshift"},
+				jump = {"key:space"},
+				aimx = {},
+				aimy = {},
+				portal1 = {},
+				portal2 = {},
+				reload = {"key:r"},
+				use = {"key:e"},
+				weaponnext = {"key:tab"},
+				weaponprev = {},
 			}
 		end
 		if not mariocolors[i] then
@@ -153,50 +129,45 @@ local function ensure_player_tables(n: integer)
 	end
 end
 
-local function apply_cosmetics(slot: integer, colors: any, hats: any)
-	if type(colors) == "table" then
-		mariocolors[slot] = colors as {{number}}
-	end
-	if type(hats) == "table" then
-		mariohats[slot] = hats as {any}
-	end
-end
-
-local function build_start_msg(local_id: string, peers_by_key: {string:any}, mappack_name: string, world: any, level: any, sub: any): {string:any}
+function Match.build_start(
+	host_id: string,
+	host_nick: string,
+	peers: {{string:any}},
+	mappack_name: string,
+	world: any,
+	level: any,
+	sub: any
+): {string:any}
 	local slots: {{string:any}} = {}
 	table.insert(slots, {
 		slot = 1,
-		id = local_id,
-		nick = localnick or "host",
+		id = host_id,
+		nick = host_nick,
 		colors = mariocolors[playerconfig as integer] or mariocolors[1],
 		hats = mariohats[playerconfig as integer] or mariohats[1],
-		host = true,
 	})
 	local slot = 2
-	for _, p in pairs(peers_by_key) do
-		if slot > MAX_PLAYERS then
+	for i = 1, #peers do
+		if slot > Schema.MAX_PLAYERS then
 			break
 		end
-		local peer = p as {string:any}
-		peer.slot = slot
+		local peer = peers[i]
 		table.insert(slots, {
 			slot = slot,
 			id = tostring(peer.id or ""),
 			nick = tostring(peer.nick or "player"),
 			colors = peer.colors,
 			hats = peer.hats,
-			host = false,
 		})
 		slot = slot + 1
 	end
-	local pack = validate_mappack(mappack_name or mappack or "smb") or "smb"
+	local pack = Match.validate_mappack(mappack_name or mappack or "smb") or "smb"
 	return {
-		t = "start",
-		players = #slots,
-		mappack = pack,
-		world = sanitize_world(world or marioworld or 1),
-		level = sanitize_level(level or mariolevel or 1),
-		sub = sanitize_sub(sub or mariosublevel or 0),
+		n = #slots,
+		m = pack,
+		w = sanitize_world(world or marioworld or 1),
+		l = sanitize_level(level or mariolevel or 1),
+		u = sanitize_sub(sub or mariosublevel or 0),
 		slots = slots,
 	}
 end
@@ -210,37 +181,40 @@ local function find_local_slot(slots: {{string:any}}, my_id: string): integer
 	return 1
 end
 
--- Returns local slot, or nil if start payload is rejected (bad mappack).
-local function begin_match(msg: {string:any}, my_id: string): integer|nil
-	local pack = validate_mappack(msg.mappack or mappack or "smb")
+function Match.begin(msg: {string:any}, my_id: string): integer|nil
+	local pack = Match.validate_mappack(msg.m or mappack or "smb")
 	if not pack then
-		notice.new("rejected unknown mappack", notice.red)
+		if notice and notice.new then
+			notice.new("rejected unknown mappack", notice.red)
+		end
 		return nil
 	end
 
-	local n = math.max(1, math.min(MAX_PLAYERS, (tonumber(msg.players) or 1) as integer))
+	local n = math.max(1, math.min(Schema.MAX_PLAYERS, (tonumber(msg.n) or 1) as integer))
 	local slots = (msg.slots as {{string:any}}) or {}
 	local my_slot = find_local_slot(slots, my_id)
 
 	ensure_player_tables(n)
-	rawset(_G, "netplayernumber", my_slot)
 	rawset(_G, "mouseowner", my_slot)
 
 	for i = 1, #slots do
 		local s = slots[i]
 		local slot = (tonumber(s.slot) or i) as integer
-		apply_cosmetics(slot, s.colors, s.hats)
+		if type(s.colors) == "table" then
+			mariocolors[slot] = s.colors as {{number}}
+		end
+		if type(s.hats) == "table" then
+			mariohats[slot] = s.hats as {any}
+		end
 	end
 
 	rawset(_G, "mappack", pack)
-	rawset(_G, "marioworld", sanitize_world(msg.world))
-	rawset(_G, "mariolevel", sanitize_level(msg.level))
-	rawset(_G, "mariosublevel", sanitize_sub(msg.sub))
-
-	-- Clear lobby UI elements before level screen.
+	rawset(_G, "marioworld", sanitize_world(msg.w))
+	rawset(_G, "mariolevel", sanitize_level(msg.l))
+	rawset(_G, "mariosublevel", sanitize_sub(msg.u))
 	rawset(_G, "guielements", {})
 
-	if love.keyboard and love.keyboard.setTextInput then
+	if love and love.keyboard and love.keyboard.setTextInput then
 		pcall(function()
 			love.keyboard.setTextInput(false)
 		end)
@@ -250,16 +224,4 @@ local function begin_match(msg: {string:any}, my_id: string): integer|nil
 	return my_slot
 end
 
-return {
-	MAX_PLAYERS = MAX_PLAYERS,
-	ensure_player_tables = ensure_player_tables,
-	build_start_msg = build_start_msg,
-	begin_match = begin_match,
-	find_local_slot = find_local_slot,
-	apply_cosmetics = apply_cosmetics,
-	validate_mappack = validate_mappack,
-	mappack_name_safe = mappack_name_safe,
-	sanitize_world = sanitize_world,
-	sanitize_level = sanitize_level,
-	sanitize_sub = sanitize_sub,
-}
+return Match

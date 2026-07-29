@@ -24,8 +24,10 @@ end
 check("build/app/logger.lua exists", file_exists(root .. "/build/app/logger.lua"))
 check("build/app/gamestate.lua exists", file_exists(root .. "/build/app/gamestate.lua"))
 check("build/world/session.lua exists", file_exists(root .. "/build/world/session.lua"))
-check("build/net/facade.lua exists", file_exists(root .. "/build/net/facade.lua"))
-check("build/net/state.lua exists", file_exists(root .. "/build/net/state.lua"))
+check("build/net/init.lua exists", file_exists(root .. "/build/net/init.lua"))
+check("build/net/schema.lua exists", file_exists(root .. "/build/net/schema.lua"))
+check("build/net/sync.lua exists", file_exists(root .. "/build/net/sync.lua"))
+check("build/net/match.lua exists", file_exists(root .. "/build/net/match.lua"))
 check("build/assets/store.lua exists", file_exists(root .. "/build/assets/store.lua"))
 
 local Logger = require("app.logger")

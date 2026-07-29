@@ -13,7 +13,7 @@ function mario.new(_: mario, x: number, y: number, i: any, animation: any, size:
 end
 
 function mario:init(x: number, y: number, i: any, animation: any, size: any, t: any)
-	if (SERVER or CLIENT) and i ~= netplayernumber then
+	if Net and Net.is_online and Net.is_online() and i ~= Net.local_slot() then
 		self.remote = true
 	end
 	
@@ -334,7 +334,7 @@ end
 
 function mario:update(dt: number)
 	-- Clients render remotes from host snapshots; skip local sim for them.
-	if self.remote and CLIENT and not SERVER then
+	if self.remote and Net and Net.role and Net.role() == "client" then
 		self:setquad()
 		return
 	end
@@ -1375,40 +1375,25 @@ function mario:updateangle()
 	end
 	--UPDATE THE PLAYER ANGLE
 	if self.playernumber == mouseowner then
-		local scale = scale
-		if shaders and shaders.scale then scale = shaders.scale as number end
-		self.pointingangle = math.atan2(self.x+6/16-xscroll-(mouse.getX()/16/scale), (self.y-yscroll+6/16-.5)-(mouse.getY()/16/scale))
-	elseif #controls[self.playernumber as integer]["aimx"] > 0 then
-		local x: number
-		local y: number
-		
-		local s = controls[self.playernumber as integer]["aimx"]
-		local j = love.joystick.getJoysticks()[s[2] as integer]
-		if s[1] == "joy" then
-			x = j and -j:getAxis(s[4] as number) or 0
-			if s[5] == "neg" then
-				x = -x
-			end
-		end
-		
-		s = controls[self.playernumber as integer]["aimy"]
-		j = love.joystick.getJoysticks()[s[2] as integer]
-		if s[1] == "joy" then
-			y = j and -j:getAxis(s[4] as number) or 0
-			if s[5] == "neg" then
-				y = -y
-			end
-		end
-		
-		if not x or not y then
-			return
-		end
+		local mx = mouse.getX() as number
+		local my = mouse.getY() as number
+		self.pointingangle = math.atan2(
+			self.x + 6/16 - screen_to_tile_x(mx),
+			self.y + 6/16 - .5 - screen_to_tile_y(my)
+		)
+	elseif controls[self.playernumber] then
+		local aim = (controls[self.playernumber] as {string:any})["aimx"] as {integer:string}|nil
+		if aim and #aim > 0 then
+		local slot = self.playernumber as integer
+		local x = ui_action_get(slot, "aimx")
+		local y = ui_action_get(slot, "aimy")
 		
 		if math.abs(x) > joystickaimdeadzone or math.abs(y) > joystickaimdeadzone then
 			self.pointingangle = math.atan2(x, y)
 			if self.pointingangle == 0 then
 				self.pointingangle = 0 --this is really silly, but will crash the game if I don't do this. It's because it's -0 or something. I'm not good with computers.
 			end
+		end
 		end
 	end
 end

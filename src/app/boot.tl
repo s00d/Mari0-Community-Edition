@@ -72,20 +72,24 @@ function Boot.require_game()
 	require "util.geldraw"
 	require "util.enemyutil"
 	require "world.spawnregistry"
+	require "world.objects_api"
 	require "world.levelio"
+	require "world.sti_runtime"
 	require "world.endless_gen"
 	require "world.entity_remap"
 	require "world.mappack_convert"
 	require "util.userectutil"
+	require "util.scroll_update"
+	require "util.world_camera"
 	require "physics.collision"
 	require "physics.world"
 	require "physics.checkrect"
 	require "physics.portal"
 	require "physics.handlegroup"
 	require "physics.update"
+	global HumpTimer = require("hump.timer") as HumpTimerModule
+	global Flux = require("flux") as FluxModule
 	sha1 = require("sha1") as function(string): string
-	-- camera kept for API compatibility; attach/detach unused (scrollutil handles view)
-	require "app.camera"
 	
 	require "entities.animatedquad"
 	require "ui.intro"
@@ -102,7 +106,7 @@ function Boot.require_game()
 	require "app.game_load"
 	require "app.game_runtime_globals"
 	require "app.game_spawn"
-	require "app.game_portal"
+	require "app.game_portal_world"
 	require "weapons"
 	require "util.editorutil"
 	require "ui.editor_layout"
@@ -114,6 +118,7 @@ function Boot.require_game()
 	require "ui.editor_preview"
 	require "ui.editor_drag"
 	require "ui.editor"
+	require "ui.editor_slab"
 	require "ui.animationguiline"
 	require "physics"
 	require "world.quad"
@@ -177,6 +182,7 @@ function Boot.require_game()
 	require "entities.bubble"
 	require "entities.rainboom"
 	require "entities.miniblock"
+	require "entities.logicgate_base"
 	require "entities.notgate"
 	require "entities.rsflipflop"
 	require "entities.andgate"
@@ -219,8 +225,7 @@ function Boot.require_game()
 	require "entities.enemies"
 	require "ui.lobby"
 	require "ui.onlinemenu"
-	require "net.facade"
-	require "net.session"
+	require "net.init"
 	add("Requires")
 
 end

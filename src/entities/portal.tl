@@ -186,13 +186,13 @@ function portal:draw()
 			if self.x2 and self.x1 then
 				--portal glow
 				love.graphics.setColor(1, 1, 1, (80 - math.abs(self.portalframe-3)*10)/255)
-				love.graphics.draw(portalglowimg, math.floor(((px-1-xscroll)*16+offsetx)*scale), math.floor(((py-yscroll-1)*16+offsety)*scale), rotation, scale*self.openscale[i as integer], scale, 16, 20)
+				love.graphics.draw(portalglowimg, entity_draw_x(px - 1, offsetx), entity_draw_y(py - 1, -offsety), rotation, world_draw_scale() * self.openscale[i as integer], world_draw_scale(), 16, 20)
 				love.graphics.setColor(1, 1, 1, 1)
 			end
 			
 			local pcol = d["portal" .. i .. "color"] as {number}
 			love.graphics.setColor(pcol[1], pcol[2], pcol[3], pcol[4] or 1)
-			love.graphics.draw(portalimg, portalquad[self.portalframe as integer], math.floor(((px-1-xscroll)*16+offsetx)*scale), math.floor(((py-yscroll-1)*16+offsety)*scale), rotation, scale*self.openscale[i as integer], scale, 16, 8)
+			love.graphics.draw(portalimg, portalquad[self.portalframe as integer], entity_draw_x(px - 1, offsetx), entity_draw_y(py - 1, -offsety), rotation, world_draw_scale() * self.openscale[i as integer], world_draw_scale(), 16, 8)
 		end
 	end
 end

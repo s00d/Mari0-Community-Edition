@@ -9,46 +9,22 @@ function orgate.new(_: orgate, x: number, y: number, r: {any}): orgate
 end
 
 function orgate:init(x: number, y: number, r)
-	self.x = x
-	self.y = y
-	self.cox = x
-	self.coy = y
-	self.visible = false
-	self.r = {unpack(r as {any})}
-	table.remove(self.r, 1)
-	table.remove(self.r, 1)
-	
-	--VISIBLE
-	if #self.r > 0 and self.r[1] ~= "link" then
-		self.visible = (self.r[1] == "true")
-		table.remove(self.r, 1)
-	end
-	
+	logicgate_init_xy(self as any, x, y, r as {any})
 	self.outtable = {}
 	self.inputstate = {}
 	self.outputstate = "off"
 end
 
 function orgate:link(): any|nil
-	while #self.r > 3 do
-		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w]) do
-				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
-					v:addoutput(self, self.r[2])
-					self.inputstate[tonumber(self.r[2])] = "off"
-				end
-			end
-		end
-		table.remove(self.r, 1)
-		table.remove(self.r, 1)
-		table.remove(self.r, 1)
-		table.remove(self.r, 1)
-	end
-	return nil
+	return logicgate_link(self)
 end
 
 function orgate:addoutput(a, t)
-	table.insert(self.outtable, {a, t} as {any})
+	logicgate_addoutput(self, a, t)
+end
+
+function orgate:out(t)
+	logicgate_out(self, t)
 end
 
 function orgate:update(_: number)
@@ -58,18 +34,7 @@ function orgate:update(_: number)
 end
 
 function orgate:draw()
-	if self.visible then
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.draw(orgateimg, math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
-	end
-end
-
-function orgate:out(t)
-	for i = 1, #self.outtable do
-		if (self.outtable[i] as {Entity, any})[1].input then
-			(self.outtable[i] as {Entity, any})[1]:input(t, (self.outtable[i] as {Entity, any})[2])
-		end
-	end
+	logicgate_draw_img(self, orgateimg)
 end
 
 function orgate:input(t, input): any

@@ -35,7 +35,7 @@ local banned_flat_requires = {
 	"variables", "enemies", "characterloader", "musicloader", "notice",
 	"quad", "tile", "scrollingscore", "scrollingtext",
 	"levelscreen", "intro", "camera", "portal",
-	"game", "game_load", "game_spawn", "game_portal", "game_update", "game_draw",
+	"game", "game_load", "game_spawn", "game_update", "game_draw",
 	"entity", "animation", "animationsystem", "animationguiline",
 	"funnel",
 	"laser",

@@ -1,4 +1,4 @@
---[[ Teal port of root delayer.lua ]]
+--[[ delayer: one-shot outputs via hump.timer ]]
 
 rawset(_G, "delayer", rawget(_G, "delayer") or {})
 
@@ -32,8 +32,6 @@ function delayer:init(x: number, y: number, r)
 		self.delay = tonumber(self.r[1]) or 1
 		table.remove(self.r, 1)
 	end
-	
-	self.timers = {}
 end
 
 function delayer:link(): any|nil
@@ -57,26 +55,13 @@ function delayer:addoutput(a, t)
 	table.insert(self.outtable, {a, t} as {any})
 end
 
-function delayer:update(dt: number)
-	local delete = {}
-	
-	for i = 1, #self.timers do
-		local v = self.timers[i] as {string:any}
-		v.timeleft = (v.timeleft as number) - dt
-		if (v.timeleft as number) <= 0 then
-			self:out(v.t)
-		
-			table.insert(delete, i)
-		end
-	end
-	
-	remove_indices_desc(self.timers, delete)
+function delayer:update(_dt: number)
 end
 
 function delayer:draw()
 	if self.visible then
 		love.graphics.setColor(1, 1, 1)
-		love.graphics.draw(delayerimg, math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
+		love.graphics.draw(delayerimg, tile_draw_x(self.x - 1), tile_draw_y(self.y - 1, -8), 0, world_draw_scale(), world_draw_scale())
 	end
 end
 
@@ -89,6 +74,8 @@ function delayer:out(t)
 end
 
 function delayer:input(t, _): any
-	table.insert(self.timers, {t=t, timeleft=self.delay})
+	HumpTimer.after(self.delay, function()
+		self:out(t)
+	end)
 	return nil
 end

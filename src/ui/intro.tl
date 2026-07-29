@@ -1,6 +1,7 @@
 --[[ Teal port of root intro.lua ]]
 
 local played_wilhelm = false
+local intro_finish_handle: any = nil
 
 global function intro_load()
 	gamestate = "intro"
@@ -12,6 +13,16 @@ global function intro_load()
 	
 	allowskip = false
 	played_wilhelm = false
+
+	if intro_finish_handle then
+		HumpTimer.cancel(intro_finish_handle)
+	end
+	intro_finish_handle = HumpTimer.after(introduration + blackafterintro, function()
+		intro_finish_handle = nil
+		menu_load()
+		shaders:set(1, shaderlist[currentshaderi1])
+		shaders:set(2, shaderlist[currentshaderi2])
+	end)
 end
 
 global function intro_update(dt: number)
@@ -27,12 +38,6 @@ global function intro_update(dt: number)
 			playsound("stab")
 			
 			played_wilhelm = true
-		end
-		
-		if introprogress == introduration + blackafterintro then
-			menu_load()
-			shaders:set(1, shaderlist[currentshaderi1])
-			shaders:set(2, shaderlist[currentshaderi2])
 		end
 	end
 end
@@ -76,9 +81,13 @@ global function intro_draw()
 	end
 end
 
-global function intro_mousepressed()
+local function intro_skip()
 	if not allowskip then
 		return
+	end
+	if intro_finish_handle then
+		HumpTimer.cancel(intro_finish_handle)
+		intro_finish_handle = nil
 	end
 	soundlist["stab"].source:stop()
 	soundlist["stab"].source:seek(0)
@@ -87,13 +96,10 @@ global function intro_mousepressed()
 	shaders:set(2, shaderlist[currentshaderi2])
 end
 
+global function intro_mousepressed()
+	intro_skip()
+end
+
 global function intro_keypressed()
-	if not allowskip then
-		return
-	end
-	soundlist["stab"].source:stop()
-	soundlist["stab"].source:seek(0)
-	menu_load()
-	shaders:set(1, shaderlist[currentshaderi1])
-	shaders:set(2, shaderlist[currentshaderi2])
+	intro_skip()
 end

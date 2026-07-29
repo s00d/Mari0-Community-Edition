@@ -80,7 +80,19 @@ function editor_load()
 	editor_undo_clear()
 	autotile_load_mappack(nil)
 	
-	tileswitcherkey = (controls[1]["use"][1] == "joy" and "e" or controls[1]["use"][1]) as string
+	tileswitcherkey = (function(): string
+		local use_src = controls[1]["use"]
+		if type(use_src) == "table" then
+			local use_arr = use_src as {integer: string}
+			if use_arr[1] then
+				local key = (use_arr[1] as string):match("^key:(.+)$")
+				if key then
+					return key
+				end
+			end
+		end
+		return "e"
+	end)()
 	
 	if musiclist[#musiclist] ~= "princessmusic.ogg" then
 		musiclist[#musiclist+1] = "princessmusic.ogg"
@@ -505,6 +517,7 @@ function editor_update_keyscroll(_: number)
 			yscroll = math.max(0, math.min(mapheight-1-height, yscroll + 30*gdt*ydir))
 			
 			if oldxscroll ~= xscroll or oldyscroll ~= yscroll then
+				editor_camera_sync()
 				autoscroll = false
 				guielements["autoscrollcheckbox"].var = autoscroll
 				generatespritebatch(0, 0)
@@ -883,6 +896,7 @@ function editor_draw()
 	end
 
 	editor_draw_chrome()
+	editor_slab_draw()
 end
 
 function editor_draw_overlay(emx: number, emy: number)

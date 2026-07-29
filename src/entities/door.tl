@@ -121,15 +121,15 @@ function door:draw()
 	end
 	
 	if self.dir == "hor" then
-		love.graphics.draw(doorpieceimg, math.floor((self.x+14/16-xscroll-ymod)*16*scale), (self.y-yscroll-4/16)*16*scale, math.pi*.5, scale, scale, 4, 0)
-		love.graphics.draw(doorpieceimg, math.floor((self.x+18/16-xscroll+ymod)*16*scale), (self.y-yscroll-4/16)*16*scale, math.pi*1.5, scale, scale, 4, 0)
-		love.graphics.draw(doorcenterimg, math.floor((self.x+16/16-xscroll-ymod)*16*scale), (self.y-yscroll-4/16)*16*scale, math.pi*.5-rot, scale, scale, 4, 2)
-		love.graphics.draw(doorcenterimg, math.floor((self.x+16/16-xscroll+ymod)*16*scale), (self.y-yscroll-4/16)*16*scale, math.pi*1.5-rot, scale, scale, 4, 2)
+		love.graphics.draw(doorpieceimg, tile_draw_x(self.x+14/16-ymod), tile_draw_y_raw(self.y-4/16), math.pi*.5, world_draw_scale(), world_draw_scale(), 4, 0)
+		love.graphics.draw(doorpieceimg, tile_draw_x(self.x+18/16+ymod), tile_draw_y_raw(self.y-4/16), math.pi*1.5, world_draw_scale(), world_draw_scale(), 4, 0)
+		love.graphics.draw(doorcenterimg, tile_draw_x(self.x+16/16-ymod), tile_draw_y_raw(self.y-4/16), math.pi*.5-rot, world_draw_scale(), world_draw_scale(), 4, 2)
+		love.graphics.draw(doorcenterimg, tile_draw_x(self.x+16/16+ymod), tile_draw_y_raw(self.y-4/16), math.pi*1.5-rot, world_draw_scale(), world_draw_scale(), 4, 2)
 	else
-		love.graphics.draw(doorpieceimg, math.floor((self.x+0.25-xscroll)*16*scale), (self.y-yscroll+6/16-ymod)*16*scale, math.pi, scale, scale, 4, 0)
-		love.graphics.draw(doorpieceimg, math.floor((self.x+0.25-xscroll)*16*scale), (self.y-yscroll+10/16+ymod)*16*scale, 0, scale, scale, 4, 0)
-		love.graphics.draw(doorcenterimg, math.floor((self.x+0.25-xscroll)*16*scale), (self.y-yscroll+8/16-ymod)*16*scale, rot, scale, scale, 4, 2)
-		love.graphics.draw(doorcenterimg, math.floor((self.x+0.25-xscroll)*16*scale), (self.y-yscroll+8/16+ymod)*16*scale, math.pi+rot, scale, scale, 4, 2)
+		love.graphics.draw(doorpieceimg, tile_draw_x(self.x+0.25), tile_draw_y_raw(self.y+6/16-ymod), math.pi, world_draw_scale(), world_draw_scale(), 4, 0)
+		love.graphics.draw(doorpieceimg, tile_draw_x(self.x+0.25), tile_draw_y_raw(self.y+10/16+ymod), 0, scale, scale, 4, 0)
+		love.graphics.draw(doorcenterimg, tile_draw_x(self.x+0.25), tile_draw_y_raw(self.y+8/16-ymod), rot, world_draw_scale(), world_draw_scale(), 4, 2)
+		love.graphics.draw(doorcenterimg, tile_draw_x(self.x+0.25), tile_draw_y_raw(self.y+8/16+ymod), math.pi+rot, world_draw_scale(), world_draw_scale(), 4, 2)
 	end
 end
 

@@ -46,5 +46,5 @@ function blockdebris:update(dt: number): boolean
 end
 
 function blockdebris:draw()
-	love.graphics.draw(blockdebrisimg, blockdebrisquads[spriteset][self.frame], math.floor((self.x-xscroll)*16*scale), math.floor((self.y-yscroll-.5)*16*scale), 0, scale, scale, 4, 4)
+	love.graphics.draw(blockdebrisimg, blockdebrisquads[spriteset][self.frame], tile_draw_x(self.x), math.floor(tile_draw_y_raw(self.y-.5)), 0, scale, scale, 4, 4)
 end

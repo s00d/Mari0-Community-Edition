@@ -74,7 +74,7 @@ function emancipationgrill:init(x: number, y: number, r: any)
 		end
 		self.endx = curx2 - 1
 		
-		self.range = math.floor(((self.endx - self.startx + 1 + emanceimgwidth/16)*16)*scale)
+		self.range = math.floor((self.endx - self.startx + 1 + emanceimgwidth/16) * 16)
 	else
 		local cury = self.y
 		while cury >= 1 and getTile(self.x, cury) == false do
@@ -90,10 +90,10 @@ function emancipationgrill:init(x: number, y: number, r: any)
 		end
 		self.endy = cury2 - 1
 		
-		self.range = math.floor(((self.endy - self.starty + 1 + emanceimgwidth/16)*16)*scale)
+		self.range = math.floor((self.endy - self.starty + 1 + emanceimgwidth/16) * 16)
 	end
 	
-	for _ = 1, self.range/16/scale do
+	for _ = 1, self.range/16 do
 		table.insert(particles.i as {number}, math.random())
 		table.insert(particles.speed as {number}, (1-emanceparticlespeedmod)+math.random()*emanceparticlespeedmod*2)
 		if math.random(2) == 1 then
@@ -128,7 +128,7 @@ function emancipationgrill:update(dt: number): boolean
 
 	local particles = self.particles
 	for i, _ in pairs(particles.i as {any:number}) do
-		(particles.i as {any:number})[i] = (particles.i as {any:number})[i] + emanceparticlespeed/(self.range/16/scale)*dt*(particles.speed as {any:number})[i]
+		(particles.i as {any:number})[i] = (particles.i as {any:number})[i] + emanceparticlespeed/(self.range/16)*dt*(particles.speed as {any:number})[i]
 		while (particles.i as {any:number})[i] > 1 do
 			(particles.i as {any:number})[i] = (particles.i as {any:number})[i]-1
 			(particles.speed as {any:number})[i] = (1-emanceparticlespeedmod)+math.random()*emanceparticlespeedmod*2
@@ -143,66 +143,88 @@ function emancipationgrill:update(dt: number): boolean
 end
 
 function emancipationgrill:draw()
-	if self.destroy == false then
-		if self.dir == "hor" then
-			parstartleft = math.floor((self.startx-1-xscroll)*16*scale)
-			parstartright = math.floor((self.endx-1-xscroll)*16*scale)
-			if self.active then
-				love.graphics.setScissor(parstartleft, ((self.y-yscroll-1)*16-self.thickness/2)*scale,
-					self.range - emanceimgwidth*scale, self.thickness*scale)
-				
-				love.graphics.setColor(unpack(emancelinecolor))
-				love.graphics.rectangle("fill", math.floor((self.startx-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-self.thickness/2)*scale,
-					self.range, self.thickness*scale)
-				love.graphics.setColor(1, 1, 1)
-				
-				for i, v in pairs(self.particles.i as {any:number}) do
-					local y = ((self.y-1-yscroll)*16-((self.particles.mod as {any:number})[i]))*scale
-					if ((self.particles.dir as {any:number})[i]) == 1 then
-						local x = parstartleft+self.range*v
-						love.graphics.draw(emanceparticleimg, math.floor(x), y, math.pi/2, scale, scale)
-					else
-						local x = parstartright-self.range*v
-						love.graphics.draw(emanceparticleimg, math.floor(x), y, -math.pi/2, scale, scale, 1)
-					end
+	if self.destroy then
+		return
+	end
+
+	local sc = world_draw_scale()
+	local thick = self.thickness
+
+	if self.dir == "hor" then
+		local parstartleft = tile_draw_x(self.startx - 1)
+		local parstartright = tile_draw_x(self.endx - 1)
+		local line_y = tile_draw_y(self.y - 1, thick / 2)
+
+		if self.active then
+			love.graphics.setScissor(
+				screen_draw_x(self.startx - 1),
+				screen_draw_y(self.y - 1) - math.floor(thick / 2 * sc),
+				math.floor((self.range - emanceimgwidth) * sc),
+				math.floor(thick * sc)
+			)
+
+			love.graphics.setColor(unpack(emancelinecolor))
+			love.graphics.rectangle("fill", parstartleft, line_y, self.range, thick)
+			love.graphics.setColor(1, 1, 1)
+
+			for i, v in pairs(self.particles.i as {any:number}) do
+				local mod_i = (self.particles.mod as {any:number})[i]
+				local py = tile_draw_y(self.y - 1, mod_i)
+				if ((self.particles.dir as {any:number})[i]) == 1 then
+					local px = parstartleft + self.range * v
+					love.graphics.draw(emanceparticleimg, math.floor(px), py, math.pi/2, sc, sc)
+				else
+					local px = parstartright - self.range * v
+					love.graphics.draw(emanceparticleimg, math.floor(px), py, -math.pi/2, sc, sc, 1)
 				end
-				
-				love.graphics.setScissor()
 			end
-			
-			--Sidethings
-			love.graphics.draw(emancesideimg, parstartleft, ((self.y-1-yscroll)*16-4)*scale, 0, scale, scale)
-			love.graphics.draw(emancesideimg, parstartright+16*scale, ((self.y-1-yscroll)*16+4)*scale, math.pi, scale, scale)
-		else --ver
-			parstartup = math.floor((self.starty-yscroll-1)*16*scale)
-			parstartdown = math.floor((self.endy-yscroll-1)*16*scale)
-			if self.active then
-				love.graphics.setScissor(math.floor(((self.x-1-xscroll)*16+self.thickness*1.5)*scale), parstartup-8*scale,
-					self.thickness*scale, self.range - emanceimgwidth*scale)
-				
-				love.graphics.setColor(unpack(emancelinecolor))
-				love.graphics.rectangle("fill", math.floor(((self.x-1-xscroll)*16+self.thickness*1.5)*scale), parstartup-8*scale,
-					self.thickness*scale, self.range - emanceimgwidth*scale)
-				love.graphics.setColor(1, 1, 1)
-				
-				for i, v in pairs(self.particles.i as {any:number}) do
-					local x = ((self.x-1-xscroll)*16-((self.particles.mod as {any:number})[i])+9)*scale
-					if ((self.particles.dir as {any:number})[i]) == 1 then
-						local y = parstartup-yscroll+self.range*v
-						love.graphics.draw(emanceparticleimg, math.floor(x), y, math.pi, scale, scale)
-					else
-						local y = parstartdown-yscroll-self.range*v
-						love.graphics.draw(emanceparticleimg, math.floor(x), y, 0, scale, scale, 1)
-					end
-				end
-				
-				love.graphics.setScissor()
-			end
-			
-			--Sidethings
-			love.graphics.draw(emancesideimg, math.floor(((self.x-xscroll)*16-4)*scale), parstartup-8*scale, math.pi/2, scale, scale)
-			love.graphics.draw(emancesideimg, math.floor(((self.x-xscroll)*16-12)*scale), parstartdown+8*scale, -math.pi/2, scale, scale)
+
+			love.graphics.setScissor()
 		end
+
+		love.graphics.draw(emancesideimg, parstartleft, tile_draw_y(self.y - 1, 4), 0, sc, sc)
+		love.graphics.draw(emancesideimg, parstartright + 16, tile_draw_y(self.y - 1, -4), math.pi, sc, sc)
+	else
+		local parstartup = tile_draw_y_raw(self.starty - 1)
+		local parstartdown = tile_draw_y_raw(self.endy - 1)
+		local line_x = tile_draw_x(self.x - 1) + thick * 1.5
+		local line_x_screen = world_screen_px_x(math.floor((self.x - 1) * 16 + thick * 1.5))
+
+		if self.active then
+			love.graphics.setScissor(
+				line_x_screen,
+				screen_draw_y(self.starty - 1) - math.floor(8 * sc),
+				math.floor(thick * sc),
+				math.floor((self.range - emanceimgwidth) * sc)
+			)
+
+			love.graphics.setColor(unpack(emancelinecolor))
+			love.graphics.rectangle(
+				"fill",
+				line_x,
+				parstartup - 8,
+				thick,
+				self.range - emanceimgwidth
+			)
+			love.graphics.setColor(1, 1, 1)
+
+			for i, v in pairs(self.particles.i as {any:number}) do
+				local mod_i = (self.particles.mod as {any:number})[i]
+				local px = line_x - (mod_i + 9)
+				if ((self.particles.dir as {any:number})[i]) == 1 then
+					local py = parstartup + self.range * v
+					love.graphics.draw(emanceparticleimg, math.floor(px), py, math.pi, sc, sc)
+				else
+					local py = parstartdown - self.range * v
+					love.graphics.draw(emanceparticleimg, math.floor(px), py, 0, sc, sc, 1)
+				end
+			end
+
+			love.graphics.setScissor()
+		end
+
+		love.graphics.draw(emancesideimg, tile_draw_x(self.x) - 4, parstartup - 8, math.pi/2, sc, sc)
+		love.graphics.draw(emancesideimg, tile_draw_x(self.x) - 12, parstartdown + 8, -math.pi/2, sc, sc)
 	end
 end
 

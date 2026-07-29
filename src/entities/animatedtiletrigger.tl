@@ -63,7 +63,7 @@ end
 
 function animatedtiletrigger:draw()	
 	if self.visible then
-		love.graphics.draw(animatedtiletriggerimg, math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
+		love.graphics.draw(animatedtiletriggerimg, tile_draw_x(self.x-1), ((self.y-yscroll-1)*16-8)*scale, 0, world_draw_scale(), world_draw_scale())
 	end
 end
 

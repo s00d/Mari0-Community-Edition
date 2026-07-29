@@ -12,19 +12,22 @@ function fireworkboom:init(x: any, yoffset: any)
 	self.x = (x as number)+(math.random(9)-5)
 	self.y = math.random(5)+2+(yoffset as number)
 	self.timer = 0
+	self.finished = false
 	marioscore = marioscore + 200
+
+	HumpTimer.after(fireworksoundtime, function()
+		if not self.finished then
+			playsound("boom")
+		end
+	end)
+	HumpTimer.after(fireworkdelay, function()
+		self.finished = true
+	end)
 end
 
 function fireworkboom:update(dt: number): boolean
 	self.timer = self.timer + dt
-	
-	if self.timer >= fireworksoundtime and self.timer-dt < fireworksoundtime then
-		playsound("boom")
-	end
-	
-	if self.timer > fireworkdelay then
-		return true
-	end
+	return self.finished
 end
 
 function fireworkboom:draw()
@@ -37,5 +40,5 @@ function fireworkboom:draw()
 		frame = 7
 	end
 	
-	love.graphics.draw(fireballimg, fireballquad[frame], math.floor((self.x-xscroll)*16*scale), (self.y-yscroll-0.5)*16*scale, 0, scale, scale, 8, 8)
+	love.graphics.draw(fireballimg, fireballquad[frame], tile_draw_x(self.x), tile_draw_y_raw(self.y-0.5), 0, scale, scale, 8, 8)
 end

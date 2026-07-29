@@ -48,7 +48,7 @@ end
 function gatedoor:draw()
 	local col = (DOOR_COLOR and DOOR_COLOR[self.kind]) or {1.0, 1.0, 1.0, 1.0}
 	love.graphics.setColor(col[1] as number, col[2] as number, col[3] as number, self.open and 0.25 or 0.9)
-	love.graphics.rectangle("fill", math.floor((self.x - xscroll) * 16 * scale), math.floor((self.y - yscroll) * 16 * scale), self.width * 16 * scale, self.height * 16 * scale)
+	love.graphics.rectangle("fill", tile_draw_x(self.x), tile_draw_y(self.y, 0), self.width * 16 * world_draw_scale(), self.height * 16 * world_draw_scale())
 	love.graphics.setColor(1, 1, 1, 1)
 end
 

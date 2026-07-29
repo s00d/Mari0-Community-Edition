@@ -82,7 +82,7 @@ function zgbooltrigger:draw()
 	end
 	
 	if not self.invisible then
-		love.graphics.draw(zgbooltriggerimg, zgbooltriggerquad[quad], math.floor((self.x-1-xscroll)*16*scale), ((self.y-yscroll-1)*16-8)*scale, 0, scale, scale)
+		love.graphics.draw(zgbooltriggerimg, zgbooltriggerquad[quad], tile_draw_x(self.x-1), ((self.y-yscroll-1)*16-8)*scale, 0, world_draw_scale(), world_draw_scale())
 	end
 end
 

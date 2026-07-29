@@ -9,7 +9,7 @@ global record HumpCamera
 	update: function(HumpCamera, number)
 	zoomTo: function(HumpCamera, number): HumpCamera
 	worldCoords: function(HumpCamera, number, number): number, number
-	cameraCoords: function(HumpCamera, number, number): number, number
+	cameraCoords: function(HumpCamera, ...: any): number, number
 end
 
 local record camera

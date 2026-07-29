@@ -31,39 +31,17 @@ function LoveLoad.install_mouse()
 	local mouse = {}
 
 	function mouse.getPosition(): number, number
-		if fullscreen then
-			if fullscreenmode == "full" then
-				return love.mouse.getX() / (desktopsize.width / (width * 16 * scale)), love.mouse.getY() / (desktopsize.height / (height * 16 * scale))
-			else
-				return love.mouse.getX() / (touchfrominsidescaling / scale), love.mouse.getY() / (touchfrominsidescaling / scale) - touchfrominsidemissing / 2
-			end
-		else
-			return love.mouse.getPosition()
-		end
+		return screen_to_ui(love.mouse.getX(), love.mouse.getY())
 	end
 
 	function mouse.getX(): number
-		if fullscreen then
-			if fullscreenmode == "full" then
-				return love.mouse.getX() / (desktopsize.width / (width * 16 * scale))
-			else
-				return love.mouse.getX() / (touchfrominsidescaling / scale)
-			end
-		else
-			return love.mouse.getX()
-		end
+		local x = screen_to_ui(love.mouse.getX(), love.mouse.getY())
+		return x
 	end
 
 	function mouse.getY(): number
-		if fullscreen then
-			if fullscreenmode == "full" then
-				return love.mouse.getY() / (desktopsize.height / (height * 16 * scale))
-			else
-				return love.mouse.getY() / (touchfrominsidescaling / scale) - touchfrominsidemissing / 2
-			end
-		else
-			return love.mouse.getY()
-		end
+		local _, y = screen_to_ui(love.mouse.getX(), love.mouse.getY())
+		return y
 	end
 
 	_G.mouse = mouse

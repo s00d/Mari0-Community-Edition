@@ -34,5 +34,5 @@ end
 
 function emancipationfizzle:draw()
 	love.graphics.setColor((1-self.timer/emancipationfizzletime), (1-self.timer/emancipationfizzletime), (1-self.timer/emancipationfizzletime), (1-self.timer/emancipationfizzletime))
-	love.graphics.draw(fizzleimg, (self.x-xscroll)*16*scale, (self.y-yscroll-.5)*16*scale, self.r, scale, scale, 2, 1)
+	love.graphics.draw(fizzleimg, tile_draw_x(self.x), tile_draw_y_raw(self.y-.5), self.r, scale, scale, 2, 1)
 end

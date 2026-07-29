@@ -238,71 +238,63 @@ function funnel:draw()
 			if v.dir == "right" then
 				local progress = v.timer/v.rangex
 				if self.reverse == 1 then
-					love.graphics.setScissor((v.x-xscroll-1)*16*scale, (v.y-yscroll-1.5)*16*scale, v.rangex*progress*16*scale, 2*16*scale)
+					love.graphics.setScissor(screen_draw_x(v.x - 1), screen_draw_y(v.y - 1.5), math.floor(v.rangex * progress * 16 * scale), math.floor(2 * 16 * scale))
 				else
-					love.graphics.setScissor((v.x-xscroll-1+(v.rangex*(1-progress)))*16*scale, (v.y-yscroll-1.5)*16*scale, v.rangex*progress*16*scale, 2*16*scale)
+					love.graphics.setScissor(screen_draw_x(v.x - 1 + v.rangex * (1 - progress)), screen_draw_y(v.y - 1.5), math.floor(v.rangex * progress * 16 * scale), math.floor(2 * 16 * scale))
 				end
 				
 				local x: number = 0
 				for j = 0, math.ceil(v.rangex/3)+1 do
-					x = math.floor((v.x-xscroll-1+(j-1)*3+self.timer/(self.animationtime as number)*3*(self.reverse as number))*16*scale)
-					
-					love.graphics.draw(img, x, math.floor((v.y-yscroll-1.5)*16*scale), 0, scale, scale)
+					x = tile_draw_x(v.x - 1 + (j - 1) * 3 + self.timer / (self.animationtime as number) * 3 * (self.reverse as number))
+					love.graphics.draw(img, x, math.floor(tile_draw_y_raw(v.y - 1.5)), 0, world_draw_scale(), world_draw_scale())
 				end
 				
-				love.graphics.draw(endimg, math.floor((v.x-xscroll+v.rangex-1.5)*16*scale), math.floor((v.y-yscroll-1)*16*scale), 0, scale, scale, 8, 8)
-				
+				love.graphics.draw(endimg, tile_draw_x(v.x + v.rangex - 1.5), math.floor(tile_draw_y_raw(v.y - 1)), 0, world_draw_scale(), world_draw_scale(), 8, 8)
 				love.graphics.setScissor()
 			elseif v.dir == "left" then
 				local progress = v.timer/-v.rangex
 				if self.reverse == 1 then
-					love.graphics.setScissor((v.x+v.rangex-xscroll-v.rangex*(1-progress))*16*scale, (v.y-yscroll-1.5)*16*scale, -v.rangex*progress*16*scale, 2*16*scale)
+					love.graphics.setScissor(screen_draw_x(v.x + v.rangex - v.rangex * (1 - progress)), screen_draw_y(v.y - 1.5), math.floor(-v.rangex * progress * 16 * scale), math.floor(2 * 16 * scale))
 				else
-					love.graphics.setScissor((v.x+v.rangex-xscroll)*16*scale, (v.y-yscroll-1.5)*16*scale, -v.rangex*progress*16*scale, 2*16*scale)
+					love.graphics.setScissor(screen_draw_x(v.x + v.rangex), screen_draw_y(v.y - 1.5), math.floor(-v.rangex * progress * 16 * scale), math.floor(2 * 16 * scale))
 				end
 				
 				for j = 0, math.ceil(-v.rangex/3)+1 do
-					local x = math.floor((v.x+v.rangex-xscroll+(j-1)*3-self.timer/(self.animationtime as number)*3*(self.reverse as number))*16*scale)
-					
-					love.graphics.draw(img, x, math.floor((v.y-yscroll-1.5)*16*scale), 0, scale, scale)
+					local x = tile_draw_x(v.x + v.rangex + (j - 1) * 3 - self.timer / (self.animationtime as number) * 3 * (self.reverse as number))
+					love.graphics.draw(img, x, math.floor(tile_draw_y_raw(v.y - 1.5)), 0, world_draw_scale(), world_draw_scale())
 				end
 				
-				love.graphics.draw(endimg, math.floor((v.x-xscroll+v.rangex+.5)*16*scale), math.floor((v.y-yscroll)*16*scale), math.pi, scale, scale, 8, 8)
-				
+				love.graphics.draw(endimg, tile_draw_x(v.x + v.rangex + .5), math.floor(tile_draw_y_raw(v.y)), math.pi, world_draw_scale(), world_draw_scale(), 8, 8)
 				love.graphics.setScissor()
 			elseif v.dir == "up" then
 				local progress = v.timer/-v.rangey
 				if self.reverse == 1 then
-					love.graphics.setScissor((v.x-xscroll-1)*16*scale, (v.y+v.rangey-yscroll-.5-v.rangey*(1-progress))*16*scale, 2*16*scale, -v.rangey*progress*16*scale)
+					love.graphics.setScissor(screen_draw_x(v.x - 1), screen_draw_y(v.y + v.rangey - v.rangey * (1 - progress) - .5), math.floor(2 * 16 * scale), math.floor(-v.rangey * progress * 16 * scale))
 				else
-					love.graphics.setScissor((v.x-xscroll-1)*16*scale, (v.y+v.rangey-yscroll-.5)*16*scale, 2*16*scale, -v.rangey*progress*16*scale)
+					love.graphics.setScissor(screen_draw_x(v.x - 1), screen_draw_y(v.y + v.rangey - .5), math.floor(2 * 16 * scale), math.floor(-v.rangey * progress * 16 * scale))
 				end
 				
 				for j = 0, math.ceil(-v.rangey/3)+1 do
-					local y = math.floor((v.y+v.rangey-yscroll-.5+(j-1)*3-self.timer/(self.animationtime as number)*3*(self.reverse as number))*16*scale)
-					
-					love.graphics.draw(img, math.floor((v.x-xscroll+1)*16*scale), y, math.pi/2, scale, scale)
+					local y = math.floor(tile_draw_y_raw(v.y + v.rangey - .5 + (j - 1) * 3 - self.timer / (self.animationtime as number) * 3 * (self.reverse as number)))
+					love.graphics.draw(img, tile_draw_x(v.x + 1), y, math.pi/2, world_draw_scale(), world_draw_scale())
 				end
 				
-				love.graphics.draw(endimg, math.floor((v.x-xscroll-.5)*16*scale), math.floor((v.y-yscroll+v.rangey)*16*scale), -math.pi/2, scale, scale, 8, 8)
-				
+				love.graphics.draw(endimg, tile_draw_x(v.x - .5), math.floor(tile_draw_y_raw(v.y + v.rangey)), -math.pi/2, world_draw_scale(), world_draw_scale(), 8, 8)
 				love.graphics.setScissor()
 			else
 				local progress = v.timer/v.rangey
 				if self.reverse == 1 then
-					love.graphics.setScissor((v.x-xscroll-1)*16*scale, (v.y-yscroll-1.5)*16*scale, 2*16*scale, v.rangey*progress*16*scale)
+					love.graphics.setScissor(screen_draw_x(v.x - 1), screen_draw_y(v.y - 1.5), math.floor(2 * 16 * scale), math.floor(v.rangey * progress * 16 * scale))
 				else
-					love.graphics.setScissor((v.x-xscroll-1)*16*scale, (v.y-yscroll-1.5+v.rangey*(1-progress))*16*scale, 2*16*scale, v.rangey*progress*16*scale)
+					love.graphics.setScissor(screen_draw_x(v.x - 1), screen_draw_y(v.y - 1.5 + v.rangey * (1 - progress)), math.floor(2 * 16 * scale), math.floor(v.rangey * progress * 16 * scale))
 				end
 				
 				for j = 0, math.ceil(v.rangey/3)+1 do
-					local y = math.floor((v.y-yscroll-1.5+(j-1)*3+self.timer/(self.animationtime as number)*3*(self.reverse as number))*16*scale)
-					
-					love.graphics.draw(img, math.floor((v.x-xscroll+1)*16*scale), y, math.pi/2, scale, scale)
+					local y = math.floor(tile_draw_y_raw(v.y - 1.5 + (j - 1) * 3 + self.timer / (self.animationtime as number) * 3 * (self.reverse as number)))
+					love.graphics.draw(img, tile_draw_x(v.x + 1), y, math.pi/2, world_draw_scale(), world_draw_scale())
 				end
 				
-				love.graphics.draw(endimg, math.floor((v.x-xscroll+.5)*16*scale), math.floor((v.y-yscroll+v.rangey-2)*16*scale), math.pi/2, scale, scale, 8, 8)
-				
+				love.graphics.draw(endimg, tile_draw_x(v.x + .5), math.floor(tile_draw_y_raw(v.y + v.rangey - 2)), math.pi/2, world_draw_scale(), world_draw_scale(), 8, 8)
 				love.graphics.setScissor()
 			end
 		end
@@ -310,13 +302,13 @@ function funnel:draw()
 	
 	love.graphics.setColor(1, 1, 1)
 	if self.dir == "right" then
-		love.graphics.draw(excursionbaseimg, excursionquad[self.quad as integer], math.floor((self.cox-xscroll-1)*16*scale), math.floor((self.coy-yscroll-1.5)*16*scale), 0, scale, scale)
+		love.graphics.draw(excursionbaseimg, excursionquad[self.quad as integer], tile_draw_x(self.cox-1), math.floor(tile_draw_y_raw(self.coy-1.5)), 0, world_draw_scale(), world_draw_scale())
 	elseif self.dir == "left" then
-		love.graphics.draw(excursionbaseimg, excursionquad[self.quad as integer], math.floor((self.cox-xscroll)*16*scale), math.floor((self.coy-yscroll+.5)*16*scale), math.pi, scale, scale)
+		love.graphics.draw(excursionbaseimg, excursionquad[self.quad as integer], tile_draw_x(self.cox), math.floor(tile_draw_y_raw(self.coy+.5)), math.pi, world_draw_scale(), world_draw_scale())
 	elseif self.dir == "up" then
-		love.graphics.draw(excursionbaseimg, excursionquad[self.quad as integer], math.floor((self.cox-xscroll-1)*16*scale), math.floor((self.coy-yscroll-.5)*16*scale), -math.pi/2, scale, scale)
+		love.graphics.draw(excursionbaseimg, excursionquad[self.quad as integer], tile_draw_x(self.cox - 1), math.floor(tile_draw_y_raw(self.coy - .5)), -math.pi/2, world_draw_scale(), world_draw_scale())
 	elseif self.dir == "down" then
-		love.graphics.draw(excursionbaseimg, excursionquad[self.quad as integer], math.floor((self.cox-xscroll+1)*16*scale), math.floor((self.coy-yscroll-1.5)*16*scale), math.pi/2, scale, scale)
+		love.graphics.draw(excursionbaseimg, excursionquad[self.quad as integer], tile_draw_x(self.cox+1), math.floor(tile_draw_y_raw(self.coy-1.5)), math.pi/2, world_draw_scale(), world_draw_scale())
 	end
 end
 

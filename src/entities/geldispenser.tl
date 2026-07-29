@@ -104,13 +104,13 @@ end
 
 function geldispenser:draw()
 	if self.dir == "down" then
-		love.graphics.draw(geldispenserimg, math.floor((self.cox-xscroll-1)*16*scale), (self.coy-yscroll-1.5)*16*scale, 0, scale, scale, 0, 0)
+		love.graphics.draw(geldispenserimg, tile_draw_x(self.cox-1), tile_draw_y_raw(self.coy-1.5), 0, scale, scale, 0, 0)
 	elseif self.dir == "right" then
-		love.graphics.draw(geldispenserimg, math.floor((self.cox-xscroll-1)*16*scale), (self.coy-yscroll+.5)*16*scale, math.pi*1.5, scale, scale, 0, 0)
+		love.graphics.draw(geldispenserimg, tile_draw_x(self.cox-1), tile_draw_y_raw(self.coy+.5), math.pi*1.5, world_draw_scale(), world_draw_scale(), 0, 0)
 	elseif self.dir == "left" then
-		love.graphics.draw(geldispenserimg, math.floor((self.cox-xscroll+1)*16*scale), (self.coy-yscroll-1.5)*16*scale, math.pi*0.5, scale, scale, 0, 0)
+		love.graphics.draw(geldispenserimg, tile_draw_x(self.cox+1), tile_draw_y_raw(self.coy-1.5), math.pi*0.5, world_draw_scale(), world_draw_scale(), 0, 0)
 	elseif self.dir == "up" then
-		love.graphics.draw(geldispenserimg, math.floor((self.cox-xscroll+1)*16*scale), (self.coy-yscroll+.5)*16*scale, math.pi, scale, scale, 0, 0)
+		love.graphics.draw(geldispenserimg, tile_draw_x(self.cox+1), tile_draw_y_raw(self.coy+.5), math.pi, world_draw_scale(), world_draw_scale(), 0, 0)
 	end
 end
 

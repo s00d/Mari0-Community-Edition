@@ -139,10 +139,10 @@ function faithplate:draw()
 		quad = 1
 	end
 	
-	love.graphics.setScissor(math.floor((self.cox-1-xscroll)*16*scale), (self.coy-yscroll-4)*16*scale, 32*scale, (2.5+2/16)*16*scale)
+	love.graphics.setScissor(tile_draw_x(self.cox-1), tile_draw_y_raw(self.coy-4), 32*scale, (2.5+2/16)*16*scale)
 	
 	love.graphics.setColor(unpack(background))
-	love.graphics.rectangle("fill", math.floor((self.cox-1-xscroll)*16*scale), (self.coy-yscroll-1.5)*16*scale, 32*scale, 2*scale)
+	love.graphics.rectangle("fill", tile_draw_x(self.cox-1), tile_draw_y_raw(self.coy-1.5), 32*scale, 2*scale)
 	love.graphics.setColor(1, 1, 1)
 	
 
@@ -157,7 +157,7 @@ function faithplate:draw()
 				rot = math.pi/4*(1 - (self.animationtimer-0.3)/0.7)
 			end
 				
-			love.graphics.draw(faithplateplateimg, faithplatequad[quad], math.floor((self.cox+1-xscroll)*16*scale), (self.coy-yscroll-1.5)*16*scale, rot, scale, scale, 32)
+			love.graphics.draw(faithplateplateimg, faithplatequad[quad], tile_draw_x(self.cox+1), tile_draw_y_raw(self.coy-1.5), rot, scale, scale, 32)
 		elseif self.dir == "left" then
 			local rot: number = 0
 			if self.animationtimer < 0.1 then
@@ -168,7 +168,7 @@ function faithplate:draw()
 				rot = math.pi/4*(1 - (self.animationtimer-0.3)/0.7)
 			end
 			
-			love.graphics.draw(faithplateplateimg, faithplatequad[quad], math.floor((self.cox-1-xscroll)*16*scale), (self.coy-yscroll-1.5)*16*scale, -rot, -scale, scale, 32)
+			love.graphics.draw(faithplateplateimg, faithplatequad[quad], tile_draw_x(self.cox-1), tile_draw_y_raw(self.coy-1.5), -rot, -scale, scale, 32)
 		elseif self.dir == "up" then
 			local ymod: number = 0
 			if self.animationtimer < 0.1 then
@@ -179,13 +179,13 @@ function faithplate:draw()
 				ymod = .5*(1 - (self.animationtimer-0.3)/0.7)
 			end
 			
-			love.graphics.draw(faithplateplateimg, faithplatequad[quad], math.floor((self.cox-1-xscroll)*16*scale), (self.coy-yscroll-1.5-ymod)*16*scale, 0, scale, scale)
+			love.graphics.draw(faithplateplateimg, faithplatequad[quad], tile_draw_x(self.cox-1), tile_draw_y_raw(self.coy-1.5-ymod), 0, world_draw_scale(), world_draw_scale())
 		end
 	else
 		if self.dir ~= "left" then
-			love.graphics.draw(faithplateplateimg, faithplatequad[quad], math.floor((self.cox-1-xscroll)*16*scale), (self.coy-yscroll-1.5)*16*scale, 0, scale, scale)
+			love.graphics.draw(faithplateplateimg, faithplatequad[quad], tile_draw_x(self.cox-1), tile_draw_y_raw(self.coy-1.5), 0, world_draw_scale(), world_draw_scale())
 		else
-			love.graphics.draw(faithplateplateimg, faithplatequad[quad], math.floor((self.cox+1-xscroll)*16*scale), (self.coy-yscroll-1.5)*16*scale, 0, -scale, scale)
+			love.graphics.draw(faithplateplateimg, faithplatequad[quad], tile_draw_x(self.cox+1), tile_draw_y_raw(self.coy-1.5), 0, world_flip_scale(-1), world_draw_scale())
 		end
 	end
 	

@@ -98,7 +98,7 @@ function lightbridge:draw()
 		rot = math.pi
 	end
 
-	love.graphics.draw(lightbridgesideimg, math.floor((self.cox-xscroll-.5)*16*scale), (self.coy-yscroll-1)*16*scale, rot, scale, scale, 8, 8)
+	love.graphics.draw(lightbridgesideimg, tile_draw_x(self.cox-.5), tile_draw_y_raw(self.coy-1), rot, world_draw_scale(), world_draw_scale(), 8, 8)
 end
 
 function lightbridge:updaterange()
@@ -316,21 +316,21 @@ function lightbridgebody:draw()
 	local glowa = self.parent:getglowa(self.i)
 	
 	if self.dir == "hor" then
-		love.graphics.draw(lightbridgeimg, math.floor((self.cox-xscroll-1)*16*scale), (self.coy-yscroll-1.5)*16*scale, 0, scale, scale)
+		love.graphics.draw(lightbridgeimg, tile_draw_x(self.cox-1), tile_draw_y_raw(self.coy-1.5), 0, world_draw_scale(), world_draw_scale())
 		love.graphics.setColor(1, 1, 1, glowa)
-		love.graphics.draw(lightbridgeglowimg, math.floor((self.cox-xscroll-1)*16*scale), (self.coy-yscroll-1.5)*16*scale, 0, scale, scale)
+		love.graphics.draw(lightbridgeglowimg, tile_draw_x(self.cox-1), tile_draw_y_raw(self.coy-1.5), 0, world_draw_scale(), world_draw_scale())
 	else
-		love.graphics.draw(lightbridgeimg, math.floor((self.cox-xscroll-1/16)*16*scale), (self.coy-yscroll-1)*16*scale, math.pi/2, scale, scale, 8, 1)
+		love.graphics.draw(lightbridgeimg, tile_draw_x(self.cox-1/16), tile_draw_y_raw(self.coy-1), math.pi/2, world_draw_scale(), world_draw_scale(), 8, 1)
 		love.graphics.setColor(1, 1, 1, glowa)
-		love.graphics.draw(lightbridgeglowimg, math.floor((self.cox-xscroll-1/16)*16*scale), (self.coy-yscroll-1)*16*scale, math.pi/2, scale, scale, 8, 1)
+		love.graphics.draw(lightbridgeglowimg, tile_draw_x(self.cox-1/16), tile_draw_y_raw(self.coy-1), math.pi/2, world_draw_scale(), world_draw_scale(), 8, 1)
 	end
 	
 	love.graphics.setColor(1, 1, 1)
 	
 	--gel
 	if self.gelSides then
-		local px = math.floor((self.cox - .5 - xscroll) * 16 * scale)
-		local py = math.floor((self.coy - 1 - yscroll) * 16 * scale)
+		local px = tile_draw_x(self.cox - .5)
+		local py = tile_draw_y(self.coy - 1, 0)
 		draw_tile_gel_overlays(self.gelSides, px, py, 8, 2)
 	end
 end

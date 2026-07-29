@@ -1,102 +1,34 @@
 --[[ game_draw FX / seethrough portals ]]
 
+local DRAW_FX_GROUPS = {
+	"bowser",
+	"geldispenser",
+	"cubedispenser",
+	"funnel",
+	"gatedoor",
+	"abilitypickup",
+	"door",
+	"wallindicator",
+	"animatedtiletrigger",
+	"delayer",
+	"walltimer",
+	"notgate",
+	"rsflipflop",
+	"orgate",
+	"andgate",
+	"musicentity",
+	"squarewave",
+	"actionblock",
+} as {string}
+
 global function game_draw_fx()
 	love.graphics.setColor(1, 1, 1)
-
-	--bowser
-	for _, w in pairs(objects["bowser"]) do
-		w:draw()
-	end
-
-	--Geldispensers
-	for _, w in pairs(objects["geldispenser"]) do
-		w:draw()
-	end
-
-	--Cubedispensers
-	for _, w in pairs(objects["cubedispenser"]) do
-		w:draw()
-	end
-
-	--Funnels
-	for _, w in pairs(objects["funnel"]) do
-		w:draw()
+	for i = 1, #DRAW_FX_GROUPS do
+		obj_draw_group(DRAW_FX_GROUPS[i])
 	end
 
 	--Emancipationgrills
 	for _, w in pairs(emancipationgrills) do
-		w:draw()
-	end
-
-	--Metroid ability-gated doors + pickups
-	if objects["gatedoor"] then
-		for _, w in pairs(objects["gatedoor"]) do
-			w:draw()
-		end
-	end
-	if objects["abilitypickup"] then
-		for _, w in pairs(objects["abilitypickup"]) do
-			w:draw()
-		end
-	end
-
-	--Doors
-	for _, w in pairs(objects["door"]) do
-		w:draw()
-	end
-
-	--Wallindicators
-	for _, w in pairs(objects["wallindicator"]) do
-		w:draw()
-	end
-
-	--Tiletriggers
-	for _, w in pairs(objects["animatedtiletrigger"]) do
-		w:draw()
-	end
-
-	--Delayers
-	for _, w in pairs(objects["delayer"]) do
-		w:draw()
-	end
-
-	--Walltimers
-	for _, w in pairs(objects["walltimer"]) do
-		w:draw()
-	end
-
-	--Notgates
-	for _, w in pairs(objects["notgate"]) do
-		w:draw()
-	end
-
-	--RSFlipflops
-	for _, w in pairs(objects["rsflipflop"]) do
-		w:draw()
-	end
-
-	--Orgates
-	for _, w in pairs(objects["orgate"]) do
-		w:draw()
-	end
-
-	--Andgates
-	for _, w in pairs(objects["andgate"]) do
-		w:draw()
-	end
-
-	--Musicentities
-	for _, w in pairs(objects["musicentity"]) do
-		w:draw()
-	end
-
-	--Squarewaves
-	for _, w in pairs(objects["squarewave"]) do
-		w:draw()
-	end
-
-	--Squarewaves
-	for _, w in pairs(objects["actionblock"]) do
 		w:draw()
 	end
 
@@ -219,9 +151,10 @@ global function game_draw_fx()
 
 				love.graphics.setColor(1, 1, 1, 1)
 
+				local draw_scale = world_draw_scale()
 				local xn = x as number
 				local yn = y as number
-				local dist = math.sqrt(((xn-xscroll)*16*scale - (sourcex-xscroll)*16*scale)^2 + ((yn-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)^2)/16/scale
+				local dist = math.sqrt((xn - sourcex)^2 + (yn - sourcey)^2)
 
 				for a = 1, mirror do
 					local pd = portaldotsdistance-- * (.5+.5*a/(mirror))
@@ -229,13 +162,15 @@ global function game_draw_fx()
 						if ((i-1+portaldotstimer/portaldotstime)/(dist/pd)) < 1 then
 							xn = x as number
 							yn = y as number
-							local xplus = ((xn-xscroll)*16*scale - (sourcex-xscroll)*16*scale)*((i-1+portaldotstimer/portaldotstime)/(dist/pd))
-							local yplus = ((yn-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)*((i-1+portaldotstimer/portaldotstime)/(dist/pd))
+							local t = (i-1+portaldotstimer/portaldotstime)/(dist/pd)
+							local sx = entity_draw_x(sourcex, 0)
+							local sy = entity_draw_y(sourcey, 8)
+							local ex = entity_draw_x(xn, 0)
+							local ey = entity_draw_y(yn, 8)
+							local dotx = sx + (ex - sx) * t
+							local doty = sy + (ey - sy) * t
 
-							local dotx = (sourcex-xscroll)*16*scale + xplus
-							local doty = (sourcey-.5-yscroll)*16*scale + yplus
-
-							local radius = math.sqrt(xplus^2 + yplus^2)/scale
+							local radius = math.sqrt((dotx - sx)^2 + (doty - sy)^2) / draw_scale
 
 							local alpha: number = 1
 							if radius < portaldotsouter and a == 1 then
@@ -253,7 +188,7 @@ global function game_draw_fx()
 								love.graphics.setColor(0, 1, 0, alpha)
 							end
 
-							love.graphics.draw(portaldotimg, math.floor(dotx-0.25*scale), math.floor(doty-0.25*scale), 0, scale, scale)
+							love.graphics.draw(portaldotimg, math.floor(dotx-0.25*draw_scale), math.floor(doty-0.25*draw_scale), 0, draw_scale, draw_scale)
 						end
 					end
 
@@ -273,7 +208,7 @@ global function game_draw_fx()
 					end
 					xn = x as number
 					yn = y as number
-					dist = math.sqrt(((xn-xscroll)*16*scale - (sourcex-xscroll)*16*scale)^2 + ((yn-.5-yscroll)*16*scale - (sourcey-.5-yscroll)*16*scale)^2)/16/scale
+					dist = math.sqrt((xn - sourcex)^2 + (yn - sourcey)^2)
 				end
 
 				love.graphics.setColor(1, 1, 1, 1)
@@ -293,7 +228,7 @@ global function game_draw_fx()
 					elseif side == "left" then
 						rotation = math.pi/2*3
 					end
-					love.graphics.draw(portalcrosshairimg, math.floor(((x as number)-xscroll)*16*scale), math.floor(((y as number)-.5-yscroll)*16*scale), rotation, scale, scale, 4, 8)
+					love.graphics.draw(portalcrosshairimg, entity_draw_x(x as number, 0), entity_draw_y(y as number, 8), rotation, draw_scale, draw_scale, 4, 8)
 				end
 			end
 		end

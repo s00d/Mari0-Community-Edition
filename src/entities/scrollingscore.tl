@@ -1,4 +1,4 @@
---[[ Teal port of root scrollingscore.lua ]]
+--[[ Teal port of root scrollingscore.lua — world tile coords at spawn. ]]
 
 rawset(_G, "scrollingscore", rawget(_G, "scrollingscore") or {})
 
@@ -9,8 +9,8 @@ function scrollingscore.new(_: scrollingscore, i: any, x: any, y: any): scrollin
 end
 
 function scrollingscore:init(i: any, x: any, y: any)
-	self.x = (x as number)-xscroll
-	self.y = (y as number)-yscroll
+	self.x = x as number
+	self.y = y as number
 	self.i = i
 	self.timer = 0
 end
@@ -20,6 +20,6 @@ function scrollingscore:update(dt: number): boolean
 	if self.timer > scrollingscoretime then
 		return true
 	end
-	
+
 	return false
 end
