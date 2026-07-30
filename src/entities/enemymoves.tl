@@ -94,16 +94,21 @@ local function playsfx(name: string)
 end
 
 global function enemymove_turret_topple(self: enemy)
-	if (self.turretstate or "idle") == "toppled" then
+	if (self.turretstate or "idle") == "dying" then
 		return
 	end
-	self.turretstate = "toppled"
+	self.turretstate = "dying"
 	self.turrettimer = 0
 	self.turretdieframe = 0
-	self.speedx = self.speedx * 0.4
+	self.speedx = 0
+	self.speedy = 0
+	self.rotation = 0
+	self.startx = self.x
+	self.starty = self.y
 	self.gg_was_grabbed = false
 	self.killsonsides = false
 	self.killsontop = false
+	self.active = false
 	playsfx("turretfall")
 end
 
@@ -499,13 +504,19 @@ ENEMY_MOVES["turret"] = function(self: enemy, dt: number)
 		self.animationdirection = "left"
 	end
 
-	-- Death: frames 7–10, then despawn.
-	if st == "toppled" then
+	-- Death: spin + shatter in place (frames 7–10), then despawn.
+	if st == "dying" or st == "toppled" then
+		self.turretstate = "dying"
 		self.turrettimer = n(self.turrettimer, 0) + dt
-		local fi = 7 + math.min(3, math.floor(self.turrettimer / 0.14))
+		local fi = 7 + math.min(3, math.floor(self.turrettimer / 0.11))
 		set_frame(fi as integer)
-		self.rotation = math.min(math.pi / 2, self.turrettimer * 2.2)
-		if self.turrettimer > 2.8 then
+		-- Spin on the spot (no tip-over).
+		self.rotation = self.turrettimer * 18
+		self.x = self.startx or self.x
+		self.y = self.starty or self.y
+		self.speedx = 0
+		self.speedy = 0
+		if self.turrettimer > 1.15 then
 			self:shotted("right", false, false, false, false)
 		end
 		return
