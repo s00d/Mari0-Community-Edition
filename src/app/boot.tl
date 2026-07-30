@@ -618,6 +618,19 @@ function Boot.load_media()
 			end
 		end
 	end
+
+	-- Portal-eye core SFX: synthetic CC0 (see assets/sounds/CORE_SFX.txt).
+	do
+		local core_sfx = {"corebuddy_hi", "corebuddy_talk", "corehunter_alert", "corespace_babble"}
+		for _, v in ipairs(core_sfx) do
+			assets:register_sound(v, "assets/sounds/" .. v .. ".ogg")
+			local src = assets:get_sound(v) as SoundSource
+			if src then
+				soundlist[v] = { source = src, lastplayed = 0 }
+				defaultsoundslist[v] = src
+			end
+		end
+	end
 	
 	soundlist["scorering"].source:setLooping(true)
 	soundlist["planemode"].source:setLooping(true)

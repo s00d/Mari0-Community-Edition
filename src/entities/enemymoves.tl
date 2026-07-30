@@ -57,6 +57,11 @@ local function traceline_blocked(x1: number, y1: number, x2: number, y2: number)
 	return false
 end
 
+local function n(v: number|nil, d: number): number
+	if v == nil then return d end
+	return v
+end
+
 local function spawn_bullet(x: number, y: number, vx: number, vy: number, owner: enemy)
 	if not fireball or not fireball.new or not objects or not objects["fireball"] then
 		return
@@ -105,11 +110,176 @@ global function enemymove_turret_topple(self: enemy)
 	self.rotation = 0
 	self.startx = self.x
 	self.starty = self.y
+	self.gravitydirection = math.pi / 2
+	self.gravity = math.abs(n(self.startgravity, 40))
 	self.gg_was_grabbed = false
 	self.killsonsides = false
 	self.killsontop = false
 	self.active = false
 	playsfx("turretfall")
+end
+
+local function core_set_frame(self: enemy, fi: integer)
+	if not self.quadgroup then
+		return
+	end
+	self.quadno = fi
+	if self.quadgroup[fi] then
+		self.quad = self.quadgroup[fi]
+	end
+end
+
+-- Set velocity toward a point (no accel wind-up / overshoot to infinity).
+local function core_steer(self: enemy, tx: number, ty: number, gain: number, maxs: number)
+	local sx = self.x + self.width / 2
+	local sy = self.y + self.height / 2
+	local dx, dy = tx - sx, ty - sy
+	local vx, vy = dx * gain, dy * gain
+	local s = math.sqrt(vx * vx + vy * vy)
+	if s > maxs then
+		vx = vx / s * maxs
+		vy = vy / s * maxs
+	end
+	self.speedx = vx
+	self.speedy = vy
+	self.animationdirection = (dx >= 0) and "right" or "left"
+end
+
+local function core_float_setup(self: enemy)
+	self.gravity = 0
+	if self.startx == nil then
+		self.startx = self.x
+	end
+	if self.starty == nil then
+		self.starty = self.y
+	end
+end
+
+-- Friendly Portal-eye: floats near Mario, never hurts, chirps.
+ENEMY_MOVES["corebuddy"] = function(self: enemy, dt: number)
+	core_float_setup(self)
+	self.killsonsides = false
+	self.killsontop = false
+	local pl = closest_player(self)
+	local bag = self as {string:any}
+	local blinkt = ((bag.coreblinkt or 0) as number) + dt
+	local talkt = ((bag.coretalkt or 0) as number) + dt
+	local blink = (bag.coreblink or 0) as number
+	if blinkt > 2.4 then
+		blinkt = 0
+		blink = 0.12
+	end
+	if blink > 0 then
+		blink = blink - dt
+		core_set_frame(self, 2)
+	elseif talkt > n(self.coretalktime, 2.6) * 0.85 then
+		core_set_frame(self, 4)
+	else
+		core_set_frame(self, 1)
+	end
+	if talkt >= n(self.coretalktime, 2.6) then
+		talkt = 0
+		playsfx("corebuddy_talk")
+	end
+	bag.coreblinkt = blinkt
+	bag.coretalkt = talkt
+	bag.coreblink = blink
+	if pl == nil then
+		core_steer(self, (self.startx as number) + self.width / 2, (self.starty as number) + self.height / 2, 2.5, 2)
+		return
+	end
+	local p = pl as mario
+	local side = (p.animationdirection == "left") and 1 or -1
+	local tx = p.x + p.width / 2 + side * n(self.corekeep, 1.6)
+	local ty = p.y + p.height / 2 - n(self.corefollow, 1.4)
+	-- Keep above floor / below ceiling a bit.
+	if ty < 2.5 then ty = 2.5 end
+	if mapheight and ty > mapheight - 3 then ty = mapheight - 3 end
+	core_steer(self, tx, ty, 3.2, n(self.corespeed, 2.4))
+	if bag.corehi == nil then
+		local sx = self.x + self.width / 2
+		local sy = self.y + self.height / 2
+		if (tx - sx) ^ 2 + (ty - sy) ^ 2 < 1.2 then
+			bag.corehi = true
+			playsfx("corebuddy_hi")
+		end
+	end
+end
+
+-- Angry Portal-eye: keep distance, shoot. Anchored so it can't rocket off-map.
+ENEMY_MOVES["corehunter"] = function(self: enemy, dt: number)
+	core_float_setup(self)
+	local bag = self as {string:any}
+	local alertt = ((bag.corealertt or 0) as number) + dt
+	local pl = closest_player(self)
+	if pl ~= nil and alertt > 2.8 then
+		alertt = 0
+		playsfx("corehunter_alert")
+	end
+	bag.corealertt = alertt
+	local animt = ((bag.coreanimt or 0) as number) + dt
+	bag.coreanimt = animt
+	local fi = 1 + (math.floor(animt / 0.18) % 3)
+	if fi == 3 then fi = 4 end
+	core_set_frame(self, fi as integer)
+
+	local keep = n(self.hoverkeep, 2.8)
+	local maxs = n(self.hoverspeed, 2.6)
+	local hx = (self.startx as number) + self.width / 2
+	local hy = (self.starty as number) + self.height / 2
+	if pl ~= nil then
+		local p = pl as mario
+		local px = p.x + p.width / 2
+		local py = p.y + p.height / 2
+		local dx, dy = px - hx, py - hy
+		local len = math.max(0.001, math.sqrt(dx * dx + dy * dy))
+		-- Prefer spawn height; slide horizontally toward player at keep-distance.
+		local tx = px - (dx / len) * keep
+		local ty = hy + (py - hy) * 0.15
+		if ty < 2.5 then ty = 2.5 end
+		if mapheight and ty > mapheight - 3 then ty = mapheight - 3 end
+		core_steer(self, tx, ty, 2.8, maxs)
+
+		local sx = self.x + self.width / 2
+		local sy = self.y + self.height / 2
+		local ddx, ddy = px - sx, py - sy
+		local dlen = math.max(0.001, math.sqrt(ddx * ddx + ddy * ddy))
+		bag.hovercd = n(bag.hovercd as number, 0) + dt
+		local shotspeed = n(self.shotspeed, 11)
+		if (bag.hovercd as number) >= n(self.hoverfire, 1.6) and dlen < 11 and not traceline_blocked(sx, sy, px, py) then
+			bag.hovercd = 0
+			local tlead = dlen / shotspeed * n(self.hoverlead, 0.4)
+			local aimx = px + p.speedx * tlead
+			local aimy = py + p.speedy * tlead
+			local l2 = math.max(0.001, math.sqrt((aimx - sx) ^ 2 + (aimy - sy) ^ 2))
+			spawn_bullet(sx, sy, (aimx - sx) / l2 * shotspeed, (aimy - sy) / l2 * shotspeed, self)
+			playsfx("corehunter_alert")
+		end
+	else
+		core_steer(self, hx, hy, 2.5, maxs)
+	end
+end
+
+-- Chaotic Portal-eye: wobble around spawn (leashed), contact damage, babble.
+ENEMY_MOVES["corespace"] = function(self: enemy, dt: number)
+	core_float_setup(self)
+	local bag = self as {string:any}
+	local babblet = ((bag.corebabblet or 0) as number) + dt
+	local animt = ((bag.coreanimt or 0) as number) + dt
+	bag.coreanimt = animt
+	core_set_frame(self, (1 + (math.floor(animt / 0.12) % 4)) as integer)
+	if babblet >= n(self.corebabble, 1.1) then
+		babblet = 0
+		playsfx("corespace_babble")
+	end
+	bag.corebabblet = babblet
+	local t = animt
+	local amp = 1.35
+	local tx = (self.startx as number) + self.width / 2 + math.cos(t * 2.1) * amp + math.sin(t * 5.3) * 0.45
+	local ty = (self.starty as number) + self.height / 2 + math.sin(t * 1.7) * amp + math.cos(t * 4.1) * 0.4
+	if ty < 2.5 then ty = 2.5 end
+	if mapheight and ty > mapheight - 3 then ty = mapheight - 3 end
+	core_steer(self, tx, ty, 4.0, n(self.corespeed, 3.8))
 end
 
 
@@ -486,11 +656,6 @@ end
 
 -- ===== endless / unique AI =====
 
-local function n(v: number|nil, d: number): number
-	if v == nil then return d end
-	return v
-end
-
 ENEMY_MOVES["turret"] = function(self: enemy, dt: number)
 	local function set_frame(qi: integer)
 		self.quadno = qi
@@ -502,6 +667,12 @@ ENEMY_MOVES["turret"] = function(self: enemy, dt: number)
 	local st = self.turretstate or "idle"
 	if not self.animationdirection then
 		self.animationdirection = "left"
+	end
+
+	-- Keep ceiling mounts stuck to the roof (collision may try to reset gd).
+	if self.upsidedown and st ~= "dying" and st ~= "toppled" then
+		self.gravitydirection = math.pi * 1.5
+		self.gravity = math.abs(n(self.startgravity, self.gravity or 40))
 	end
 
 	-- Death: spin + shatter in place (frames 7–10), then despawn.

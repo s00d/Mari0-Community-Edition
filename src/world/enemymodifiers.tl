@@ -66,10 +66,18 @@ global function apply_enemy_modifiers(e_any: any, a: {any}|nil)
 			e.animationdirection = "right"
 			e.turretlockedfacing = true
 		elseif id == "upsidedown" then
+			-- Hang from ceiling. Need gravitydirection=up so the ceiling acts as
+			-- floor; negative gravity alone flies through the map. Also snap so
+			-- the enemy's top sits on the underside of the tile above the spawn.
 			e.upsidedown = true
+			e.gravitydirection = math.pi * 1.5
 			local g = (e.gravity as number) or 40
-			e.gravity = -math.abs(g)
+			e.gravity = math.abs(g)
 			e.startgravity = e.gravity
+			local h = (e.height as number) or 1
+			local spawn_tile_y = (e.y as number) + h
+			e.y = spawn_tile_y - 1
+			e.starty = e.y
 		end
 	end
 end

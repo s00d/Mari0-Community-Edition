@@ -463,7 +463,7 @@ global function callcollision(dir: any, obj: Entity, a: any, b: Entity, c: any, 
 				end
 			end
 			
-			if resetgravity then
+			if resetgravity and not (obj as {string:any}).upsidedown then
 				obj.gravitydirection = math.pi/2
 				obj.speedy = 0
 				obj.speedx = -obj.speedx
@@ -473,7 +473,7 @@ global function callcollision(dir: any, obj: Entity, a: any, b: Entity, c: any, 
 		--Player vs box hardcode fix
 		if (a == "box" and obj.category == 3) or (a == "player" and obj.category == 9) then
 			
-		else
+		elseif not (obj as {string:any}).upsidedown then
 			obj.gravitydirection = math.pi/2
 			obj.speedy = 0
 			obj.speedx = -obj.speedx

@@ -1,0 +1,9 @@
+Portal-eye core SFX (synthetic — public domain / CC0)
+=====================================================
+
+Not Valve voice lines. Generated sine tones encoded as Ogg Vorbis.
+
+corebuddy_hi.ogg     = short friendly chirp
+corebuddy_talk.ogg   = three-note babble
+corehunter_alert.ogg = low warning tone
+corespace_babble.ogg = erratic pitch hops

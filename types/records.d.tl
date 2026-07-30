@@ -1054,6 +1054,13 @@ global record enemy is Entity, Body
 	turretfireanim: number
 	turretsearcht: number
 	turretdieframe: number
+	corefollow: number
+	corekeep: number
+	corespeed: number
+	coreaccel: number
+	coretalktime: number
+	corejitter: number
+	corebabble: number
 	gg_was_grabbed: boolean
 	beamed: any
 	gg_grabbed: boolean
