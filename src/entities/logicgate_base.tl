@@ -61,6 +61,6 @@ global function logicgate_draw_img(self: any, img: Image)
 	local gate = self as {any:any}
 	if gate.visible then
 		love.graphics.setColor(1, 1, 1)
-		love.graphics.draw(img, tile_draw_x((gate.x as number) - 1), (((gate.y as number) - yscroll - 1) * 16 - 8) * scale, 0, world_draw_scale(), world_draw_scale())
+		love.graphics.draw(img, tile_draw_x((gate.x as number) - 1), tile_draw_y((gate.y as number) - 1, -8), 0, world_draw_scale(), world_draw_scale())
 	end
 end

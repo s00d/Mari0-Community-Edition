@@ -1,0 +1,3 @@
+name=turret test
+author=ce
+description=turret shooting + flip (grab/box/upsidedown). 1-1 arena, 1-2 knockover practice.

@@ -79,7 +79,7 @@ end
 function walltimer:draw()
 	love.graphics.setColor(1, 1, 1)
 	
-	love.graphics.draw(walltimerimg, walltimerquad[self.quad as integer], tile_draw_x(self.x-1), ((self.y-yscroll-1)*16-8)*scale, 0, world_draw_scale(), world_draw_scale())
+	love.graphics.draw(walltimerimg, walltimerquad[self.quad as integer], tile_draw_x(self.x-1), tile_draw_y(self.y-1, -8), 0, world_draw_scale(), world_draw_scale())
 end
 
 function walltimer:out(t)

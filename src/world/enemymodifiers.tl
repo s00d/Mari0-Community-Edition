@@ -6,9 +6,12 @@ global ENEMY_MODIFIERS: {string:{string:any}} = {
 	fast = { icon = "F", label = "fast" },
 	frozen = { icon = "I", label = "frozen" },
 	stack = { icon = "S", label = "stack" },
+	left = { icon = "L", label = "face left" },
+	right = { icon = "R", label = "face right" },
+	upsidedown = { icon = "U", label = "upsidedown" },
 }
 
-global ENEMY_MODIFIER_ORDER: {string} = { "winged", "big", "fast", "frozen", "stack" }
+global ENEMY_MODIFIER_ORDER: {string} = { "winged", "big", "fast", "frozen", "stack", "left", "right", "upsidedown" }
 
 global function enemy_modifier_ids_from_args(a: {any}|nil): {string}
 	local out: {string} = {}
@@ -56,6 +59,17 @@ global function apply_enemy_modifiers(e_any: any, a: {any}|nil)
 			e.movement = nil
 		elseif id == "stack" then
 			e.carries = e.t
+		elseif id == "left" then
+			e.animationdirection = "left"
+			e.turretlockedfacing = true
+		elseif id == "right" then
+			e.animationdirection = "right"
+			e.turretlockedfacing = true
+		elseif id == "upsidedown" then
+			e.upsidedown = true
+			local g = (e.gravity as number) or 40
+			e.gravity = -math.abs(g)
+			e.startgravity = e.gravity
 		end
 	end
 end

@@ -68,15 +68,21 @@ local function spawn_bullet(x: number, y: number, vx: number, vy: number, owner:
 	f.speedx = vx
 	f.speedy = vy
 	f.gravity = 0
+	-- Enemy shots must hurt Mario (player fireballs stay category 13 and ignore players).
+	f.category = 17
+	local mask = f.mask as {boolean}
+	mask[3] = false
+	f.kills = true
+	f.killsonsides = true
+	f.killsontop = true
+	f.killsonbottom = true
 	table.insert(objects["fireball"] as {any}, f)
 end
 
 local function playsfx(name: string)
 	if playsound then
-		-- stub missing names onto existing cues
+		-- Prefer real registered names; fall back for missing endless cues.
 		local map: {string:string} = {
-			turretfall = "blockhit",
-			turretalert = "oneup",
 			bonescollapse = "stomp",
 			thwomp = "blockhit",
 			chargesnort = "shot",
@@ -85,6 +91,20 @@ local function playsfx(name: string)
 		}
 		playsound(map[name] or name)
 	end
+end
+
+global function enemymove_turret_topple(self: enemy)
+	if (self.turretstate or "idle") == "toppled" then
+		return
+	end
+	self.turretstate = "toppled"
+	self.turrettimer = 0
+	self.turretdieframe = 0
+	self.speedx = self.speedx * 0.4
+	self.gg_was_grabbed = false
+	self.killsonsides = false
+	self.killsontop = false
+	playsfx("turretfall")
 end
 
 
@@ -467,25 +487,65 @@ local function n(v: number|nil, d: number): number
 end
 
 ENEMY_MOVES["turret"] = function(self: enemy, dt: number)
+	local function set_frame(qi: integer)
+		self.quadno = qi
+		if self.quadgroup and self.quadgroup[qi] then
+			self.quad = self.quadgroup[qi]
+		end
+	end
+
 	local st = self.turretstate or "idle"
+	if not self.animationdirection then
+		self.animationdirection = "left"
+	end
+
+	-- Death: frames 7–10, then despawn.
 	if st == "toppled" then
 		self.turrettimer = n(self.turrettimer, 0) + dt
-		if self.turrettimer > 3 then
+		local fi = 7 + math.min(3, math.floor(self.turrettimer / 0.14))
+		set_frame(fi as integer)
+		self.rotation = math.min(math.pi / 2, self.turrettimer * 2.2)
+		if self.turrettimer > 2.8 then
 			self:shotted("right", false, false, false, false)
 		end
 		return
 	end
-	if math.abs(self.speedx) > 3 or (self.gg_was_grabbed and not self.beamed) then
-		self.turretstate = "toppled"
-		self.turrettimer = 0
-		self.rotation = math.pi / 2
-		self.gg_was_grabbed = false
-		playsfx("turretfall")
+
+	-- Knock over: hard shove, gravity-gun toss, or falling box.
+	local box_hit = false
+	if objects and objects["box"] then
+		local sx = self.x + self.width / 2
+		local sy = self.y + self.height / 2
+		for i = 1, #(objects["box"] as {any}) do
+			local b = (objects["box"] as {any})[i] as {string:any}
+			if b and b.active ~= false then
+				local bx = (b.x as number) + ((b.width as number) or 0.75) / 2
+				local by = (b.y as number) + ((b.height as number) or 0.75) / 2
+				local dx, dy = bx - sx, by - sy
+				if dx * dx + dy * dy < 1.1 then
+					local sxv = math.abs((b.speedx as number) or 0) as number
+					local syv = math.abs((b.speedy as number) or 0) as number
+					local sp = sxv + syv
+					if sp > 4 then
+						box_hit = true
+						break
+					end
+				end
+			end
+		end
+	end
+	if math.abs(self.speedx) > 3 or (self.gg_was_grabbed and not self.beamed) or box_hit then
+		enemymove_turret_topple(self)
 		return
 	end
 	self.speedx = 0
+
 	local pl = closest_player(self)
-	if pl == nil then return end
+	if pl == nil then
+		set_frame(1)
+		self.turretstate = "idle"
+		return
+	end
 	local p = pl as mario
 	local sx = self.x + self.width / 2
 	local sy = self.y + self.height / 2
@@ -493,40 +553,98 @@ ENEMY_MOVES["turret"] = function(self: enemy, dt: number)
 	local py = p.y + p.height / 2
 	local dx, dy = px - sx, py - sy
 	local len = math.sqrt(dx * dx + dy * dy)
+	local want = (dx >= 0) and 1.0 or -1.0
+
+	-- Slow aim track (don't snap facing).
+	if not self.turretlockedfacing then
+		if self.turretaim == nil then
+			self.turretaim = want
+		end
+		local rate = n(self.turretaimrate, 1.1)
+		if self.turretaim < want then
+			self.turretaim = math.min(want, self.turretaim + rate * dt)
+		elseif self.turretaim > want then
+			self.turretaim = math.max(want, self.turretaim - rate * dt)
+		end
+		self.animationdirection = (self.turretaim >= 0) and "right" or "left"
+	else
+		self.turretaim = (self.animationdirection == "right") and 1.0 or -1.0
+	end
+
 	local facing = (self.animationdirection == "right") and 1 or -1
-	local seen = len > 0.05 and len < n(self.turretrange, 9)
-		and (dx / len) * facing >= n(self.turretcone, 0.82)
-		and not traceline_blocked(sx, sy, px, py)
+	local aim = self.turretaim or (facing as number)
+	local aligned = math.abs(aim - want) < 0.28
+	local cone = n(self.turretcone, 0.88)
+	local in_range = len > 0.05 and len < n(self.turretrange, 9)
+	local los = in_range and not traceline_blocked(sx, sy, px, py)
+	-- Notice early (loose), lock only when aimed.
+	local noticed = los and (dx / len) * want >= 0.25
+	local locked_on = noticed and aligned and (dx / len) * facing >= cone
+
 	if st == "idle" then
-		if seen then
-			self.turretstate = "windup"
+		set_frame(1)
+		self.turretsearcht = n(self.turretsearcht, 0) + dt
+		if self.turretsearcht > 1.2 then
+			self.turretsearcht = 0
+			playsfx("turretsearch")
+		end
+		if noticed then
+			self.turretstate = "deploy"
 			self.turrettimer = 0
 			playsfx("turretalert")
 		end
-	elseif st == "windup" then
+	elseif st == "deploy" then
+		-- Open panels, still dumb / not shooting yet.
+		set_frame(2)
 		self.turrettimer = n(self.turrettimer, 0) + dt
-		if not seen then
+		if not noticed then
 			self.turretstate = "idle"
-		elseif self.turrettimer >= n(self.turretwindup, 0.6) then
+		elseif self.turrettimer >= n(self.turretwindup, 1.1) then
+			self.turretstate = "aim"
+			self.turrettimer = 0
+		end
+	elseif st == "aim" then
+		set_frame(3)
+		self.turrettimer = n(self.turrettimer, 0) + dt
+		if not noticed then
+			self.turretstate = "idle"
+		elseif locked_on and self.turrettimer >= n(self.turretaimtime, 0.85) then
 			self.turretstate = "firing"
 			self.turrettimer = 0
 			self.turretshots = 0
+			self.turretfireanim = 0
 		end
 	elseif st == "firing" then
+		self.turretfireanim = n(self.turretfireanim, 0) + dt
+		local fi = 4 + (math.floor(self.turretfireanim / 0.08) % 3)
+		set_frame(fi as integer)
 		self.turrettimer = n(self.turrettimer, 0) + dt
-		if self.turrettimer >= n(self.turretburstdelay, 0.12) then
+		if self.turrettimer >= n(self.turretburstdelay, 0.45) then
 			self.turrettimer = 0
 			self.turretshots = n(self.turretshots, 0) + 1
-			spawn_bullet(sx + facing * 0.4, sy, facing * 14, 0, self)
-			if self.turretshots >= n(self.turretburst, 5) then
+			local muzzle_x = sx + facing * (self.width * 0.5 + 0.6)
+			local muzzle_y = self.y + self.height * 0.32
+			if self.upsidedown then
+				muzzle_y = self.y + self.height * 0.68
+			end
+			local shot_vy: number = 0
+			if self.upsidedown and len > 0.05 then
+				shot_vy = (dy / len) * 3
+			end
+			local spd = n(self.turretshotspeed, 9)
+			spawn_bullet(muzzle_x - 0.25, muzzle_y - 0.25, facing * spd, shot_vy, self)
+			playsfx("turretfire")
+			if self.turretshots >= n(self.turretburst, 3) then
 				self.turretstate = "cooldown"
 				self.turrettimer = 0
 			end
 		end
 	elseif st == "cooldown" then
+		set_frame(2)
 		self.turrettimer = n(self.turrettimer, 0) + dt
-		if self.turrettimer >= n(self.turretcooldown, 1.4) then
-			self.turretstate = "idle"
+		if self.turrettimer >= n(self.turretcooldown, 2.4) then
+			self.turretstate = noticed and "aim" or "idle"
+			self.turrettimer = 0
 		end
 	end
 end

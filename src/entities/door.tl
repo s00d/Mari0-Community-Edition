@@ -127,7 +127,7 @@ function door:draw()
 		love.graphics.draw(doorcenterimg, tile_draw_x(self.x+16/16+ymod), tile_draw_y_raw(self.y-4/16), math.pi*1.5-rot, world_draw_scale(), world_draw_scale(), 4, 2)
 	else
 		love.graphics.draw(doorpieceimg, tile_draw_x(self.x+0.25), tile_draw_y_raw(self.y+6/16-ymod), math.pi, world_draw_scale(), world_draw_scale(), 4, 0)
-		love.graphics.draw(doorpieceimg, tile_draw_x(self.x+0.25), tile_draw_y_raw(self.y+10/16+ymod), 0, scale, scale, 4, 0)
+		love.graphics.draw(doorpieceimg, tile_draw_x(self.x+0.25), tile_draw_y_raw(self.y+10/16+ymod), 0, world_draw_scale(), world_draw_scale(), 4, 0)
 		love.graphics.draw(doorcenterimg, tile_draw_x(self.x+0.25), tile_draw_y_raw(self.y+8/16-ymod), rot, world_draw_scale(), world_draw_scale(), 4, 2)
 		love.graphics.draw(doorcenterimg, tile_draw_x(self.x+0.25), tile_draw_y_raw(self.y+8/16+ymod), math.pi+rot, world_draw_scale(), world_draw_scale(), 4, 2)
 	end

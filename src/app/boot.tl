@@ -605,6 +605,19 @@ function Boot.load_media()
 		soundlist[v].lastplayed = 0
 		defaultsoundslist[v] = src
 	end
+
+	-- Turret SFX: CC0 from OpenGameArt (see assets/sounds/TURRET_SFX.txt).
+	do
+		local turret_sfx = {"turretalert", "turretfire", "turretfall", "turretsearch"}
+		for _, v in ipairs(turret_sfx) do
+			assets:register_sound(v, "assets/sounds/" .. v .. ".ogg")
+			local src = assets:get_sound(v) as SoundSource
+			if src then
+				soundlist[v] = { source = src, lastplayed = 0 }
+				defaultsoundslist[v] = src
+			end
+		end
+	end
 	
 	soundlist["scorering"].source:setLooping(true)
 	soundlist["planemode"].source:setLooping(true)

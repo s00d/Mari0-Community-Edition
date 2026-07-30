@@ -1,0 +1,16 @@
+Turret SFX (CC0 — public domain)
+================================
+
+Valve Portal voice lines were NOT used (copyrighted).
+
+turretalert.ogg  = beep_02.ogg
+  https://opengameart.org/content/50-cc0-sci-fi-sfx  (rubberduck, CC0)
+
+turretfire.ogg   = retro_laser_01.ogg
+  same pack (rubberduck, CC0)
+
+turretfall.ogg   = retro_die_01.ogg
+  https://opengameart.org/content/50-cc0-retro-synth-sfx  (rubberduck, CC0)
+
+turretsearch.ogg = terminal_01.ogg
+  https://opengameart.org/content/50-cc0-sci-fi-sfx  (rubberduck, CC0)

@@ -54,7 +54,7 @@ function wallindicator:draw()
 		quad = 2
 	end
 	
-	love.graphics.draw(wallindicatorimg, wallindicatorquad[quad], tile_draw_x(self.x-1), ((self.y-yscroll-1)*16-8)*scale, 0, world_draw_scale(), world_draw_scale())
+	love.graphics.draw(wallindicatorimg, wallindicatorquad[quad], tile_draw_x(self.x-1), tile_draw_y(self.y-1, -8), 0, world_draw_scale(), world_draw_scale())
 end
 
 function wallindicator:input(t, input): any

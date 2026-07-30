@@ -132,15 +132,16 @@ function button:draw()
 	if self.out then
 		quad = 2
 	end
+	local sc = world_draw_scale()
 
 	if self.dir == "down" then	
-		love.graphics.draw(buttonimg, buttonquad[quad], tile_draw_x(self.x-1/16), ((self.y-yscroll)*16-10)*scale, 0, world_draw_scale(), world_draw_scale())
+		love.graphics.draw(buttonimg, buttonquad[quad], tile_draw_x(self.x-1/16), tile_draw_y(self.y, -10), 0, sc, sc)
 	elseif self.dir == "left" then
-		love.graphics.draw(buttonimg, buttonquad[quad], tile_draw_x(self.x+4/16), ((self.y-yscroll)*16-21)*scale, math.pi/2, scale, scale)
+		love.graphics.draw(buttonimg, buttonquad[quad], tile_draw_x(self.x+4/16), tile_draw_y(self.y, -21), math.pi/2, sc, sc)
 	elseif self.dir == "right" then
-		love.graphics.draw(buttonimg, buttonquad[quad], tile_draw_x(self.x+10/16), ((self.y-yscroll)*16+11)*scale, -math.pi/2, scale, scale)
+		love.graphics.draw(buttonimg, buttonquad[quad], tile_draw_x(self.x+10/16), tile_draw_y(self.y, 11), -math.pi/2, sc, sc)
 	elseif self.dir == "up" then
-		love.graphics.draw(buttonimg, buttonquad[quad], tile_draw_x(self.x+31/16), ((self.y-yscroll)*16-16)*scale, math.pi, scale, scale)
+		love.graphics.draw(buttonimg, buttonquad[quad], tile_draw_x(self.x+31/16), tile_draw_y(self.y, -16), math.pi, sc, sc)
 	end
 end
 

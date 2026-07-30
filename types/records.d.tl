@@ -1046,6 +1046,14 @@ global record enemy is Entity, Body
 	turretburstdelay: number
 	turretcooldown: number
 	turretshots: number
+	turretlockedfacing: boolean
+	turretaim: number
+	turretaimrate: number
+	turretaimtime: number
+	turretshotspeed: number
+	turretfireanim: number
+	turretsearcht: number
+	turretdieframe: number
 	gg_was_grabbed: boolean
 	beamed: any
 	gg_grabbed: boolean

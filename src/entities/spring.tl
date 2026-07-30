@@ -45,7 +45,7 @@ function spring:update(dt: number)
 end
 
 function spring:draw()
-	love.graphics.draw(springimg, springquads[spriteset][self.frame], tile_draw_x(self.x), ((self.y-yscroll)*16-8)*scale, 0, world_draw_scale(), world_draw_scale())
+	love.graphics.draw(springimg, springquads[spriteset][self.frame], tile_draw_x(self.x), tile_draw_y(self.y, -8), 0, world_draw_scale(), world_draw_scale())
 end
 
 function spring:hit()

@@ -141,7 +141,16 @@ function fireball:hitstuff(a, b)
 		self:explode()
 		playsound("blockhit")
 		
+	elseif a == "player" then
+		-- Enemy bullets (kills=true): Mario dies via his collide; just remove the shot.
+		if self.kills then
+			self:explode()
+		end
 	elseif a == "enemy" or a == "bowser" then
+		-- Don't let turret/enemy bullets destroy their owner on spawn overlap.
+		if ent == self.fireballthrower then
+			return
+		end
 		if ent:shotted("right", false, false, true) ~= false then
 			if a ~= "bowser" then
 				addpoints((ent.firepoints as number) or 200, self.x, self.y)

@@ -736,6 +736,11 @@ function enemy:globalcollide(a: any, b: Entity, _: any, _: any, dir: any): boole
 		return true
 	end
 
+	if a == "player" and self.movement == "turret" then
+		enemymove_turret_topple(self)
+		return true
+	end
+
 	if a == "player" then
 		return true
 	end
@@ -1012,6 +1017,10 @@ function enemy:startfall()
 end
 
 function enemy:stomp(x: any, b: Entity): any
+	if self.movement == "turret" then
+		enemymove_turret_topple(self)
+		return
+	end
 	if self.movement == "bones" and not self.bonesdown then
 		return enemymove_drybones_stomp(self)
 	end

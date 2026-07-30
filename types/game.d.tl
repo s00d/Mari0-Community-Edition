@@ -226,6 +226,7 @@ global endless_room_kind_from_name: function(string): string
 global ENEMY_MOVES: {string:function(enemy, number)}
 global enemymove_dispatch: function(enemy, number)
 global enemymove_drybones_stomp: function(enemy): boolean
+global enemymove_turret_topple: function(enemy)
 global enemymove_splitter_die: function(enemy): boolean
 global enemymove_thwomp_floor: function(enemy)
 global enemymove_charger_wall: function(enemy, any, Entity|nil)
