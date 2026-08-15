@@ -108,7 +108,7 @@ do
 	check("pool dropped oldest", objects.gel[1].id ~= 1, tostring(objects.gel[1] and objects.gel[1].id))
 end
 
--- 7) optional: empty gelSides draw is a no-op path (document perf intent)
+-- 7) empty gelSides draw is a no-op; world_draw_scale under attach
 do
 	local draws = 0
 	local scales = {}
@@ -126,8 +126,6 @@ do
 	world_draw_scale = function()
 		return 1
 	end
-	-- nil gelSides must never call draw helpers from game_draw (caller guards).
-	-- Empty table would still iterate — that's the bug init_map_cell_gels fixes.
 	local empty = {}
 	draw_tile_gel_overlays(empty, 0, 0, 8, 8)
 	check("empty sides no draws", draws == 0)
@@ -135,6 +133,60 @@ do
 	check("gel uses world_draw_scale not screen scale", draws == 1 and scales[1][1] == 1 and scales[1][2] == 1,
 		tostring(scales[1] and scales[1][1]))
 	love = old_love
+end
+
+-- 8) Gel pivot must land on tile CENTER (classic Mari0).
+-- Batched tiles bake SMB letterbox: ((coy-1)*16 - 8). Gel draw Y is (coy-1)*16
+-- with origin 8 — NOT tile_y_off again, or the overlay floats 8px above the block.
+do
+	tile_draw_x = function(tx)
+		return math.floor(tx * 16)
+	end
+	tile_draw_y = function(ty, extra)
+		return math.floor(ty * 16 + (extra or 0))
+	end
+	local cox, coy = 5, 10
+	local tile_y_off = -8 -- mapmode_tile_y_off() in play mode
+	local tile_top = tile_draw_y(coy - 1, tile_y_off)
+	local tile_cx = tile_draw_x(cox - 1) + 8
+	local tile_cy = tile_top + 8
+	-- Correct call (extra=0): matches game_draw_world after fix
+	local gel_x = tile_draw_x(cox - 0.5)
+	local gel_y = tile_draw_y(coy - 1, 0)
+	check("gel pivot x = tile center x", gel_x == tile_cx, string.format("gel=%s tile=%s", gel_x, tile_cx))
+	check("gel pivot y = tile center y", gel_y == tile_cy, string.format("gel=%s tile=%s", gel_y, tile_cy))
+	-- Regression: passing tile_y_off again lifts gel by 8
+	local wrong_y = tile_draw_y(coy - 1, tile_y_off)
+	check("tile_y_off on gel would float", wrong_y == tile_cy - 8 and wrong_y ~= gel_y,
+		string.format("wrong=%s gel=%s", wrong_y, gel_y))
+
+	local src = (function()
+		local f = io.open(root .. "/src/app/game_draw_world.tl", "r")
+		if not f then
+			return ""
+		end
+		local body = f:read("*a")
+		f:close()
+		return body
+	end)()
+	local gel_lines = 0
+	local bad_off = false
+	local missing_zero = false
+	for line in src:gmatch("[^\n]+") do
+		if line:find("draw_tile_gel_overlays", 1, true) then
+			gel_lines = gel_lines + 1
+			if line:find("tile_y_off", 1, true) then
+				bad_off = true
+			end
+			-- tile_draw_y(..., 0) before pivot args
+			if not line:find("tile_draw_y%([^%)]+, 0%)", 1) then
+				missing_zero = true
+			end
+		end
+	end
+	check("game_draw_world has gel overlay sites", gel_lines >= 2, tostring(gel_lines))
+	check("game_draw_world gel never passes tile_y_off", not bad_off)
+	check("game_draw_world gel tile_draw_y extra is 0", not missing_zero)
 end
 
 print(string.format("gel_checks: %d failure(s)", failed))

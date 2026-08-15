@@ -124,7 +124,8 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 				end
 				
 				if t.gelSides then
-					draw_tile_gel_overlays(t.gelSides, tile_draw_x(cox - .5), tile_draw_y(coy - 1 - bounceyoffset, tile_y_off), 8, 8)
+					-- Pivot 8 centers on tile; do NOT pass mapmode_tile_y_off (-8) or gel sits 8px high.
+					draw_tile_gel_overlays(t.gelSides, tile_draw_x(cox - .5), tile_draw_y(coy - 1 - bounceyoffset, 0), 8, 8)
 				end
 				
 				if editormode then
@@ -284,7 +285,7 @@ global function drawforeground()
 					end
 					
 					if t.gelSides then
-						draw_tile_gel_overlays(t.gelSides, tile_draw_x(cox - .5), tile_draw_y(coy - 1, tile_y_off), 8, 8)
+						draw_tile_gel_overlays(t.gelSides, tile_draw_x(cox - .5), tile_draw_y(coy - 1, 0), 8, 8)
 					end
 				end
 				end
