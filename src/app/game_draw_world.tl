@@ -54,7 +54,7 @@ end
 
 global function draw_castle_flag()
 	if levelfinished and levelfinishtype == "flag" and not custombackground then
-		love.graphics.draw(castleflagimg, wpx((flagx as number) + 6), wpy(flagy - 7 + 10/16) + (castleflagy - flagy) * 16, 0, 1, 1)
+		love.graphics.draw(castleflagimg, tile_draw_x((flagx as number) + 6), tile_draw_y_raw(flagy - 7 + 10/16) + (castleflagy - flagy) * 16, 0, 1, 1)
 	end
 end
 

@@ -268,17 +268,15 @@ global Gamestate: GamestateModule
 global HumpTimer: HumpTimerModule
 global Flux: FluxModule
 global scroll_update: function(number)
-global world_camera_drawing: boolean
 global world_camera_attach: function()
 global world_camera_detach: function()
-global editor_camera_sync: function()
-global wpx: function(number): number
-global wpy: function(number): number
-global world_batch_offset: function(number): number
+global world_camera_sync: function()
 global draw_world_tiles: function()
 global draw_world_foreground: function()
 global world_viewport_w: function(): number
 global world_viewport_h: function(): number
+global world_camera_screen_x: function(number): number
+global world_camera_screen_y: function(number): number
 global world_screen_x: function(number): number
 global world_screen_y: function(number): number
 global tile_draw_x: function(number): number
@@ -292,8 +290,6 @@ global screen_draw_x: function(number): number
 global screen_draw_y: function(number): number
 global screen_to_tile_x: function(number): number
 global screen_to_tile_y: function(number): number
-global world_screen_px_x: function(number): number
-global world_screen_px_y: function(number): number
 global weapon_draw_xy: function(number, number): number, number
 global Logger: LoggerModule
 global Boot: BootModule
@@ -513,6 +509,7 @@ global audio_tag_music: RippleTag
 global audio_tag_sfx: RippleTag
 global audio_apply_volumes: function()
 global audio_bind_sfx: function(string, Source|nil, {string:any}|nil)
+global audio_bind_loop_portal_defaults: function()
 global audio_set_pitch: function(number)
 global audio_ripple_set_pitch: function(RippleSound, number)
 global sound_playing: function(string): boolean
@@ -1767,7 +1764,6 @@ global frommapstab: function(): any
 global game_update: function(number)
 global getquadprops: function(ImageData, number, number): {string:any}
 global properprint: function(s: any, x: number, y: number, sc?: number)
-global print_r: function(any, any): any
 global openSaveFolder: function(string|nil): boolean
 global dbprint: function(any, y?: any)
 global keypromptenter: function(any, ...: any): any

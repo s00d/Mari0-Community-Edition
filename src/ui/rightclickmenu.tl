@@ -294,5 +294,3 @@ function rightclickmenu:directioncallback(_: rightclickmenu, y: any, x: any)
 	
 	self.variables[y as integer].value = x
 end
-
-return { ported = true }

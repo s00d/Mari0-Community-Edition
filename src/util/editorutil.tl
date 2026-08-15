@@ -259,21 +259,3 @@ local function editor_link_screen_pos(tx: any, ty: any): number, number
 	return math.floor(((tx as number)-session.xscroll-.5)*16*scale), math.floor(((ty as number)-session.yscroll-1)*16*scale)
 end
 _G.editor_link_screen_pos = editor_link_screen_pos
-
-return {
-	mapsort = mapsort,
-	editor_filter_map_files = editor_filter_map_files,
-	gettilelistpos = gettilelistpos,
-	getlistpos = getlistpos,
-	getmtbutton = getmtbutton,
-	hasHotkey = hasHotkey,
-	changeHotKey = changeHotKey,
-	editor_hotkeys_parse = editor_hotkeys_parse,
-	editor_hotkeys_serialize = editor_hotkeys_serialize,
-	editor_minimap_xscroll_from_mouse = editor_minimap_xscroll_from_mouse,
-	editor_minimap_tile_from_click = editor_minimap_tile_from_click,
-	formatscrollnumber = formatscrollnumber,
-	editor_normalize_rect = editor_normalize_rect,
-	editor_mode_labels = editor_mode_labels,
-	editor_link_screen_pos = editor_link_screen_pos,
-}

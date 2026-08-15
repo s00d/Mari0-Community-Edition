@@ -128,14 +128,13 @@ local function audio_set_pitch(p: number)
 end
 _G.audio_set_pitch = audio_set_pitch
 
-return {
-	tag_music = tag_music,
-	tag_sfx = tag_sfx,
-	audio_apply_volumes = audio_apply_volumes,
-	audio_bind_sfx = audio_bind_sfx,
-	audio_set_pitch = audio_set_pitch,
-	audio_ripple_set_pitch = audio_ripple_set_pitch,
-	sound_playing = sound_playing,
-	stopsound = stopsound,
-	sound_duration = sound_duration,
-}
+-- Rebind loop/portal SFX opts after default Sources are loaded.
+local function audio_bind_loop_portal_defaults()
+	audio_bind_sfx("scorering", defaultsoundslist["scorering"] as Source, { loop = true })
+	audio_bind_sfx("planemode", defaultsoundslist["planemode"] as Source, { loop = true })
+	audio_bind_sfx("portal1open", defaultsoundslist["portal1open"] as Source, { volume = 0.3 })
+	audio_bind_sfx("portal2open", defaultsoundslist["portal2open"] as Source, { volume = 0.3 })
+	audio_bind_sfx("portalenter", defaultsoundslist["portalenter"] as Source, { volume = 0.3 })
+	audio_bind_sfx("portalfizzle", defaultsoundslist["portalfizzle"] as Source, { volume = 0.3 })
+end
+_G.audio_bind_loop_portal_defaults = audio_bind_loop_portal_defaults

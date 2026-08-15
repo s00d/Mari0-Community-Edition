@@ -38,16 +38,16 @@ _G.love = {
 	},
 }
 
-local Audio = require("assets.audio")
-check("tag_music exists", Audio.tag_music ~= nil and type(Audio.tag_music.volume) == "number")
-check("tag_sfx exists", Audio.tag_sfx ~= nil)
-check("no tag_ui export", Audio.tag_ui == nil)
+require("assets.audio")
+check("tag_music exists", audio_tag_music ~= nil and type(audio_tag_music.volume) == "number")
+check("tag_sfx exists", audio_tag_sfx ~= nil)
+check("no tag_ui export", _G.audio_tag_ui == nil)
 check("no audio_tag_ui global", _G.audio_tag_ui == nil)
 
-Audio.audio_apply_volumes()
+audio_apply_volumes()
 check("master volume forced to 1", _G._master_vol == 1)
-check("sfx tag volume", math.abs(Audio.tag_sfx.volume - 0.5) < 1e-9)
-check("music tag volume", math.abs(Audio.tag_music.volume - 0.25) < 1e-9)
+check("sfx tag volume", math.abs(audio_tag_sfx.volume - 0.5) < 1e-9)
+check("music tag volume", math.abs(audio_tag_music.volume - 0.25) < 1e-9)
 
 _G.volumesfx = 0.8
 _G.volumemusic = 0.1

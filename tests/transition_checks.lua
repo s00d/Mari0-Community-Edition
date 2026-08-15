@@ -87,8 +87,8 @@ check("AssetStore clear_image_path_cache", store:find("clear_image_path_cache", 
 
 -- editor_load skips play mode rebuild
 local editor = read(root .. "/src/ui/editor.tl") or ""
-local editor_load = editor:match("function editor_load%(%)(.-)\n\tprint%(\"Better editor")
-check("editor_load play-mode early return", editor_load ~= nil and editor_load:find("if not editormode then", 1, true) ~= nil)
+local editor_load = editor:match("function editor_load%(%)(.-)\n\tcurrentanimation = 1")
+check("editor_load play-mode early return", editor_load ~= nil and editor_load:find("if not editormode then", 1, true) ~= nil and editor_load:find("return", 1, true) ~= nil)
 
 -- love.run guards present with isActive
 local run = read(root .. "/src/app/love_run.tl") or ""

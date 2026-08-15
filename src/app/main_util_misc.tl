@@ -90,12 +90,7 @@ global function loadcustomsounds(path: string)
 		end
 	end
 	-- Restore special loop / portal volumes after rebind
-	audio_bind_sfx("scorering", defaultsoundslist["scorering"] as Source, { loop = true })
-	audio_bind_sfx("planemode", defaultsoundslist["planemode"] as Source, { loop = true })
-	audio_bind_sfx("portal1open", defaultsoundslist["portal1open"] as Source, { volume = 0.3 })
-	audio_bind_sfx("portal2open", defaultsoundslist["portal2open"] as Source, { volume = 0.3 })
-	audio_bind_sfx("portalenter", defaultsoundslist["portalenter"] as Source, { volume = 0.3 })
-	audio_bind_sfx("portalfizzle", defaultsoundslist["portalfizzle"] as Source, { volume = 0.3 })
+	audio_bind_loop_portal_defaults()
 end
 
 global function changescale(s: number, init?: boolean)
@@ -239,15 +234,6 @@ global function keyprompt_update()
 				end
 			end
 		end
-	end
-end
-
-global function print_r(t: any, indent: any): any --Not by me
-	local indent = (indent or '') as string
-	for key,value in pairs(t as {any:any}) do
-		io.write(indent,'[',tostring(key),']') 
-		if type(value)=="table" then io.write(':\n') print_r(value,indent..'\t')
-		else io.write(' = ',tostring(value),'\n') end
 	end
 end
 

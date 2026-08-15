@@ -14,8 +14,8 @@ local function screen_uv(wx: number, wy: number): number, number
 	if vw <= 0 then vw = 1 end
 	if vh <= 0 then vh = 1 end
 	-- Shader runs on screen buffer; map tile center through camera.
-	local sx = world_screen_px_x(wx * 16)
-	local sy = world_screen_px_y(wy * 16)
+	local sx = world_camera_screen_x(wx * 16)
+	local sy = world_camera_screen_y(wy * 16)
 	return sx / vw, sy / vh
 end
 

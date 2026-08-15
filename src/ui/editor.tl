@@ -41,8 +41,6 @@ function editor_load()
 		return
 	end
 
-	print("Better editor loaded!")
-	
 	currentanimation = 1
 	tilecount1 = 168
 	tilecount2 = 74
@@ -517,7 +515,7 @@ function editor_update_keyscroll(_: number)
 			session.yscroll = math.max(0, math.min(session.mapheight-1-height, session.yscroll + 30*gdt*ydir))
 			
 			if oldxscroll ~= session.xscroll or oldyscroll ~= session.yscroll then
-				editor_camera_sync()
+				world_camera_sync()
 				autoscroll = false
 				guielements["autoscrollcheckbox"].var = autoscroll
 				
@@ -1106,26 +1104,22 @@ global function editor_apply_test_restore(shift_death: boolean|nil)
 end
 
 
-function drawpowerlines()
-	advanceddrawtool = "powerlines"
-	
+local function start_lightdraw(tool: string, entities: boolean)
+	advanceddrawtool = tool
 	editenemies = false
-	editentities = true
+	editentities = entities
 	editorstate = "lightdraw"
 	lightdrawX = nil
 	lightdrawY = nil
 	editorclose()
 end
 
-function drawmushrooms()
-	advanceddrawtool = "mushroom"
+function drawpowerlines()
+	start_lightdraw("powerlines", true)
+end
 
-	editenemies = false
-	editentities = false
-	editorstate = "lightdraw"
-	lightdrawX = nil
-	lightdrawY = nil
-	editorclose()
+function drawmushrooms()
+	start_lightdraw("mushroom", false)
 end
 
 function emptySelection()
@@ -1492,5 +1486,3 @@ function editorexit()
 	
 	menu_load()
 end
-
-return { ported = true }

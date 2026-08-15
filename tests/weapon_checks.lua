@@ -825,6 +825,19 @@ do
 		checkrect = function()
 			return {}
 		end
+		-- blackhole_fx.screen_uv needs camera globals (boot loads util.world_camera)
+		world_viewport_w = function()
+			return 400
+		end
+		world_viewport_h = function()
+			return 224
+		end
+		world_camera_screen_x = function(px)
+			return px
+		end
+		world_camera_screen_y = function(py)
+			return py
+		end
 
 		local pl = {
 			x = 0, y = 0.5, pointingangle = -math.pi / 2,

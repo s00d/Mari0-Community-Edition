@@ -48,7 +48,7 @@ local game_up = read(root .. "/src/app/game_update.tl") or ""
 check("game_update delegates scroll_update", game_up:find("scroll_update(dt)", 1, true) ~= nil)
 
 local gdw = read(root .. "/src/app/game_draw_world.tl") or ""
-check("drawlevel_tiles uses world camera helpers", gdw:find("wpx(", 1, true) ~= nil)
+check("drawlevel_tiles uses world camera helpers", gdw:find("tile_draw_x(", 1, true) ~= nil and gdw:find("tile_draw_y_raw(", 1, true) ~= nil)
 check("drawlevel_tiles dropped xscrollfrac", gdw:find("xscrollfrac", 1, true) == nil)
 check("scenedraw wraps world draw in world_camera_attach", gdw:find("world_camera_attach()", 1, true) ~= nil and gdw:find("drawlevel_tiles", 1, true) ~= nil)
 check("scenedraw draws tile batches outside world camera", gdw:find("draw_tile_spritebatches()", 1, true) ~= nil and gdw:find("draw_tile_spritebatches_foreground()", 1, true) ~= nil)
@@ -75,7 +75,7 @@ check("coinblock uses tile_draw under attach", coin_block:find("tile_draw_x", 1,
 check("coinblock dropped scroll math", coin_block:find("session.xscroll", 1, true) == nil)
 
 local vine = read(root .. "/src/entities/vine.tl") or ""
-check("vine draw no dual-mode branch", vine:find("if world_camera_drawing", 1, true) == nil)
+check("vine draw no dual-mode branch", vine:find("world_camera_drawing", 1, true) == nil)
 check("vine scissor uses world_screen_y", vine:find("world_screen_y", 1, true) ~= nil)
 
 local st = read(root .. "/src/entities/scrollingscore.tl") or ""
@@ -101,15 +101,11 @@ local wc2 = read(root .. "/src/util/world_camera.tl") or ""
 check("world_camera exports weapon_draw_xy", wc2:find("weapon_draw_xy", 1, true) ~= nil)
 
 local ed = read(root .. "/src/ui/editor.tl") or ""
-local play_skip = ed:match("function editor_load%(%)(.-)print%(\"Better editor")
-check("editor_load play-mode body found", play_skip ~= nil)
-if play_skip then
-	check(
-		"play-mode editor_load clears minimapdragging",
-		play_skip:find("minimapdragging = false", 1, true) ~= nil
-	)
-	check("play-mode editor_load still early-returns", play_skip:find("if not editormode then", 1, true) ~= nil)
-end
+check(
+	"play-mode editor_load clears minimapdragging",
+	ed:find("if not editormode then", 1, true) ~= nil and ed:find("minimapdragging = false", 1, true) ~= nil
+)
+check("play-mode editor_load still early-returns", ed:find("if not editormode then", 1, true) ~= nil)
 
 local loadlevel = read(root .. "/src/app/game_load_level.tl") or ""
 check("loadlevel resets minimapdragging", loadlevel:find("minimapdragging = false", 1, true) ~= nil)

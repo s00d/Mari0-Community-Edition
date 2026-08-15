@@ -3,8 +3,6 @@
 local CameraMod = require("hump.camera")
 local cam: HumpCamera|nil = nil
 
-global world_camera_drawing = false
-
 local function ensure(): HumpCamera
 	if not cam then
 		cam = (CameraMod as function(...: any): HumpCamera)(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
@@ -19,28 +17,13 @@ global function world_camera_sync()
 	c:lookAt((session.xscroll + width / 2) * 16, (session.yscroll + height / 2) * 16 + yoff)
 end
 
-global function editor_camera_sync()
-	world_camera_sync()
-end
-
 global function world_camera_attach()
 	world_camera_sync()
-	world_camera_drawing = true
 	ensure():attach(0, 0, width * 16 * scale, height * 16 * scale, true)
 end
 
 global function world_camera_detach()
 	ensure():detach()
-	world_camera_drawing = false
-end
-
--- Tile units → world pixels (camera scale applied in attach).
-global function wpx(tile_x: number): number
-	return math.floor(tile_x * 16)
-end
-
-global function wpy(tile_y: number): number
-	return math.floor(tile_y * 16)
 end
 
 global function world_viewport_w(): number
@@ -49,11 +32,6 @@ end
 
 global function world_viewport_h(): number
 	return height * 16 * scale
-end
-
--- Fractional scroll → pixel offset for spritebatches drawn *outside* attach (parallax path).
-global function world_batch_offset(scroll: number): number
-	return math.floor(scroll) * 16 - math.floor(math.fmod(scroll, 1) * 16)
 end
 
 global function world_camera_screen_x(world_px: number): number
@@ -77,7 +55,7 @@ global function world_screen_y(tile_y: number): number
 	return world_camera_screen_y(math.floor(tile_y * 16))
 end
 
--- World-draw helpers (attach-only): no scroll/scale false-path.
+-- Attach-only helpers (no scroll/scale false-path).
 global function tile_draw_x(tile_x: number): number
 	return math.floor(tile_x * 16)
 end
@@ -106,7 +84,7 @@ global function entity_draw_y(tile_y: number, offset_px: number): number
 	return math.floor(tile_y * 16 - offset_px)
 end
 
--- Screen pixels for scissors / HUD overlays (tile → screen via camera).
+-- Scissors / HUD (tile → screen via camera).
 global function screen_draw_x(tile_x: number): number
 	return world_screen_x(tile_x)
 end
@@ -115,7 +93,6 @@ global function screen_draw_y(tile_y: number): number
 	return world_screen_y(tile_y)
 end
 
--- Screen pixels → map tile units (aim / logic outside draw).
 global function screen_to_tile_x(screen_px: number): number
 	return session.xscroll + screen_px / (16 * scale)
 end
@@ -124,15 +101,7 @@ global function screen_to_tile_y(screen_px: number): number
 	return session.yscroll + (screen_px - (yoffset or 0) * scale) / (16 * scale)
 end
 
-global function world_screen_px_x(world_px: number): number
-	return world_camera_screen_x(world_px)
-end
-
-global function world_screen_px_y(world_py: number): number
-	return world_camera_screen_y(world_py)
-end
-
--- Weapon overlays drawn inside world_camera_attach.
+-- Weapon overlays under world_camera_attach.
 global function weapon_draw_xy(tile_x: number, tile_y: number): number, number
 	return entity_draw_x(tile_x, 0), entity_draw_y(tile_y, 0)
 end

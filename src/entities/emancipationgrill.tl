@@ -188,7 +188,7 @@ function emancipationgrill:draw()
 		local parstartup = tile_draw_y_raw(self.starty - 1)
 		local parstartdown = tile_draw_y_raw(self.endy - 1)
 		local line_x = tile_draw_x(self.x - 1) + thick * 1.5
-		local line_x_screen = world_screen_px_x(math.floor((self.x - 1) * 16 + thick * 1.5))
+		local line_x_screen = world_camera_screen_x(math.floor((self.x - 1) * 16 + thick * 1.5))
 
 		if self.active then
 			love.graphics.setScissor(

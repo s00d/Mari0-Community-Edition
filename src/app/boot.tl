@@ -641,12 +641,7 @@ function Boot.load_media()
 	end
 
 	-- Loop / portal volume opts (rebind same default Sources).
-	audio_bind_sfx("scorering", defaultsoundslist["scorering"] as Source, { loop = true })
-	audio_bind_sfx("planemode", defaultsoundslist["planemode"] as Source, { loop = true })
-	audio_bind_sfx("portal1open", defaultsoundslist["portal1open"] as Source, { volume = 0.3 })
-	audio_bind_sfx("portal2open", defaultsoundslist["portal2open"] as Source, { volume = 0.3 })
-	audio_bind_sfx("portalenter", defaultsoundslist["portalenter"] as Source, { volume = 0.3 })
-	audio_bind_sfx("portalfizzle", defaultsoundslist["portalfizzle"] as Source, { volume = 0.3 })
+	audio_bind_loop_portal_defaults()
 
 	delaylist = {}
 	delaylist["blockhit"] = 0.2

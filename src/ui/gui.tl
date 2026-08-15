@@ -855,5 +855,3 @@ function guielement:inhighlight(x: number, y: number): number|boolean
 	
 	return false
 end
-
-return { ported = true }

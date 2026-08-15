@@ -1,6 +1,6 @@
 --[[ Teal port of root musicloader.lua — play/loop/pitch via ripple (tag music). ]]
 
-local Audio = require("assets.audio")
+require("assets.audio")
 local ripple = require("ripple")
 
 music = ({
@@ -46,7 +46,7 @@ function music:load(name: any): boolean
 		if loaded then
 			local sound = ripple.newSound(source as Source, {
 				loop = true,
-				tags = { Audio.tag_music },
+				tags = { audio_tag_music },
 			})
 			sound.loop = true
 			self.loaded[n] = sound

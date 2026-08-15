@@ -330,13 +330,6 @@ function editor_mousepressed_wheel_up(_: number, _: number)
 				id = math.min(id+1, #entitylistitems[list].entries)
 				currenttile = entitylistitems[list].entries[id].i
 			end
-		-- elseif animatedtilelist then
-			-- if currenttile > 10000 then
-				-- currenttile = (currenttile as number) - 1
-				-- if (currenttile as number) == 10000 then
-					-- currenttile = 10000+animatedtilecount
-				-- end
-			-- end
 		else
 			if (currenttile as number) > 0 and (currenttile as number) <= 10000 then
 				currenttile = (currenttile as number) - 1
@@ -386,13 +379,6 @@ function editor_mousepressed_wheel_down(_: number, _: number)
 				id = math.max(1, id-1)
 				currenttile = entitylistitems[list].entries[id].i
 			end
-		-- elseif animatedtilelist then
-			-- if (currenttile as number) <= 10000+animatedtilecount then
-				-- currenttile = (currenttile as number) + 1
-				-- if currenttile == 10001+animatedtilecount then
-					-- currenttile = 10001
-				-- end
-			-- end
 		else
 			if (currenttile as number) <= smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0) then
 				currenttile = (currenttile as number) + 1
@@ -548,10 +534,6 @@ function editor_keypressed(key: string)
 	if rightclickm then
 		(rightclickm as rightclickmenu):keypressed(key)
 	end
-	
-	-- if guielements["renamebar"].active then
-		-- guielements["renamebar"]:keypress(key)
-	-- end
 	
 	if ctrlpressed then
 		if key == "s" then
@@ -829,10 +811,6 @@ function editor_textinput(text: string)
 	if rightclickm then
 		(rightclickm as rightclickmenu):textinput(text)
 	end
-	
-	-- if guielements["renamebar"].active then
-		-- guielements["renamebar"]:textinput(text)
-	-- end
 
 	if animationguilines then
 		for _, v in pairs(animationguilines) do
