@@ -2,6 +2,9 @@
 
 rawset(_G, "coinblockanimation", rawget(_G, "coinblockanimation") or {})
 
+-- Matches coinblockanimationquads[1..30] in boot.tl
+local COINBLOCK_FRAMES = 30
+
 function coinblockanimation.new(_: coinblockanimation, x: number, y: number): coinblockanimation
 	local self = setmetatable({}, { __index = coinblockanimation }) as coinblockanimation
 	self:init(x, y)
@@ -18,14 +21,20 @@ function coinblockanimation:init(x: number, y: number)
 	local token = self.tick_id
 	HumpTimer.every(coinblockdelay, function()
 		if self.tick_id ~= token or self.finished then
-			return
+			return false
 		end
-		self.frame = self.frame + 1
-		if self.frame >= 31 then
+		if self.frame >= COINBLOCK_FRAMES then
 			addpoints(-200, self.x, self.y)
 			self.finished = true
+			return false
 		end
-	end, 31)
+		self.frame = self.frame + 1
+		if self.frame >= COINBLOCK_FRAMES then
+			addpoints(-200, self.x, self.y)
+			self.finished = true
+			return false
+		end
+	end, COINBLOCK_FRAMES)
 end
 
 function coinblockanimation:update(_: number): boolean

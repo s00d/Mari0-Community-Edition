@@ -51,17 +51,20 @@ global function game_draw_fx()
 	--COINBLOCKanimation
 	for i, _ in pairs(coinblockanimations) do
 		local cba = coinblockanimations[i]
-		love.graphics.draw(
-			coinblockanimationimg,
-			coinblockanimationquads[cba.frame as integer],
-			tile_draw_x(cba.x as number),
-			tile_draw_y(cba.y as number, -8),
-			0,
-			world_draw_scale(),
-			world_draw_scale(),
-			4,
-			54
-		)
+		local q = coinblockanimationquads[cba.frame as integer]
+		if q then
+			love.graphics.draw(
+				coinblockanimationimg,
+				q,
+				tile_draw_x(cba.x as number),
+				tile_draw_y(cba.y as number, -8),
+				0,
+				world_draw_scale(),
+				world_draw_scale(),
+				4,
+				54
+			)
+		end
 	end
 
 	--SCROLLING SCORE
