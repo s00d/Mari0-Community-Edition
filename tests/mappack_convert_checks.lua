@@ -141,6 +141,12 @@ do
 	local cur = {1, 42, "up", 5}
 	normalize_legacy_map_entity(cur)
 	check("current platformspawner unchanged", cur[2] == 42 and cur[3] == "up")
+	local btn_dir = {1, 41, "down"}
+	normalize_legacy_map_entity(btn_dir)
+	check("CE button dir down unchanged", btn_dir[2] == 41 and btn_dir[3] == "down")
+	local laser = {1, 52, "right", false}
+	normalize_legacy_map_entity(laser)
+	check("legacy laser 52→53", laser[2] == 53 and laser[3] == "right")
 end
 
 -- 1.6 pass-through emit ids

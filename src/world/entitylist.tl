@@ -75,7 +75,8 @@ entitylist = {
 	{t=""},
 	{t=""},
 	{t=""},
-	{t=""},
+	-- Indices 67+ must match CE_ENTITY_TYPES / shipped mappack ids (do not insert
+	-- empty slots here — a prior spare empty shifted warppipe 81→seesaw).
 	{t="boxtube", category="portal elements", description="place on empty tile - will drop an object and remove previous one", iconauthor="Mari0Maker"},
 	{t="pushbutton", category="portal elements", description="place on empty tile - will send a toggle signal when used", output=true, iconauthor=""},
 	{t="zginttrigger", category="i/o objects", description="place anywhere - will output when an integer is...", output=true, iconauthor=""},

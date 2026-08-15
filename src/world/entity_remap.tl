@@ -199,14 +199,26 @@ local PASS_THROUGH_CE_EMIT: {number:number} = {
 	[60] = 61, -- bulletbill
 }
 
+-- Platformspawner dirs are only up/down, and shipped cells always carry size/speed
+-- params after dir. Floor buttons also use "down"/"up" — do not treat bare dir as spawner.
 local function is_platformspawner_cell(r: {any}): boolean
 	local p3 = r[3]
-	return p3 == "up" or p3 == "down" or (tonumber(p3) ~= nil)
+	if tonumber(p3) ~= nil then
+		return true
+	end
+	if (p3 == "up" or p3 == "down") and #r >= 4 then
+		return true
+	end
+	return false
 end
 
 local function is_legacy_floor_button_cell(r: {any}): boolean
 	local p3 = r[3]
 	return p3 == nil or p3 == "down" or p3 == "up" or p3 == "left" or p3 == "right" or p3 == "link"
+end
+
+local function is_legacy_laser_dir(p3: any): boolean
+	return p3 == "right" or p3 == "left" or p3 == "up" or p3 == "down"
 end
 
 -- Mari0 1.6 pipespawn was entity id 31; CE shifted wallindicator to 31 and pipespawn to 32.
@@ -242,6 +254,33 @@ global function normalize_legacy_map_entity(r: {any})
 
 	if e >= 43 and e <= 48 and r[3] == "link" then
 		r[2] = e + 1
+		return
+	end
+
+	-- 1.6 directional lasers lived at 52–55; CE laser slot is 53.
+	if e >= 52 and e <= 55 and is_legacy_laser_dir(r[3]) then
+		r[2] = 53
+		return
+	end
+
+	-- 1.6 laserdetectors 56–59 → CE 57
+	if e >= 56 and e <= 59 and is_legacy_laser_dir(r[3]) then
+		r[2] = 57
+		return
+	end
+
+	-- Pass-through slots that gained an empty hole (bulletbill 60→61, …)
+	local emit = PASS_THROUGH_CE_EMIT[e]
+	if emit and (entitylist == nil or entitylist[e] == nil or entitylist[e].t == nil or entitylist[e].t == "") then
+		r[2] = emit
+		return
+	end
+
+	-- Legacy enemy ids still stored numerically when the CE slot is empty
+	local enemy_name = ENEMY_REMAP[e]
+	if enemy_name and (entitylist == nil or entitylist[e] == nil or entitylist[e].t == nil or entitylist[e].t == "") then
+		r[2] = enemy_name
+		return
 	end
 end
 

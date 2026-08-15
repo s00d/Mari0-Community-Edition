@@ -1,0 +1,4 @@
+name=qa activators
+author=ce
+description=Smoke room: floor button→scaffold lift, pushbutton→door, spawn+flag.
+lives=3
