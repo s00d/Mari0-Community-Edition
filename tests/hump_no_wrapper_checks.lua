@@ -44,7 +44,7 @@ local scroll = read(root .. "/src/util/scroll_update.tl") or ""
 check("scroll_update has no camera mirror", scroll:find("hump_camera_ensure", 1, true) == nil)
 
 local boot = read(root .. "/src/app/boot.tl") or ""
-check("boot inlines HumpTimer", boot:find('require "hump.timer"', 1, true) ~= nil or boot:find('require%("hump.timer"%)', 1, true) ~= nil)
+check("boot inlines HumpTimer", boot:find('require("hump.timer")', 1, true) ~= nil)
 check("no hump_compat.tl", not exists(root .. "/src/core/hump_compat.tl"))
 check("no game_portal facade", not exists(root .. "/src/app/game_portal.tl"))
 check("no ui_input facade", not exists(root .. "/src/app/ui_input.tl"))

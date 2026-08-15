@@ -9,11 +9,9 @@ Do not hand-edit library sources; re-run the scripts after bumping pins.
 | `anim8` | kikito/anim8 v2.3.1 | sprite frames |
 | `bump` | kikito/bump.lua v3.1.7 | AABB collisions |
 | `flux` | rxi/flux | tweens |
-| `lume` | rxi/lume | utils |
 | `baton` | tesselode/baton v1.0.2 | input |
+| `ripple` | tesselode/ripple | audio tags (music/sfx) |
 | `inspect` | kikito/inspect.lua | debug dump |
-| `hump.*` | vrld/hump | camera / gamestate / signal / timer / vector |
-| `sti` | karai17/STI | Tiled maps |
-| `slab` | flamendless/Slab | editor UI |
+| `hump.camera` / `hump.timer` | vrld/hump | world camera / timers |
 
-Vector math: `hump.vector` (rxi/vector.lua repo is gone).
+Dropped: lume (API mismatch), hump.vector/gamestate/signal (unused), sti (0 callers; N-M levelio only), slab (debug overlay only; editor stays guielement).

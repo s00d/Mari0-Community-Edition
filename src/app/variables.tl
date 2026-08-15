@@ -495,5 +495,4 @@ upscrollborder = 4
 downscrollborder = 4
 superscroll = 100
 
-editor_slab_debug = false
 portaldotstimer = 0

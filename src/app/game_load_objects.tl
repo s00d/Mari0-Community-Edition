@@ -509,10 +509,13 @@ global function playsound(sound: any)
 				return
 			end
 		end
-		
-		soundlist[sound].source:stop()
-		soundlist[sound].source:seek(0)
-		soundlist[sound].source:play()
+
+		local entry = soundlist[sound]
+		local rs = entry.sound
+		if rs ~= nil then
+			rs:stop()
+			rs:play({ seek = 0, pitch = (music and music.pitch) or 1 })
+		end
 	end
 end
 

@@ -63,10 +63,8 @@ global function loadcustomsounds(path: string)
 	for _, id in ipairs(soundstoload) do
 		if assets.sounds[id] then
 			local src = assets:get_sound(id)
-			if soundlist[id] then
-				soundlist[id].source = src as SoundSource
-			end
 			defaultsoundslist[id] = src
+			audio_bind_sfx(id, src as Source, nil)
 		end
 	end
 	overwrittensounds = {}
@@ -79,16 +77,25 @@ global function loadcustomsounds(path: string)
 			local full = path .. "/" .. v
 			if soundlist[s] then
 				assets:override_sound(s, full)
-				soundlist[s].source = assets:get_sound(s) as SoundSource
+				local src = assets:get_sound(s) as SoundSource
+				defaultsoundslist[s] = src
+				audio_bind_sfx(s, src as Source, nil)
 				table.insert(overwrittensounds, s)
 			else
 				assets:register_sound(s, full)
-				soundlist[s] = {}
-				soundlist[s].source = assets:get_sound(s) as SoundSource
-				soundlist[s].lastplayed = 0
+				local src = assets:get_sound(s) as SoundSource
+				defaultsoundslist[s] = src
+				audio_bind_sfx(s, src as Source, nil)
 			end
 		end
 	end
+	-- Restore special loop / portal volumes after rebind
+	audio_bind_sfx("scorering", defaultsoundslist["scorering"] as Source, { loop = true })
+	audio_bind_sfx("planemode", defaultsoundslist["planemode"] as Source, { loop = true })
+	audio_bind_sfx("portal1open", defaultsoundslist["portal1open"] as Source, { volume = 0.3 })
+	audio_bind_sfx("portal2open", defaultsoundslist["portal2open"] as Source, { volume = 0.3 })
+	audio_bind_sfx("portalenter", defaultsoundslist["portalenter"] as Source, { volume = 0.3 })
+	audio_bind_sfx("portalfizzle", defaultsoundslist["portalfizzle"] as Source, { volume = 0.3 })
 end
 
 global function changescale(s: number, init?: boolean)

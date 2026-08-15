@@ -2,36 +2,6 @@
 
 local LoveFrame = require("app.love_frame")
 
-local MENU_INPUT_STATES: {string: boolean} = {
-	menu = true,
-	mappackmenu = true,
-	onlinemenu = true,
-	options = true,
-}
-
-local function menu_input_active(): boolean
-	return MENU_INPUT_STATES[gamestate as string] == true
-end
-
-local MOUSE_MENU_STATES: {string: boolean} = {
-	menu = true,
-	mappackmenu = true,
-	options = true,
-}
-
-local function menu_mouse_active(): boolean
-	return MOUSE_MENU_STATES[gamestate as string] == true
-end
-
-local MENU_JOYSTICK_STATES: {string: boolean} = {
-	menu = true,
-	options = true,
-}
-
-local function menu_joystick_active(): boolean
-	return MENU_JOYSTICK_STATES[gamestate as string] == true
-end
-
 local function joystick_slot(joystick: Joystick): integer|nil
 	local sticks = love.joystick.getJoysticks() as {Joystick}
 	local jid = joystick:getID()
@@ -45,9 +15,6 @@ end
 
 function love.update(dt: any)
 	local dt = dt as number
-	if music then
-		music:update()
-	end
 	local frame_dt = math.min(0.5, dt) --ignore any dt higher than half a second
 	
 	if recording then
@@ -58,6 +25,10 @@ function love.update(dt: any)
 	
 	if not LoveFrame.begin_update() then
 		return
+	end
+
+	if music then
+		music:update(frame_dt)
 	end
 
 	if HumpTimer then
@@ -83,15 +54,10 @@ function love.update(dt: any)
 		end
 		
 		if speed > 0 then
-			for _, v in pairs(soundlist) do
-				v.source:setPitch( speed )
-			end
-			music.pitch = speed
-			love.audio.setVolume(volumesfx)
-			music:setVolume(volumemusic)
+			audio_set_pitch(speed)
+			audio_apply_volumes()
 		else	
 			love.audio.setVolume(0)
-			music:setVolume(0)
 		end
 	end
 	
@@ -215,36 +181,9 @@ function love.keypressed(key: any, scancode: any, _: any)
 	if key == "f12" then
 		love.mouse.setGrabbed(not love.mouse.isGrabbed())
 	end
-	
-	if gamestate == "lobby" or gamestate == "onlinemenu" then
-		if key == "escape" then
-			Net.quit()
-			return
-		end
-	end
-	
-	if menu_input_active() then
-		ui_note_kbd()
-		table.insert(konamitable, key as string)
-		table.remove(konamitable, 1)
-		local s = ""
-		for i = 1, #konamitable do
-			s = s .. tostring(konamitable[i])
-		end
-		
-		if sha1(s) == konamihash then --Before you wonder how dumb this is; This used to be a different code than konami because I thought it'd be fun to make people figure it out before they can tell others how to easily unlock cheats (without editing files). It wasn't, really.
-			playsound("konami")
-			gamefinished = true
-			saveconfig()
-			notice.new("Cheats unlocked!")
-			-- Also enable leftover debugbinds (same as --debug / MARI0_DEBUG=1)
-			enable_debugbinds()
-		end
-		menu_keypressed(key)
-	elseif gamestate == "game" then
-		game_keypressed(key)
-	elseif gamestate == "intro" then
-		intro_keypressed()
+
+	if Gamestate then
+		Gamestate.call("keypressed", key)
 	end
 end
 
@@ -253,34 +192,16 @@ function love.keyreleased(key: any, scancode: any)
 		key = scancode
 	end
 	if key == "space" then key = " " end
-	if menu_joystick_active() then
-		menu_keyreleased(key)
-	elseif gamestate == "game" then
-		game_keyreleased(key)
+	if Gamestate then
+		Gamestate.call("keyreleased", key)
 	end
-end
-
--- Explicit dispatch — no _G[gamestate .. "_textinput"] name construction.
--- Handlers resolve lazily: this file loads before game modules in main.lua.
-local TEXTINPUT_HANDLERS: {string: function(any)} = {}
-
-local function resolve_textinput_handler(state: string): function(any)|nil
-	local cached = TEXTINPUT_HANDLERS[state]
-	if cached then
-		return cached
-	end
-	if state == "game" and type(game_textinput) == "function" then
-		TEXTINPUT_HANDLERS[state] = game_textinput
-		return game_textinput
-	end
-	return nil
 end
 
 function love.textinput(text: any)
-	local handler = resolve_textinput_handler(gamestate as string)
-	if handler then
-		local h = handler as function(...: any): any
-		local results = { pcall(h, text) }
+	if Gamestate then
+		local results = { pcall(function()
+			Gamestate.call("textinput", text)
+		end) }
 		if not results[1] then
 			local err = tostring(results[2])
 			print("textinput error [" .. tostring(gamestate) .. "]: " .. err)
@@ -309,16 +230,8 @@ function love.mousemoved(x: any, y: any, dx: any, dy: any)
 	if not ui_note_mouse_move(dx as number, dy as number, x as number, y as number) then
 		return
 	end
-	if menu_mouse_active() then
-		menu_mousemoved(mouseui_x, mouseui_y)
-	elseif gamestate == "game" and pausemenuopen and not menuprompt and not desktopprompt and not suspendprompt then
-		local ux = mouseui_x / scale
-		local uy = mouseui_y / scale
-		local lay = menu_layout_pause(width * 16)
-		local i = menu_hit(lay.rects as {any}, ux, uy)
-		if i then
-			pausemenuselected = i
-		end
+	if Gamestate then
+		Gamestate.call("mousemoved", mouseui_x, mouseui_y, dx, dy)
 	end
 end
 
@@ -332,12 +245,8 @@ function love.mousepressed(...: any)
 	elseif button == 3 then button = "m"
 	end
 	x, y = screen_to_ui(x, y)
-	if menu_input_active() then
-		menu_mousepressed(x, y, button)
-	elseif gamestate == "game" then
-		game_mousepressed(x, y, button)
-	elseif gamestate == "intro" then
-		intro_mousepressed()
+	if Gamestate then
+		Gamestate.call("mousepressed", x, y, button)
 	end
 	
 	if animationguilines and editormenuopen and not changemapwidthmenu and not guielements["animationselectdrop"].extended then
@@ -391,10 +300,8 @@ function love.mousereleased(...: any)
 	elseif button == 3 then button = "m"
 	end
 	x, y = screen_to_ui(x, y)
-	if menu_joystick_active() then
-		menu_mousereleased(x, y, button)
-	elseif gamestate == "game" then
-		game_mousereleased(x, y, button)
+	if Gamestate then
+		Gamestate.call("mousereleased", x, y, button)
 	end
 	
 	for _, v in pairs(guielements) do
@@ -409,11 +316,10 @@ function love.joystickpressed(joystick: any, button: any)
 	end
 	if keyprompt then
 		keypromptenter("joybutton", slot, button)
-	elseif menu_joystick_active() then
-		ui_note_kbd()
-		menu_joystickpressed(slot, button)
-	elseif gamestate == "game" then
-		game_joystickpressed(slot, button)
+		return
+	end
+	if Gamestate then
+		Gamestate.call("joystickpressed", slot, button)
 	end
 end
 
@@ -422,10 +328,8 @@ function love.joystickreleased(joystick: any, button: any)
 	if not slot then
 		return
 	end
-	if menu_joystick_active() then
-		menu_joystickreleased(slot, button)
-	elseif gamestate == "game" then
-		game_joystickreleased(slot, button)
+	if Gamestate then
+		Gamestate.call("joystickreleased", slot, button)
 	end
 end
 
@@ -449,10 +353,8 @@ function love.joystickaxis(joystick: any, axis: any, value: any)
 	elseif (value as number) < 0 and not adz["shoulder"] then
 		adz["shoulder"] = true
 	end
-	if menu_joystick_active() then
-		menu_joystickaxis(slot, axis, value, stickmoved, shouldermoved)
-	elseif gamestate == "game" then
-		game_joystickaxis(slot, axis, value, stickmoved, shouldermoved)
+	if Gamestate then
+		Gamestate.call("joystickaxis", slot, axis, value, stickmoved, shouldermoved)
 	end
 end
 
@@ -461,10 +363,8 @@ function love.joystickhat(joystick: any, hat: any, direction: any)
 	if not slot then
 		return
 	end
-	if menu_joystick_active() then
-		menu_joystickhat(slot, hat, direction)
-	elseif gamestate == "game" then
-		game_joystickhat(slot, hat, direction)
+	if Gamestate then
+		Gamestate.call("joystickhat", slot, hat, direction)
 	end
 end
 
@@ -482,4 +382,3 @@ end
 function love.quit()
 	
 end
-

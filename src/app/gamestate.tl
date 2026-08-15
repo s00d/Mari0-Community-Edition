@@ -52,6 +52,19 @@ function Gamestate.draw()
 	end
 end
 
+-- Dispatch optional input/lifecycle events from love_callbacks.
+function Gamestate.call(event: string, ...: any)
+	local name = Gamestate.get()
+	local h = Gamestate.handlers[name]
+	if not h then
+		return
+	end
+	local fn = h[event]
+	if fn then
+		(fn as function(...: any): any)(...)
+	end
+end
+
 _G.Gamestate = Gamestate as GamestateModule
 
 return Gamestate

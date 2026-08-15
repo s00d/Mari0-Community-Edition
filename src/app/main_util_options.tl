@@ -215,7 +215,6 @@ global function loadconfig()
 				end
 			elseif kind == "volume" then
 				volumesfx = tonumber(val)
-				love.audio.setVolume(volumesfx)
 			elseif kind == "musicvolume" then
 				volumemusic = tonumber(val)
 			elseif kind == "mouseowner" then

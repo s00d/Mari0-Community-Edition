@@ -90,8 +90,7 @@ local function intro_skip()
 		HumpTimer.cancel(intro_finish_handle)
 		intro_finish_handle = nil
 	end
-	soundlist["stab"].source:stop()
-	soundlist["stab"].source:seek(0)
+	stopsound("stab")
 	menu_load()
 	shaders:set(1, shaderlist[currentshaderi1])
 	shaders:set(2, shaderlist[currentshaderi2])

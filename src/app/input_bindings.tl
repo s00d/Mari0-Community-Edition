@@ -415,24 +415,20 @@ global function game_keypressed(key: any)
 		elseif (key == "right" or key == "d") then
 			if pausemenuoptions[pausemenuselected as integer] == "music volume" then
 				volumemusic = math.min(1, volumemusic + 0.1)
-				love.audio.setVolume(volumesfx)
-				music:setVolume(volumemusic)
+				audio_apply_volumes()
 			elseif pausemenuoptions[pausemenuselected as integer] == "game volume" then
 				volumesfx = math.min(1, volumesfx + 0.1)
-				love.audio.setVolume(volumesfx)
-				music:setVolume(volumemusic)
+				audio_apply_volumes()
 				soundenabled = true
 				playsound("coin")
 			end
 		elseif (key == "left" or key == "a") then
 			if pausemenuoptions[pausemenuselected as integer] == "music volume" then
 				volumemusic = math.max(volumemusic - 0.1, 0)
-				love.audio.setVolume(volumesfx)
-				music:setVolume(volumemusic)
+				audio_apply_volumes()
 			elseif pausemenuoptions[pausemenuselected as integer] == "game volume" then
 				volumesfx = math.max(volumesfx - 0.1, 0)
-				love.audio.setVolume(volumesfx)
-				music:setVolume(volumemusic)
+				audio_apply_volumes()
 				if volumesfx == 0 then
 					soundenabled = false
 				end
@@ -461,8 +457,7 @@ global function game_keypressed(key: any)
 			mariolevel = testlevellevel
 			testlevel = false
 			editormode = true
-			xpan = false
-			ypan = false
+			camera_pan_stop()
 			if (mariosublevel as number) > 0 then
 				loadlevel(tostring(marioworld) .. "-" .. tostring(mariolevel) .. "_" .. tostring(mariosublevel))
 			else

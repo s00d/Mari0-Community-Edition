@@ -298,12 +298,23 @@ do
 	xscroll, yscroll, yoffset = 2, 1, 0
 	local tx, ty = getMouseTile(0, 0)
 	check("mouse tile origin", tx == 3 and ty == 2)
+	Flux = require("flux")
 	xscroll = 0
 	cameraxpan(5, 1)
-	check("cameraxpan sets", xpan == true and xpandiff == 5 and xpantime == 1)
+	check("cameraxpan sets", xpan == true and xpandiff == 5 and xpanstart == 0)
 	yscroll = 2
 	cameraypan(0, 0.5)
-	check("cameraypan sets", ypan == true and ypandiff == -2 and ypantime == 0.5)
+	check("cameraypan sets", ypan == true and ypandiff == -2 and ypanstart == 2)
+	Flux.update(0.5)
+	camera_pan_apply()
+	check("cameraxpan mid", math.abs(session.xscroll - 2.5) < 1e-6, tostring(session.xscroll))
+	Flux.update(1)
+	camera_pan_apply()
+	check("cameraxpan done", xpan == false and math.abs(session.xscroll - 5) < 1e-6, tostring(session.xscroll))
+	check("cameraypan done", ypan == false and math.abs(session.yscroll - 0) < 1e-6, tostring(session.yscroll))
+	cameraxpan(10, 1)
+	camera_pan_stop()
+	check("camera_pan_stop clears", xpan == false and ypan == false)
 end
 
 -- enemyutil

@@ -190,29 +190,6 @@ global function scroll_update(dt: number)
 		session.xscroll = math.min(session.xscroll, session.mapwidth-width)
 	end
 	
-	--camera pan x
-	if xpan then
-		xpantimer = xpantimer + dt
-		if xpantimer >= xpantime then
-			xpan = false
-			xpantimer = xpantime
-		end
-		
-		local i = xpantimer/xpantime
-		
-		session.xscroll = (xpanstart as number) + (xpandiff as number)*i
-	end
-	
-	--camera pan y
-	if ypan then
-		ypantimer = ypantimer + dt
-		if ypantimer >= ypantime then
-			ypan = false
-			ypantimer = ypantime
-		end
-		
-		local i = ypantimer/ypantime
-		
-		session.yscroll = (ypanstart as number) + (ypandiff as number)*i
-	end
+	--camera pan (Flux progress; Flux.update runs before game_update)
+	camera_pan_apply()
 end

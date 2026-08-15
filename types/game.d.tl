@@ -63,6 +63,7 @@ global record GamestateModule
 	in_menu_family: function(): boolean
 	update: function(number)
 	draw: function()
+	call: function(string, ...: any)
 end
 
 global record HumpTimerModule
@@ -149,7 +150,6 @@ end
 -- map/objects/scroll live on `session` (World), not as bare _G aliases.
 global mariotimer: number
 global gamestate: string
-global editor_slab_debug: boolean
 global editormode: boolean
 global paused: any
 global players: integer
@@ -275,7 +275,6 @@ global editor_camera_sync: function()
 global wpx: function(number): number
 global wpy: function(number): number
 global world_batch_offset: function(number): number
-global world_spritebatch_offset: function(number): number
 global draw_world_tiles: function()
 global draw_world_foreground: function()
 global world_viewport_w: function(): number
@@ -445,6 +444,38 @@ global modcustomtiles: integer|boolean
 global modcustomtilecount: {integer:number}
 global music: MusicPlayer
 global musicname: string
+
+global record RippleInstance
+	pitch: number
+	loop: boolean
+	volume: number
+	isStopped: function(RippleInstance): boolean
+	pause: function(RippleInstance, ...: any)
+	resume: function(RippleInstance, ...: any)
+	stop: function(RippleInstance, ...: any)
+end
+
+global record RippleSound
+	volume: number
+	loop: boolean
+	play: function(RippleSound, ...: any): RippleInstance
+	pause: function(RippleSound, ...: any)
+	resume: function(RippleSound, ...: any)
+	stop: function(RippleSound, ...: any)
+	update: function(RippleSound, number)
+	tag: function(RippleSound, ...: any)
+	untag: function(RippleSound, ...: any)
+end
+
+global record RippleTag
+	volume: number
+	pause: function(RippleTag, ...: any)
+	resume: function(RippleTag, ...: any)
+	stop: function(RippleTag, ...: any)
+	tag: function(RippleTag, ...: any)
+	untag: function(RippleTag, ...: any)
+end
+
 global record SoundSource
 	stop: function(SoundSource)
 	seek: function(SoundSource, ...: any)
@@ -457,8 +488,9 @@ global record SoundSource
 	isPlaying: function(SoundSource): boolean
 end
 global record SoundEntry
-	source: SoundSource
+	sound: RippleSound
 	lastplayed: number
+	duration: number
 end
 global soundlist: {any:SoundEntry}
 global record ShadersController
@@ -477,6 +509,15 @@ global shaderlist: {number:string}
 global guielements: {any:guielement}
 global volumesfx: number
 global volumemusic: number
+global audio_tag_music: RippleTag
+global audio_tag_sfx: RippleTag
+global audio_apply_volumes: function()
+global audio_bind_sfx: function(string, Source|nil, {string:any}|nil)
+global audio_set_pitch: function(number)
+global audio_ripple_set_pitch: function(RippleSound, number)
+global sound_playing: function(string): boolean
+global stopsound: function(string)
+global sound_duration: function(string): number
 global speed: number
 global speedtarget: number
 global scrollingscores: {any:scrollingscore}
@@ -864,8 +905,6 @@ global modcustomspritebatchfront: {number:any}
 global emancipateanimations: {any:Entity}
 global dialogboxes: {any:Entity}
 global blockbouncecontent2: {any:any}
-global xpantimer: number
-global ypantimer: number
 global portalparticletimer: number
 global firedelay: number
 global flyingfishstarted: boolean
@@ -1014,9 +1053,7 @@ global firstunder100: boolean
 global autoscrollx: number|boolean
 global autoscrolly: number|boolean
 global xpan: any
-global xpantime: number
 global ypan: any
-global ypantime: number
 global lastrepeat: number
 global flyingfishstartx: any
 global flyingfishendx: any
@@ -1838,9 +1875,6 @@ global logicgate_link: function(any): any|nil
 global logicgate_addoutput: function(any, any, any)
 global logicgate_out: function(any, any)
 global logicgate_draw_img: function(any, Image)
-global sti_available: function(): boolean
-global sti_try_load_map: function(string): any|nil
-global editor_slab_draw: function()
 global OBJECT_GROUP_KEYS: {string}
 global loadlevelscreens: function()
 global loadmap: function(filename: string, createobjects?: boolean): boolean
@@ -2020,6 +2054,8 @@ global menu_parse_settings_text: function(any): any, any, any
 global getclosestplayer: function(x: number): integer
 global cameraxpan: function(any, any)
 global cameraypan: function(any, any)
+global camera_pan_stop: function()
+global camera_pan_apply: function()
 global update_and_compact: function(any, any)
 global usebase: function(any): Dyn
 global buildstartendzones: function(any, any): {{number|boolean}}

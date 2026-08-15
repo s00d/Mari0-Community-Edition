@@ -61,21 +61,12 @@ function vine:update(dt: number)
 end
 
 function vine:draw()
-	local top: number
-	local bottom: number
-	if world_camera_drawing then
-		top = world_screen_y(self.limit)
-		if not self.hidetop then
-			top = top - 16 * scale
-		end
-		bottom = world_screen_y(self.coy - 1.5)
-	else
-		top = tile_draw_y_raw(self.limit)
-		if not self.hidetop then
-			top = top - 16 * scale
-		end
-		bottom = math.floor(tile_draw_y_raw(self.coy - 1.5))
+	-- Scissor is screen-space; vine sprites use world helpers under attach.
+	local top = world_screen_y(self.limit)
+	if not self.hidetop then
+		top = top - 16 * scale
 	end
+	local bottom = world_screen_y(self.coy - 1.5)
 
 	if bottom > top then
 		love.graphics.setScissor(0, top, width * 16 * scale, bottom - top)

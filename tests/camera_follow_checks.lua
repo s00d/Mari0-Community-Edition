@@ -52,17 +52,31 @@ check("drawlevel_tiles uses world camera helpers", gdw:find("wpx(", 1, true) ~= 
 check("drawlevel_tiles dropped xscrollfrac", gdw:find("xscrollfrac", 1, true) == nil)
 check("scenedraw wraps world draw in world_camera_attach", gdw:find("world_camera_attach()", 1, true) ~= nil and gdw:find("drawlevel_tiles", 1, true) ~= nil)
 check("scenedraw draws tile batches outside world camera", gdw:find("draw_tile_spritebatches()", 1, true) ~= nil and gdw:find("draw_tile_spritebatches_foreground()", 1, true) ~= nil)
-check("tile batches use scroll_batch_offset", gdw:find("scroll_batch_offset(session.xscroll)", 1, true) ~= nil or gdw:find("scroll_batch_offset(xscroll)", 1, true) ~= nil)
+local tsb = read(root .. "/src/world/tile_spritebatch.tl") or ""
+check("tile batches use scroll draw offset", tsb:find("tile_spritebatch_draw_offset", 1, true) ~= nil and tsb:find("-session.xscroll", 1, true) ~= nil)
 check("menu uses draw_world_tiles", (read(root .. "/src/ui/menu.tl") or ""):find("draw_world_tiles", 1, true) ~= nil)
 check("game_draw_objects uses entity_draw_x", gdw:find("entity_draw_x", 1, true) ~= nil)
 
 local wc = read(root .. "/src/util/world_camera.tl") or ""
-check("world_camera has dual-mode tile_draw_x", wc:find("tile_draw_x", 1, true) ~= nil)
+check("world_camera has tile_draw_x", wc:find("function tile_draw_x", 1, true) ~= nil)
+check("tile_draw_x attach-only (no scroll false-path)", wc:find("tile_x - session.xscroll", 1, true) == nil)
+check("entity_draw_x attach-only (no scroll false-path)", wc:find("tile_x - session.xscroll", 1, true) == nil and wc:find("session.xscroll) * 16 * scale", 1, true) == nil)
+check("no world_spritebatch_offset", wc:find("world_spritebatch_offset", 1, true) == nil)
+check("no Dual-mode comment", wc:find("Dual-mode", 1, true) == nil)
 check("world_camera has screen_to_tile_x", wc:find("screen_to_tile_x", 1, true) ~= nil)
 
 local emg = read(root .. "/src/entities/emancipationgrill.tl") or ""
 check("emancipationgrill dropped xscroll draw", emg:find("-xscroll", 1, true) == nil)
 check("emancipationgrill uses screen_draw", emg:find("screen_draw_", 1, true) ~= nil)
+
+local fx = read(root .. "/src/app/game_draw_effects.tl") or ""
+local coin_block = fx:match("%-%-COINBLOCKanimation.-%-%-SCROLLING SCORE") or ""
+check("coinblock uses tile_draw under attach", coin_block:find("tile_draw_x", 1, true) ~= nil)
+check("coinblock dropped scroll math", coin_block:find("session.xscroll", 1, true) == nil)
+
+local vine = read(root .. "/src/entities/vine.tl") or ""
+check("vine draw no dual-mode branch", vine:find("if world_camera_drawing", 1, true) == nil)
+check("vine scissor uses world_screen_y", vine:find("world_screen_y", 1, true) ~= nil)
 
 local st = read(root .. "/src/entities/scrollingscore.tl") or ""
 check("scrollingscore stores world tile x", st:find("xscroll", 1, true) == nil)

@@ -2,7 +2,7 @@
 
 Полный маршрут (что брать из awesome-love2d, что никогда не менять, структура репо): [`../refactor-plan.md`](../refactor-plan.md). Этот файл — статус уже вендоренных шагов 1–7.
 
-Цель: подключать vendored-библиотеки из `lib/` **по одной**, в старый (v1) код Mari0 CE, **без изменения форматов данных** (уровни, mappacks, characterloader, spawn-форматы и т.д.).
+Цель: подключать vendored-библиотеки **только как замену** старого пути (старый код удаляется). Полный маршрут: [`../refactor-plan.md`](../refactor-plan.md).
 
 Источник библиотек: `scripts/vendor-libs` (+ `scripts/vendor-rocks` для dkjson/sha1).  
 Типы Teal: `types/*.d.tl`, `types/hump/*.d.tl`.
@@ -11,27 +11,33 @@
 
 ## Принципы
 
-1. **Одна библиотека за шаг** — закончить, проверить (`make teal`, `make test`, ручной smoke), только потом следующая.
-2. **Формат данных не трогаем** — новые библиотеки меняют только runtime-логику/рендер/физику, не JSON/N-M/TMX/Lua-экспорты mappack'ов.
-3. **Замена + удаление** — compat-слой допустим только как временный мост (< 1 PR). PR успешен, если net LOC в затронутом модуле **уменьшается** (цель ~−30% за фазу).
-4. **Рендер v1 сохраняем**, пока явно не переносим состояние (как с `runframe` для anim8).
+1. **Replace или DROP** — не «прослойка поверх». Куски на диске ≠ готово.
+2. **Формат данных не трогаем** — N-M / JSON / characterloader.
+3. **Net LOC ↓**. Dual-mode / dual-API = **не готово**, не «частично».
+4. Мёртвый vendor без callers — удалить.
+5. Порталы / portal stencil / resolve — не трогать ради либ (Push и т.п. — DROP).
 
 ---
 
 ## Статус
 
-| # | Библиотека | lib/ | types/ | Интеграция в v1 | Статус |
-|---|------------|------|--------|-----------------|--------|
-| 1 | **anim8** | `lib/anim8.lua` | `types/anim8.d.tl` | `anim8_core` + `anim8_player` / `anim8_enemy` / `anim8_effects` / `anim8_tile` | **готово** |
-| 2 | **bump** | `lib/bump.lua` | `types/bump.d.tl` | `physics/world` + checkrect/handlegroup broadphase | **готово** |
-| 3 | hump | `lib/hump/*` | `types/hump/*` | `hump_compat`, `scroll_update`, `world_camera`, timer UI | **в работе (replace+delete)** |
-| 4 | sti | `lib/sti/*` | `types/sti.d.tl` | — | не начато |
-| 5 | baton | `lib/baton.lua` | `types/baton.d.tl` | `src/app/input_bindings.tl` | готово |
-| 6 | flux | `lib/flux.lua` | `types/flux.d.tl` | portal/menu/intro/shake/roomcam/notice | **готово** |
-| 7 | slab | `lib/slab/*` | `types/slab.d.tl` | — | не начато |
+Куски на диске ≠ стадия закрыта. Нет «Xa частично / Xb потом».
 
-Вспомогательные (без отдельного этапа интеграции): `lume`, `inspect` — подключать по мере необходимости внутри шагов выше.
+| # | Библиотека | Интеграция | Статус |
+|---|------------|------------|--------|
+| 1 | anim8 | cycles | **чисто** |
+| 2 | bump | spatial index | **чисто** |
+| 3 | hump camera/timer | attach-only + Flux pan | **готово** |
+| 4 | **sti** | удалён | **готово (DROP)** |
+| 5 | baton | input | **чисто** |
+| 6 | flux | tweens | **чисто** |
+| — | ripple | один `SoundEntry.sound`; tags music/sfx | **готово** |
+| 7 | slab | удалён | **готово (DROP)** |
+| — | Push | canvas/stencil/порталы | **DROP** (не трогать) |
 
+**States (стадия 3):** `gamestate_register` → domain; `states/*` удалены — **готово**.
+
+**Маршрут и правила:** [`../refactor-plan.md`](../refactor-plan.md).
 ---
 
 ## Этап 1 — anim8 (готово)
@@ -75,26 +81,15 @@
 - [x] Runtime platform spawn → `physics_world_insert_platform`
 - [x] Убраны мёртвые fallback-ветки `else objects[...]`; прямые вызовы хелперов в hot path
 
-**Следующий этап:** sti (этап 4).
+**STI:** DROP выполнен — см. этап 4.
 
 ---
 
-## Этап 3 — hump (replace+delete, в работе)
+## Этап 3 — hump camera/timer — готово
 
-Откат псевдо-прослоек (фаза 0): удалены `game_flow.tl`, `game_spawn_timers.tl`, `app/camera.tl`, `GameFlow` signal emit→impl.
+Откат wrappers + attach-only camera + Flux pan + HumpTimer. gamestate/signal/vector удалены на стадии 1 плана.
 
-| Фаза | Сделано |
-|------|---------|
-| 0 | −~300 LOC wrappers; `tests/hump_no_wrapper_checks.lua` |
-| 1a | `util/world_camera.tl` + `drawlevel_tiles` на `wpx`/`wpy` (без `xscrollfrac`) |
-| 2a | `delayer` / `walltimer` → `HumpTimer` (удалены ручные timer loops) |
-| 3 | `Gamestate.is` / `in_menu_family`; один dispatcher без hump.gamestate stack |
-| retro | `physics/world.tl`: общий `physics_world_set_group_slot` |
-
-Остаётся: `game_draw_objects` / `game_draw_props` / `drawforeground` на world camera (−400…800 LOC).
-
-Проверка: `tests/hump_no_wrapper_checks.lua`, `tests/hump_timer_checks.lua`, `tests/camera_follow_checks.lua`, `make teal`, `make test`.
-
+Проверка: `hump_no_wrapper_checks`, `hump_timer_checks`, `camera_follow_checks`, `helper_checks` (pan).
 ---
 
 ## Этап 3 — hump (архив: compat-подход, отменён)
@@ -111,14 +106,9 @@
 
 ---
 
-## Этап 4 — sti
+## Этап 4 — sti — DROP выполнен
 
-**Задача:** загрузка/рендер Tiled-карт через STI, **runtime-формат v1 не менять**.
-
-- v1 уже может использовать Tiled Lua export — STI подключается к существующему пути загрузки уровня
-- Не делать: runtime-конвертацию N-M → TMX, новые `*_vnext` mappack'и
-- Проверка: загрузка существующих mappack levels, tile layers + object layers
-
+Удалены `lib/sti`, `sti_runtime`, `types/sti.d.tl`, vendor clone. N-M `levelio` — единственный load path. TMX native — не этот план.
 ---
 
 ## Этап 5 — baton
@@ -145,13 +135,9 @@
 
 ---
 
-## Этап 7 — slab
+## Этап 7 — slab — DROP выполнен
 
-**Задача:** только editor/menu HUD слой, не весь legacy GUI сразу.
-
-- Начать с: editor palette / debug panels
-- Не заменять: весь `guielement` в одном PR
-- Проверка: editor open, tile pick, save level
+Удалены `lib/slab`, `editor_slab.tl`, types, vendor clone. Editor остаётся на `guielement`. Full Slab rewrite — вне плана.
 
 ---
 

@@ -612,8 +612,7 @@ function mario:update_animation(dt: number): boolean
 				
 				if (mariotime as number) <= 0 then
 					subtractscore = false
-					soundlist["scorering"].source:stop()
-					soundlist["scorering"].source:seek(0)
+					stopsound("scorering")
 					castleflagmove = true
 					mariotime = 0
 				end
@@ -644,7 +643,7 @@ function mario:update_animation(dt: number): boolean
 				end
 			end
 			
-			if timedelta > math.max((fireworkcount as number)*fireworkdelay, soundlist["levelend"].source:getDuration()-castleflagtime)+endtime then
+			if timedelta > math.max((fireworkcount as number)*fireworkdelay, sound_duration("levelend")-castleflagtime)+endtime then
 				nextlevel()
 				return true
 			end
@@ -743,7 +742,7 @@ function mario:update_animation(dt: number): boolean
 				levelfinishedmisc = 2
 			end
 		
-			local nextlvltime = math.max(castleanimationnextlevel, soundlist["castleend"].source:getDuration()+castleendmusicstopdelay)
+			local nextlvltime = math.max(castleanimationnextlevel, sound_duration("castleend")+castleendmusicstopdelay)
 		
 			if self.animationtimer - dt < nextlvltime and self.animationtimer >= nextlvltime then
 				nextlevel()
@@ -753,7 +752,7 @@ function mario:update_animation(dt: number): boolean
 				levelfinishedmisc = 1
 			end
 			
-			local castlemusicwait = math.max(soundlist["castleend"].source:getDuration()+endmusicstopdelay-endanimationtextsecondline, 0)
+			local castlemusicwait = math.max(sound_duration("castleend")+endmusicstopdelay-endanimationtextsecondline, 0)
 			
 			if self.animationtimer - dt < endanimationtextsecondline+castlemusicwait and self.animationtimer >= endanimationtextsecondline+castlemusicwait then
 				levelfinishedmisc = 2
@@ -1296,11 +1295,10 @@ function mario:update_controls(dt: number): boolean
 		end
 		
 		local soundPlaying: any
-		soundPlaying = soundlist["planemode"].source:isPlaying()
+		soundPlaying = sound_playing("planemode")
 		
 		if not self.raccoonjump and self.raccoontimer == 0 and soundPlaying then 
-			soundlist["planemode"].source:stop()
-			soundlist["planemode"].source:seek(0)
+			stopsound("planemode")
 		end
 		
 		if self.raccoonascendtimer > 0 then

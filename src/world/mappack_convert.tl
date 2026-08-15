@@ -592,10 +592,10 @@ global function loadmapold(path: any): any
 		return false
 	end
 	local ptiles = parsed as LevelTilesParse
-	map = ptiles.map
-	coinmap = ptiles.coinmap
-	mapwidth = ptiles.mapwidth
-	mapheight = ptiles.mapheight
+	session.map = ptiles.map
+	session.coinmap = ptiles.coinmap
+	session.mapwidth = ptiles.mapwidth
+	session.mapheight = ptiles.mapheight
 	mariotimelimit = 400
 	background = {unpack(backgroundcolor[1])} as {any:number}
 	musicname = "overworld.ogg"

@@ -1,4 +1,7 @@
---[[ Teal port of root musicloader.lua ]]
+--[[ Teal port of root musicloader.lua — play/loop/pitch via ripple (tag music). ]]
+
+local Audio = require("assets.audio")
+local ripple = require("ripple")
 
 music = ({
 	loaded = {},
@@ -19,10 +22,9 @@ music = ({
 	},
 } as MusicPlayer)
 
-
 global function getfilepath(name: any): any
 	local musicpaths = {"assets/sounds/", mappack_path(mappack) .. "/music/"}
-	
+
 	for i = 1, #musicpaths do
 		if love.filesystem.getInfo(musicpaths[i] .. (name as string), "file") then
 			return musicpaths[i] .. (name as string)
@@ -38,20 +40,22 @@ function music:load(name: any): boolean
 		print(string.format("can't load music %q: can't find file!", n))
 		return false
 	end
-	
-	if not self.loaded[filepath as string] then
+
+	if not self.loaded[n] then
 		local loaded, source = pcall(love.audio.newSource, filepath as string, MUSIC_SOURCE_TYPE)
 		if loaded then
-			-- all music should loop
-			(source as Source):setLooping(true)
-			(source as Source):setPitch(self.pitch)
-			self.loaded[n] = source as Source
+			local sound = ripple.newSound(source as Source, {
+				loop = true,
+				tags = { Audio.tag_music },
+			})
+			sound.loop = true
+			self.loaded[n] = sound
 		else
 			print(string.format("can't load music %q: can't create source!", filepath as string))
 			return false
 		end
 	end
-	
+
 	return true
 end
 
@@ -63,18 +67,17 @@ function music:play(name: any, fast: any)
 			n = newname
 		end
 	end
-	
-	-- try to load source from disk if it hasn't been loaded already
+
 	if not self.loaded[n] and not self:load(n) then
 		return
 	end
-	
-	if self.loaded[n] then
-		if soundenabled then
-			self.loaded[n]:stop()
-			self.loaded[n]:seek(0)
-			self.loaded[n]:setVolume(volumemusic or 1)
-			self.loaded[n]:play()
+
+	local sound = self.loaded[n] as RippleSound
+	if sound and soundenabled then
+		sound:stop()
+		local inst = sound:play({ pitch = self.pitch, seek = 0 })
+		if inst then
+			inst.pitch = self.pitch
 		end
 	end
 end
@@ -87,21 +90,22 @@ function music:stop(name: any, fast: any)
 			n = newname
 		end
 	end
-	
-	if self.loaded[n] then
-		self.loaded[n]:stop()
-		self.loaded[n]:seek(0)
+
+	local sound = self.loaded[n] as RippleSound
+	if sound then
+		sound:stop()
 	end
 end
 
-function music:update()
-	for _, source in pairs(self.loaded) do
-		source:setPitch(self.pitch)
+function music:update(dt: number|nil)
+	local d = dt or 0
+	for _, raw in pairs(self.loaded) do
+		local sound = raw as RippleSound
+		sound:update(d)
+		audio_ripple_set_pitch(sound, self.pitch)
 	end
 end
 
 function music:setVolume(_)
-	for _, v in pairs(self.loaded) do
-		v:setVolume(volumemusic or 1)
-	end
+	audio_apply_volumes()
 end

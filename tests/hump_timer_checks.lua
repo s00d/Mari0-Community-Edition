@@ -52,15 +52,4 @@ end)
 TimerMod.update(0.02)
 check("module.after via dot call", mod_after == true)
 
-local Signal = require("hump.signal")
-local bus = Signal.new()
-local heard = 0
-bus:register("ping", function(msg)
-	if msg == "pong" then
-		heard = heard + 1
-	end
-end)
-bus:emit("ping", "pong")
-check("signal emit/subscribe", heard == 1)
-
 return failed

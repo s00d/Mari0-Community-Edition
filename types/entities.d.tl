@@ -190,13 +190,13 @@ global record HatDef
 end
 
 global record MusicPlayer
-	loaded: {string:Source}
+	loaded: {string:any}
 	pitch: number
 	list: {string}
 	list_fast: {string}
 	load: function(MusicPlayer, any): boolean
 	play: function(self: MusicPlayer, name: any, fade?: any)
 	stop: function(self: MusicPlayer, name: any, fade?: any)
-	update: function(MusicPlayer)
+	update: function(MusicPlayer, number|nil)
 	setVolume: function(MusicPlayer, any)
 end

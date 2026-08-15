@@ -50,15 +50,28 @@ global function game_draw_fx()
 
 	--COINBLOCKanimation
 	for i, _ in pairs(coinblockanimations) do
-		love.graphics.draw(coinblockanimationimg, coinblockanimationquads[coinblockanimations[i].frame as integer], math.floor((coinblockanimations[i].x - session.xscroll)*16*scale), math.floor(((coinblockanimations[i].y-session.yscroll)*16-8)*scale), 0, scale, scale, 4, 54)
+		local cba = coinblockanimations[i]
+		love.graphics.draw(
+			coinblockanimationimg,
+			coinblockanimationquads[cba.frame as integer],
+			tile_draw_x(cba.x as number),
+			tile_draw_y(cba.y as number, -8),
+			0,
+			world_draw_scale(),
+			world_draw_scale(),
+			4,
+			54
+		)
 	end
 
 	--SCROLLING SCORE
 	for i, _ in pairs(scrollingscores) do
-		if type(scrollingscores[i].i) == "number" then
-			properprint2(scrollingscores[i].i, math.floor((scrollingscores[i].x-0.4)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale))
-		elseif scrollingscores[i].i == "1up" then
-			love.graphics.draw(oneuptextimage, math.floor((scrollingscores[i].x)*16*scale), math.floor((scrollingscores[i].y-1.5-scrollingscoreheight*(scrollingscores[i].timer/scrollingscoretime))*16*scale), 0, scale, scale)
+		local ss = scrollingscores[i]
+		local sy = (ss.y as number) - 1.5 - scrollingscoreheight * ((ss.timer as number) / scrollingscoretime)
+		if type(ss.i) == "number" then
+			properprint2(ss.i, tile_draw_x((ss.x as number) - 0.4), tile_draw_y(sy, 0))
+		elseif ss.i == "1up" then
+			love.graphics.draw(oneuptextimage, tile_draw_x(ss.x as number), tile_draw_y(sy, 0), 0, world_draw_scale(), world_draw_scale())
 		end
 	end
 

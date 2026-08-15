@@ -77,7 +77,6 @@ function Boot.require_game()
 	require "world.spawnregistry"
 	require "world.objects_api"
 	require "world.levelio"
-	require "world.sti_runtime"
 	require "world.endless_gen"
 	require "world.entity_remap"
 	require "world.mappack_convert"
@@ -102,6 +101,7 @@ function Boot.require_game()
 	require "ui.menu_layout"
 	require "ui.menu_defs"
 	require "ui.menu_mappack"
+	require "ui.menu_options_draw"
 	require "ui.menu"
 	require "ui.levelscreen"
 	require "app.game_update"
@@ -121,8 +121,14 @@ function Boot.require_game()
 	require "ui.editor_clearcheck"
 	require "ui.editor_preview"
 	require "ui.editor_drag"
+	require "ui.editor_draw"
+	require "ui.editor_tabs"
+	require "ui.editor_tilefilters"
+	require "ui.editor_animation"
+	require "ui.editor_mapio"
+	require "ui.editor_settings"
+	require "ui.editor_input"
 	require "ui.editor"
-	require "ui.editor_slab"
 	require "ui.animationguiline"
 	require "physics"
 	require "world.quad"
@@ -193,6 +199,7 @@ function Boot.require_game()
 	require "entities.orgate"
 	require "entities.musicentity"
 	require "entities.enemyspawner"
+	require "assets.audio"
 	require "assets.musicloader"
 	require "entities.magic"
 	require "entities.ceilblocker"
@@ -603,10 +610,8 @@ function Boot.load_media()
 	for _, v in ipairs(soundstoload) do
 		assets:register_sound(v, "assets/sounds/" .. v .. ".ogg")
 		local src = assets:get_sound(v) as SoundSource
-		soundlist[v] = {}
-		soundlist[v].source = src
-		soundlist[v].lastplayed = 0
 		defaultsoundslist[v] = src
+		audio_bind_sfx(v, src as Source, nil)
 	end
 
 	-- Turret SFX: CC0 from OpenGameArt (see assets/sounds/TURRET_SFX.txt).
@@ -616,8 +621,8 @@ function Boot.load_media()
 			assets:register_sound(v, "assets/sounds/" .. v .. ".ogg")
 			local src = assets:get_sound(v) as SoundSource
 			if src then
-				soundlist[v] = { source = src, lastplayed = 0 }
 				defaultsoundslist[v] = src
+				audio_bind_sfx(v, src as Source, nil)
 			end
 		end
 	end
@@ -629,23 +634,26 @@ function Boot.load_media()
 			assets:register_sound(v, "assets/sounds/" .. v .. ".ogg")
 			local src = assets:get_sound(v) as SoundSource
 			if src then
-				soundlist[v] = { source = src, lastplayed = 0 }
 				defaultsoundslist[v] = src
+				audio_bind_sfx(v, src as Source, nil)
 			end
 		end
 	end
-	
-	soundlist["scorering"].source:setLooping(true)
-	soundlist["planemode"].source:setLooping(true)
-	soundlist["portal1open"].source:setVolume(0.3)
-	soundlist["portal2open"].source:setVolume(0.3)
-	soundlist["portalenter"].source:setVolume(0.3)
-	soundlist["portalfizzle"].source:setVolume(0.3)
-	
+
+	-- Loop / portal volume opts (rebind same default Sources).
+	audio_bind_sfx("scorering", defaultsoundslist["scorering"] as Source, { loop = true })
+	audio_bind_sfx("planemode", defaultsoundslist["planemode"] as Source, { loop = true })
+	audio_bind_sfx("portal1open", defaultsoundslist["portal1open"] as Source, { volume = 0.3 })
+	audio_bind_sfx("portal2open", defaultsoundslist["portal2open"] as Source, { volume = 0.3 })
+	audio_bind_sfx("portalenter", defaultsoundslist["portalenter"] as Source, { volume = 0.3 })
+	audio_bind_sfx("portalfizzle", defaultsoundslist["portalfizzle"] as Source, { volume = 0.3 })
+
 	delaylist = {}
 	delaylist["blockhit"] = 0.2
 	
 	musicname = "overworld.ogg"
+
+	audio_apply_volumes()
 	
 	add("Sounds")
 
@@ -743,19 +751,8 @@ function Boot.register_gamestates()
 	if not Gamestate then
 		return
 	end
-	-- Menu family shares menu_update/draw
-	for _, name in ipairs({"menu", "mappackmenu", "onlinemenu", "options", "lobby"}) do
-		(Gamestate.register as function(...: any): any)(name, {update = menu_update, draw = menu_draw})
-	end
-	for _, name in ipairs({"levelscreen", "gameover", "sublevelscreen", "mappackfinished"}) do
-		(Gamestate.register as function(...: any): any)(name, {update = levelscreen_update, draw = levelscreen_draw})
-	end
-	(Gamestate.register as function(...: any): any)("game", {update = game_update, draw = game_draw})
-	(Gamestate.register as function(...: any): any)("intro", {update = intro_update, draw = intro_draw})
-	-- Editor draws/updates inside game when editormode; register for future routing
-	if editor_update and editor_draw then
-		(Gamestate.register as function(...: any): any)("editor", {update = editor_update, draw = editor_draw})
-	end
+	local Reg = require("app.gamestate_register") as {string:function}
+	(Reg.register as function(GamestateModule))(Gamestate)
 end
 
 _G.Boot = Boot
