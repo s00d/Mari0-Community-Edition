@@ -148,6 +148,43 @@ do
 	check("#168 shell kills other enemy", killed)
 end
 
+-- pipe enter: Core.lerp_tick caps at duration; delay after must still advance
+do
+	local Core = require("assets.anim8_core")
+	local pipeanimationtime = 0.7
+	local pipeanimationdelay = 1
+	local dt = 1 / 60
+	local timer = 0
+	local frames = 0
+	local fired = false
+	while frames < 300 do
+		frames = frames + 1
+		if timer < pipeanimationtime then
+			local t = Core.lerp_tick(timer, dt, pipeanimationtime, 0, 1)
+			timer = t
+		else
+			timer = timer + dt
+		end
+		if timer >= pipeanimationtime + pipeanimationdelay then
+			fired = true
+			break
+		end
+	end
+	check("pipe delay fires after lerp_tick cap", fired, "timer=" .. tostring(timer) .. " frames=" .. frames)
+
+	-- old broken pattern never fires
+	timer, frames, fired = 0, 0, false
+	while frames < 300 do
+		frames = frames + 1
+		timer = select(1, Core.lerp_tick(timer, dt, pipeanimationtime, 0, 1))
+		if timer >= pipeanimationtime + pipeanimationdelay then
+			fired = true
+			break
+		end
+	end
+	check("lerp_tick-only never reaches delay (regression)", not fired and timer == pipeanimationtime)
+end
+
 print("")
 if failed == 0 then
 	print("All issue regression checks passed.")

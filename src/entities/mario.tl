@@ -493,20 +493,23 @@ function mario:update_animation(dt: number): boolean
 		self:setquad()
 		return true
 	elseif self.animation == "pipedown" and self.animationy and self.animationx then
-		local t: number
-		local y: number
-		t, y = Core.lerp_tick(self.animationtimer, dt, pipeanimationtime, (self.animationy as number) - 28/16, (self.animationy as number) - 28/16 + pipeanimationdistancedown)
-		self.animationtimer = t
-		self.y = y
-		if self.animationtimer >= pipeanimationtime then
+		-- lerp_tick caps at pipeanimationtime; keep advancing for pipeanimationdelay.
+		if self.animationtimer < pipeanimationtime then
+			local t: number
+			local y: number
+			t, y = Core.lerp_tick(self.animationtimer, dt, pipeanimationtime, (self.animationy as number) - 28/16, (self.animationy as number) - 28/16 + pipeanimationdistancedown)
+			self.animationtimer = t
+			self.y = y
+		else
+			self.animationtimer = self.animationtimer + dt
 			self.y = (self.animationy as number) - 28/16 + pipeanimationdistancedown
-			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
-				updatesizes()
-				if type(self.animationmisc) == "number" then --sublevel
-					levelscreen_load("sublevel", self.animationmisc)
-				else --warpzone
-					warpzone(self.animationmisc2, self.animationmisc3, self.animationmisc4)
-				end
+		end
+		if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
+			updatesizes()
+			if type(self.animationmisc) == "number" then --sublevel
+				levelscreen_load("sublevel", self.animationmisc)
+			else --warpzone
+				warpzone(self.animationmisc2, self.animationmisc3, self.animationmisc4)
 			end
 		end
 		return true
@@ -527,24 +530,26 @@ function mario:update_animation(dt: number): boolean
 		end
 		return true
 	elseif self.animation == "piperight" and self.animationy and self.animationx then
-		local t: number
-		local x: number
-		t, x = Core.lerp_tick(self.animationtimer, dt, pipeanimationtime, (self.animationx as number) - 28/16, (self.animationx as number) - 28/16 + pipeanimationdistanceright)
-		self.animationtimer = t
-		self.x = x
+		if self.animationtimer < pipeanimationtime then
+			local t: number
+			local x: number
+			t, x = Core.lerp_tick(self.animationtimer, dt, pipeanimationtime, (self.animationx as number) - 28/16, (self.animationx as number) - 28/16 + pipeanimationdistanceright)
+			self.animationtimer = t
+			self.x = x
+		else
+			self.animationtimer = self.animationtimer + dt
+			self.x = (self.animationx as number) - 28/16 + pipeanimationdistanceright
+		end
 		if self.animationstate == "running" then
 			self:runanimation(dt)
 		end
 		self:setquad()
-		if self.animationtimer >= pipeanimationtime then
-			self.x = (self.animationx as number) - 28/16 + pipeanimationdistanceright
-			if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
-				updatesizes()
-				if type(self.animationmisc) == "number" then --sublevel
-					levelscreen_load("sublevel", self.animationmisc)
-				else --warpzone
-					warpzone(self.animationmisc2, self.animationmisc3, self.animationmisc4)
-				end
+		if self.animationtimer >= pipeanimationtime+pipeanimationdelay then
+			updatesizes()
+			if type(self.animationmisc) == "number" then --sublevel
+				levelscreen_load("sublevel", self.animationmisc)
+			else --warpzone
+				warpzone(self.animationmisc2, self.animationmisc3, self.animationmisc4)
 			end
 		end
 		return true
