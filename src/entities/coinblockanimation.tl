@@ -21,18 +21,17 @@ function coinblockanimation:init(x: number, y: number)
 	local token = self.tick_id
 	HumpTimer.every(coinblockdelay, function()
 		if self.tick_id ~= token or self.finished then
-			return false
+			return
 		end
 		if self.frame >= COINBLOCK_FRAMES then
 			addpoints(-200, self.x, self.y)
 			self.finished = true
-			return false
+			return
 		end
 		self.frame = self.frame + 1
 		if self.frame >= COINBLOCK_FRAMES then
 			addpoints(-200, self.x, self.y)
 			self.finished = true
-			return false
 		end
 	end, COINBLOCK_FRAMES)
 end
