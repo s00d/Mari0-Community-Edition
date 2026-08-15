@@ -111,21 +111,29 @@ end
 -- 7) optional: empty gelSides draw is a no-op path (document perf intent)
 do
 	local draws = 0
+	local scales = {}
 	local old_love = love
 	love = {
 		graphics = {
-			draw = function()
+			draw = function(_img, _x, _y, _r, sx, sy)
 				draws = draws + 1
+				scales[#scales + 1] = { sx, sy }
 			end,
 		},
 	}
 	gelgroundimgs = { true, true, true, true }
-	scale = 1
+	scale = 2
+	world_draw_scale = function()
+		return 1
+	end
 	-- nil gelSides must never call draw helpers from game_draw (caller guards).
 	-- Empty table would still iterate — that's the bug init_map_cell_gels fixes.
 	local empty = {}
 	draw_tile_gel_overlays(empty, 0, 0, 8, 8)
 	check("empty sides no draws", draws == 0)
+	draw_tile_gel_overlays({ [1] = 1 }, 0, 0, 8, 8)
+	check("gel uses world_draw_scale not screen scale", draws == 1 and scales[1][1] == 1 and scales[1][2] == 1,
+		tostring(scales[1] and scales[1][1]))
 	love = old_love
 end
 

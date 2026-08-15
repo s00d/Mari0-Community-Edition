@@ -124,10 +124,11 @@ global function draw_tile_gel_overlays(gelSides: {number}, drawx: number, drawy:
 	local pivotx = ox
 	local pivoty = oy
 	local imgs = gelgroundimgs
+	local s = world_draw_scale()
 	for side = 1, 4 do
 		local gid = gelSides[side]
 		if gid and imgs[gid as integer] then
-			love.graphics.draw(imgs[gid as integer], drawx, drawy, GEL_ROT[side], scale, scale, pivotx, pivoty)
+			love.graphics.draw(imgs[gid as integer], drawx, drawy, GEL_ROT[side], s, s, pivotx, pivoty)
 		end
 	end
 end
@@ -137,21 +138,22 @@ global function draw_entity_gel_overlays(gels: {string:any}, drawx: number, draw
 	local pivotx = ox
 	local pivoty = oy
 	local imgs = gelgroundimgs
+	local s = world_draw_scale()
 	local gid = gels.top
 	if gid and imgs[gid as integer] then
-		love.graphics.draw(imgs[gid as integer], drawx, drawy, GEL_ROT[1], scale, scale, pivotx, pivoty)
+		love.graphics.draw(imgs[gid as integer], drawx, drawy, GEL_ROT[1], s, s, pivotx, pivoty)
 	end
 	gid = gels.right
 	if gid and imgs[gid as integer] then
-		love.graphics.draw(imgs[gid as integer], drawx, drawy, GEL_ROT[2], scale, scale, pivotx, pivoty)
+		love.graphics.draw(imgs[gid as integer], drawx, drawy, GEL_ROT[2], s, s, pivotx, pivoty)
 	end
 	gid = gels.bottom
 	if gid and imgs[gid as integer] then
-		love.graphics.draw(imgs[gid as integer], drawx, drawy, GEL_ROT[3], scale, scale, pivotx, pivoty)
+		love.graphics.draw(imgs[gid as integer], drawx, drawy, GEL_ROT[3], s, s, pivotx, pivoty)
 	end
 	gid = gels.left
 	if gid and imgs[gid as integer] then
-		love.graphics.draw(imgs[gid as integer], drawx, drawy, GEL_ROT[4], scale, scale, pivotx, pivoty)
+		love.graphics.draw(imgs[gid as integer], drawx, drawy, GEL_ROT[4], s, s, pivotx, pivoty)
 	end
 end
 
