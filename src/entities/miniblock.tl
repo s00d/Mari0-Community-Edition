@@ -23,7 +23,7 @@ function miniblock:update(dt: number): boolean
 	local x = math.floor(self.x)+1
 	local y = math.floor(self.y+self.speedy*dt)+1
 	
-	if inmap(x, y) and self.speedy > 0 and tilequads[map[x][y][1]]:getproperty("collision", x, y) then
+	if inmap(x, y) and self.speedy > 0 and tilequads[session.map[x][y][1]]:getproperty("collision", x, y) then
 		self.y = math.ceil(self.y)
 		self.speedy = 0
 		self.timer = self.timer + dt*3
@@ -32,8 +32,8 @@ function miniblock:update(dt: number): boolean
 	if self.timer > 5 then
 		--check for player pickup
 		for i = 1, players do
-			local x = playerobjs[i].x+playerobjs[i].width
-			local y = playerobjs[i].y+playerobjs[i].height
+			local x = session.playerobjs[i].x+session.playerobjs[i].width
+			local y = session.playerobjs[i].y+session.playerobjs[i].height
 			
 			if math.abs(self.x-x) + math.abs(self.y-y) < 1 then
 				if collectblock(self.i) then

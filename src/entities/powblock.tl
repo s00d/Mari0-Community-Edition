@@ -51,8 +51,8 @@ function powblock:hit()
 	playsound("blockhit")
 	self.explode = true
 	self.active = false
-	if objects and objects["enemy"] then
-		for _, v in pairs(objects["enemy"]) do
+	if session.objects and session.objects["enemy"] then
+		for _, v in pairs(session.objects["enemy"]) do
 			local e = v as enemy
 			if e.active and e.shotted and onscreen(e.x, e.y, e.width, e.height) then
 				local dir = (math.random(1, 2) == 1) and "left" or "right"

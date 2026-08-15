@@ -89,7 +89,7 @@ function fireball:update(dt: number): boolean
 		end
 	end
 	
-	if self.x < xscroll-1 or self.x > xscroll+width+1 or self.y > mapheight and self.active then
+	if self.x < session.xscroll-1 or self.x > session.xscroll+width+1 or self.y > session.mapheight and self.active then
 		fireball_notify_thrower(self)
 		self.destroy = true
 	end

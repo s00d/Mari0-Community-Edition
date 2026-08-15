@@ -292,12 +292,12 @@ global function menu_update(dt: number)
 		if characters[mariocharacter[skinningplayer]].colorables and optionsselection > 5 and optionsselection < 9 then
 			local colorRGB = optionsselection-5
 			
-			if (love.keyboard.isDown("right") or love.keyboard.isDown("d")) and mariocolors[skinningplayer][colorsetedit][colorRGB] < 1 then
+			if (ui_action_down(skinningplayer as integer, "right") or sys_down("right")) and mariocolors[skinningplayer][colorsetedit][colorRGB] < 1 then
 				mariocolors[skinningplayer][colorsetedit][colorRGB] = mariocolors[skinningplayer][colorsetedit][colorRGB] + RGBchangespeed*dt
 				if mariocolors[skinningplayer][colorsetedit][colorRGB] > 1 then
 					mariocolors[skinningplayer][colorsetedit][colorRGB] = 1
 				end
-			elseif (love.keyboard.isDown("left") or love.keyboard.isDown("a")) and mariocolors[skinningplayer][colorsetedit][colorRGB] > 0 then
+			elseif (ui_action_down(skinningplayer as integer, "left") or sys_down("left")) and mariocolors[skinningplayer][colorsetedit][colorRGB] > 0 then
 				mariocolors[skinningplayer][colorsetedit][colorRGB] = mariocolors[skinningplayer][colorsetedit][colorRGB] - RGBchangespeed*dt
 				if mariocolors[skinningplayer][colorsetedit][colorRGB] < 0 then
 					mariocolors[skinningplayer][colorsetedit][colorRGB] = 0
@@ -305,14 +305,14 @@ global function menu_update(dt: number)
 			end
 			
 		elseif (characters[mariocharacter[skinningplayer]].colorables and optionsselection == 9) or (not characters[mariocharacter[skinningplayer]].colorables and optionsselection == 4) then
-			if (love.keyboard.isDown("right") or love.keyboard.isDown("d")) and portalhues[skinningplayer][1] < 1 then
+			if (ui_action_down(skinningplayer as integer, "right") or sys_down("right")) and portalhues[skinningplayer][1] < 1 then
 				portalhues[skinningplayer][1] = portalhues[skinningplayer][1] + huechangespeed*dt
 				if portalhues[skinningplayer][1] > 1 then
 					portalhues[skinningplayer][1] = 1
 				end
 				portalcolor[skinningplayer][1] = getrainbowcolor(portalhues[skinningplayer][1]) as {number}
 				
-			elseif (love.keyboard.isDown("left") or love.keyboard.isDown("a")) and portalhues[skinningplayer][1] > 0 then
+			elseif (ui_action_down(skinningplayer as integer, "left") or sys_down("left")) and portalhues[skinningplayer][1] > 0 then
 				portalhues[skinningplayer][1] = portalhues[skinningplayer][1] - huechangespeed*dt
 				if portalhues[skinningplayer][1] < 0 then
 					portalhues[skinningplayer][1] = 0
@@ -321,14 +321,14 @@ global function menu_update(dt: number)
 			end
 			
 		elseif (characters[mariocharacter[skinningplayer]].colorables and optionsselection == 10) or (not characters[mariocharacter[skinningplayer]].colorables and optionsselection == 5) then
-			if (love.keyboard.isDown("right") or love.keyboard.isDown("d")) and portalhues[skinningplayer][2] < 1 then
+			if (ui_action_down(skinningplayer as integer, "right") or sys_down("right")) and portalhues[skinningplayer][2] < 1 then
 				portalhues[skinningplayer][2] = portalhues[skinningplayer][2] + huechangespeed*dt
 				if portalhues[skinningplayer][2] > 1 then
 					portalhues[skinningplayer][2] = 1
 				end
 				portalcolor[skinningplayer][2] = getrainbowcolor(portalhues[skinningplayer][2]) as {number}
 				
-			elseif (love.keyboard.isDown("left") or love.keyboard.isDown("a")) and portalhues[skinningplayer][2] > 0 then
+			elseif (ui_action_down(skinningplayer as integer, "left") or sys_down("left")) and portalhues[skinningplayer][2] > 0 then
 				portalhues[skinningplayer][2] = portalhues[skinningplayer][2] - huechangespeed*dt
 				if portalhues[skinningplayer][2] < 0 then
 					portalhues[skinningplayer][2] = 0
@@ -370,7 +370,7 @@ global function menu_draw()
 			portalcolor1, portalcolor2 = {60 / 255, 188 / 255, 252 / 255}, {232 / 255, 130 / 255, 30 / 255}
 		end
 		
-		drawplayer(nil, (((startx[pid] as number)-xscroll)*16)+8*(j-1), (((starty[pid] as number)-yscroll)*16-12), scale,     v.smalloffsetX, v.smalloffsetY, 0, v.smallquadcenterX, v.smallquadcenterY, "idle", false, false, mariohats[j], v.animations, v.idle[angle], 0, false, false, mariocolors[j], 1, portalcolor1, portalcolor2, nil, nil, nil, nil, nil, nil, characters[mariocharacter[j]])
+		drawplayer(nil, (((startx[pid] as number)-session.xscroll)*16)+8*(j-1), (((starty[pid] as number)-session.yscroll)*16-12), scale,     v.smalloffsetX, v.smalloffsetY, 0, v.smallquadcenterX, v.smallquadcenterY, "idle", false, false, mariohats[j], v.animations, v.idle[angle], 0, false, false, mariocolors[j], 1, portalcolor1, portalcolor2, nil, nil, nil, nil, nil, nil, characters[mariocharacter[j]])
 	end
 	
 	love.graphics.setColor(1, 1, 1, 1)
@@ -860,21 +860,21 @@ end
 global function loadbackgroundsafe(background: any): any
 	
 	if loadbackground(background) == false then
-		map = {}
-		coinmap = {}
-		mapwidth = width
+		session.map = {}
+		session.coinmap = {}
+		session.mapwidth = width
 		for x = 1, width do
-			map[x] = {}
-			coinmap[x] = {}
+			session.map[x] = {}
+			session.coinmap[x] = {}
 			for y = 1, 13 do
-				map[x][y] = {1}
+				session.map[x][y] = {1}
 			end
 		
 			for y = 14, 15 do
-				map[x][y] = {2}
+				session.map[x][y] = {2}
 			end
 		end
-		mapheight = 15
+		session.mapheight = 15
 		startx = {3, 3, 3, 3, 3}
 		starty = {13, 13, 13, 13, 13}
 		custombackground = false
@@ -882,10 +882,10 @@ global function loadbackgroundsafe(background: any): any
 		love.graphics.setBackgroundColor(backgroundcolor[backgroundi as integer])
 		notice.new("Couldn't properly load|background " .. tostring(background) .. "!", notice.red)
 		
-		xscroll = 0
-		yscroll = 0
+		session.xscroll = 0
+		session.yscroll = 0
 		
-		create_tile_spritebatches()
+		create_tile_spritebatches(nil)
 	end
 	
 	generatespritebatch(0, 0)
@@ -930,23 +930,23 @@ global function loadbackground(backgroundlevel: any): any
 	end
 	
 	--Adjust start X scroll
-	xscroll = (startx[1] as number)-(scrollingleftcomplete as number)-2
-	if xscroll > mapwidth - width then
-		xscroll = mapwidth - width
+	session.xscroll = (startx[1] as number)-(scrollingleftcomplete as number)-2
+	if session.xscroll > session.mapwidth - width then
+		session.xscroll = session.mapwidth - width
 	end
 	
-	if xscroll < 0 then
-		xscroll = 0
+	if session.xscroll < 0 then
+		session.xscroll = 0
 	end
 	
 	--and Y too
-	yscroll = (starty[1] as number)-height+downscrollborder
-	if yscroll > mapheight - height - 1 then
-		yscroll = mapheight - height - 1
+	session.yscroll = (starty[1] as number)-height+downscrollborder
+	if session.yscroll > session.mapheight - height - 1 then
+		session.yscroll = session.mapheight - height - 1
 	end
 	
-	if yscroll < 0 then
-		yscroll = 0
+	if session.yscroll < 0 then
+		session.yscroll = 0
 	end
 	
 	love.graphics.setBackgroundColor(background)

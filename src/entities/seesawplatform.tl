@@ -39,7 +39,7 @@ end
 function seesawplatform:update(dt: number): boolean
 	local checktable: {string} = {}
 	for _, v in ipairs(enemies) do
-		if objects[v] then
+		if session.objects[v] then
 			table.insert(checktable, v)
 		end
 	end
@@ -48,7 +48,7 @@ function seesawplatform:update(dt: number): boolean
 	local numberofobjects = 0
 	
 	for _, v in ipairs(checktable) do
-		for _, w in pairs(objects[v]) do
+		for _, w in pairs(session.objects[v]) do
 			if not w.jumping and inrange(w.x, self.x-w.width, self.x+self.width) then
 				if inrange(w.y, self.y - w.height - 0.1, self.y - w.height + 0.1) then
 					numberofobjects = numberofobjects + 1
@@ -67,7 +67,7 @@ function seesawplatform:update(dt: number): boolean
 		((self.callback as Entity).callbackright as function(any, number))(self.callback, numberofobjects)
 	end
 	
-	if self.y > mapheight+1 then
+	if self.y > session.mapheight+1 then
 		return true
 	end
 	

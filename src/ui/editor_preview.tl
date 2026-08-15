@@ -1,19 +1,19 @@
 --[[ Editor live preview: platform ranges, turret cones, link lines. ]]
 
 global function editor_draw_live_preview()
-	if not map or not editormode then return end
-	local xs = xscroll or 0
-	local ys = yscroll or 0
+	if not session.map or not editormode then return end
+	local xs = session.xscroll or 0
+	local ys = session.yscroll or 0
 	local sc = scale or 1
 
 	-- Scan visible map cells for entities with previewable args
 	local x0 = math.max(1, math.floor(xs))
 	local y0 = math.max(1, math.floor(ys))
-	local x1 = math.min(mapwidth or 0, math.ceil(xs + (width or 25) + 1))
-	local y1 = math.min(mapheight or 0, math.ceil(ys + (height or 14) + 1))
+	local x1 = math.min(session.mapwidth or 0, math.ceil(xs + (width or 25) + 1))
+	local y1 = math.min(session.mapheight or 0, math.ceil(ys + (height or 14) + 1))
 
 	for x = x0, x1 do
-		local col = map[x]
+		local col = session.map[x]
 		if col then
 			for y = y0, y1 do
 				local cell = col[y]

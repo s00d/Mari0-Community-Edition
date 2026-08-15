@@ -130,12 +130,12 @@ end
 
 -- Portal-anchored tiles must not be yanked out from under a portal.
 local function tile_blocked_by_portal(x: number, y: number): boolean
-	if not playerobjs then
+	if not session.playerobjs then
 		return false
 	end
 	local n = players or 0
 	for i = 1, n do
-		local v = playerobjs[i] and playerobjs[i].portal
+		local v = session.playerobjs[i] and session.playerobjs[i].portal
 		if v then
 			local zv = v as {string:any}
 			local x1 = zv.x1 as number
@@ -154,10 +154,10 @@ local function tile_can_grab(cox: number, coy: number): boolean
 	if not inmap or not inmap(cox, coy) then
 		return false
 	end
-	if not map or not map[cox] or not map[cox][coy] then
+	if not session.map or not session.map[cox] or not session.map[cox][coy] then
 		return false
 	end
-	local tid = map[cox][coy][1] as number
+	local tid = session.map[cox][coy][1] as number
 	if not tid or tid == 1 then
 		return false
 	end
@@ -186,13 +186,13 @@ local function extract_tile(cox: number, coy: number): {string:any}|nil
 	if not box or not box.new then
 		return nil
 	end
-	local tid = map[cox][coy][1] as number
+	local tid = session.map[cox][coy][1] as number
 	local tq = tilequads[tid]
 
-	map[cox][coy][1] = 1
+	session.map[cox][coy][1] = 1
 	physics_world_set_tile(tilekey(cox, coy), nil)
 	if init_map_cell_gels then
-		init_map_cell_gels(map[cox][coy])
+		init_map_cell_gels(session.map[cox][coy])
 	end
 	if checkportalremove then
 		checkportalremove(cox, coy)
@@ -214,8 +214,8 @@ local function extract_tile(cox: number, coy: number): {string:any}|nil
 		prop.quadcenterX = 8
 		prop.quadcenterY = 8
 	end
-	if objects and objects["box"] then
-		table.insert(objects["box"] as {any}, prop)
+	if session.objects and session.objects["box"] then
+		table.insert(session.objects["box"] as {any}, prop)
 	end
 	return prop
 end
@@ -290,13 +290,13 @@ end
 
 local function shoot_ball(pl: {string:any})
 	local sx, sy, dx, dy = aim(pl)
-	if not objects or not gravityball or not gravityball.new then
+	if not session.objects or not gravityball or not gravityball.new then
 		return
 	end
-	local list = objects["gravityball"] as {any}|nil
+	local list = session.objects["gravityball"] as {any}|nil
 	if list == nil then
 		list = {} as {any}
-		objects["gravityball"] = list as {any:Entity}
+		session.objects["gravityball"] = list as {any:Entity}
 	end
 	-- Offset forward so the ball does not spawn inside the player.
 	table.insert(list as {any}, (gravityball.new as function(any, number, number, number, number, any): any)(
@@ -436,7 +436,7 @@ local function update(pl: {string:any}, dt: number)
 end
 
 local function draw_trails()
-	local balls = objects["gravityball"] as {any:{string:any}}|nil
+	local balls = session.objects["gravityball"] as {any:{string:any}}|nil
 	if balls == nil then
 		return
 	end

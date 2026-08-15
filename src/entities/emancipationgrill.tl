@@ -68,7 +68,7 @@ function emancipationgrill:init(x: number, y: number, r: any)
 		self.startx = curx + 1
 		
 		local curx2 = self.x
-		while curx2 <= mapwidth and getTile(curx2, self.y) == false do
+		while curx2 <= session.mapwidth and getTile(curx2, self.y) == false do
 			involved[curx2] = self.y
 			curx2 = curx2 + 1
 		end
@@ -84,7 +84,7 @@ function emancipationgrill:init(x: number, y: number, r: any)
 		self.starty = cury + 1
 		
 		local cury2 = self.y
-		while cury2 <= mapheight and getTile(self.x, cury2) == false do
+		while cury2 <= session.mapheight and getTile(self.x, cury2) == false do
 			involved[cury2] = self.x
 			cury2 = cury2 + 1
 		end
@@ -108,7 +108,7 @@ end
 function emancipationgrill:link()
 	while #self.r > 3 do
 		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w] as {any:Entity}) do
+			for _, v in pairs(session.objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end

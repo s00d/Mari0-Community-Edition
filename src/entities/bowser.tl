@@ -108,7 +108,7 @@ function bowser:update(dt: number): boolean
 			if self.hammers and self.backwards == false then
 				self.hammertimer = self.hammertimer + dt
 				while self.hammertimer > self.hammertime do
-					table.insert(objects["enemy"], enemy:new(self.x+4/16, self.y+.5, "hammer", {}))
+					obj_insert("enemy", enemy:new(self.x+4/16, self.y+.5, "hammer", {}) as Entity)
 					self.hammertimer = self.hammertimer - self.hammertime
 					
 					--new delay
@@ -128,7 +128,7 @@ function bowser:update(dt: number): boolean
 		
 		--left of player override
 		if not self.fall then
-			if (playerobjs[getclosestplayer(self.x+15/16)] as Entity).x > self.x+15/16 and self.jump == false then
+			if (session.playerobjs[getclosestplayer(self.x+15/16)] as Entity).x > self.x+15/16 and self.jump == false then
 				self.animationdirection = "left"
 				self.speedx = bowserspeedbackwards
 				self.backwards = true

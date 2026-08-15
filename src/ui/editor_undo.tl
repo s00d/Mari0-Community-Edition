@@ -27,7 +27,7 @@ local function snapshot_cell(x: number, y: number): UndoCell|nil
 	if not inmap(x, y) then
 		return nil
 	end
-	local c = map[x][y]
+	local c = session.map[x][y]
 	local extras: {any} = {}
 	for i = 3, #c do
 		extras[#extras + 1] = c[i]
@@ -38,7 +38,7 @@ local function snapshot_cell(x: number, y: number): UndoCell|nil
 		tile = c[1],
 		entity = c[2],
 		extras = extras,
-		coin = coinmap[x][y] as boolean|nil,
+		coin = session.coinmap[x][y] as boolean|nil,
 	}
 end
 
@@ -46,7 +46,7 @@ local function apply_cell(u: UndoCell)
 	if not inmap(u.x, u.y) then
 		return
 	end
-	local c = map[u.x][u.y]
+	local c = session.map[u.x][u.y]
 	for i = #c, 3, -1 do
 		c[i] = nil
 	end
@@ -56,7 +56,7 @@ local function apply_cell(u: UndoCell)
 		c[2 + i] = u.extras[i]
 	end
 	if u.coin ~= nil then
-		coinmap[u.x][u.y] = u.coin as boolean
+		session.coinmap[u.x][u.y] = u.coin as boolean
 	end
 	init_map_cell_gels(c)
 end

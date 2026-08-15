@@ -6,11 +6,13 @@ global OBJ_DOOR = "door"
 global OBJ_BOWSER = "bowser"
 
 global function obj_group(name: string): {any:Entity}
-	return objects[name] as {any:Entity}
+	return session.objects[name] as {any:Entity}
 end
 
 global function obj_insert(name: string, e: Entity)
-	table.insert(obj_group(name), e)
+	local grp = obj_group(name) as {Entity}
+	table.insert(grp, e)
+	physics_world_upsert(e, name, #grp)
 end
 
 global function obj_each_group(name: string, fn: function(Entity))

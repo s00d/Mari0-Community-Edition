@@ -53,8 +53,8 @@ local function sync(dt: number)
 	local best_mode = 2.0
 	local best_cx, best_cy = muzzle_cx, muzzle_cy
 
-	if objects and objects["blackhole"] then
-		for _, h_any in pairs(objects["blackhole"] as {any:any}) do
+	if session.objects and session.objects["blackhole"] then
+		for _, h_any in pairs(session.objects["blackhole"] as {any:any}) do
 			local h = h_any as {string:any}
 			if h then
 				local hx = (h.x as number) + ((h.width as number) or 0.6) / 2

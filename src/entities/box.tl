@@ -16,18 +16,15 @@ function box:init(x: number, y: number)
 	--PHYSICS STUFF
 	self.cox = x
 	self.coy = y
+	self.speedx = 0
+	self.speedy = 0
 	self.x = x-14/16
 	self.y = y-12/16
-	self.speedy = 0
-	self.speedx = 0
 	self.width = 12/16
 	self.height = 12/16
 	self.static = false
 	self.active = true
 	self.category = 9
-	self.parent = nil
-	self.portaloverride = true
-
 	self.mask = {	true,
 					false, false, false, false, false,
 					false, true, false, true, true,
@@ -35,7 +32,8 @@ function box:init(x: number, y: number)
 					true, true, false, false, true,
 					false, true, true, false, false,
 					true, false, true, true, true}
-					
+	self.parent = nil
+	self.portaloverride = true
 	self.emancipatecheck = true
 
 	self.userect = adduserect(self.x, self.y, 12/16, 12/16, self)
@@ -50,7 +48,6 @@ function box:init(x: number, y: number)
 	self.quadcenterY = 6
 	
 	self.rotation = 0 --for portals
-	self.gravitydirection = math.pi/2
 	
 	self.falling = false
 	self.destroying = false
@@ -134,7 +131,7 @@ function box:update(dt: number): boolean
 	(self.userect as {string:any})["y"] = self.y
 
 	--check if offscreen
-	if self.y > mapheight+2 then
+	if self.y > session.mapheight+2 then
 		self:destroy()
 	end
 	
@@ -286,9 +283,9 @@ function box:addoutput(a: any, t: any)
 end
 
 function box:used(id: any): any
-	self.parent = playerobjs[id as integer] as Entity
+	self.parent = session.playerobjs[id as integer] as Entity
 	self.active = false
-	playerobjs[id as integer]:pickupbox(self)
+	session.playerobjs[id as integer]:pickupbox(self)
 	return nil
 end
 

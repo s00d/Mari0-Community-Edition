@@ -8,7 +8,6 @@ function Boot.setup_core_helpers()
 	require("core.stringutil")
 	require("core.mathutil")
 	require("core.tableutil")
-	require("core.dmath")
 end
 
 function Boot.setup_services(debugprints: any, music_type: any): LoggerModule, AssetStore, GamestateModule, World, AssetStore, World
@@ -16,9 +15,11 @@ function Boot.setup_services(debugprints: any, music_type: any): LoggerModule, A
 	LoggerMod.set_level(debugprints and "debug" or "info")
 	local AssetStoreMod = require("assets.store") as AssetStore
 	local GamestateMod = require("app.gamestate") as GamestateModule
+	require("world.level") -- fresh_objects before World.new
 	local WorldMod = require("world.session") as World
 	local assets = AssetStoreMod.new((music_type or "stream") as string)
 	local session = WorldMod.new()
+	rawset(_G, "session", session)
 	return LoggerMod, AssetStoreMod, GamestateMod, WorldMod, assets, session
 end
 
@@ -67,6 +68,8 @@ function Boot.require_game()
 	require "util.hatutil"
 	require "util.portalutil"
 	require "util.scrollutil"
+	require "world.tile_spritebatch"
+	require "assets.spritebatch_util"
 	require "world.geltypes"
 	require "world.gelreact"
 	require "util.geldraw"

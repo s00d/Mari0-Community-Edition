@@ -88,7 +88,7 @@ end
 function faithplate:link(): any|nil
 	while #self.r > 3 do
 		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w] as {any:Entity}) do
+			for _, v in pairs(session.objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -113,7 +113,7 @@ function faithplate:update(dt: number)
 		for i = 1, #intable, 2 do
 			local tname = intable[i] as string
 			local tidx = intable[i + 1] as integer
-			local obj = objects[tname][tidx]
+			local obj = session.objects[tname][tidx]
 			if not obj.ignorefaithplates then
 				if obj.speedy >= 0 then
 					obj.speedy = -self.yspeed

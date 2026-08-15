@@ -2,7 +2,7 @@
 
 global function metroid_save(slot: integer): boolean
 	if not JSON or not JSON.encode then return false end
-	local pl = playerobjs and playerobjs[1]
+	local pl = session.playerobjs and session.playerobjs[1]
 	local payload: {string:any} = {
 		room = (currentroom and (currentroom as MetroidRoom).id) or START_ROOM or "",
 		x = pl and (pl as {string:any}).x or 0,

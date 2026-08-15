@@ -9,7 +9,7 @@ function animation.new(_: animation, path: any, name: any): animation
 end
 
 --[[ TRIGGERS:
-mapload								when the map is loaded
+mapload								when the session.map is loaded
 timepassed:time						when <time> ms have passed
 playerxgreater:x					when a player's x is greater than x
 playerxless:x						when a player's x is less than x
@@ -153,7 +153,7 @@ function animation:update(dt: number)
 		elseif v[1] == "playerxgreater" then
 			local trig = false
 			for i = 1, players do
-				if playerobjs[i].x+playerobjs[i].width/2 > self:decodenuminput(v[2]) then
+				if session.playerobjs[i].x+session.playerobjs[i].width/2 > self:decodenuminput(v[2]) then
 					trig = true
 				end
 			end
@@ -164,7 +164,7 @@ function animation:update(dt: number)
 		elseif v[1] == "playerxless" then
 			local trig = false
 			for i = 1, players do
-				if playerobjs[i].x+playerobjs[i].width/2 < self:decodenuminput(v[2]) then
+				if session.playerobjs[i].x+session.playerobjs[i].width/2 < self:decodenuminput(v[2]) then
 					trig = true
 				end
 			end
@@ -176,7 +176,7 @@ function animation:update(dt: number)
 		elseif v[1] == "playerygreater" then
 			local trig = false
 			for i = 1, players do
-				if playerobjs[i].y+playerobjs[i].height/2 > self:decodenuminput(v[2]) then
+				if session.playerobjs[i].y+session.playerobjs[i].height/2 > self:decodenuminput(v[2]) then
 					trig = true
 				end
 			end
@@ -187,7 +187,7 @@ function animation:update(dt: number)
 		elseif v[1] == "playeryless" then
 			local trig = false
 			for i = 1, players do
-				if playerobjs[i].y+playerobjs[i].height/2 < self:decodenuminput(v[2]) then
+				if session.playerobjs[i].y+session.playerobjs[i].height/2 < self:decodenuminput(v[2]) then
 					trig = true
 				end
 			end
@@ -218,10 +218,10 @@ function animation:update(dt: number)
 			if v[1] == "disablecontrols" then
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i].controlsenabled = false
+						session.playerobjs[i].controlsenabled = false
 					end
 				else
-					local p = playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]
+					local p = session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]
 					if p then
 						p.controlsenabled = false
 					end
@@ -229,10 +229,10 @@ function animation:update(dt: number)
 			elseif v[1] == "enablecontrols" then
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i].controlsenabled = true
+						session.playerobjs[i].controlsenabled = true
 					end
 				else
-					local p = playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]
+					local p = session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]
 					if p then
 						p.controlsenabled = true
 					end
@@ -240,9 +240,9 @@ function animation:update(dt: number)
 			elseif v[1] == "sleep" then
 				self.sleep = self:decodenuminput(v[2])
 			elseif v[1] == "setcamerax" then
-				xscroll = self:decodenuminput(v[2])
+				session.xscroll = self:decodenuminput(v[2])
 			elseif v[1] == "setcameray" then
-				yscroll = self:decodenuminput(v[2])
+				session.yscroll = self:decodenuminput(v[2])
 			elseif v[1] == "pancameratox" then
 				autoscroll = false
 				cameraxpan(self:decodenuminput(v[2]), self:decodenuminput(v[3]))
@@ -264,41 +264,41 @@ function animation:update(dt: number)
 			elseif v[1] == "setx" then
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i].x = self:decodenuminput(v[3])
+						session.playerobjs[i].x = self:decodenuminput(v[3])
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[3] as string, -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[3] as string, -1))].x = self:decodenuminput(v[4])
+					if session.playerobjs[self:decodenuminput(string.sub(v[3] as string, -1))] then
+						session.playerobjs[self:decodenuminput(string.sub(v[3] as string, -1))].x = self:decodenuminput(v[4])
 					end
 				end
 			elseif v[1] == "sety" then
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i].y = self:decodenuminput(v[3])
+						session.playerobjs[i].y = self:decodenuminput(v[3])
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[3] as string, -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[3] as string, -1))].y = self:decodenuminput(v[4])
+					if session.playerobjs[self:decodenuminput(string.sub(v[3] as string, -1))] then
+						session.playerobjs[self:decodenuminput(string.sub(v[3] as string, -1))].y = self:decodenuminput(v[4])
 					end
 				end
 			elseif v[1] == "playerwalk" then
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i]:animationwalk(v[3])
+						session.playerobjs[i]:animationwalk(v[3])
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:animationwalk(v[3])
+					if session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:animationwalk(v[3])
 					end
 				end
 			elseif v[1] == "playeranimationstop" then
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i]:stopanimation()
+						session.playerobjs[i]:stopanimation()
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:stopanimation()
+					if session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:stopanimation()
 					end
 				end
 			elseif v[1] == "disableanimation" then
@@ -308,21 +308,21 @@ function animation:update(dt: number)
 			elseif v[1] == "playerjump" then
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i]:jump(true)
+						session.playerobjs[i]:jump(true)
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:jump(true)
+					if session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:jump(true)
 					end
 				end
 			elseif v[1] == "playerstopjump" then
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i]:stopjump(true)
+						session.playerobjs[i]:stopjump(true)
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:stopjump()
+					if session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:stopjump()
 					end
 				end
 			elseif v[1] == "dialogbox" then
@@ -352,11 +352,11 @@ function animation:update(dt: number)
 			elseif v[1] == "killplayer" then
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i]:die("script")
+						session.playerobjs[i]:die("script")
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:die("script")
+					if session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:die("script")
 					end
 				end
 			elseif v[1] == "changetime" then
@@ -372,32 +372,32 @@ function animation:update(dt: number)
 			elseif v[1] == "disableplayeraim" then
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i].disableaiming = true
+						session.playerobjs[i].disableaiming = true
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))].disableaiming = true
+					if session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))].disableaiming = true
 					end
 				end
 			elseif v[1] == "enableplayeraim" then
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i].disableaiming = false
+						session.playerobjs[i].disableaiming = false
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))].disableaiming = false
+					if session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))].disableaiming = false
 					end
 				end
 			
 			elseif v[1] == "closeportals" then
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i]:removeportals()
+						session.playerobjs[i]:removeportals()
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:removeportals()
+					if session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))]:removeportals()
 					end
 				end
 				
@@ -406,11 +406,11 @@ function animation:update(dt: number)
 				
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i].pointingangle = math.rad(ang)-math.pi/2
+						session.playerobjs[i].pointingangle = math.rad(ang)-math.pi/2
 					end
 				else
-					if playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
-						playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))].pointingangle = math.rad(ang)-math.pi/2
+					if session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))] then
+						session.playerobjs[self:decodenuminput(string.sub(v[2] as string, -1))].pointingangle = math.rad(ang)-math.pi/2
 					end
 				end
 			
@@ -418,19 +418,19 @@ function animation:update(dt: number)
 				if self:decodenuminput(v[3]) == 1 or self:decodenuminput(v[3]) == 2 then
 					if v[2] == "everyone" then
 						for i = 1, players do
-							local sourcex = playerobjs[i].x+6/16
-							local sourcey = playerobjs[i].y+6/16
-							local direction = playerobjs[i].pointingangle
+							local sourcex = session.playerobjs[i].x+6/16
+							local sourcey = session.playerobjs[i].y+6/16
+							local direction = session.playerobjs[i].pointingangle
 							
 							shootportal(i, 1, sourcex, sourcey, direction)
 						end
 					else
 						local i: number = self:decodenuminput(string.sub(v[2] as string, -1))
 						
-						if playerobjs[i] then
-							local sourcex = playerobjs[i].x+6/16
-							local sourcey = playerobjs[i].y+6/16
-							local direction = playerobjs[i].pointingangle
+						if session.playerobjs[i] then
+							local sourcex = session.playerobjs[i].x+6/16
+							local sourcey = session.playerobjs[i].y+6/16
+							local direction = session.playerobjs[i].pointingangle
 							
 							shootportal(i, 1, sourcex, sourcey, direction)
 						end
@@ -440,12 +440,12 @@ function animation:update(dt: number)
 			elseif v[1] == "disableportalgun" then
 				if v[2] == "everyone" then
 					for i = 1, players do
-						playerobjs[i].portalgundisabled = true
+						session.playerobjs[i].portalgundisabled = true
 					end
 				else
 					local i: number = self:decodenuminput(string.sub(v[2] as string, -1))
-					if playerobjs[i] then
-						playerobjs[i].portalgundisabled = true
+					if session.playerobjs[i] then
+						session.playerobjs[i].portalgundisabled = true
 					end
 				end
 				
@@ -453,20 +453,20 @@ function animation:update(dt: number)
 				if v[2] == "everyone" then
 			
 					for i = 1, players do
-						playerobjs[i].portalgundisabled = false
+						session.playerobjs[i].portalgundisabled = false
 					end
 				else
 					local i: number = self:decodenuminput(string.sub(v[2] as string, -1))
-					if playerobjs[i] then
-						playerobjs[i].portalgundisabled = false
+					if session.playerobjs[i] then
+						session.playerobjs[i].portalgundisabled = false
 					end
 				end
 			elseif v[1] == "giveweapon" then
-				if Weapons and Weapons.give and playerobjs then
+				if Weapons and Weapons.give and session.playerobjs then
 					local wid = tostring(v[2] or "")
 					for i = 1, players do
-						if playerobjs[i] then
-							Weapons.give(playerobjs[i], wid)
+						if session.playerobjs[i] then
+							Weapons.give(session.playerobjs[i], wid)
 						end
 					end
 				end

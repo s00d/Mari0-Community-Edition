@@ -1,48 +1,49 @@
--- Session bag (Teal strangler): game-flow fields only; level map/objects live in _G.
--- `World` record shape lives in types/entities.d.tl (ambient / global_env_def).
-
+-- Session instance (`session`): SoT for level world state.
+-- Teal record name is `World`. Methods via __index; fields on the table itself.
 
 rawset(_G, "World", rawget(_G, "World") or {})
 
 function World.new(): World
-	local self = setmetatable({}, { __index = World }) as World
-	self.mariotimer = 0
-	self.gamestate = "intro"
-	self.mappack = nil
-	self.currentlevel = nil
-	self.editormode = false
-	self.paused = false
-	return self
+	local objects, playerobjs = fresh_objects()
+	local self = {
+		map = {} as {number:{number:MapCell}},
+		coinmap = {} as {any:{any:any}},
+		objects = objects,
+		playerobjs = playerobjs,
+		mapwidth = 0,
+		mapheight = 0,
+		xscroll = 0,
+		yscroll = 0,
+		ylookmodifier = 0,
+		portals = {} as {number:portal},
+		enemiesspawned = {} as {integer:boolean},
+		smbspritebatch = nil,
+		smbspritebatchfront = nil,
+		portalspritebatch = nil,
+		portalspritebatchfront = nil,
+	}
+	return setmetatable(self, { __index = World }) as World
 end
 
-function World:sync_session_from_globals()
-	self.mariotimer = (rawget(_G, "mariotimer") as number) or 0
-	local gs = rawget(_G, "gamestate")
-	if type(gs) == "string" then
-		self.gamestate = gs
-	end
-	self.mappack = rawget(_G, "mappack") as string|nil
-	self.currentlevel = rawget(_G, "currentlevel")
-	self.editormode = rawget(_G, "editormode") and true or false
-	self.paused = rawget(_G, "paused") and true or false
-end
-
-function World:set_scroll(x: number, y: number)
-	rawset(_G, "xscroll", x)
-	rawset(_G, "yscroll", y)
-end
-
-function World:set_map_size(w: integer, h: integer)
-	rawset(_G, "mapwidth", w)
-	rawset(_G, "mapheight", h)
-end
-
-function World:set_gamestate(name: string)
-	self.gamestate = name
-	rawset(_G, "gamestate", name)
-	local GS = rawget(_G, "Gamestate")
-	if GS then
-		(GS as GamestateModule).set(name)
+function World:reset_level()
+	local objects, playerobjs = fresh_objects()
+	self.objects = objects
+	self.playerobjs = playerobjs as {any:mario}
+	self.map = {}
+	self.coinmap = {}
+	self.mapwidth = 0
+	self.mapheight = 0
+	self.xscroll = 0
+	self.yscroll = 0
+	self.ylookmodifier = 0
+	self.portals = {}
+	self.enemiesspawned = {}
+	self.smbspritebatch = nil
+	self.smbspritebatchfront = nil
+	self.portalspritebatch = nil
+	self.portalspritebatchfront = nil
+	if physics_world_reset then
+		physics_world_reset()
 	end
 end
 

@@ -41,7 +41,7 @@ function bubble:update(dt: number): boolean
 			return true
 		end
 		
-		if not tilequads[map[x][y][1]]:getproperty("water", x, y) then
+		if not tilequads[session.map[x][y][1]]:getproperty("water", x, y) then
 			return true
 		end
 	end

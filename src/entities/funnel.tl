@@ -68,7 +68,7 @@ end
 function funnel:link()
 	while #self.r > 3 do
 		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w] as {any:Entity}) do
+			for _, v in pairs(session.objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -152,7 +152,7 @@ function funnel:update(dt: number)
 			local rectcol = checkrect(x, y, width, height, self.objtable)
 			
 			for i = 1, #rectcol, 2 do
-				local w = objects[rectcol[i]][rectcol[i+1]]
+				local w = session.objects[rectcol[i]][rectcol[i+1]]
 				w.speedx = 0
 				w.speedy = 0
 				
@@ -324,7 +324,7 @@ function funnel:updaterange()
 	local quit = false
 	local collision = false
 	
-	while x >= 1 and x <= mapwidth and y >= 1 and y <= mapheight and not collision and (x ~= startx or y ~= starty or dir ~= self.dir or firstcheck == true) and quit == false do
+	while x >= 1 and x <= session.mapwidth and y >= 1 and y <= session.mapheight and not collision and (x ~= startx or y ~= starty or dir ~= self.dir or firstcheck == true) and quit == false do
 		firstcheck = false
 		
 		if dir == "right" then
@@ -414,7 +414,7 @@ function funnel:updaterange()
 		end
 		
 		--doors
-		for _, v in pairs(objects["door"] as {any:Entity}) do
+		for _, v in pairs(session.objects["door"] as {any:Entity}) do
 			if v.active then
 				local secondx, secondy = x, y
 				if dir == "right" then
@@ -440,13 +440,13 @@ function funnel:updaterange()
 		
 		--get collision for next while
 		if dir == "up" or dir == "down" then
-			if not inmap(x+1, y) or (tilequads[map[x][y][1]]:getproperty("collision", x, y) and tilequads[map[x][y][1]]:getproperty("grate", x, y) == false) or
-			(tilequads[map[x+1][y][1]]:getproperty("collision", x+1, y) and tilequads[map[x+1][y][1]]:getproperty("grate", x+1, y) == false) then
+			if not inmap(x+1, y) or (tilequads[session.map[x][y][1]]:getproperty("collision", x, y) and tilequads[session.map[x][y][1]]:getproperty("grate", x, y) == false) or
+			(tilequads[session.map[x+1][y][1]]:getproperty("collision", x+1, y) and tilequads[session.map[x+1][y][1]]:getproperty("grate", x+1, y) == false) then
 				collision = true
 			end
 		else
-			if not inmap(x, y+1) or (tilequads[map[x][y][1]]:getproperty("collision", x, y) and tilequads[map[x][y][1]]:getproperty("grate", x, y) == false) or
-			(tilequads[map[x][y+1][1]]:getproperty("collision", x, y+1) and tilequads[map[x][y+1][1]]:getproperty("grate", x, y+1) == false) then
+			if not inmap(x, y+1) or (tilequads[session.map[x][y][1]]:getproperty("collision", x, y) and tilequads[session.map[x][y][1]]:getproperty("grate", x, y) == false) or
+			(tilequads[session.map[x][y+1][1]]:getproperty("collision", x, y+1) and tilequads[session.map[x][y+1][1]]:getproperty("grate", x, y+1) == false) then
 				collision = true
 			end
 		end

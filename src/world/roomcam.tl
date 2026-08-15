@@ -138,14 +138,14 @@ local function despawn_group_in_room(group: {any:Entity}|nil, r: MetroidRoom)
 end
 
 global function despawn_room(r: MetroidRoom)
-	if not r or not objects then return end
-	despawn_group_in_room(objects["enemy"] as {any:Entity}|nil, r)
-	despawn_group_in_room(objects["abilitypickup"] as {any:Entity}|nil, r)
+	if not r or not session.objects then return end
+	despawn_group_in_room(session.objects["enemy"] as {any:Entity}|nil, r)
+	despawn_group_in_room(session.objects["abilitypickup"] as {any:Entity}|nil, r)
 end
 
 local function spawn_room_items(r: MetroidRoom)
-	if not r.items or #r.items == 0 or not abilitypickup or not objects then return end
-	if not objects["abilitypickup"] then objects["abilitypickup"] = {} end
+	if not r.items or #r.items == 0 or not abilitypickup or not session.objects then return end
+	if not session.objects["abilitypickup"] then session.objects["abilitypickup"] = {} end
 	for i = 1, #r.items do
 		local it = r.items[i]
 		local ab = tostring(it.ability or "")
@@ -154,7 +154,7 @@ local function spawn_room_items(r: MetroidRoom)
 			local mx = math.floor(r.x + (tonumber(it.dx) or (r.w / 2)) + 1)
 			local my = math.floor(r.y + (tonumber(it.dy) or (r.h / 2)) + 1)
 			local fake = {1, "abilitypickup", ab, uid} as {any}
-			table.insert(objects["abilitypickup"], abilitypickup:new(mx, my, fake) as Entity)
+			table.insert(session.objects["abilitypickup"], abilitypickup:new(mx, my, fake) as Entity)
 		end
 	end
 end
@@ -162,24 +162,24 @@ end
 global function spawn_room(r: MetroidRoom)
 	if not r then return end
 	spawn_room_items(r)
-	if r.spawns and #r.spawns > 0 and enemy and objects and objects["enemy"] then
+	if r.spawns and #r.spawns > 0 and enemy and session.objects and session.objects["enemy"] then
 		for i = 1, #r.spawns do
 			local e = r.spawns[i]
 			local uid = tostring(e.uid or door_uid(tonumber(e.x) or 0, tonumber(e.y) or 0))
 			if not globoolSH("killed_" .. uid, "check") then
-				table.insert(objects["enemy"], enemy:new(tonumber(e.x) or 0, tonumber(e.y) or 0, tostring(e.t or e.type or "goomba"), e) as Entity)
+				obj_insert("enemy", enemy:new(tonumber(e.x) or 0, tonumber(e.y) or 0, tostring(e.t or e.type or "goomba"), e) as Entity)
 			end
 		end
 		return
 	end
-	if not map or not spawnenemy or not enemiesspawned then return end
+	if not session.map or not spawnenemy or not session.enemiesspawned then return end
 	for x = math.floor(r.x) + 1, math.ceil(r.x + r.w) do
 		for y = math.floor(r.y) + 1, math.ceil(r.y + r.h) do
 			if not globoolSH("killed_" .. tostring(tilekey(x, y)), "check") then
-				enemiesspawned[tilekey(x, y)] = nil
+				session.enemiesspawned[tilekey(x, y)] = nil
 				spawnenemy(x, y)
 			else
-				enemiesspawned[tilekey(x, y)] = true
+				session.enemiesspawned[tilekey(x, y)] = true
 			end
 		end
 	end
@@ -187,8 +187,8 @@ end
 
 global function room_enter(r: MetroidRoom, prev: MetroidRoom|nil)
 	if not r then return end
-	trans_from_x = xscroll or 0
-	trans_from_y = yscroll or 0
+	trans_from_x = session.xscroll or 0
+	trans_from_y = session.yscroll or 0
 	roomtransition = ROOM_FADE
 	cam_blend.k = 0
 	local prev_tween = cam_blend_tween
@@ -206,7 +206,7 @@ global function roomcam_update(dt: number)
 	if not metroidmode or #ROOMS == 0 then return end
 	metroid_playtime = (metroid_playtime or 0) + (dt or 0)
 	if metroidmapopen then return end
-	local pl = playerobjs and ((playerobjs[mouseowner or 1] or playerobjs[1]) as Dyn)
+	local pl = session.playerobjs and ((session.playerobjs[mouseowner or 1] or session.playerobjs[1]) as Dyn)
 	if not pl then return end
 	local cx = (pl.x as number) + ((pl.width as number) or 0.75) / 2
 	local cy = (pl.y as number) + ((pl.height as number) or 1) / 2
@@ -216,11 +216,11 @@ global function roomcam_update(dt: number)
 	local tx, ty = room_camera_target(r, cx, cy, width or 25, height or 14)
 	if cam_blend.k < 1 then
 		roomtransition = ROOM_FADE * (1 - cam_blend.k)
-		xscroll = lerp(trans_from_x, tx, cam_blend.k)
-		yscroll = lerp(trans_from_y, ty, cam_blend.k)
+		session.xscroll = lerp(trans_from_x, tx, cam_blend.k)
+		session.yscroll = lerp(trans_from_y, ty, cam_blend.k)
 	else
 		roomtransition = 0
-		xscroll = tx; yscroll = ty
+		session.xscroll = tx; session.yscroll = ty
 	end
 end
 
@@ -230,7 +230,7 @@ end
 
 global function metroid_bootstrap_from_player()
 	if not metroidmode or #ROOMS == 0 then return end
-	local pl = playerobjs and (playerobjs[1] as Dyn)
+	local pl = session.playerobjs and (session.playerobjs[1] as Dyn)
 	local r: MetroidRoom|nil = pl and room_at((pl.x as number) + 0.5, (pl.y as number) + 0.5) or nil
 	if not r and START_ROOM ~= "" then r = ROOMS_BY_ID[START_ROOM] end
 	if not r and #ROOMS > 0 then r = ROOMS[1] end
@@ -238,7 +238,7 @@ global function metroid_bootstrap_from_player()
 		local room = r as MetroidRoom
 		currentroom = nil; room_enter(room, nil); currentroom = room
 		local tx, ty = room_camera_target(room, room.x + room.w / 2, room.y + room.h / 2, width or 25, height or 14)
-		xscroll = tx; yscroll = ty; roomtransition = 0
+		session.xscroll = tx; session.yscroll = ty; roomtransition = 0
 	end
 end
 

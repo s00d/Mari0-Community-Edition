@@ -85,7 +85,7 @@ global function drawreplay(j: any, i: any)
 	
 	if self["customscissor"] then
 		local cs = self["customscissor"] as {number}
-		love.graphics.setScissor(math.floor((cs[1]-xscroll)*16*scale), math.floor((cs[2]-.5-yscroll)*16*scale), cs[3]*16*scale, cs[4]*16*scale)
+		love.graphics.setScissor(math.floor((cs[1]-session.xscroll)*16*scale), math.floor((cs[2]-.5-session.yscroll)*16*scale), cs[3]*16*scale, cs[4]*16*scale)
 	end
 	
 	if true then
@@ -95,7 +95,7 @@ global function drawreplay(j: any, i: any)
 		end
 	end
 	
-	drawplayer(nil, ((self["x"] as number)-xscroll+6/16)*16, (self["y"] as number)*16, scale, self["offsetX"], self["offsetY"], self["rotation"], self["quadcenterX"], self["quadcenterY"], self["animationstate"], self["underwater"], self["ducking"], self["hats"], graphic, quad, self["pointingangle"], self["shot"], self["upsidedown"], self["colors"], self["lastportal"], self["portal1color"], self["portal2color"], self["runframe"], self["swimframe"], self["climbframe"], self["jumpframe"], biggraphic, self["fireanimationtimer"], replaychar[j])
+	drawplayer(nil, ((self["x"] as number)-session.xscroll+6/16)*16, (self["y"] as number)*16, scale, self["offsetX"], self["offsetY"], self["rotation"], self["quadcenterX"], self["quadcenterY"], self["animationstate"], self["underwater"], self["ducking"], self["hats"], graphic, quad, self["pointingangle"], self["shot"], self["upsidedown"], self["colors"], self["lastportal"], self["portal1color"], self["portal2color"], self["runframe"], self["swimframe"], self["climbframe"], self["jumpframe"], biggraphic, self["fireanimationtimer"], replaychar[j])
 	love.graphics.setScissor()
 	replaychar[j] = char
 end
@@ -143,7 +143,7 @@ global function drawplayer(i: any, x: any, y: any, cscale?: any, offsetX?: any, 
 	local v: PlayerDrawBag
 	
 	if not offsetX then
-		v = playerobjs[i] as PlayerDrawBag
+		v = session.playerobjs[i] as PlayerDrawBag
 	else
 		v = {
 			offsetX = offsetX as number,
@@ -183,14 +183,14 @@ global function drawplayer(i: any, x: any, y: any, cscale?: any, offsetX?: any, 
 	end
 	
 	local dirscale: number
-	if (not objects or not playerobjs[i] or playerobjs[i].portalsavailable[1] or playerobjs[i].portalsavailable[2]) then
+	if (not session.objects or not session.playerobjs[i] or session.playerobjs[i].portalsavailable[1] or session.playerobjs[i].portalsavailable[2]) then
 		if v.pointingangle > 0 then
 			dirscale = -scale
 		else
 			dirscale = scale
 		end
 	else
-		if playerobjs[i].animationdirection == "right" then
+		if session.playerobjs[i].animationdirection == "right" then
 			dirscale = scale
 		else
 			dirscale = -scale
@@ -355,16 +355,16 @@ global function reachedx(currentx: any)
 	
 	--check if maze was solved!
 	for i = 1, players do
-		if playerobjs[i].mazevar == mazegates[mazei] then
+		if session.playerobjs[i].mazevar == mazegates[mazei] then
 			local actualmaze = 0
 			for j = 1, #mazestarts do
-				if playerobjs[i].x > mazestarts[j] then
+				if session.playerobjs[i].x > mazestarts[j] then
 					actualmaze = j
 				end
 			end
 			mazesolved[actualmaze] = true
 			for j = 1, players do
-				playerobjs[j].mazevar = 0
+				session.playerobjs[j].mazevar = 0
 			end
 			break
 		end
@@ -381,21 +381,21 @@ global function reachedx(currentx: any)
 			repeatX = mazestarts[mazei]
 		end
 		
-		(map as {integer:{MapCell}})[x as integer] = {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}} as {MapCell}
-		table.insert(coinmap, x as integer, {})
-		for y = 1, mapheight do
-			local cell = map[x][y] as Dyn
-			local src = map[repeatX as number][y] as Dyn
-			for j = 1, #(map[repeatX as number][y] as {any}) do
+		(session.map as {integer:{MapCell}})[x as integer] = {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}} as {MapCell}
+		table.insert(session.coinmap, x as integer, {})
+		for y = 1, session.mapheight do
+			local cell = session.map[x][y] as Dyn
+			local src = session.map[repeatX as number][y] as Dyn
+			for j = 1, #(session.map[repeatX as number][y] as {any}) do
 				cell[j] = src[j]
-				coinmap[x][y] = coinmap[repeatX as number][y]
+				session.coinmap[x][y] = session.coinmap[repeatX as number][y]
 			end
 			init_map_cell_gels(cell as MapCell)
 			cell["portaloverride"] = {}
 			
-			for cox = mapwidth, x, -1 do
+			for cox = session.mapwidth, x, -1 do
 				--move objects
-				if objects["tile"][tilekey(cox, y)] then
+				if session.objects["tile"][tilekey(cox, y)] then
 					local new_key = tilekey(cox + 1, y)
 					local t = tile:new(cox, y-1) as Entity
 					physics_world_set_tile(tilekey(cox, y), nil)
@@ -404,31 +404,31 @@ global function reachedx(currentx: any)
 			end
 			
 			--create object for block
-			if tilequads[map[repeatX as number][y][1]]:getproperty("collision", repeatX, y) then
+			if tilequads[session.map[repeatX as number][y][1]]:getproperty("collision", repeatX, y) then
 				physics_world_set_tile(tilekey(x, y), tile:new(x-1, y-1) as Entity)
 			end
 		end
-		mapwidth = mapwidth + 1
+		session.mapwidth = session.mapwidth + 1
 		repeatX = (repeatX as number) + 1
 		if flagx then
 			flagx = (flagx as number) + 1
 			flagimgx = flagimgx + 1
-			objects["screenboundary"]["flag"].x = objects["screenboundary"]["flag"].x + 1
-			physics_world_upsert_slot("screenboundary", "flag", objects["screenboundary"]["flag"])
+			session.objects["screenboundary"]["flag"].x = session.objects["screenboundary"]["flag"].x + 1
+			physics_world_upsert_slot("screenboundary", "flag", session.objects["screenboundary"]["flag"])
 		end
 		
 		if axex then
 			axex = (axex as number) + 1
-			objects["screenboundary"]["axe"].x = objects["screenboundary"]["axe"].x + 1
-			physics_world_upsert_slot("screenboundary", "axe", objects["screenboundary"]["axe"])
+			session.objects["screenboundary"]["axe"].x = session.objects["screenboundary"]["axe"].x + 1
+			physics_world_upsert_slot("screenboundary", "axe", session.objects["screenboundary"]["axe"])
 		end
 		
 		if firestartx then
 			firestartx = (firestartx as number) + 1
 		end
 		
-		objects["screenboundary"]["right"].x = objects["screenboundary"]["right"].x + 1
-		physics_world_upsert_slot("screenboundary", "right", objects["screenboundary"]["right"])
+		session.objects["screenboundary"]["right"].x = session.objects["screenboundary"]["right"].x + 1
+		physics_world_upsert_slot("screenboundary", "right", session.objects["screenboundary"]["right"])
 		
 		--move mazestarts and ends
 		for i = 1, #mazestarts do
@@ -438,8 +438,8 @@ global function reachedx(currentx: any)
 		
 		--check for endblock
 		local x = math.ceil(currentx)
-		for y = 1, mapheight do
-			if map[x][y][2] and entitylist[map[x][y][2]].t == "mazeend" then
+		for y = 1, session.mapheight do
+			if session.map[x][y][2] and entitylist[session.map[x][y][2]].t == "mazeend" then
 				if mazesolved[mazei] then
 					repeatX = mazestarts[mazei+1]
 				end
@@ -450,10 +450,10 @@ global function reachedx(currentx: any)
 		--reset thingie
 		
 		local x = math.ceil(currentx)-1
-		for y = 1, mapheight do
-			if map[x][y][2] and entitylist[map[x][y][2]].t == "mazeend" then
+		for y = 1, session.mapheight do
+			if session.map[x][y][2] and entitylist[session.map[x][y][2]].t == "mazeend" then
 				for j = 1, players do
-					playerobjs[j].mazevar = 0
+					session.playerobjs[j].mazevar = 0
 				end
 			end
 		end
@@ -461,20 +461,20 @@ global function reachedx(currentx: any)
 	
 	--ENEMY STUFF
 	--[[if editormode == false and currentx < mapwidth then
-		for y = 1, mapheight do
+		for y = 1, session.mapheight do
 			spawnenemy(currentx, y)
 		end
 		if goombaattack then
 			local randomtable = {}
-			for y = 1, mapheight do
+			for y = 1, session.mapheight do
 				table.insert(randomtable, y)
 			end
 			while #randomtable > 0 do
 				local rand = math.random(#randomtable)
-				if tilequads[map[currentx][randomtable[rand] ][1] ]:getproperty("collision", currentx, randomtable[rand]) then
+				if tilequads[session.map[currentx][randomtable[rand] ][1] ]:getproperty("collision", currentx, randomtable[rand]) then
 					table.remove(randomtable, rand)
 				else
-					table.insert(objects["goomba"], goomba:new(currentx-.5, math.random(13)))
+					table.insert(session.objects["goomba"], goomba:new(currentx-.5, math.random(13)))
 					break
 				end
 			end
@@ -545,25 +545,25 @@ end
 
 global function updatesizes()
 	mariosizes = {}
-	if not objects then
+	if not session.objects then
 		for i = 1, players do
 			mariosizes[i] = 1
 		end
 	else
 		for i = 1, players do
-			mariosizes[i] = playerobjs[i].size
+			mariosizes[i] = session.playerobjs[i].size
 		end
 	end
 end
 
 global function updateranges()
-	for _, v in pairs(objects["laser"]) do
+	for _, v in pairs(session.objects["laser"]) do
 		(v as Entity):updaterange()
 	end
-	for _, v in pairs(objects["lightbridge"]) do
+	for _, v in pairs(session.objects["lightbridge"]) do
 		(v as Entity):updaterange()
 	end
-	for _, v in pairs(objects["funnel"]) do
+	for _, v in pairs(session.objects["funnel"]) do
 		(v as Entity):updaterange()
 	end
 end

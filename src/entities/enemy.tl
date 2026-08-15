@@ -108,8 +108,8 @@ function enemy:init(x: number, y: number, t: string, a: any)
 		local closestplayer = 1
 		self.animationdirection = "right"
 		local closestdist = math.huge
-		for i = 1, #(playerobjs as {any}) do
-			local v = playerobjs[i]
+		for i = 1, #(session.playerobjs as {any}) do
+			local v = session.playerobjs[i]
 			local dist = math.sqrt((v.x-self.x)^2+(v.y-self.y)^2)
 			if dist < closestdist then
 				closestdist = dist
@@ -117,8 +117,8 @@ function enemy:init(x: number, y: number, t: string, a: any)
 			end
 		end
 			
-		if playerobjs[closestplayer] then
-			if playerobjs[closestplayer].x < self.x then
+		if session.playerobjs[closestplayer] then
+			if session.playerobjs[closestplayer].x < self.x then
 				self.speedx = -math.abs(self.speedx)
 				self.animationdirection = "right"
 			else
@@ -147,9 +147,9 @@ function enemy:init(x: number, y: number, t: string, a: any)
 	
 	if self.speedxtowardsplayer then
 		local closestplayer = 1
-		local closestdist = math.sqrt((playerobjs[1].x-self.x)^2+(playerobjs[1].y-self.y)^2)
+		local closestdist = math.sqrt((session.playerobjs[1].x-self.x)^2+(session.playerobjs[1].y-self.y)^2)
 		for i = 2, players do
-			local v = playerobjs[i]
+			local v = session.playerobjs[i]
 			local dist = math.sqrt((v.x-self.x)^2+(v.y-self.y)^2)
 			if dist < closestdist then
 				closestdist = dist
@@ -157,7 +157,7 @@ function enemy:init(x: number, y: number, t: string, a: any)
 			end
 		end
 		
-		if playerobjs[closestplayer].x + playerobjs[closestplayer].width/2 > self.x + self.width/2 then
+		if session.playerobjs[closestplayer].x + session.playerobjs[closestplayer].width/2 > self.x + self.width/2 then
 			self:leftcollide("", {}, "", {})
 			self.speedx = math.abs(self.speedx)
 		else
@@ -376,9 +376,9 @@ function enemy:update(dt: number): boolean
 	
 	if self.facesplayer then
 		local closestplayer = 1
-		local closestdist = math.sqrt((playerobjs[1].x-self.x)^2+(playerobjs[1].y-self.y)^2)
+		local closestdist = math.sqrt((session.playerobjs[1].x-self.x)^2+(session.playerobjs[1].y-self.y)^2)
 		for i = 2, players do
-			local v = playerobjs[i]
+			local v = session.playerobjs[i]
 			local dist = math.sqrt((v.x-self.x)^2+(v.y-self.y)^2)
 			if dist < closestdist then
 				closestdist = dist
@@ -386,7 +386,7 @@ function enemy:update(dt: number): boolean
 			end
 		end
 		
-		if playerobjs[closestplayer].x + playerobjs[closestplayer].width/2 > self.x + self.width/2 then
+		if session.playerobjs[closestplayer].x + session.playerobjs[closestplayer].width/2 > self.x + self.width/2 then
 			self.animationdirection = "left"
 		else
 			self.animationdirection = "right"
@@ -396,9 +396,9 @@ function enemy:update(dt: number): boolean
 	if self.chasetime then
 		if self.chasetimer > self.chasetime then
 			local closestplayer = 1
-			local closestdist = math.sqrt((playerobjs[1].x-self.x)^2+(playerobjs[1].y-self.y)^2)
+			local closestdist = math.sqrt((session.playerobjs[1].x-self.x)^2+(session.playerobjs[1].y-self.y)^2)
 			for i = 2, players do
-				local v = playerobjs[i]
+				local v = session.playerobjs[i]
 				local dist = math.sqrt((v.x-self.x)^2+(v.y-self.y)^2)
 				if dist < closestdist then
 					closestdist = dist
@@ -406,7 +406,7 @@ function enemy:update(dt: number): boolean
 				end
 			end
 			
-			if playerobjs[closestplayer].x + playerobjs[closestplayer].width/2 < self.x + self.width/2 then
+			if session.playerobjs[closestplayer].x + session.playerobjs[closestplayer].width/2 < self.x + self.width/2 then
 				self.speedx = -(self.chasespeed or 1.5)
 			else
 				self.chasetimer = 0
@@ -421,7 +421,7 @@ function enemy:update(dt: number): boolean
 	if self.transforms and (self.transformtrigger == "playernear" or self.transformtrigger == "playernotnear") then
 		if type(self.playerneardist) == "number" then
 			for i = 1, players do
-				local v = playerobjs[i]
+				local v = session.playerobjs[i]
 				if inrange(v.x+v.width/2, self.x+self.width/2-((self.playerneardist or 3) as number), self.x+self.width/2+((self.playerneardist or 3) as number)) then
 					if self.transformtrigger == "playernear" then
 						self:transform(self.transformsinto)
@@ -451,7 +451,7 @@ function enemy:update(dt: number): boolean
 	if self.staticifseen or self.staticifnotseen or (self.transforms and (self.transformtrigger == "seen" or self.transformtrigger == "notseen"))then
 		local lookedat = false
 		for i = 1, players do
-			local v = playerobjs[i]
+			local v = session.playerobjs[i]
 			if v.x+(self.width/2) > self.x+(self.width/2) then
 				if v.portalsavailable[1] or v.portalsavailable[2] then
 					if v.pointingangle > 0 then
@@ -493,7 +493,7 @@ function enemy:update(dt: number): boolean
 	
 	if self.rotatetowardsplayer then
 		for i = 1, players do
-			local v = playerobjs[i]
+			local v = session.playerobjs[i]
 			if not v.dead then
 				self.rotation = (-math.atan2((v.x+v.width/2)-(self.x+self.width/2), (v.y+v.height/2)-(self.y+self.height/2-3/16)))-math.pi/2
 			end
@@ -704,16 +704,16 @@ function enemy:globalcollide(a: any, b: Entity, _: any, _: any, dir: any): boole
 	if a == "tile" then
 		if not self.resistsspikes then
 			dir = twistdirection(self.gravitydirection, dir)
-			if dir == "ceil" and tilequads[map[b.cox][b.coy][1]]:getproperty("spikesbottom", b.cox, b.coy) then
+			if dir == "ceil" and tilequads[session.map[b.cox][b.coy][1]]:getproperty("spikesbottom", b.cox, b.coy) then
 				self:shotted()
 				return false
-			elseif dir == "right" and tilequads[map[b.cox][b.coy][1]]:getproperty("spikesleft", b.cox, b.coy) then
+			elseif dir == "right" and tilequads[session.map[b.cox][b.coy][1]]:getproperty("spikesleft", b.cox, b.coy) then
 				self:shotted()
 				return false
-			elseif dir == "left" and tilequads[map[b.cox][b.coy][1]]:getproperty("spikesright", b.cox, b.coy) then
+			elseif dir == "left" and tilequads[session.map[b.cox][b.coy][1]]:getproperty("spikesright", b.cox, b.coy) then
 				self:shotted()
 				return false
-			elseif dir == "floor" and tilequads[map[b.cox][b.coy][1]]:getproperty("spikestop", b.cox, b.coy) then
+			elseif dir == "floor" and tilequads[session.map[b.cox][b.coy][1]]:getproperty("spikestop", b.cox, b.coy) then
 				self:shotted()
 				return false
 			end
@@ -809,7 +809,7 @@ function enemy:leftcollide(a: any, b: Entity, c: any, d: any): boolean
 	end
 	
 	if a == "tile" then
-		if tilequads[map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
+		if tilequads[session.map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
 			return false
 		end
 	end
@@ -869,7 +869,7 @@ function enemy:rightcollide(a: any, b: Entity, c: any, d: any): boolean
 	end
 	
 	if a == "tile" then
-		if tilequads[map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
+		if tilequads[session.map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
 			return false
 		end
 	end
@@ -929,7 +929,7 @@ function enemy:ceilcollide(a: any, b: Entity, c: any, d: any): boolean
 	end
 	
 	if a == "tile" then
-		if tilequads[map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
+		if tilequads[session.map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
 			return false
 		end
 	end
@@ -1006,7 +1006,7 @@ function enemy:passivecollide(a: any, b: Entity, c: any, d: any): boolean
 	end
 	
 	if a == "tile" then
-		if tilequads[map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
+		if tilequads[session.map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
 			return false
 		end
 	end
@@ -1151,9 +1151,9 @@ function enemy:spawnenemy(t: any)
 	end
 	
 	local closestplayer = 1
-	local closestdist = math.sqrt((playerobjs[1].x-self.x)^2+(playerobjs[1].y-self.y)^2)
+	local closestdist = math.sqrt((session.playerobjs[1].x-self.x)^2+(session.playerobjs[1].y-self.y)^2)
 	for i = 2, players do
-		local v = playerobjs[i]
+		local v = session.playerobjs[i]
 		local dist = math.sqrt((v.x-self.x)^2+(v.y-self.y)^2)
 		if dist < closestdist then
 			closestdist = dist
@@ -1163,14 +1163,14 @@ function enemy:spawnenemy(t: any)
 
 	if self.spawnenemytowardsplayer then
 		
-		local a = -math.atan2(playerobjs[closestplayer].x-self.x, playerobjs[closestplayer].y-self.y)+math.pi/2
+		local a = -math.atan2(session.playerobjs[closestplayer].x-self.x, session.playerobjs[closestplayer].y-self.y)+math.pi/2
 		
 		speedx = math.cos(a)*self.spawnenemyspeed
 		speedy = math.sin(a)*self.spawnenemyspeed
 	end
 	
 	if self.spawnenemyspeedxtowardsplayer then
-		if playerobjs[closestplayer].x + playerobjs[closestplayer].width/2 > self.x + self.width/2 then
+		if session.playerobjs[closestplayer].x + session.playerobjs[closestplayer].width/2 > self.x + self.width/2 then
 			speedx = math.abs(speedx)
 		else
 			speedx = -math.abs(speedx)
@@ -1181,7 +1181,7 @@ function enemy:spawnenemy(t: any)
 	local yoffset = self.spawnenemyoffsety or 0
 	
 	local temp = enemy:new(self.x+self.width/2+.5+xoffset, self.y+self.height+yoffset, t as string, {})
-	table.insert(objects["enemy"], temp)
+	obj_insert("enemy", temp as Entity)
 	
 	temp.speedx = speedx
 	temp.speedy = speedy
@@ -1224,7 +1224,7 @@ function enemy:transform(t: any)
 			end
 		end
 
-		table.insert(objects["enemy"], temp)
+		obj_insert("enemy", temp as Entity)
 
 		if self.spawner then
 			table.insert((self.spawner as enemy).spawnedenemies, temp)

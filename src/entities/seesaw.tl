@@ -63,8 +63,8 @@ function seesaw:init(x: number, y: number, r: any)
 	self.leftplatform = seesawplatform:new(self.x, self.y+self.dist1, self.width, self, "left") as seesawplatform
 	self.rightplatform = seesawplatform:new(self.x+self.range, self.y+self.dist2, self.width, self, "right") as seesawplatform
 	
-	table.insert(objects["seesawplatform"] as {any}, self.leftplatform)
-	table.insert(objects["seesawplatform"] as {any}, self.rightplatform)
+	table.insert(session.objects["seesawplatform"] as {any}, self.leftplatform)
+	table.insert(session.objects["seesawplatform"] as {any}, self.rightplatform)
 end
 
 function seesaw:update(dt: number)

@@ -1,7 +1,7 @@
 --[[ Incremental GC pacing for Love 12 / LuaJIT (and Lua 5.4+ host tests).
 
 Root cause of the ~5s gameplay hitch: loadlevel called collectgarbage("collect")
-*before* allocating the map/entities, which left a low GC threshold. Early
+*before* allocating the session.map/entities, which left a low GC threshold. Early
 gameplay then piled debt until LuaJIT did a multi-second catch-up pause;
 afterward incremental GC caused micro-stutters.
 

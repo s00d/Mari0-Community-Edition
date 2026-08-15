@@ -18,6 +18,11 @@ package.path = table.concat({
 	package.path,
 }, ";")
 
+require("world.level")
+local World = require("world.session")
+if not rawget(_G, "session") then
+	rawset(_G, "session", World.new())
+end
 require("core.stringutil")
 require("core.mathutil")
 require("util.editorutil")
@@ -106,9 +111,9 @@ do
 	check("mode lightdraw mushroom", m == "advanced draw tool" and s == "mushroom platforms")
 	m, s = editor_mode_labels("tiles", true, true, nil)
 	check("mode enemies", m == "tiles" and s == "enemies")
-	xscroll, yscroll, scale = 2, 1, 2
+	session.xscroll, session.yscroll, scale = 2, 1, 2
 	local x1, y1 = editor_link_screen_pos(3, 4)
-	check("link screen pos", x1 == math.floor((3-2-.5)*32) and y1 == math.floor((4-1-1)*32))
+	check("link screen pos", x1 == math.floor((3-session.xscroll-.5)*32) and y1 == math.floor((4-session.yscroll-1)*32))
 end
 
 if select("#", ...) > 0 then

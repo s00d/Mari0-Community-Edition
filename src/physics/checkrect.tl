@@ -42,7 +42,7 @@ global function checkrect(x: number, y: number, width: number, height: number, l
 			local group_name: string|nil
 			local key: any
 			group_name, key = physics_world_meta(w)
-			if group_name and key ~= nil and objects[group_name] and (objects[group_name] as {any: Body})[key] == w then
+			if group_name and key ~= nil and session.objects[group_name] and (session.objects[group_name] as {any: Body})[key] == w then
 				local contains = allow_all
 				if not contains and allow then
 					contains = (allow as {string: boolean})[group_name] == true

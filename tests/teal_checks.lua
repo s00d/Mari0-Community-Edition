@@ -55,7 +55,7 @@ check("Gamestate.get", GS.get() == "menu")
 
 local World = require("world.session")
 local w = World.new()
-check("World.new", w.gamestate == "intro")
+check("World.new", type(w.map) == "table" and w.mapwidth == 0)
 
 -- Entities are Teal global records (no middleclass at runtime)
 local Mario = require("entities.mario")

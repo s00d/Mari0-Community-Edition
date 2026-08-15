@@ -13,11 +13,11 @@ global function mapmode_update_view(_: mario)
 		mapmode_pad_y = 0
 		return
 	end
-	local mw = mapwidth as number
-	local mh = mapheight as number
+	local mw = session.mapwidth as number
+	local mh = session.mapheight as number
 	-- Never use negative scroll on small maps — it shifts the whole map off-screen.
-	xscroll = 0
-	yscroll = 0
+	session.xscroll = 0
+	session.yscroll = 0
 	if mw <= 0 or mh <= 0 then
 		mapmode_zoom = 1
 		mapmode_pad_x = 0
@@ -75,7 +75,7 @@ global function mapmode_try_enter_level(pl: mario): boolean
 	if not inmap(cx, cy) then
 		return false
 	end
-	local r = map[cx][cy]
+	local r = session.map[cx][cy]
 	if #r < 3 then
 		return false
 	end
@@ -94,7 +94,7 @@ global function mapmode_cell_walkable(cx: integer, cy: integer): boolean
 	if not inmap(cx, cy) then
 		return false
 	end
-	local cell = map[cx][cy]
+	local cell = session.map[cx][cy]
 	if cell == nil then
 		return false
 	end

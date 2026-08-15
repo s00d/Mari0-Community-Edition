@@ -50,7 +50,7 @@ function abilitypickup:update(dt: number)
 	local col = checkrect(self.x, self.y, self.width, self.height, {"player"})
 	if #col > 0 then
 		for i = 2, #col, 2 do
-			local pl = playerobjs and playerobjs[col[i] as integer]
+			local pl = session.playerobjs and session.playerobjs[col[i] as integer]
 			if pl and not (pl as Dyn).dead then
 				grant_ability(pl, self.ability)
 				globoolSH("item_" .. self.uid, "true")

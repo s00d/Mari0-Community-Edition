@@ -263,26 +263,32 @@ do
 		and _G.livesleft == false
 		and _G.coinframe == 1, tostring(err_levelscreen))
 
-	rawset(_G, "objects", {})
+	rawset(_G, "mariotimer", 0)
 	local ok_reassign, err_reassign = pcall(function()
-		_G.objects = {}
+		_G.mariotimer = 1
 	end)
 	local ok_nil, err_nil = pcall(function()
-		_G.objects = nil
+		_G.mariotimer = nil
 	end)
 	local ok_after_nil, err_after_nil = pcall(function()
-		_G.objects = {player = {}}
+		_G.mariotimer = 2
 	end)
 	check("freeze allows declared global reassignment", ok_reassign, tostring(err_reassign))
 	check("freeze allows declared global cleared to nil", ok_nil, tostring(err_nil))
 	check("freeze allows write after nil clear", ok_after_nil, tostring(err_after_nil))
+
+	local ok_map, err_map = pcall(function()
+		_G.map = {}
+	end)
+	check("freeze blocks removed world global map", not ok_map and tostring(err_map):find("undeclared global write"), tostring(err_map))
+
 	GlobalFreeze.uninstall()
 	rawset(_G, "blacktime", nil)
 	rawset(_G, "levelscreentimer", nil)
 	rawset(_G, "sublevelscreen_level", nil)
 	rawset(_G, "livesleft", nil)
 	rawset(_G, "coinframe", nil)
-	rawset(_G, "objects", nil)
+	rawset(_G, "mariotimer", nil)
 end
 
 do

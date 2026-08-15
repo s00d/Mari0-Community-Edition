@@ -26,11 +26,11 @@ local function fire(pl: {string:any}, button: any)
 		return
 	end
 	local sx, sy, dx, dy = aim(pl)
-	local list = objects and objects["blackhole"] as {any}|nil
+	local list = session.objects and session.objects["blackhole"] as {any}|nil
 	if list == nil then
 		list = {} as {any}
-		if objects then
-			objects["blackhole"] = list as {any:Entity}
+		if session.objects then
+			session.objects["blackhole"] = list as {any:Entity}
 		end
 	end
 	-- One active hole at a time: despawn previous flying/sucking

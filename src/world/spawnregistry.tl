@@ -45,7 +45,7 @@ MAP_SPAWN_HANDLERS["warppipe"] = function(x: number, y: number, r: {any})
 end
 
 MAP_SPAWN_HANDLERS["manycoins"] = function(x: number, y: number, _: {any})
-	map[x][y][3] = 7
+	session.map[x][y][3] = 7
 end
 
 MAP_SPAWN_HANDLERS["flag"] = function(x: number, y: number, _: {any})
@@ -94,19 +94,19 @@ MAP_SPAWN_HANDLERS["pipespawn"] = function(x: number, y: number, r: {any})
 end
 
 MAP_SPAWN_HANDLERS["gel"] = function(x: number, y: number, r: {any})
-	if tilequads[map[x][y][1]]:getproperty("collision", x, y) then
+	if tilequads[session.map[x][y][1]]:getproperty("collision", x, y) then
 		local gid = gel_clamp_id(r[3])
 		if r[4] == "true" then
-			map_cell_set_gel(map[x][y], GEL_SIDE_LEFT, gid)
+			map_cell_set_gel(session.map[x][y], GEL_SIDE_LEFT, gid)
 		end
 		if r[5] == "true" then
-			map_cell_set_gel(map[x][y], GEL_SIDE_TOP, gid)
+			map_cell_set_gel(session.map[x][y], GEL_SIDE_TOP, gid)
 		end
 		if r[6] == "true" then
-			map_cell_set_gel(map[x][y], GEL_SIDE_RIGHT, gid)
+			map_cell_set_gel(session.map[x][y], GEL_SIDE_RIGHT, gid)
 		end
 		if r[7] == "true" then
-			map_cell_set_gel(map[x][y], GEL_SIDE_BOTTOM, gid)
+			map_cell_set_gel(session.map[x][y], GEL_SIDE_BOTTOM, gid)
 		end
 	end
 end
@@ -136,15 +136,15 @@ MAP_SPAWN_HANDLERS["door"] = function(x: number, y: number, r: {any})
 end
 
 MAP_SPAWN_HANDLERS["gatedoor"] = function(x: number, y: number, r: {any})
-	if not objects["gatedoor"] then
-		objects["gatedoor"] = {}
+	if not session.objects["gatedoor"] then
+		session.objects["gatedoor"] = {}
 	end
 	obj_insert("gatedoor", gatedoor:new(x, y, r) as Entity)
 end
 
 MAP_SPAWN_HANDLERS["abilitypickup"] = function(x: number, y: number, r: {any})
-	if not objects["abilitypickup"] then
-		objects["abilitypickup"] = {}
+	if not session.objects["abilitypickup"] then
+		session.objects["abilitypickup"] = {}
 	end
 	obj_insert("abilitypickup", abilitypickup:new(x, y, r) as Entity)
 end
@@ -354,7 +354,7 @@ ENEMY_SPAWN_HANDLERS["cheepcheep"] = function(x: number, y: number, r: {any}, al
 end
 
 ENEMY_SPAWN_HANDLERS["bowser"] = function(x: number, y: number, _: {any}, _?: boolean): boolean
-	objects["bowser"][1] = bowser:new(x, y-1/16)
+	session.objects["bowser"][1] = bowser:new(x, y-1/16)
 	return false
 end
 

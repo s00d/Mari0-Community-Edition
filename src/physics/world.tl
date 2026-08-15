@@ -39,10 +39,10 @@ local function index_rect(x: number, y: number, w: number, h: number): number, n
 end
 
 local function item_still_valid(item: any, group: string, key: any): boolean
-	if not objects then
+	if not session.objects then
 		return false
 	end
-	local grp = objects[group]
+	local grp = session.objects[group]
 	if not grp then
 		return false
 	end
@@ -124,7 +124,7 @@ end
 
 -- Full sync from global `objects` (level load + unit tests only).
 global function physics_world_refresh()
-	if not objects then
+	if not session.objects then
 		return
 	end
 	ensure_world()
@@ -146,7 +146,7 @@ global function physics_world_refresh()
 		for gi = 1, #order do
 			local group_name = order[gi]
 			order_seen[group_name] = true
-			local grp = objects[group_name]
+			local grp = session.objects[group_name]
 			if grp then
 				sync_group(group_name, grp as {any: Body})
 			end
@@ -154,7 +154,7 @@ global function physics_world_refresh()
 	end
 
 	-- Groups not in PHYSICS_GROUP_ORDER (test stubs, dynamic groups).
-	for group_name, grp in pairs(objects) do
+	for group_name, grp in pairs(session.objects) do
 		if type(grp) == "table" and not order_seen[group_name as string] then
 			sync_group(group_name as string, grp as {any: Body})
 		end
@@ -172,11 +172,11 @@ end
 
 -- Generic objects[group][key] slot: set body and sync bump.
 global function physics_world_upsert_slot(group: string, key: any, body: any)
-	if objects then
-		if not objects[group] then
-			objects[group] = {}
+	if session.objects then
+		if not session.objects[group] then
+			session.objects[group] = {}
 		end
-		(objects[group] as {any: any})[key] = body
+		(session.objects[group] as {any: any})[key] = body
 	end
 	if body then
 		physics_world_upsert(body, group, key)
@@ -185,26 +185,26 @@ end
 
 -- Generic despawn: remove from bump and clear objects[group][key].
 global function physics_world_remove_slot(group: string, key: any)
-	if objects and objects[group] then
-		local old = (objects[group] as {any: Body})[key]
+	if session.objects and session.objects[group] then
+		local old = (session.objects[group] as {any: Body})[key]
 		if old then
 			physics_world_remove(old)
 		end
-		(objects[group] as {any: any})[key] = nil
+		(session.objects[group] as {any: any})[key] = nil
 	end
 end
 
 -- Portalwall / tile slot helpers share one implementation.
 local function physics_world_set_group_slot(group: string, key: any, body: any|nil)
-	if objects then
-		if not objects[group] then
-			objects[group] = {}
+	if session.objects then
+		if not session.objects[group] then
+			session.objects[group] = {}
 		end
-		local old = (objects[group] as {any: Body})[key]
+		local old = (session.objects[group] as {any: Body})[key]
 		if old and old ~= body then
 			physics_world_remove(old)
 		end
-		(objects[group] as {any: any})[key] = body
+		(session.objects[group] as {any: any})[key] = body
 	end
 	if body then
 		physics_world_upsert(body, group, key)
@@ -221,11 +221,11 @@ end
 
 -- Platform array append + immediate bump sync (runtime spawn).
 global function physics_world_insert_platform(body: any)
-	if objects then
-		if not objects["platform"] then
-			objects["platform"] = {}
+	if session.objects then
+		if not session.objects["platform"] then
+			session.objects["platform"] = {}
 		end
-		local grp = objects["platform"] as {integer: Body}
+		local grp = session.objects["platform"] as {integer: Body}
 		table.insert(grp, body as Body)
 		physics_world_upsert_slot("platform", #grp, body)
 	end

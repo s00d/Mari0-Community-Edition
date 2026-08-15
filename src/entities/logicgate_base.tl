@@ -22,7 +22,7 @@ global function logicgate_link(self: any): any|nil
 	local rem = gate.r as {any}
 	while #rem > 3 do
 		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w]) do
+			for _, v in pairs(session.objects[w]) do
 				if tonumber(rem[3] as string) == v.cox and tonumber(rem[4] as string) == v.coy then
 					v:addoutput(gate, rem[2])
 					if (gate.inputstate as {any:any}) and tonumber(rem[2] as string) then

@@ -59,7 +59,7 @@ end
 function geldispenser:link(): any|nil
 	while #self.r > 3 do
 		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w]) do
+			for _, v in pairs(session.objects[w]) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -80,7 +80,7 @@ function geldispenser:update(dt: number): boolean
 		while self.timer > geldispensespeed do
 			self.timer = self.timer - geldispensespeed
 			gel_pool_prepare()
-			local gels = objects["gel"] as {Entity}
+			local gels = session.objects["gel"] as {Entity}
 			if self.dir == "down" then
 				table.insert(gels, gel:new(self.x+1.5 + (math.random()-0.5)*1, self.y+12/16, self.id))
 				gels[#gels].speedy = 10

@@ -1,5 +1,7 @@
 # План поэтапной интеграции библиотек в v1
 
+Полный маршрут (что брать из awesome-love2d, что никогда не менять, структура репо): [`../refactor-plan.md`](../refactor-plan.md). Этот файл — статус уже вендоренных шагов 1–7.
+
 Цель: подключать vendored-библиотеки из `lib/` **по одной**, в старый (v1) код Mari0 CE, **без изменения форматов данных** (уровни, mappacks, characterloader, spawn-форматы и т.д.).
 
 Источник библиотек: `scripts/vendor-libs` (+ `scripts/vendor-rocks` для dkjson/sha1).  
@@ -121,7 +123,7 @@
 
 ## Этап 5 — baton
 
-**Сделано:** один модуль `src/app/input_bindings.tl` — baton `down`/`pressed`/`released`, без `game_portal_input`, без legacy-миграций и без dispatch-таблиц. `shootportal` в `game_portal_world.tl`. Options: `playercontrols/1 left=key:a,jump=key:space;` (пробел = разделитель записи; `:` только внутри baton).
+**Сделано:** один модуль `src/app/input_bindings.tl` — baton `down`/`pressed`/`released`/`get`. Gameplay: `leftkey(i)` / `ui_action_get(i,"jump")` / `input_player(i):get("jump")`. Editor/menu modifiers: `sys_down("shift"|"alt"|"ctrl"|arrows|"f1")`. Прямых `love.keyboard.isDown` в `src/` нет (кроме scancode-обёртки в `love_load`, которую читает сам baton). `controls[slot]` — только таблица биндингов для options.txt, не baton-инстанс.
 
 - Gameplay: `leftkey(i)` / `runkey(i)` → `baton:down()`; discrete actions в `ui_input_update` через `pressed`/`released`
 - Проверка: splitscreen, editor shortcuts, rebind в options

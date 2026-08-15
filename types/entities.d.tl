@@ -140,20 +140,7 @@ global record Enemy
 	draw: function(Enemy)
 end
 
--- Session / world bag (world.session).
-global record World
-	mariotimer: number
-	gamestate: string
-	mappack: string|nil
-	currentlevel: any
-	editormode: boolean
-	paused: boolean
-	new: function(): World
-	sync_session_from_globals: function(World)
-	set_scroll: function(World, number, number)
-	set_map_size: function(World, integer, integer)
-	set_gamestate: function(World, string)
-end
+-- World/Session: record `World`, global instance `session` (types/game.d.tl).
 
 -- Asset store (assets.store).
 global record AssetStoreEntry

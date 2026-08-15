@@ -85,7 +85,7 @@ end
 -- Drop modifier string onto map cell (editor). Returns true if applied.
 global function enemy_drop_modifier(mod: string, cox: number, coy: number): boolean
 	if not ENEMY_MODIFIERS[mod] or not inmap(cox, coy) then return false end
-	local c = map[cox][coy]
+	local c = session.map[cox][coy]
 	if not c or #c < 2 then return false end
 	local name = c[2]
 	local is_enemy = false

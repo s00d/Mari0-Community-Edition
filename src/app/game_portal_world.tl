@@ -2,7 +2,7 @@
 
 global function modifyportalwalls()
 	--Create and remove new stuff
-	for a, b in pairs(portals) do
+	for a, b in pairs(session.portals) do
 		local pb = b as portal
 		for i = 1, 2 do
 			if ((pb as {string:any})["x" .. i] as number) then
@@ -14,7 +14,7 @@ global function modifyportalwalls()
 					physics_world_set_portalwall(a .. "-" .. i .. "-5", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 0, 0, true))
 					physics_world_set_portalwall(a .. "-" .. i .. "-6", portalwall:new(((b as {string:any})["x" .. i] as number)+1, ((b as {string:any})["y" .. i] as number)-1, 0, 0, true))
 					
-					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 1, 0, portals[a], i, "remove")
+					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 1, 0, session.portals[a], i, "remove")
 				elseif (b as {string:any})["facing" .. i] == "down" then
 					physics_world_set_portalwall(a .. "-" .. i .. "-1", portalwall:new(((b as {string:any})["x" .. i] as number)-2, ((b as {string:any})["y" .. i] as number)-1, 1, 0, true))
 					physics_world_set_portalwall(a .. "-" .. i .. "-2", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 1, 0, true))
@@ -23,7 +23,7 @@ global function modifyportalwalls()
 					physics_world_set_portalwall(a .. "-" .. i .. "-5", portalwall:new(((b as {string:any})["x" .. i] as number)-2, ((b as {string:any})["y" .. i] as number), 0, 0, true))
 					physics_world_set_portalwall(a .. "-" .. i .. "-6", portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 0, 0, true))
 					
-					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), -1, 0, portals[a], i, "remove")
+					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), -1, 0, session.portals[a], i, "remove")
 				elseif (b as {string:any})["facing" .. i] == "left" then
 					physics_world_set_portalwall(a .. "-" .. i .. "-1", portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-2, 0, 1, true))
 					physics_world_set_portalwall(a .. "-" .. i .. "-2", portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-1, 0, 1, true))
@@ -32,7 +32,7 @@ global function modifyportalwalls()
 					physics_world_set_portalwall(a .. "-" .. i .. "-5", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 0, 0, true))
 					physics_world_set_portalwall(a .. "-" .. i .. "-6", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-2, 0, 0, true))
 					
-					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 0, -1, portals[a], i, "remove")
+					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 0, -1, session.portals[a], i, "remove")
 				elseif (b as {string:any})["facing" .. i] == "right" then
 					physics_world_set_portalwall(a .. "-" .. i .. "-1", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number)-1, 0, 1, true))
 					physics_world_set_portalwall(a .. "-" .. i .. "-2", portalwall:new(((b as {string:any})["x" .. i] as number)-1, ((b as {string:any})["y" .. i] as number), 0, 1, true))
@@ -41,20 +41,20 @@ global function modifyportalwalls()
 					physics_world_set_portalwall(a .. "-" .. i .. "-5", portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)-1, 0, 0, true))
 					physics_world_set_portalwall(a .. "-" .. i .. "-6", portalwall:new(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number)+1, 0, 0, true))
 					
-					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 0, 1, portals[a], i, "remove")
+					modifyportaltiles(((b as {string:any})["x" .. i] as number), ((b as {string:any})["y" .. i] as number), 0, 1, session.portals[a], i, "remove")
 				end
 			end
 		end
 	end
 	
 	--remove conflicting portalwalls (only exist when both portals exists!)
-	for _, b in pairs(portals) do
+	for _, b in pairs(session.portals) do
 		for j = 1, 2 do
 			local otherj = 1
 			if j == 1 then
 				otherj = 2
 			end
-			for c, d in pairs(portals) do
+			for c, d in pairs(session.portals) do
 				for i = 1, 2 do
 					--B.J PORTAL WILL REMOVE WALLS OF D.OTHERJ, SO B.OTHERJ MUST EXIST
 					
@@ -62,7 +62,7 @@ global function modifyportalwalls()
 						local conside, conx, cony = (b as {string:any})["facing" .. j], ((b as {string:any})["x" .. j] as number), ((b as {string:any})["y" .. j] as number)
 						
 						for k = 1, 4 do
-							local w = objects["portalwall"][c .. "-" .. i .. "-" .. k]
+							local w = session.objects["portalwall"][c .. "-" .. i .. "-" .. k]
 							if w then
 								if conside == "right" then
 									if w.x == conx and w.y == cony-1 and w.height == 1 then
@@ -244,7 +244,7 @@ end
 
 global function getTile(x: number, y: number, _?: any, portalcheck?: any, facing?: any, ignoregrates?: any, _?: any, mirexc?: any): any, any --returns masktable value of block (As well as the ID itself as second return parameter) also includes a portalcheck and returns false if a portal is on that spot.
 	if portalcheck then
-		for _, v in pairs(portals) do
+		for _, v in pairs(session.portals) do
 			--Get the extra block of each portal
 			local portal1xplus, portal1yplus, portal2xplus, portal2yplus = portal_pair_offsets(v.facing1, v.facing2)
 			
@@ -263,7 +263,7 @@ global function getTile(x: number, y: number, _?: any, portalcheck?: any, facing
 	end
 	
 	--check for tubes
-	for _, v in pairs(objects["geldispenser"]) do
+	for _, v in pairs(session.objects["geldispenser"]) do
 		if (x == v.cox or x == v.cox+1) and (y == v.coy or y == v.coy+1) then
 			if portalcheck then
 				return false
@@ -273,7 +273,7 @@ global function getTile(x: number, y: number, _?: any, portalcheck?: any, facing
 		end
 	end
 	
-	for _, v in pairs(objects["cubedispenser"]) do
+	for _, v in pairs(session.objects["cubedispenser"]) do
 		if (x == v.cox or x == v.cox+1) and (y == v.coy or y == v.coy+1) then
 			if portalcheck then
 				return false
@@ -285,7 +285,7 @@ global function getTile(x: number, y: number, _?: any, portalcheck?: any, facing
 	
 	--bonusstage thing for keeping it from fucking up by allowing portals to be shot next to the vine in 4-2_2 for example
 	if bonusstage then
-		if y == mapheight and (x == 4 or x == 6) then
+		if y == session.mapheight and (x == 4 or x == 6) then
 			if portalcheck then
 				return false
 			else
@@ -294,11 +294,11 @@ global function getTile(x: number, y: number, _?: any, portalcheck?: any, facing
 		end
 	end
 	
-	if x <= 0 or y <= 0 or y >= mapheight+1 or x > mapwidth then
+	if x <= 0 or y <= 0 or y >= session.mapheight+1 or x > session.mapwidth then
 		return false, 1
 	end
 	
-	if tilequads[map[x][y][1] as number]:getproperty("invisible", x, y) then
+	if tilequads[session.map[x][y][1] as number]:getproperty("invisible", x, y) then
 		return false
 	end
 	
@@ -321,29 +321,29 @@ global function getTile(x: number, y: number, _?: any, portalcheck?: any, facing
 			end
 		end--]]
 		
-		if map[x][y]["portaloverride"] and map[x][y]["portaloverride"][side] then
-			return true, map[x][y][1]
+		if session.map[x][y]["portaloverride"] and session.map[x][y]["portaloverride"][side] then
+			return true, session.map[x][y][1]
 		end
 		
 		local gelSide = GEL_SIDE_BY_NAME[side as string]
-		if gelSide and gel_has(map_cell_gel_id(map[x][y], gelSide), "cleanse") then
-			return true, map[x][y][1]
-		elseif tilequads[map[x][y][1] as number]:getproperty("mirror", x, y) and mirexc then
+		if gelSide and gel_has(map_cell_gel_id(session.map[x][y], gelSide), "cleanse") then
+			return true, session.map[x][y][1]
+		elseif tilequads[session.map[x][y][1] as number]:getproperty("mirror", x, y) and mirexc then
 			return "mirror"
 		else
-			return tilequads[map[x][y][1] as number]:getproperty("collision", x, y) and tilequads[map[x][y][1] as number]:getproperty("portalable", x, y) and tilequads[map[x][y][1] as number]:getproperty("grate", x, y) == false and tilequads[map[x][y][1] as number]:getproperty("mirror", x, y) == false, map[x][y][1]
+			return tilequads[session.map[x][y][1] as number]:getproperty("collision", x, y) and tilequads[session.map[x][y][1] as number]:getproperty("portalable", x, y) and tilequads[session.map[x][y][1] as number]:getproperty("grate", x, y) == false and tilequads[session.map[x][y][1] as number]:getproperty("mirror", x, y) == false, session.map[x][y][1]
 		end
 	else
 		if ignoregrates then
-			return tilequads[map[x][y][1] as number]:getproperty("collision", x, y) and tilequads[map[x][y][1] as number]:getproperty("grate", x, y) == false, map[x][y][1]
+			return tilequads[session.map[x][y][1] as number]:getproperty("collision", x, y) and tilequads[session.map[x][y][1] as number]:getproperty("grate", x, y) == false, session.map[x][y][1]
 		else
-			return tilequads[map[x][y][1] as number]:getproperty("collision", x, y), map[x][y][1]
+			return tilequads[session.map[x][y][1] as number]:getproperty("collision", x, y), session.map[x][y][1]
 		end
 	end
 end
 
 global function getPortal(x: number, y: number, dir?: any): number|boolean, number|nil, any, any, any, any, any, any --returns the block where you'd come out when you'd go in the argument's block
-	for _, v in pairs(portals) do
+	for _, v in pairs(session.portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 			--Get the extra block of each portal
 			local portal1xplus, portal1yplus, portal2xplus, portal2yplus = portal_pair_offsets(v.facing1, v.facing2)
@@ -424,7 +424,7 @@ global function insideportal(x: number, y: number, width: number, height: number
 	if height == nil then
 		height = 12/16
 	end
-	for i, v in pairs(portals) do
+	for i, v in pairs(session.portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 			for j = 1, 2 do				
 				local portalx: number = 0
@@ -452,19 +452,19 @@ global function insideportal(x: number, y: number, width: number, height: number
 				
 				if portalfacing == "right" then
 					if (math.floor(y) == portaly or math.floor(y) == portaly-1) and inrange(x, portalx-width, portalx, false) then
-						return portals[i], j
+						return session.portals[i], j
 					end
 				elseif portalfacing == "left" then
 					if (math.floor(y) == portaly-1 or math.floor(y) == portaly-2) and inrange(x, portalx-1-width, portalx-1, false) then
-						return portals[i], j
+						return session.portals[i], j
 					end
 				elseif portalfacing == "up" then
 					if inrange(y, portaly-height-1, portaly-1, false) and inrange(x, portalx-1.5-.2, portalx+.5+.2, true) then
-						return portals[i], j
+						return session.portals[i], j
 					end	
 				elseif portalfacing == "down" then
 					if inrange(y, portaly-height, portaly, false) and inrange(x, portalx-2, portalx-.5, true) then
-						return portals[i], j
+						return session.portals[i], j
 					end	
 				end
 				
@@ -478,7 +478,7 @@ global function insideportal(x: number, y: number, width: number, height: number
 end
 
 global function moveoutportal(_i?: any) --pushes objects out of the portal i in.
-	for i, v in pairs(objects) do
+	for i, v in pairs(session.objects) do
 		if i ~= "tile" and i ~= "portalwall" then
 			for _, w in pairs(v) do
 				if w.active and w.static == false then
@@ -534,7 +534,7 @@ global function traceline(sourcex: number, sourcey: number, radians: number, _?:
 	end
 	
 	local doorcollide = false
-	for _, v in pairs(objects["door"]) do
+	for _, v in pairs(session.objects["door"]) do
 		if v.dir == "hor" then
 			if v.open == false and (v.cox == currentblock[1] or v.cox == currentblock[1]+1) and v.coy == currentblock[2] then
 				doorcollide = true
@@ -552,7 +552,7 @@ global function traceline(sourcex: number, sourcey: number, radians: number, _?:
 	
 	local side: string = ""
 	
-	while currentblock[1]+1 > 0 and currentblock[1]+1 <= mapwidth and (flagx == false or currentblock[1]+1 <= (flagx as number) or radians > 0) and (axex == false or currentblock[1]+1 <= (axex as number)) and (currentblock[2] > 0 or currentblock[2] >= math.floor(sourcey+0.5)) and currentblock[2] < mapheight+1 do --while in map range
+	while currentblock[1]+1 > 0 and currentblock[1]+1 <= session.mapwidth and (flagx == false or currentblock[1]+1 <= (flagx as number) or radians > 0) and (axex == false or currentblock[1]+1 <= (axex as number)) and (currentblock[2] > 0 or currentblock[2] >= math.floor(sourcey+0.5)) and currentblock[2] < session.mapheight+1 do --while in map range
 		local oldy = y
 		local oldx = x
 		
@@ -611,7 +611,7 @@ global function traceline(sourcex: number, sourcey: number, radians: number, _?:
 		end
 		
 		local doorcollide = false
-		for _, v in pairs(objects["door"]) do
+		for _, v in pairs(session.objects["door"]) do
 			if v.dir == "hor" then
 				if v.open == false and (v.cox == currentblock[1] or v.cox == currentblock[1]+1) and v.coy == currentblock[2] then
 					doorcollide = true
@@ -627,21 +627,21 @@ global function traceline(sourcex: number, sourcey: number, radians: number, _?:
 		
 		--Check for ceilblocker
 		if y < 0 then
-			if entitylist[map[currentblock[1]][1][2]] and entitylist[map[currentblock[1]][1][2]].t == "ceilblocker" then
+			if entitylist[session.map[currentblock[1]][1][2]] and entitylist[session.map[currentblock[1]][1][2]].t == "ceilblocker" then
 				return false, false, false, false, x, y
 			end
 		end
 		
-		if collide == true and tilequads[map[currentblock[1]+1][currentblock[2]][1]]:getproperty("grate", currentblock[1]+1, currentblock[2]) == false then
+		if collide == true and tilequads[session.map[currentblock[1]+1][currentblock[2]][1]]:getproperty("grate", currentblock[1]+1, currentblock[2]) == false then
 			break
 		elseif emancecollide or doorcollide then
 			return false, false, false, false, x, y
-		elseif (radians <= 0 and x > xscroll + width) or (radians >= 0 and x < xscroll) then
+		elseif (radians <= 0 and x > session.xscroll + width) or (radians >= 0 and x < session.xscroll) then
 			return false, false, false, false, x, y
 		end
 	end
 	
-	if currentblock[1]+1 > 0 and currentblock[1]+1 <= mapwidth and (currentblock[2] > 0 or currentblock[2] >= math.floor(sourcey+0.5))  and currentblock[2] < mapheight+1 and currentblock[1] ~= nil then
+	if currentblock[1]+1 > 0 and currentblock[1]+1 <= session.mapwidth and (currentblock[2] > 0 or currentblock[2] >= math.floor(sourcey+0.5))  and currentblock[2] < session.mapheight+1 and currentblock[1] ~= nil then
 		local tendency: number = 0
 	
 		--get tendency
@@ -666,7 +666,7 @@ global function traceline(sourcex: number, sourcey: number, radians: number, _?:
 end
 
 global function checkportalremove(x: any, y: any)
-	for _, v in pairs(portals) do
+	for _, v in pairs(session.portals) do
 		--Get the extra block of each portal
 		local portal1xplus, portal1yplus, portal2xplus, portal2yplus = portal_pair_offsets(v.facing1, v.facing2)
 		
@@ -685,16 +685,16 @@ global function checkportalremove(x: any, y: any)
 end
 
 global function shootportal(plnumber: any, i: any, sourcex: any, sourcey: any, direction: any, mirrored?: any, bounces?: any)
-	if playerobjs[plnumber].portalgundisabled then
+	if session.playerobjs[plnumber].portalgundisabled then
 		return
 	end
-	if not (playerobjs[plnumber].portalsavailable as {boolean})[i as integer] then
+	if not (session.playerobjs[plnumber].portalsavailable as {boolean})[i as integer] then
 		return
 	end
-	if playerobjs[plnumber].pickup then
+	if session.playerobjs[plnumber].pickup then
 		return
 	end
-	local pl = playerobjs[plnumber]
+	local pl = session.playerobjs[plnumber]
 	if not pl.weapondelay then
 		pl.weapondelay = {}
 	end
@@ -704,22 +704,22 @@ global function shootportal(plnumber: any, i: any, sourcex: any, sourcey: any, d
 		(pl.weapondelay as {string:number}).portal = portalgundelay
 		portaldelay[plnumber as number] = portalgundelay
 	end
-	local color = playerobjs[plnumber].portal2color
+	local color = session.playerobjs[plnumber].portal2color
 	if i == 1 then
-		color = playerobjs[plnumber].portal1color
+		color = session.playerobjs[plnumber].portal1color
 	end
 	if not mirrored then
-		playerobjs[plnumber].lastportal = i as number
+		session.playerobjs[plnumber].lastportal = i as number
 	end
 	local sxn: number = sourcex as number
 	local syn: number = sourcey as number
 	local dirn: number = direction as number
 	local cox, coy, side, tendency, x, y = traceline(sxn, syn, dirn, nil)
 	local mirror = false
-	if cox and tilequads[map[cox as number][coy as number][1]] and tilequads[map[cox as number][coy as number][1]]:getproperty("mirror", cox as number, coy as number) then
+	if cox and tilequads[session.map[cox as number][coy as number][1]] and tilequads[session.map[cox as number][coy as number][1]]:getproperty("mirror", cox as number, coy as number) then
 		mirror = true
 	end
-	playerobjs[plnumber].lastportal = i as number
-	table.insert(portalprojectiles, portalprojectile:new(sourcex as number, sourcey as number, x as number, y as number, color, true, {playerobjs[plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored, bounces))
+	session.playerobjs[plnumber].lastportal = i as number
+	table.insert(portalprojectiles, portalprojectile:new(sourcex as number, sourcey as number, x as number, y as number, color, true, {session.playerobjs[plnumber].portal, i, cox, coy, side, tendency, x, y}, mirror, mirrored, bounces))
 end
 

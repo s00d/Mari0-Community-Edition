@@ -21,10 +21,10 @@ local DRAW_PROPS_GROUPS = {
 
 local function level_dims(y_edge_extra: number): number, number
 	local xtodraw: number
-	if mapwidth < width+1 then
-		xtodraw = math.ceil(mapwidth)
+	if session.mapwidth < width+1 then
+		xtodraw = math.ceil(session.mapwidth)
 	else
-		if mapwidth > width and xscroll < mapwidth-width then
+		if session.mapwidth > width and session.xscroll < session.mapwidth-width then
 			xtodraw = math.ceil(width+1)
 		else
 			xtodraw = math.ceil(width)
@@ -32,10 +32,10 @@ local function level_dims(y_edge_extra: number): number, number
 	end
 
 	local ytodraw: number
-	if mapheight < height+1 then
-		ytodraw = math.ceil(mapheight)
+	if session.mapheight < height+1 then
+		ytodraw = math.ceil(session.mapheight)
 	else
-		if mapheight > height and yscroll < mapheight-height then
+		if session.mapheight > height and session.yscroll < session.mapheight-height then
 			ytodraw = height + y_edge_extra
 		else
 			ytodraw = height
@@ -58,56 +58,33 @@ global function draw_castle_flag()
 	end
 end
 
--- Tile spritebatches store viewport-relative screen coords (see updatespritebatch).
--- Draw them outside world_camera_attach to avoid double scroll/scale.
+-- Full-map tile spritebatches: world coords + scroll offset (see world.tile_spritebatch).
 global function draw_tile_spritebatches()
-	local batchx = scroll_batch_offset(xscroll)
-	local batchy = scroll_batch_offset(yscroll)
-	love.graphics.draw(smbspritebatch, batchx, batchy)
-	love.graphics.draw(portalspritebatch, batchx, batchy)
-	if customtiles then
-		love.graphics.draw(customspritebatch, batchx, batchy)
-	end
-	if modcustomtiles then
-		for i = 1, modcustomtiles do
-			love.graphics.draw(modcustomspritebatch[i as integer], batchx, batchy)
-		end
-	end
+	tile_spritebatch_draw_bg()
 end
 
 global function draw_tile_spritebatches_foreground()
-	local batchx = scroll_batch_offset(xscroll)
-	local batchy = scroll_batch_offset(yscroll)
-	love.graphics.draw(smbspritebatchfront, batchx, batchy)
-	love.graphics.draw(portalspritebatchfront, batchx, batchy)
-	if customtiles then
-		love.graphics.draw(customspritebatchfront, batchx, batchy)
-	end
-	if modcustomtiles then
-		for i = 1, modcustomtiles do
-			love.graphics.draw(modcustomspritebatchfront[i as integer], batchx, batchy)
-		end
-	end
+	tile_spritebatch_draw_fg()
 end
 
 global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 	
 	-- Dynamic / non-batched tiles (world_camera attached by scenedraw)
 	local tile_y_off = mapmode_tile_y_off()
-	local lmap = map as {number:{number:MapCell}}
+	local lmap = session.map as {number:{number:MapCell}}
 	
 	local flooredxscroll: number = 0
-	if xscroll >= 0 then
-		flooredxscroll = math.floor(xscroll)
+	if session.xscroll >= 0 then
+		flooredxscroll = math.floor(session.xscroll)
 	else
-		flooredxscroll = math.ceil(xscroll)
+		flooredxscroll = math.ceil(session.xscroll)
 	end
 	
 	local flooredyscroll: number = 0
-	if yscroll >= 0 then
-		flooredyscroll = math.floor(yscroll)
+	if session.yscroll >= 0 then
+		flooredyscroll = math.floor(session.yscroll)
 	else
-		flooredyscroll = math.ceil(yscroll)
+		flooredyscroll = math.ceil(session.yscroll)
 	end
 
 	-- O(bounces) once per frame instead of O(tiles*bounces)
@@ -138,7 +115,7 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 				local draw_y = tile_draw_y(coy - 1 - bounceyoffset, tile_y_off)
 				if not level_mapmode and tq and tq:getproperty("coinblock", cox, coy) and tq:getproperty("invisible", cox, coy) == false then --coinblock
 					love.graphics.draw(coinblockimg, coinblockquads[spriteset][coinframe], draw_x, draw_y, 0, 1, 1)
-				elseif not level_mapmode and coinmap[cox] and coinmap[cox][coy] then --coin
+				elseif not level_mapmode and session.coinmap[cox] and session.coinmap[cox][coy] then --coin
 					love.graphics.draw(coinimg, coinquads[spriteset][coinframe], draw_x, draw_y, 0, 1, 1)
 				elseif tq and (bounceyoffset ~= 0 or (tilenumber as number) > 10000) then
 					if not tq:getproperty("invisible", cox, coy) then
@@ -183,7 +160,7 @@ global function drawlevel_tiles(xtodraw: any, ytodraw: any)
 						love.graphics.setColor(1, 1, 1, 1)
 					end
 					
-					local mcell = map[x] and map[x][y]
+					local mcell = session.map[x] and session.map[x][y]
 					if mcell and entitylist[mcell[2]] and entitylist[mcell[2]].t == "platform" then
 						local dir: any
 						local dist: any
@@ -225,24 +202,24 @@ global function drawlevel()
 	--custom background
 	if custombackground then
 		if custombackground == true then
-			local xscroll = xscroll / (scrollfactor + 1)
+			local xscroll = session.xscroll / (scrollfactor + 1)
 			if reversescrollfactor() == 1 then
 				xscroll = 0
 			end
 			for y = 1, math.ceil(height/14)+1 do
 				for x = 1, math.ceil(width)+1 do
-					love.graphics.draw(portalbackgroundimg, math.floor((x-1)*16*scale) - math.floor(math.fmod(xscroll, 1)*16*scale), math.floor(((y-1)*14)*16*scale) - math.floor(math.fmod(yscroll, 14)*16*scale), 0, scale, scale)
+					love.graphics.draw(portalbackgroundimg, math.floor((x-1)*16*scale) - math.floor(math.fmod(xscroll, 1)*16*scale), math.floor(((y-1)*14)*16*scale) - math.floor(math.fmod(session.yscroll, 14)*16*scale), 0, scale, scale)
 				end
 			end
 		else
 			if custombackgroundimg[custombackground as string] then
 				for i = #custombackgroundimg[custombackground as string], 1, -1  do
-					local xscroll = xscroll / (i * scrollfactor + 1)
+					local xscroll = session.xscroll / (i * scrollfactor + 1)
 					if reversescrollfactor() == 1 then
 						xscroll = 0
 					end
 					
-					local yscroll = yscroll / (i * scrollfactor + 1)
+					local yscroll = session.yscroll / (i * scrollfactor + 1)
 					if reversescrollfactor() == 1 then
 						yscroll = 0
 					end
@@ -263,22 +240,22 @@ global function drawforeground()
 	local tile_y_off = mapmode_tile_y_off()
 	
 	--ANY NON STATIC BLOCKS AND STUFF.
-	local lmap = map as {number:{number:MapCell}}
+	local lmap = session.map as {number:{number:MapCell}}
 	
 	local xtodraw, ytodraw = level_foreground_dims()
 	
 	local flooredxscroll: number = 0
-	if xscroll >= 0 then
-		flooredxscroll = math.floor(xscroll)
+	if session.xscroll >= 0 then
+		flooredxscroll = math.floor(session.xscroll)
 	else
-		flooredxscroll = math.ceil(xscroll)
+		flooredxscroll = math.ceil(session.xscroll)
 	end
 	
 	local flooredyscroll: number = 0
-	if yscroll >= 0 then
-		flooredyscroll = math.floor(yscroll)
+	if session.yscroll >= 0 then
+		flooredyscroll = math.floor(session.yscroll)
 	else
-		flooredyscroll = math.ceil(yscroll)
+		flooredyscroll = math.ceil(session.yscroll)
 	end
 	
 	for y = 1, ytodraw do
@@ -298,7 +275,7 @@ global function drawforeground()
 				if tq and tq:getproperty("foreground", cox, coy) then
 					if tq:getproperty("coinblock", cox, coy) and not tq:getproperty("invisible", cox, coy) then --coinblock
 						love.graphics.draw(coinblockimg, coinblockquads[spriteset][coinframe], draw_x, draw_y, 0, 1, 1)
-					elseif coinmap[x] and coinmap[x][y] then --coin
+					elseif session.coinmap[x] and session.coinmap[x][y] then --coin
 						love.graphics.draw(coinimg, coinquads[spriteset][coinframe], draw_x, draw_y, 0, 1, 1)
 					elseif (tilenumber as number) > 10000 then
 						if not tq:getproperty("invisible", cox, coy) then
@@ -323,12 +300,12 @@ global function drawforeground()
 			if custombackgroundimg[customforeground] then
 				for i = 1, #custombackgroundimg[customforeground]  do
 				
-					local xscroll = xscroll * (i * fscrollfactor + 1)
+					local xscroll = session.xscroll * (i * fscrollfactor + 1)
 					if reversefscrollfactor() == 1 then
 						xscroll = 0
 					end
 					
-					local yscroll = yscroll / (i * fscrollfactor + 1)
+					local yscroll = session.yscroll / (i * fscrollfactor + 1)
 					if reversefscrollfactor() == 1 then
 						yscroll = 0
 					end
@@ -352,7 +329,7 @@ global function game_draw_props()
 
 	--warpzonetext
 	if displaywarpzonetext then
-		properprint("welcome to warp zone!", tile_draw_x(mapwidth - 14 - 1/16), tile_draw_y(5.5, 0), world_draw_scale())
+		properprint("welcome to warp zone!", tile_draw_x(session.mapwidth - 14 - 1/16), tile_draw_y(5.5, 0), world_draw_scale())
 		for _, v in ipairs(warpzonenumbers as {any}) do
 			properprint((v as {any})[3], tile_draw_x((v as {any})[1] as number - 1 - 9/16), tile_draw_y((v as {any})[2] as number - 3, 0), world_draw_scale())
 		end
@@ -387,35 +364,35 @@ global function game_draw_props()
 	if levelfinished and levelfinishtype == "castle" then
 		local axe_y = axey as number
 		if marioworld ~= 8 then
-			love.graphics.draw(toadimg, tile_draw_x(mapwidth - 7), tile_draw_y(axe_y + 2.0625, 0), 0, world_draw_scale(), world_draw_scale())
+			love.graphics.draw(toadimg, tile_draw_x(session.mapwidth - 7), tile_draw_y(axe_y + 2.0625, 0), 0, world_draw_scale(), world_draw_scale())
 		else
-			love.graphics.draw(peachimg, tile_draw_x(mapwidth - 7), tile_draw_y(axe_y + 2.0625, 0), 0, world_draw_scale(), world_draw_scale())
+			love.graphics.draw(peachimg, tile_draw_x(session.mapwidth - 7), tile_draw_y(axe_y + 2.0625, 0), 0, world_draw_scale(), world_draw_scale())
 		end
 
 		if levelfinishedmisc2 == 1 then
 			if levelfinishedmisc >= 1 then
-				properprint("thank you " .. characters[mariocharacter[1]].name .. "!", tile_draw_x(mapwidth - 12) - world_draw_scale(), tile_draw_y(axe_y - 4.5, 0), world_draw_scale())
+				properprint("thank you " .. characters[mariocharacter[1]].name .. "!", tile_draw_x(session.mapwidth - 12) - world_draw_scale(), tile_draw_y(axe_y - 4.5, 0), world_draw_scale())
 			end
 			if levelfinishedmisc == 2 then
-				properprint("but our princess is in", tile_draw_x(mapwidth - 13.5) - world_draw_scale(), tile_draw_y(axe_y - 2.5, 0), world_draw_scale())
-				properprint("another castle!", tile_draw_x(mapwidth - 13.5) - world_draw_scale(), tile_draw_y(axe_y - 1.5, 0), world_draw_scale())
+				properprint("but our princess is in", tile_draw_x(session.mapwidth - 13.5) - world_draw_scale(), tile_draw_y(axe_y - 2.5, 0), world_draw_scale())
+				properprint("another castle!", tile_draw_x(session.mapwidth - 13.5) - world_draw_scale(), tile_draw_y(axe_y - 1.5, 0), world_draw_scale())
 			end
 		else
 			if levelfinishedmisc >= 1 then	
-				properprint("thank you mario!", tile_draw_x(mapwidth - 12) - world_draw_scale(), tile_draw_y(axe_y - 4.5, 0), world_draw_scale())
+				properprint("thank you mario!", tile_draw_x(session.mapwidth - 12) - world_draw_scale(), tile_draw_y(axe_y - 4.5, 0), world_draw_scale())
 			end
 			if levelfinishedmisc >= 2 then
-				properprint("your quest is over.", tile_draw_x(mapwidth - 12.5) - world_draw_scale(), tile_draw_y(axe_y - 3, 0), world_draw_scale())
+				properprint("your quest is over.", tile_draw_x(session.mapwidth - 12.5) - world_draw_scale(), tile_draw_y(axe_y - 3, 0), world_draw_scale())
 			end
 
 			if levelfinishedmisc >= 3 then
-				properprint("we present you a new quest.", tile_draw_x(mapwidth - 14.5) - world_draw_scale(), tile_draw_y(axe_y - 2, 0), world_draw_scale())
+				properprint("we present you a new quest.", tile_draw_x(session.mapwidth - 14.5) - world_draw_scale(), tile_draw_y(axe_y - 2, 0), world_draw_scale())
 			end
 			if levelfinishedmisc >= 4 then
-				properprint("push button b", tile_draw_x(mapwidth - 11) - world_draw_scale(), tile_draw_y(axe_y - .5, 0), world_draw_scale())
+				properprint("push button b", tile_draw_x(session.mapwidth - 11) - world_draw_scale(), tile_draw_y(axe_y - .5, 0), world_draw_scale())
 			end
 			if levelfinishedmisc == 5 then
-				properprint("to play as steve", tile_draw_x(mapwidth - 12) - world_draw_scale(), tile_draw_y(axe_y + .5, 0), world_draw_scale())
+				properprint("to play as steve", tile_draw_x(session.mapwidth - 12) - world_draw_scale(), tile_draw_y(axe_y + .5, 0), world_draw_scale())
 			end
 		end
 	end
@@ -477,7 +454,7 @@ global function game_draw_objects()
 	love.graphics.setColor(1, 1, 1)
 
 	--OBJECTS
-	for j, w in pairs(objects) do	
+	for j, w in pairs(session.objects) do	
 		if j ~= "tile" then
 			for _, v in pairs(w) do
 				if v.drawable and v.graphic and v.quad then

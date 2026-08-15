@@ -6,13 +6,13 @@ local Anim8Enemy = require("assets.anim8_enemy")
 global ENEMY_MOVES: {string:function(enemy, number)} = {}
 
 local function closest_player(self: enemy): mario|nil
-	if not playerobjs or players < 1 then
+	if not session.playerobjs or players < 1 then
 		return nil
 	end
 	local best: mario|nil = nil
 	local bestd = math.huge
 	for i = 1, players do
-		local pl = playerobjs[i] as mario
+		local pl = session.playerobjs[i] as mario
 		if pl and not pl.dead then
 			local dx = (pl.x + pl.width / 2) - (self.x + self.width / 2)
 			local dy = (pl.y + pl.height / 2) - (self.y + self.height / 2)
@@ -39,8 +39,8 @@ local function traceline_blocked(x1: number, y1: number, x2: number, y2: number)
 		local y = y1 + uy * i
 		local cox = math.floor(x) + 1
 		local coy = math.floor(y) + 1
-		if inmap and inmap(cox, coy) and map and map[cox] and map[cox][coy] and tilequads then
-			local tid = map[cox][coy][1] as number
+		if inmap and inmap(cox, coy) and session.map and session.map[cox] and session.map[cox][coy] and tilequads then
+			local tid = session.map[cox][coy][1] as number
 			local tq = tilequads[tid]
 			if tq and tq.getproperty and tq:getproperty("collision", cox, coy) then
 				return true
@@ -48,7 +48,7 @@ local function traceline_blocked(x1: number, y1: number, x2: number, y2: number)
 		end
 	end
 	-- light bridges block beams/arrows
-	if objects and objects["lightbridgebody"] then
+	if session.objects and session.objects["lightbridgebody"] then
 		local col = checkrect and checkrect(math.min(x1, x2), math.min(y1, y2), math.abs(x2 - x1) + 0.1, math.abs(y2 - y1) + 0.1, {"lightbridgebody"}, true)
 		if col and #col >= 2 then
 			return true
@@ -63,7 +63,7 @@ local function n(v: number|nil, d: number): number
 end
 
 local function spawn_bullet(x: number, y: number, vx: number, vy: number, owner: enemy)
-	if not fireball or not fireball.new or not objects or not objects["fireball"] then
+	if not fireball or not fireball.new or not session.objects or not session.objects["fireball"] then
 		return
 	end
 	local dir = vx >= 0 and "right" or "left"
@@ -81,7 +81,7 @@ local function spawn_bullet(x: number, y: number, vx: number, vy: number, owner:
 	f.killsonsides = true
 	f.killsontop = true
 	f.killsonbottom = true
-	table.insert(objects["fireball"] as {any}, f)
+	table.insert(session.objects["fireball"] as {any}, f)
 end
 
 local function playsfx(name: string)
@@ -194,7 +194,7 @@ ENEMY_MOVES["corebuddy"] = function(self: enemy, dt: number)
 	local ty = p.y + p.height / 2 - n(self.corefollow, 1.4)
 	-- Keep above floor / below ceiling a bit.
 	if ty < 2.5 then ty = 2.5 end
-	if mapheight and ty > mapheight - 3 then ty = mapheight - 3 end
+	if session.mapheight and ty > session.mapheight - 3 then ty = session.mapheight - 3 end
 	core_steer(self, tx, ty, 3.2, n(self.corespeed, 2.4))
 	if bag.corehi == nil then
 		local sx = self.x + self.width / 2
@@ -237,7 +237,7 @@ ENEMY_MOVES["corehunter"] = function(self: enemy, dt: number)
 		local tx = px - (dx / len) * keep
 		local ty = hy + (py - hy) * 0.15
 		if ty < 2.5 then ty = 2.5 end
-		if mapheight and ty > mapheight - 3 then ty = mapheight - 3 end
+		if session.mapheight and ty > session.mapheight - 3 then ty = session.mapheight - 3 end
 		core_steer(self, tx, ty, 2.8, maxs)
 
 		local sx = self.x + self.width / 2
@@ -278,7 +278,7 @@ ENEMY_MOVES["corespace"] = function(self: enemy, dt: number)
 	local tx = (self.startx as number) + self.width / 2 + math.cos(t * 2.1) * amp + math.sin(t * 5.3) * 0.45
 	local ty = (self.starty as number) + self.height / 2 + math.sin(t * 1.7) * amp + math.cos(t * 4.1) * 0.4
 	if ty < 2.5 then ty = 2.5 end
-	if mapheight and ty > mapheight - 3 then ty = mapheight - 3 end
+	if session.mapheight and ty > session.mapheight - 3 then ty = session.mapheight - 3 end
 	core_steer(self, tx, ty, 4.0, n(self.corespeed, 3.8))
 end
 
@@ -314,7 +314,7 @@ ENEMY_MOVES["truffleshuffle"] = function(self: enemy, dt: number)
 			--check if nothing below
 			local x = math.floor(self.x + self.width/2+1)
 			local y = math.floor(self.y + self.height+1.5)
-			if inmap(x, y) and tilequads[map[x][y][1]]:getproperty("collision", x, y) == false and ((inmap(x+.5, y) and tilequads[map[math.ceil(x+.5)][y][1]]:getproperty("collision", math.ceil(x+.5), y)) or (inmap(x-.5, y) and tilequads[map[math.floor(x-.5)][y][1]]:getproperty("collision", math.floor(x-.5), y))) then
+			if inmap(x, y) and tilequads[session.map[x][y][1]]:getproperty("collision", x, y) == false and ((inmap(x+.5, y) and tilequads[session.map[math.ceil(x+.5)][y][1]]:getproperty("collision", math.ceil(x+.5), y)) or (inmap(x-.5, y) and tilequads[session.map[math.floor(x-.5)][y][1]]:getproperty("collision", math.floor(x-.5), y))) then
 				if self.speedx < 0 then
 					self.x = x-self.width/2
 				else
@@ -343,7 +343,7 @@ ENEMY_MOVES["shell"] = function(self: enemy, dt: number)
 						self.animationtype = self.firstanimationtype
 					
 						if self.chasemarioonwakeup then
-							local px = playerobjs[getclosestplayer(self.x)].x as number
+							local px = session.playerobjs[getclosestplayer(self.x)].x as number
 							if px > self.x then
 								self.speedx = -self.speedx
 							end
@@ -369,20 +369,20 @@ end
 
 ENEMY_MOVES["follow"] = function(self: enemy, _dt: number)
 		local nearestplayer = 1
-		while playerobjs[nearestplayer] and playerobjs[nearestplayer].dead do
+		while session.playerobjs[nearestplayer] and session.playerobjs[nearestplayer].dead do
 			nearestplayer = nearestplayer + 1
 		end
 	
-		if playerobjs[nearestplayer] then
-			local nearestplayerx = playerobjs[nearestplayer].x
+		if session.playerobjs[nearestplayer] then
+			local nearestplayerx = session.playerobjs[nearestplayer].x
 			for i = 2, players do
-				local v = playerobjs[i]
+				local v = session.playerobjs[i]
 				if v.x > nearestplayerx and not v.dead then
 					nearestplayer = i
 				end
 			end
 		
-			nearestplayerx = nearestplayerx + playerobjs[nearestplayer].speedx*(self.distancetime or 0)
+			nearestplayerx = nearestplayerx + session.playerobjs[nearestplayer].speedx*(self.distancetime or 0)
 		
 			local distance = math.abs(self.x - nearestplayerx)
 		
@@ -483,7 +483,7 @@ ENEMY_MOVES["piston"] = function(self: enemy, dt: number)
 			if self.pistontimer > self.pistonretracttime then
 				local playernear = false
 				for i = 1, players do
-					local v = playerobjs[i]
+					local v = session.playerobjs[i]
 					if inrange(v.x+v.width/2, self.x+self.width/2-(self.dontpistondist or 3), self.x+self.width/2+(self.dontpistondist or 3)) then
 						playernear = true
 					end
@@ -542,9 +542,9 @@ end
 
 ENEMY_MOVES["squid"] = function(self: enemy, dt: number)
 		local closestplayer = 1
-		local closestdist = math.sqrt((playerobjs[1].x-self.x)^2+(playerobjs[1].y-self.y)^2)
+		local closestdist = math.sqrt((session.playerobjs[1].x-self.x)^2+(session.playerobjs[1].y-self.y)^2)
 		for i = 2, players do
-			local v = playerobjs[i]
+			local v = session.playerobjs[i]
 			local dist = math.sqrt((v.x-self.x)^2+(v.y-self.y)^2)
 			if dist < closestdist then
 				closestdist = dist
@@ -556,7 +556,7 @@ ENEMY_MOVES["squid"] = function(self: enemy, dt: number)
 			self.speedy = self.squidfallspeed
 		
 			--get if change state to upward
-			if (self.y+self.speedy*dt) + self.height + 0.0625 >= (playerobjs[closestplayer].y - (24/16 - playerobjs[closestplayer].height)) then
+			if (self.y+self.speedy*dt) + self.height + 0.0625 >= (session.playerobjs[closestplayer].y - (24/16 - session.playerobjs[closestplayer].height)) then
 				self.squidstate = "upward"
 				self.upx = self.x
 				self.speedx = 0
@@ -569,11 +569,11 @@ ENEMY_MOVES["squid"] = function(self: enemy, dt: number)
 				--get if to change direction
 				if true then--math.random(2) == 1 then
 					if self.direction == "right" then
-						if self.x > playerobjs[closestplayer].x then
+						if self.x > session.playerobjs[closestplayer].x then
 							self.direction = "left"
 						end
 					else
-						if self.x < playerobjs[closestplayer].x then
+						if self.x < session.playerobjs[closestplayer].x then
 							self.direction = "right"
 						end
 					end
@@ -695,11 +695,11 @@ ENEMY_MOVES["turret"] = function(self: enemy, dt: number)
 
 	-- Knock over: hard shove, gravity-gun toss, or falling box.
 	local box_hit = false
-	if objects and objects["box"] then
+	if session.objects and session.objects["box"] then
 		local sx = self.x + self.width / 2
 		local sy = self.y + self.height / 2
-		for i = 1, #(objects["box"] as {any}) do
-			local b = (objects["box"] as {any})[i] as {string:any}
+		for i = 1, #(session.objects["box"] as {any}) do
+			local b = (session.objects["box"] as {any})[i] as {string:any}
 			if b and b.active ~= false then
 				local bx = (b.x as number) + ((b.width as number) or 0.75) / 2
 				local by = (b.y as number) + ((b.height as number) or 0.75) / 2
@@ -1004,9 +1004,9 @@ ENEMY_MOVES["trap"] = function(self: enemy, dt: number)
 	end
 	local facing = (self.animationdirection == "right") and 1 or -1
 	local sy = self.y + 0.5
-	if not playerobjs then return end
+	if not session.playerobjs then return end
 	for i = 1, players do
-		local p = playerobjs[i] as mario
+		local p = session.playerobjs[i] as mario
 		if p and not p.dead
 			and math.abs((p.y + p.height / 2) - sy) < 0.6
 			and (p.x - self.x) * facing > 0
@@ -1166,7 +1166,7 @@ ENEMY_MOVES["memleak"] = function(self: enemy, dt: number)
 	self.mltimer = n(self.mltimer, 0) + dt
 	if self.mltimer >= n(self.mlsplit, 6.0) then
 		self.mltimer = 0
-		local list = (objects and objects["enemy"]) as {any}|nil
+		local list = (session.objects and session.objects["enemy"]) as {any}|nil
 		if list and #list < 60 and enemy and enemy.new then
 			local e = enemy:new(self.x + 1, self.y + 1, self.t, nil)
 			e.x = self.x
@@ -1189,7 +1189,7 @@ global function enemymove_splitter_die(self: enemy): boolean
 	if lvl <= 0 then
 		return true
 	end
-	if not objects or not objects["enemy"] then
+	if not session.objects or not session.objects["enemy"] then
 		return true
 	end
 	local count = n(self.splitcount, 2)
@@ -1205,7 +1205,7 @@ global function enemymove_splitter_die(self: enemy): boolean
 		e.hopforce = n(self.hopforce, 9) * 1.15
 		e.speedx = (i == 1 and -1 or 1) * 3
 		e.speedy = -5
-		table.insert(objects["enemy"] as {any}, e)
+		obj_insert("enemy", e as Entity)
 	end
 	return true
 end
@@ -1224,12 +1224,12 @@ global function enemymove_charger_wall(self: enemy, a: any, b: Entity|nil)
 		self.chargestate = "stun"
 		self.chargetimer = 0
 		screenshake(0.25)
-		if a == "tile" and b ~= nil and destroyblock and tilequads and map then
+		if a == "tile" and b ~= nil and destroyblock and tilequads and session.map then
 			local tile = b as Entity
 			local cox = tile.cox
 			local coy = tile.coy
-			if cox and coy and map[cox] and map[cox][coy] then
-				local tid = map[cox][coy][1] as number
+			if cox and coy and session.map[cox] and session.map[cox][coy] then
+				local tid = session.map[cox][coy][1] as number
 				local tq = tilequads[tid]
 				if tq and tq.getproperty and tq:getproperty("breakable", cox, coy) then
 					destroyblock(cox, coy)

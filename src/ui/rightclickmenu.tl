@@ -58,7 +58,7 @@ function rightclickmenu:init(x: number, y: number, elements: any, tx: any, ty: a
 			
 		elseif v.t == "scrollbar" then
 			local current: number = 0
-			local cell = map[tx as number][ty as number][actuali+2]
+			local cell = session.map[tx as number][ty as number][actuali+2]
 			if string.sub(cell as string, 1, 1) == "m" then
 				current = -(tonumber(string.sub(cell as string, 2)) or 0)
 			else
@@ -72,15 +72,15 @@ function rightclickmenu:init(x: number, y: number, elements: any, tx: any, ty: a
 			
 		elseif v.t == "input" then
 			local default = v.default
-			if map[tx as number][ty as number][actuali+2] then
-				default = map[tx as number][ty as number][actuali+2]
+			if session.map[tx as number][ty as number][actuali+2] then
+				default = session.map[tx as number][ty as number][actuali+2]
 			end
 			table.insert(self.t, guielement:new(v.t, self.x, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), rightclickwidth/8-5/8, nil, default, v.max))
 			set = true
 			
 		elseif v.t == "checkbox" then
 			local start = false
-			if map[tx as number][ty as number][actuali+2] == "true" then
+			if session.map[tx as number][ty as number][actuali+2] == "true" then
 				start = true
 			end
 			table.insert(self.t, guielement:new(v.t, self.x+1, self.y+1+(rightclickcellheight+rightclickcellspacing)*(i-1), nil, start, v.text))
@@ -110,7 +110,7 @@ function rightclickmenu:init(x: number, y: number, elements: any, tx: any, ty: a
 					table.insert(dirbtns, guielement:new("button", self.x+j*12, self.y+(rightclickcellheight+rightclickcellspacing)*(i-1), "_dir" .. k, rightclickmenu.directioncallback, nil, {nil, self, #self.t+1, dir}, nil, rightclickcellheight-1))
 					j = j + 1
 					
-					if map[tx as number][ty as number][actuali+2] == dir then
+					if session.map[tx as number][ty as number][actuali+2] == dir then
 						dirbtns[#dirbtns].bordercolor = {1, 0, 0}
 						dirbtns[#dirbtns].bordercolorhigh = {1, 0.5, 0.5}
 						
@@ -132,7 +132,7 @@ function rightclickmenu:init(x: number, y: number, elements: any, tx: any, ty: a
 				values = v.entries as {any}
 			end
 			
-			local start = map[tx as number][ty as number][actuali+2]
+			local start = session.map[tx as number][ty as number][actuali+2]
 			
 			if v.actualvalue then
 				for i, w in pairs(values as {any:any}) do

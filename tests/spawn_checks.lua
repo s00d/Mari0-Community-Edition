@@ -14,6 +14,7 @@ local function check(name, cond, detail)
 	end
 end
 
+require("world.objects_api")
 require("world.spawnregistry")
 
 local map_keys = {
@@ -27,6 +28,8 @@ local map_keys = {
 	"platformspawner", "scaffold", "box", "portal1", "portal2", "spring", "seesaw",
 	"ceilblocker", "funnel", "regiontrigger", "zgbooltrigger", "zginttrigger",
 	"animationtrigger", "pedestal", "actionblock", "animatedtiletrigger", "delayer",
+	"abilitypickup", "belt", "camerastop", "collectable", "donut", "flipblock",
+	"gatedoor", "longfire", "powblock", "smallspring",
 }
 
 local enemy_keys = {

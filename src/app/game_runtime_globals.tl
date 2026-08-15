@@ -1,7 +1,7 @@
 --[[ Runtime defaults for globals written during game_load / loadlevel / levelscreen.
      Must run before the post-boot _G write guard snapshots globals.
      Do not assign nil here: in Lua that removes the key from _G, so freeze will
-     block later writes (e.g. objects = nil in game_load). Use false or {} instead. ]]
+     block later writes (e.g. session.objects = nil in game_load). Use false or {} instead. ]]
 
 global function init_game_runtime_globals()
 	-- game_load
@@ -29,9 +29,11 @@ global function init_game_runtime_globals()
 	mariolevel = 1
 	mariosublevel = 0
 	respawnsublevel = 0
-	local objs, pobjs = fresh_objects()
-	objects = objs
-	playerobjs = pobjs as {any:mario}
+	do
+		local objs, pobjs = fresh_objects()
+		session.objects = objs
+		session.playerobjs = pobjs as {any:mario}
+	end
 	musicname = ""
 
 	-- loadlevel (misc + class tables)
@@ -65,11 +67,11 @@ global function init_game_runtime_globals()
 	lakitoendx = false
 	lakitoend = false
 	noupdate = false
-	xscroll = 0
-	yscroll = 0
+	session.xscroll = 0
+	session.yscroll = 0
 	repeatX = 0
 	lastrepeat = 0
-	ylookmodifier = 0
+	session.ylookmodifier = 0
 	displaywarpzonetext = false
 	mazestarts = {}
 	mazeends = {}
@@ -119,16 +121,19 @@ global function init_game_runtime_globals()
 	blockbouncecontent2 = {}
 	spritebatch_portal_catchup = false
 	warpzonenumbers = {}
-	portals = {}
-	map = {}
-	coinmap = {}
-	mapwidth = 0
-	mapheight = 0
+	do
+		session.portals = {}
+		session.map = {}
+		session.coinmap = {}
+		session.mapwidth = 0
+		session.mapheight = 0
+		session.enemiesspawned = {}
+		session.ylookmodifier = 0
+	end
 	startx = {3, 3, 3, 3, 3}
 	starty = {13, 13, 13, 13, 13}
 	rawset(_G, "pipestartx", false)
 	rawset(_G, "pipestarty", false)
-	enemiesspawned = {}
 	intermission = false
 	haswarpzone = false
 	underwater = false

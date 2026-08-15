@@ -248,32 +248,32 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 	end
 
 	local _, parsed_height, t, s2, _, layerdelimiter, _, multipledelimiter, equalsign = level_split_file_contents(s as string)
-	mapheight = parsed_height
+	session.mapheight = parsed_height
 	
-	map = {}
+	session.map = {}
 	unstatics = {}
 	
-	create_tile_spritebatches()
+	create_tile_spritebatches(nil)
 	
 	--get mapwidth
 	local entries = level_count_tile_entries(t, multipledelimiter)
 	
-	mapheight = mapheight or 15
-	if math.fmod(entries, mapheight) ~= 0 then
+	session.mapheight = session.mapheight or 15
+	if math.fmod(entries, session.mapheight) ~= 0 then
 		print("Incorrect number of entries: " .. #t)
 		return false
 	end
 	
-	mapwidth = entries / mapheight
-	coinmap = {}
+	session.mapwidth = entries / session.mapheight
+	session.coinmap = {}
 	
-	for x = 1, mapwidth do
-		map[x] = {}
-		coinmap[x] = {}
-		for y = 1, mapheight do
-			map[x][y] = {} as MapCell
-			init_map_cell_gels(map[x][y])
-			map[x][y]["portaloverride"] = {}
+	for x = 1, session.mapwidth do
+		session.map[x] = {}
+		session.coinmap[x] = {}
+		for y = 1, session.mapheight do
+			session.map[x][y] = {} as MapCell
+			init_map_cell_gels(session.map[x][y])
+			session.map[x][y]["portaloverride"] = {}
 		end
 	end
 	
@@ -290,23 +290,23 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 			
 			for _ = 1, tonumber(r[2]) do
 				if coin then
-					coinmap[x][y] = true
+					session.coinmap[x][y] = true
 				end
 			
 				if (tonumber(r[1]) > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0) and tonumber(r[1]) <= 10000) or tonumber(r[1]) > 10000+animatedtilecount then
 					r[1] = "1"
 				end
 				
-				map[x][y][1] = tonumber(r[1])
+				session.map[x][y][1] = tonumber(r[1])
 				
 			
 				--create object for block
 				if createobjects and tilequads[tonumber(r[1])]:getproperty("collision", x, y) == true then
-					objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
+					session.objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
 				end
 				
 				x = x + 1
-				if x > mapwidth then
+				if x > session.mapwidth then
 					x = 1
 					y = y + 1
 				end
@@ -317,7 +317,7 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 			
 			if string.sub(r[1] as string, -1) == "c" then
 				r[1] = string.sub(r[1] as string, 1, -2)
-				coinmap[x][y] = true
+				session.coinmap[x][y] = true
 			end
 			
 			if (tonumber(r[1]) > smbtilecount+portaltilecount+customtilecount+(modcustomtilecount[modcustomtiles as integer] or 0) and tonumber(r[1]) <= 10000) or tonumber(r[1]) > 10000+animatedtilecount then
@@ -326,19 +326,19 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 			
 			for i = 1, #r do
 				if tonumber(r[i]) then
-					map[x][y][i] = tonumber(r[i])
+					session.map[x][y][i] = tonumber(r[i])
 				else
-					map[x][y][i] = r[i]
+					session.map[x][y][i] = r[i]
 				end
 			end
 			
 			--create object for block
 			if createobjects and tilequads[tonumber(r[1])]:getproperty("collision", x, y) == true then
-				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
+				session.objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
 			end
 			
 			x = x + 1
-			if x > mapwidth then
+			if x > session.mapwidth then
 				x = 1
 				y = y + 1
 			end
@@ -348,7 +348,7 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 	--ANIMATED TIMERS
 	animatedtimers = {}
 	animatedbooltimers = {}
-	for x = 1, mapwidth do
+	for x = 1, session.mapwidth do
 		animatedtimers[x] = {}
 		animatedbooltimers[x] = {}
 	end
@@ -359,9 +359,9 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 		end
 	end
 	
-	for y = 1, mapheight do
-		for x = 1, mapwidth do
-			local r = map[x][y]
+	for y = 1, session.mapheight do
+		for x = 1, session.mapwidth do
+			local r = session.map[x][y]
 			
 			if (r[1] as number) > 10000 then
 				if tilequads[r[1]].triggered then
@@ -374,7 +374,7 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 			end
 			
 			if tilequads[r[1] ]:getproperty("coin", x, y) then
-				coinmap[x][y] = true
+				session.coinmap[x][y] = true
 			end
 			
 			if #r > 1 then
@@ -406,7 +406,7 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 	
 	if createobjects then
 		--Add links
-		for _, v in pairs(objects) do
+		for _, v in pairs(session.objects) do
 			for _, w in pairs(v) do
 				if w.link then
 					w:link()
@@ -431,15 +431,15 @@ global function loadmap(filename: string, createobjects?: boolean): boolean
 	end
 	
 	for x = 0, -30, -1 do
-		map[x] = {}
-		for y = 1, mapheight-2 do
-			map[x][y] = {1} as MapCell
+		session.map[x] = {}
+		for y = 1, session.mapheight-2 do
+			session.map[x][y] = {1} as MapCell
 		end
 		
-		for y = mapheight-1, mapheight do
-			map[x][y] = {2} as MapCell
+		for y = session.mapheight-1, session.mapheight do
+			session.map[x][y] = {2} as MapCell
 			if createobjects then
-				objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
+				session.objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1) as Entity
 			end
 		end
 	end
@@ -536,7 +536,7 @@ end
 
 global function savemap(filename: string, silent?: boolean)
 	local v = 1
-	local s = mapheight .. CATEGORYDELIMITER[v] .. level_serialize_maptiles(map, coinmap, mapwidth, mapheight, v)
+	local s = session.mapheight .. CATEGORYDELIMITER[v] .. level_serialize_maptiles(session.map, session.coinmap, session.mapwidth, session.mapheight, v)
 	
 	--options
 	s = s .. CATEGORYDELIMITER[v] .. "backgroundr" .. EQUALSIGN[v] ..  background[1] * 255
@@ -614,25 +614,25 @@ global function savemap(filename: string, silent?: boolean)
 end
 
 global function renderpreview(): ImageData
-	local out = love.image.newImageData(mapwidth, height+1)
+	local out = love.image.newImageData(session.mapwidth, height+1)
 	
 	--find startpoint
 	local starty = 13
 	
-	for x = 1, mapwidth do
-		for y = 1, mapheight do
-			if map[x][y][2] and entitylist[map[x][y][2]] and entitylist[map[x][y][2]].t == "spawn" then
+	for x = 1, session.mapwidth do
+		for y = 1, session.mapheight do
+			if session.map[x][y][2] and entitylist[session.map[x][y][2]] and entitylist[session.map[x][y][2]].t == "spawn" then
 				starty = y as integer
 				break
 			end
 		end
 	end
 	
-	yadd = math.max(0, math.min(mapheight-height-1, starty-math.floor(height/2)))
+	yadd = math.max(0, math.min(session.mapheight-height-1, starty-math.floor(height/2)))
 	
-	for x = 1, mapwidth do --blocks
+	for x = 1, session.mapwidth do --blocks
 		for y = 1, 15 do
-			local id = map[x][y+yadd][1]
+			local id = session.map[x][y+yadd][1]
 			if id ~= nil and id ~= 0 and rgblist[id] and tilequads[id]:getproperty("invisible", x, y+yadd) == false then
 				local r, g, b = unpack(rgblist[id] as {any})
 				out:setPixel(x-1, y-1, (r as number) * LOVE_COLOR_MAX, (g as number) * LOVE_COLOR_MAX, (b as number) * LOVE_COLOR_MAX, LOVE_COLOR_MAX)

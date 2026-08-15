@@ -6,25 +6,28 @@
 - `build/` — generated Lua from Teal (`make teal`); gitignored; **included in `.love` packages**
 - **No root re-export shims** — use dotted requires (`core.tilekey`, `physics.collision`, `util.hatutil`, `entities.mario`, `ui.menu`, …)
 - `types/love.d.tl` — LÖVE 11 globals for the Teal checker
-- `types/game.d.tl` — ~1519 ambient gameplay globals (`map`, `objects`, `xscroll`, …); required from `love.d.tl`
+- `types/game.d.tl` — ambient gameplay globals + `session: World`; required from `love.d.tl`
 - `assets/` — graphics, sounds, shaders, characters, built-in enemies
 - `mappacks/` — unchanged format (`N-M.txt`, settings **disk colors 0–255** via `DISK_COLOR_MAX`)
 
 ## Runtime model
 
-**`_G` is the source of truth.** Mari0 CE intentionally keeps the original Love2D global style: gameplay state lives in `_G`, typed for the checker via `types/game.d.tl`. There is no ongoing migration to a context object or Level OOP wrapper.
+**`session` (World) is the source of truth for the loaded level world.** Map, object groups, scroll, portals, and related level tables live on `session`. Other gameplay still uses `_G` (typed via `types/game.d.tl`).
 
 | Concern | Where it lives |
 |---------|----------------|
-| Map, objects, scroll, most gameplay | `_G` (declared in `types/game.d.tl`) |
+| Map, objects, scroll, portals, coinmap, enemiesspawned | `session` (`world.session` / `World`) |
+| Other gameplay globals | `_G` (declared in `types/game.d.tl`) |
 | New globals after boot | Blocked by `core.global_freeze` (write-only `_G` metatable; late writes use `rawset`) |
 | Per-frame step budget | `app.love_frame` — module-local `steptimer` |
 | RNG | `core.rng` — `Rng.install(seed?)` |
 | Physics iteration order | `physics.order` — `PHYSICS_GROUP_ORDER` + sorted keys |
-| Level load reset | `reset_level_state()` / `fresh_objects()` in `world.level` — replaces manual zeroing; **not** Ctx, **not** Level OOP |
-| Game-flow bag | `world.session` (`World`) — `mariotimer`, `gamestate`, `mappack`, `currentlevel`, `editormode`, `paused` only; reads `_G` via `sync_session_from_globals` on load/spawn; `set_gamestate` / `set_scroll` write back to `_G` where wired |
+| Level load reset | `session:reset_level()` via `reset_level_state()` / `fresh_objects()` in `world.level` |
+| Game-flow (`gamestate`, timer, mappack, editor, pause) | `_G` + `Gamestate` module — not mirrored on `session` |
 
-Entity/UI classes are Teal `global record`s in `types/records.d.tl` (impl in `src/`). That is normal OO for entities — not a deglobalization layer for map/objects.
+Entity/UI classes are Teal `global record`s in `types/records.d.tl` (impl in `src/`). Bump physics stays module-local in `physics.world` (one world; cell size = 2 tiles). `session` is a plain table (`World.new` + `__index` for `reset_level` only) — no setter wrappers, no sync-from-`_G`, no `Session` alias.
+
+**Tile spritebatches** (`world.tile_spritebatch`): static tiles are filled once for the whole map; scrolling only changes the draw offset (`-xscroll/-yscroll`). Per-cell updates on destroy/bounce/edit. Animated tiles, coinblocks, and bouncing blocks stay in `drawlevel_tiles`.
 
 ### Boot & loop
 
@@ -40,11 +43,11 @@ Entity/UI classes are Teal `global record`s in `types/records.d.tl` (impl in `sr
 - Assets: `assets.store` (`AssetStore`); default imagelist/sounds in `Boot.load_media`
 - Gamestate: `app.gamestate` — handlers in `Boot.register_gamestates`; `love_callbacks` prefer handlers when present
 
-Headless checks: `tests/global_freeze_checks.lua`, `steptimer_checks.lua`, `rng_checks.lua`, `physics_order_checks.lua`, `session_checks.lua`, `level_leak_checks.lua`.
+Headless checks: `tests/global_freeze_checks.lua`, `steptimer_checks.lua`, `rng_checks.lua`, `physics_order_checks.lua`, `session_checks.lua`, `level_leak_checks.lua`. Suite runner installs `tests/session_bridge.lua` so legacy test assignments to bare `objects`/`mapwidth` still hit `session`.
 
 ## Removed experiments (do not revive without cause)
 
-Stage 2 briefly tried `core.ctx` (Ctx.level bag), Level OOP with push/pull mirrors, and `push_globals` on session. PR3 removed Ctx and the session mirror; Phase 3 dropped `push_globals` in favor of one-way `sync_session_from_globals`. PR4 removed a stub replay harness that did not exercise real physics. **Mass deglobalization is not planned** — fix globals only when a specific bug or test demands it.
+Stage 2 briefly tried `core.ctx` (Ctx.level bag), Level OOP with push/pull mirrors, and `push_globals` on session. Those were removed. Level world state now lives on `session` (`World`) without classic/middleclass and without a flat entity list — groups stay `{string:{any:Entity}}` via `OBJECT_GROUP_KEYS`. Do not revive Ctx/Level OOP wrappers.
 
 ## Structural Teal migration (complete)
 
@@ -91,7 +94,7 @@ Host-authoritative listen-server on **sock.lua** (lua-enet) + **bitser**. Single
 - **Weapons stage** — typed/weapons subsystem cleanup where needed
 - **Broadphase** — collision performance / correctness improvements in `src/physics/`
 
-Not a priority: wrapping `_G` in Ctx, mirroring map/objects into session, or shrinking `game.d.tl` for aesthetics.
+Not a priority: reviving Ctx/Level OOP wrappers, or shrinking remaining `game.d.tl` entries for aesthetics alone.
 
 ## Ported modules (dotted require)
 

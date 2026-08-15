@@ -46,7 +46,7 @@ function donut:update(dt: number): boolean
 			self.speedy = 8
 			self.offsetX = 8
 		end
-		if self.y > mapheight + 2 then
+		if self.y > session.mapheight + 2 then
 			return true
 		end
 	end

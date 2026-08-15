@@ -46,7 +46,7 @@ end
 function laser:link()
 	while #self.r > 3 do
 		for _, w in pairs(outputs as {any:any}) do
-			for _, v in pairs(objects[w] as {any:Entity}) do
+			for _, v in pairs(session.objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -121,28 +121,28 @@ function laser:update(_: number)
 		
 			local obj: Entity|nil = nil
 			if (self.lasertable[i] as string) == "right" or (self.lasertable[i] as string) == "down" then
-				local smallestx = mapwidth+1
+				local smallestx = session.mapwidth+1
 				local smallesti: integer = 0
 			
 				for j = 1, #rectcol, 2 do
-					if objects[rectcol[j]][rectcol[j + 1]].x < smallestx then
-						smallestx = objects[rectcol[j]][rectcol[j + 1]].x
+					if session.objects[rectcol[j]][rectcol[j + 1]].x < smallestx then
+						smallestx = session.objects[rectcol[j]][rectcol[j + 1]].x
 						smallesti = j
 					end
 				end
-				obj = objects[rectcol[smallesti]][rectcol[smallesti + 1]]
+				obj = session.objects[rectcol[smallesti]][rectcol[smallesti + 1]]
 			else
 				local biggestx: number = -1
 				local biggesti: integer = 0
 			
 				for j = 1, #rectcol, 2 do
-					if objects[rectcol[j]][rectcol[j + 1]].x > biggestx then
-						biggestx = objects[rectcol[j]][rectcol[j + 1]].x
+					if session.objects[rectcol[j]][rectcol[j + 1]].x > biggestx then
+						biggestx = session.objects[rectcol[j]][rectcol[j + 1]].x
 						biggesti = j
 					end
 				end
 				
-				obj = objects[rectcol[biggesti]][rectcol[biggesti + 1]]
+				obj = session.objects[rectcol[biggesti]][rectcol[biggesti + 1]]
 			end
 			local o = obj as Entity
 			
@@ -225,7 +225,7 @@ end
 
 function laser:checktile(x, y, _)
 	--check if block is a detector
-	for _, v in pairs(objects["laserdetector"] as {any:Entity}) do
+	for _, v in pairs(session.objects["laserdetector"] as {any:Entity}) do
 		--if (dir == "left" and v.dir == "right") or (dir == "right" and v.dir == "left") or (dir == "up" and v.dir == "down") or (dir == "down" and v.dir == "up") then
 			if x == v.cox and y == v.coy and (v.cox ~= self.r[4] or v.coy ~= self.r[5]) then
 				table.insert(self.outtable, v)
@@ -291,7 +291,7 @@ function laser:updaterange()
 	
 	local firstcheck = true
 	local quit = false
-	while x >= 1 and x <= mapwidth and y >= 1 and y <= mapheight and (tilequads[map[x][y][1]]:getproperty("collision", x, y) == false or tilequads[map[x][y][1]]:getproperty("grate", x, y)) and (x ~= startx or y ~= starty or dir ~= self.dir or firstcheck == true) and quit == false do
+	while x >= 1 and x <= session.mapwidth and y >= 1 and y <= session.mapheight and (tilequads[session.map[x][y][1]]:getproperty("collision", x, y) == false or tilequads[session.map[x][y][1]]:getproperty("grate", x, y)) and (x ~= startx or y ~= starty or dir ~= self.dir or firstcheck == true) and quit == false do
 		firstcheck = false
 		
 		if dir == "right" then
@@ -360,7 +360,7 @@ function laser:updaterange()
 		end
 		
 		--doors
-		for _, v in pairs(objects["door"] as {any:Entity}) do
+		for _, v in pairs(session.objects["door"] as {any:Entity}) do
 			if v.active then
 				if v.dir == "ver" then
 					if x == v.cox and (y == v.coy or y == v.coy-1) then

@@ -1,5 +1,5 @@
---[[ Level-lifetime globals: map, objects, scroll, sprite batches.
-     reset_level_state() replaces manual zeroing on loadlevel. ]]
+--[[ Level-lifetime state: map, objects, scroll, sprite batches.
+     reset_level_state() clears via Session (SoT). ]]
 
 OBJECT_GROUP_KEYS = {
 	"player",
@@ -81,22 +81,15 @@ global function fresh_objects(): {string:{any:Entity}}, {Entity}
 end
 
 global function reset_level_state()
-	local objects, playerobjs = fresh_objects()
-	rawset(_G, "map", {})
-	rawset(_G, "coinmap", {})
-	rawset(_G, "objects", objects)
-	rawset(_G, "playerobjs", playerobjs)
-	rawset(_G, "mapwidth", 0)
-	rawset(_G, "mapheight", 0)
-	rawset(_G, "xscroll", 0)
-	rawset(_G, "yscroll", 0)
-	rawset(_G, "ylookmodifier", 0)
-	rawset(_G, "portals", {})
-	rawset(_G, "smbspritebatch", nil)
-	rawset(_G, "smbspritebatchfront", nil)
-	rawset(_G, "portalspritebatch", nil)
-	rawset(_G, "portalspritebatchfront", nil)
-	if physics_world_reset then
-		physics_world_reset()
+	local s = rawget(_G, "session")
+	if s ~= nil then
+		(s as World):reset_level()
+		return
 	end
+	-- Tests without a Session instance: create one so callers share SoT.
+	require("world.session")
+	local WorldMod = rawget(_G, "World") as World
+	local session = WorldMod.new()
+	rawset(_G, "session", session)
+	session:reset_level()
 end

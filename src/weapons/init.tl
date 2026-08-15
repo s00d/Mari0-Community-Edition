@@ -214,7 +214,7 @@ local function update(pl_any: any, dt: number)
 end
 
 local function update_all(dt: number)
-	if not playerobjs then
+	if not session.playerobjs then
 		return
 	end
 	local lmb = false
@@ -224,7 +224,7 @@ local function update_all(dt: number)
 		rmb = love.mouse.isDown(2) == true
 	end
 	for i = 1, players do
-		local pl = playerobjs[i]
+		local pl = session.playerobjs[i]
 		if pl and not pl.dead then
 			update(pl, dt)
 			if i == mouseowner and pl.controlsenabled and not pl.vine then

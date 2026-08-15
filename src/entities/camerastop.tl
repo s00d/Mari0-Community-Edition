@@ -52,12 +52,12 @@ function camerastop:update(_: number): boolean
 	end
 	-- Soft clamp main camera scroll away from region interior
 	local x1, y1, w1, h1 = self.rx, self.ry - 0.5, self.rw, self.rh
-	if xscroll + width > x1 and xscroll < x1 + w1 and yscroll + height > y1 and yscroll < y1 + h1 then
+	if session.xscroll + width > x1 and session.xscroll < x1 + w1 and session.yscroll + height > y1 and session.yscroll < y1 + h1 then
 		-- Prefer pushing camera left of region if overlapping from left
-		if xscroll + width / 2 < x1 + w1 / 2 then
-			xscroll = math.max(0, x1 - width)
+		if session.xscroll + width / 2 < x1 + w1 / 2 then
+			session.xscroll = math.max(0, x1 - width)
 		else
-			xscroll = math.min(mapwidth - width, x1 + w1)
+			session.xscroll = math.min(session.mapwidth - width, x1 + w1)
 		end
 	end
 	return false

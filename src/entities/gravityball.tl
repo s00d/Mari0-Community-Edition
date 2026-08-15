@@ -108,13 +108,13 @@ function gravityball:hitstuff(a: any, b: Entity, dir: string|nil)
 		local gid: number|nil = nil
 		local d = dir or "floor"
 		if d == "floor" then
-			gid = map_cell_gel_id(map[x][y], GEL_SIDE_TOP)
+			gid = map_cell_gel_id(session.map[x][y], GEL_SIDE_TOP)
 		elseif d == "ceil" then
-			gid = map_cell_gel_id(map[x][y], GEL_SIDE_BOTTOM)
+			gid = map_cell_gel_id(session.map[x][y], GEL_SIDE_BOTTOM)
 		elseif d == "left" then
-			gid = map_cell_gel_id(map[x][y], GEL_SIDE_RIGHT)
+			gid = map_cell_gel_id(session.map[x][y], GEL_SIDE_RIGHT)
 		elseif d == "right" then
-			gid = map_cell_gel_id(map[x][y], GEL_SIDE_LEFT)
+			gid = map_cell_gel_id(session.map[x][y], GEL_SIDE_LEFT)
 		end
 		if gel_has(gid, "bounce") then
 			self.bounces_left = (self.bounces_left as number) - 1

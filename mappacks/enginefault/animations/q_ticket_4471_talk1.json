@@ -1,5 +1,5 @@
 {
+  "actions":[["dotoint","q_ticket_4471_step","set","1"],["dotobool","q4471_seen","true"],["dialogbox","talk to the Compiler","compiler"],["dialogbox","TICKET #4471 opened. reproduce the floor bug.","compiler"]],
   "triggers":[["playerxgreater","9.5"]],
-  "conditions":[["worldequals","1"],["levelequals","2"],["ifint","q_ticket_4471_step","equal","0"]],
-  "actions":[["dotoint","q_ticket_4471_step","set","1"],["dotobool","q4471_seen","true"],["dialogbox","talk to the Compiler","compiler"],["dialogbox","TICKET #4471 opened. reproduce the floor bug.","compiler"]]
+  "conditions":[["worldequals","1"],["levelequals","2"],["ifint","q_ticket_4471_step","equal","0"]]
 }

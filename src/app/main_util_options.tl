@@ -383,8 +383,8 @@ global function suspendgame()
 		if mariolivecount ~= false then
 			s = s .. "f/" .. i .. "/" .. mariolives[i] .. "|"
 		end
-		if playerobjs[i] then
-			s = s .. "g/" .. i .. "/" .. playerobjs[i].size .. "|"
+		if session.playerobjs[i] then
+			s = s .. "g/" .. i .. "/" .. session.playerobjs[i].size .. "|"
 		else
 			s = s .. "g/" .. i .."/1|"
 		end

@@ -48,7 +48,7 @@ end
 function lightbridge:link()
 	while #self.r > 3 do
 		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w] as {any:Entity}) do
+			for _, v in pairs(session.objects[w] as {any:Entity}) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -139,22 +139,22 @@ function lightbridge:updaterange()
 	
 	local firstcheck = true
 	local quit = false
-	while x >= 1 and x <= mapwidth and y >= 1 and y <= mapheight and (tilequads[map[x][y][1]]:getproperty("collision", x, y) == false or tilequads[map[x][y][1]]:getproperty("grate", x, y)) and (x ~= startx or y ~= starty or dir ~= self.dir or firstcheck == true) and quit == false do
+	while x >= 1 and x <= session.mapwidth and y >= 1 and y <= session.mapheight and (tilequads[session.map[x][y][1]]:getproperty("collision", x, y) == false or tilequads[session.map[x][y][1]]:getproperty("grate", x, y)) and (x ~= startx or y ~= starty or dir ~= self.dir or firstcheck == true) and quit == false do
 		firstcheck = false
 		
 		self.children = self.children + 1
 		if dir == "right" then
 			x = x + 1
-			table.insert(objects["lightbridgebody"], lightbridgebody:new(self, x-1, y, "hor", self.children))
+			table.insert(session.objects["lightbridgebody"], lightbridgebody:new(self, x-1, y, "hor", self.children))
 		elseif dir == "left" then
 			x = x - 1
-			table.insert(objects["lightbridgebody"], lightbridgebody:new(self, x+1, y, "hor", self.children))
+			table.insert(session.objects["lightbridgebody"], lightbridgebody:new(self, x+1, y, "hor", self.children))
 		elseif dir == "up" then
 			y = y - 1
-			table.insert(objects["lightbridgebody"], lightbridgebody:new(self, x, y+1, "ver", self.children))
+			table.insert(session.objects["lightbridgebody"], lightbridgebody:new(self, x, y+1, "ver", self.children))
 		elseif dir == "down" then
 			y = y + 1
-			table.insert(objects["lightbridgebody"], lightbridgebody:new(self, x, y-1, "ver", self.children))
+			table.insert(session.objects["lightbridgebody"], lightbridgebody:new(self, x, y-1, "ver", self.children))
 		end
 		
 		--check if current block is a portal
@@ -184,7 +184,7 @@ function lightbridge:updaterange()
 		end
 		
 		--doors
-		for _, v in pairs(objects["door"] as {any:Entity}) do
+		for _, v in pairs(session.objects["door"] as {any:Entity}) do
 			if v.active then
 				if v.dir == "ver" then
 					if x == v.cox and (y == v.coy or y == v.coy-1) then
@@ -269,7 +269,7 @@ end
 function lightbridgebody:pushstuff()
 	local col = checkrect(self.x, self.y, self.width, self.height, {"box", "player"})
 	for i = 1, #col, 2 do
-		local v = objects[col[i]][col[i+1]]
+		local v = session.objects[col[i]][col[i+1]]
 		if self.dir == "ver" then
 			if v.speedx >= 0 then
 				if #checkrect(self.x + self.width, v.y, v.width, v.height, {"exclude", v}, true) > 0 then

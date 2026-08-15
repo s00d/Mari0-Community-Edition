@@ -15,7 +15,7 @@ global function editor_slab_draw()
 	local slab = require("slab") as SlabModule
 	slab.BeginFrame()
 	if slab.BeginWindow("Editor") then
-		slab.Text(string.format("map %dx%d  scroll %.1f,%.1f", mapwidth as integer, mapheight as integer, xscroll, yscroll))
+		slab.Text(string.format("map %dx%d  scroll %.1f,%.1f", session.mapwidth as integer, session.mapheight as integer, session.xscroll, session.yscroll))
 		slab.EndWindow()
 	end
 	slab.EndFrame()

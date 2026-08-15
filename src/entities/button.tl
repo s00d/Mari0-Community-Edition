@@ -75,15 +75,15 @@ function button:update(_dt: number)
 	for j = 1, #colls, 2 do
 		local add = true
 		for _, v in pairs(self.pressings) do
-			if objects[colls[j]][colls[j+1]] == v then
+			if session.objects[colls[j]][colls[j+1]] == v then
 				add = false
 			end
 		end
 		
 		if add then
-			table.insert(self.pressings, objects[colls[j]][colls[j+1]])
-			if objects[colls[j]][colls[j+1]].onbutton then
-				objects[colls[j]][colls[j+1]]:onbutton(true)
+			table.insert(self.pressings, session.objects[colls[j]][colls[j+1]])
+			if session.objects[colls[j]][colls[j+1]].onbutton then
+				session.objects[colls[j]][colls[j+1]]:onbutton(true)
 			end
 		end
 	end
@@ -94,7 +94,7 @@ function button:update(_dt: number)
 	for i, v in pairs(self.pressings) do
 		local rem = true
 		for j = 1, #colls, 2 do
-			if objects[colls[j]][colls[j+1]] == v then
+			if session.objects[colls[j]][colls[j+1]] == v then
 				rem = false
 			end
 		end

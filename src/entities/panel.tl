@@ -54,7 +54,7 @@ end
 function panel:link(): any|nil
 	while #self.t > 3 do
 		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w] as {any:Entity}) do
+			for _, v in pairs(session.objects[w] as {any:Entity}) do
 				if tonumber(self.t[3]) == v.cox and tonumber(self.t[4]) == v.coy then
 					v:addoutput(self, self.t[2])
 				end
@@ -95,9 +95,9 @@ function panel:input(t, input): any
 end
 	
 function panel:updatestuff()
-	map[self.cox][self.coy]["portaloverride"][self.dir] = self.out
+	session.map[self.cox][self.coy]["portaloverride"][self.dir] = self.out
 	
-	if self.out == false and tilequads[map[self.cox][self.coy][1]]:getproperty("portalable", self.cox, self.coy) == false then
+	if self.out == false and tilequads[session.map[self.cox][self.coy][1]]:getproperty("portalable", self.cox, self.coy) == false then
 		checkportalremove(self.cox, self.coy)
 	end
 end

@@ -20,13 +20,13 @@ end
 
 function rocketlauncher:update(dt: number): boolean
 	self.timer = self.timer + dt
-	if self.timer > self.time and self.x > xscroll and self.x < xscroll+width+2 then
+	if self.timer > self.time and self.x > session.xscroll and self.x < session.xscroll+width+2 then
 		if self:fire() then
 			self.timer = 0
 			self:randomtime()
 			
 			--remove on non solids
-			if not tilequads[map[self.x][self.y][1]]:getproperty("collision", self.x, self.y) then
+			if not tilequads[session.map[self.x][self.y][1]]:getproperty("collision", self.x, self.y) then
 				return true
 			else
 				return false
@@ -39,7 +39,7 @@ function rocketlauncher:fire(): boolean
 	--count all bullet bills
 	
 	local count = 0
-	for _, v in pairs(objects["enemy"]) do
+	for _, v in pairs(session.objects["enemy"]) do
 		if v.t == "bulletbill" then
 			count = count + 1
 		end
@@ -52,16 +52,16 @@ function rocketlauncher:fire(): boolean
 	--get nearest player
 	local pl = 1
 	for i = 2, players do
-		if math.abs(playerobjs[i].x + 14/16 - self.x) < math.abs(playerobjs[pl].x + 14/16 - self.x) then
+		if math.abs(session.playerobjs[i].x + 14/16 - self.x) < math.abs(session.playerobjs[pl].x + 14/16 - self.x) then
 			pl = i
 		end
 	end
 	
-	if playerobjs[pl].x + 14/16 > self.x + bulletbillrange then
-		table.insert(objects["enemy"], enemy:new(self.x, self.y, "bulletbill"))
+	if session.playerobjs[pl].x + 14/16 > self.x + bulletbillrange then
+		obj_insert("enemy", enemy:new(self.x, self.y, "bulletbill") as Entity)
 		return true
-	elseif playerobjs[pl].x + 14/16 < self.x - bulletbillrange then
-		table.insert(objects["enemy"], enemy:new(self.x, self.y, "bulletbill"))
+	elseif session.playerobjs[pl].x + 14/16 < self.x - bulletbillrange then
+		obj_insert("enemy", enemy:new(self.x, self.y, "bulletbill") as Entity)
 		return true
 	end
 end

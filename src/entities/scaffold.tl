@@ -91,7 +91,7 @@ end
 function scaffold:link(): any|nil
 	while #self.r > 3 do
 		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w]) do
+			for _, v in pairs(session.objects[w]) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -160,7 +160,7 @@ function scaffold:update(dt: number): boolean
 		local nextx, nexty = self.x + self.speedx*dt, self.y + self.speedy*dt
 
 		for _, v in ipairs(checktable) do
-			for _, w in pairs(objects[v] as {any:Body}) do
+			for _, w in pairs(session.objects[v] as {any:Body}) do
 				if inrange(w.x, self.x-w.width, self.x+self.width) and inrange(w.y + w.height, self.y - 0.1, self.y + 0.1) then
 					local newx = w.x + self.speedx*dt
 					local newy = nexty - w.height

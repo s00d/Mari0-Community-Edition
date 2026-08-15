@@ -88,4 +88,10 @@ check("payload left", row.left and row.left[1] == "key:a" and row.left[2] == "ha
 check("payload jump", row.jump and row.jump[1] == "key:space")
 check("payload right", row.right and row.right[1] == "key:d")
 
+-- sys_down / input_player exist after init (no LÖVE joystick needed for rebuild_sys)
+input_bindings_init()
+check("sys_down without love keys", sys_down("shift") == false)
+check("input_player nil before controls row", input_player(2) == nil or type(input_player(1)) == "table")
+check("ui_action_get jump", type(ui_action_get(1, "jump")) == "number")
+
 return failed

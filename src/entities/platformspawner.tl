@@ -58,7 +58,7 @@ function platformspawner:update(dt: number): boolean
 		self.timer = self.timer - self.spawndelay
 	end
 	
-	if self.x < xscroll - .5 then
+	if self.x < session.xscroll - .5 then
 		return true
 	end
 end

@@ -42,7 +42,7 @@ global function game_draw_fx()
 	love.graphics.setColor(1, 1, 1)
 
 	--portals
-	for _, v in pairs(portals) do
+	for _, v in pairs(session.portals) do
 		v:draw()
 	end		
 
@@ -50,7 +50,7 @@ global function game_draw_fx()
 
 	--COINBLOCKanimation
 	for i, _ in pairs(coinblockanimations) do
-		love.graphics.draw(coinblockanimationimg, coinblockanimationquads[coinblockanimations[i].frame as integer], math.floor((coinblockanimations[i].x - xscroll)*16*scale), math.floor(((coinblockanimations[i].y-yscroll)*16-8)*scale), 0, scale, scale, 4, 54)
+		love.graphics.draw(coinblockanimationimg, coinblockanimationquads[coinblockanimations[i].frame as integer], math.floor((coinblockanimations[i].x - session.xscroll)*16*scale), math.floor(((coinblockanimations[i].y-session.yscroll)*16-8)*scale), 0, scale, scale, 4, 54)
 	end
 
 	--SCROLLING SCORE
@@ -82,12 +82,12 @@ global function game_draw_fx()
 	--PORTAL UI STUFF
 	if levelfinished == false then
 		for pl = 1, players do
-			local curw = Weapons and Weapons.current(playerobjs[pl])
+			local curw = Weapons and Weapons.current(session.playerobjs[pl])
 			local portal_equipped = (not Weapons) or (curw and curw.id == "portal")
-			if playerobjs[pl].controlsenabled and portal_equipped and playerobjs[pl].vine == false and playerobjs[pl].grapple == false and (playerobjs[pl].portalsavailable[1] or playerobjs[pl].portalsavailable[2]) then
-				local sourcex: number = playerobjs[pl].x+6/16
-				local sourcey: number = playerobjs[pl].y+6/16
-				local an = playerobjs[pl].pointingangle
+			if session.playerobjs[pl].controlsenabled and portal_equipped and session.playerobjs[pl].vine == false and session.playerobjs[pl].grapple == false and (session.playerobjs[pl].portalsavailable[1] or session.playerobjs[pl].portalsavailable[2]) then
+				local sourcex: number = session.playerobjs[pl].x+6/16
+				local sourcey: number = session.playerobjs[pl].y+6/16
+				local an = session.playerobjs[pl].pointingangle
 				local cox: any = false
 				local coy: any = nil
 				local side: any = nil
@@ -105,9 +105,9 @@ global function game_draw_fx()
 					if m == "mirror" then
 						portalpossible = false
 
-						sourcex = playerobjs[pl].x+6/16
-						sourcey = playerobjs[pl].y+6/16
-						an = playerobjs[pl].pointingangle
+						sourcex = session.playerobjs[pl].x+6/16
+						sourcey = session.playerobjs[pl].y+6/16
+						an = session.playerobjs[pl].pointingangle
 						cox = false
 						coy = nil
 						side = nil
@@ -244,8 +244,8 @@ global function game_draw_fx()
 	-- Gravity-gun beam (and any weapon overlays)
 	if Weapons then
 		for pl = 1, players do
-			if playerobjs[pl] and not playerobjs[pl].dead then
-				Weapons.draw(playerobjs[pl])
+			if session.playerobjs[pl] and not session.playerobjs[pl].dead then
+				Weapons.draw(session.playerobjs[pl])
 			end
 		end
 	end
@@ -262,7 +262,7 @@ global function game_draw_seethrough_portals()
 		scenecanvas = love.graphics.newCanvas()
 	end
 	
-	local pl = playerobjs[1]
+	local pl = session.playerobjs[1]
 	(scenecanvas as Canvas):clear()
 	love.graphics.setCanvas{scenecanvas as Canvas, depthstencil=true}
 	scenedraw()
@@ -273,13 +273,13 @@ global function game_draw_seethrough_portals()
 		local xtranslate = width/2*16*scale
 		local ytranslate = height/2*16*scale
 		love.graphics.translate(xtranslate, ytranslate)
-		love.graphics.rotate(-playerobjs[1].rotation/2)
+		love.graphics.rotate(-session.playerobjs[1].rotation/2)
 		love.graphics.translate(-xtranslate, -ytranslate)
 	end
 	
 	currentscissor = {0, 0,width*16*scale, height*16*scale}
 	
-	for _, v in pairs(portals) do
+	for _, v in pairs(session.portals) do
 		local pv = v as Dyn
 		if v.x1 and v.x2 then
 			for i = 1, 2 do
@@ -316,21 +316,21 @@ global function game_draw_seethrough_portals()
 					local p4x: number = 0
 					local p4y: number = 0
 					if facing == "right" then
-						p1x, p1y = (x-xscroll), (y-yscroll-1.5)
+						p1x, p1y = (x-session.xscroll), (y-session.yscroll-1.5)
 						p2x, p2y = p1x, p1y+2
 					elseif facing == "down" then
-						p1x, p1y = (x-xscroll-2), (y-yscroll-.5)
+						p1x, p1y = (x-session.xscroll-2), (y-session.yscroll-.5)
 						p2x, p2y = p1x+2, p1y
 					elseif facing == "left" then
-						p1x, p1y = (x-xscroll-1), (y-yscroll-2.5)
+						p1x, p1y = (x-session.xscroll-1), (y-session.yscroll-2.5)
 						p2x, p2y = p1x, p1y+2
 					elseif facing == "up" then
-						p1x, p1y = (x-xscroll-1), (y-yscroll-1.5)
+						p1x, p1y = (x-session.xscroll-1), (y-session.yscroll-1.5)
 						p2x, p2y = p1x+2, p1y
 					end
 					
-					local r1 = math.atan2((pl.x+pl.width/2-xscroll)-p1x, (pl.y+pl.height/2-yscroll-.5)-p1y)
-					local r2 = math.atan2((pl.x+pl.width/2-xscroll)-p2x, (pl.y+pl.height/2-yscroll-.5)-p2y)
+					local r1 = math.atan2((pl.x+pl.width/2-session.xscroll)-p1x, (pl.y+pl.height/2-session.yscroll-.5)-p1y)
+					local r2 = math.atan2((pl.x+pl.width/2-session.xscroll)-p2x, (pl.y+pl.height/2-session.yscroll-.5)-p2y)
 					
 					local limit = (width+height)*100
 					
@@ -346,32 +346,32 @@ global function game_draw_seethrough_portals()
 					local ty: number = 0
 					local r1b: number = 0
 					if facing == "right" then
-						tx, ty = (x-xscroll), (y-yscroll-.5)
+						tx, ty = (x-session.xscroll), (y-session.yscroll-.5)
 						r1b = math.pi/2
 					elseif facing == "down" then
-						tx, ty = (x-xscroll-1), (y-yscroll-.5)
+						tx, ty = (x-session.xscroll-1), (y-session.yscroll-.5)
 						r1b = math.pi
 					elseif facing == "left" then
-						tx, ty = (x-xscroll-1), (y-yscroll-1.5)
+						tx, ty = (x-session.xscroll-1), (y-session.yscroll-1.5)
 						r1b = math.pi*1.5
 					elseif facing == "up" then
-						tx, ty = (x-xscroll), (y-yscroll-1.5)
+						tx, ty = (x-session.xscroll), (y-session.yscroll-1.5)
 						r1b = 0
 					end
 					
 					local ox: number = 0
 					local oy: number = 0
 					if facing2 == "right" then
-						ox, oy = (x2-xscroll), (y2-yscroll-.5)
+						ox, oy = (x2-session.xscroll), (y2-session.yscroll-.5)
 						r2 = math.pi/2
 					elseif facing2 == "down" then
-						ox, oy = (x2-xscroll-1), (y2-yscroll-.5)
+						ox, oy = (x2-session.xscroll-1), (y2-session.yscroll-.5)
 						r2 = math.pi
 					elseif facing2 == "left" then
-						ox, oy = (x2-xscroll-1), (y2-yscroll-1.5)
+						ox, oy = (x2-session.xscroll-1), (y2-session.yscroll-1.5)
 						r2 = math.pi*1.5
 					elseif facing2 == "up" then
-						ox, oy = (x2-xscroll), (y2-yscroll-1.5)
+						ox, oy = (x2-session.xscroll), (y2-session.yscroll-1.5)
 						r2 = 0
 					end
 					

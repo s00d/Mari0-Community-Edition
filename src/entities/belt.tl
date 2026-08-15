@@ -78,7 +78,7 @@ function belt:update(dt: number): boolean
 	-- Push players / enemies standing on the belt
 	local checks = {"player", "enemy", "box"}
 	for ci = 1, #checks do
-		local group = objects[checks[ci]]
+		local group = session.objects[checks[ci]]
 		if group then
 			for _, w in pairs(group) do
 				local o = w as Dyn

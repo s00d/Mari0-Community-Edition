@@ -256,7 +256,7 @@ _G.editor_mode_labels = editor_mode_labels
 
 -- Map tile → screen pixel for link-line endpoints (uses xscroll/yscroll/scale).
 local function editor_link_screen_pos(tx: any, ty: any): number, number
-	return math.floor(((tx as number)-xscroll-.5)*16*scale), math.floor(((ty as number)-yscroll-1)*16*scale)
+	return math.floor(((tx as number)-session.xscroll-.5)*16*scale), math.floor(((ty as number)-session.yscroll-1)*16*scale)
 end
 _G.editor_link_screen_pos = editor_link_screen_pos
 

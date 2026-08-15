@@ -108,7 +108,7 @@ local function in_group(g: AutotileGroup, x: number, y: number): boolean
 	if not inmap(x, y) then
 		return false
 	end
-	local tid = map[x][y][1] as integer
+	local tid = session.map[x][y][1] as integer
 	return g.set[tid] == true
 end
 
@@ -165,15 +165,15 @@ local function set_tile_raw(x: number, y: number, tid: integer)
 		return
 	end
 	editor_undo_record(x, y)
-	map[x][y][1] = tid
-	init_map_cell_gels(map[x][y])
+	session.map[x][y][1] = tid
+	init_map_cell_gels(session.map[x][y])
 end
 
 global function autotile_refresh_cell(x: number, y: number)
 	if not inmap(x, y) then
 		return
 	end
-	local tid = map[x][y][1] as integer
+	local tid = session.map[x][y][1] as integer
 	local gname = AUTOTILE_BY_TILE[tid]
 	if not gname then
 		return

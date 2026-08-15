@@ -3,7 +3,7 @@
 local UiRunPreview = require("assets.ui_run_preview")
 
 global function onlinemenu_load()
-	objects = nil
+	session.objects = nil
 	mappack = "smb"
 
 	gamestate = "onlinemenu"

@@ -36,16 +36,16 @@ function pedestal:update(dt: number)
 			for i = 2, #col, 2 do
 				print("!")
 				if self.blue then
-					if not playerobjs[col[i]].portalsavailable[1] then
+					if not session.playerobjs[col[i]].portalsavailable[1] then
 						self.pickedup = true
-						playerobjs[col[i]]:portalpickup(1)
+						session.playerobjs[col[i]]:portalpickup(1)
 					end
 				end
 				
 				if self.orange then
-					if not playerobjs[col[i]].portalsavailable[2] then
+					if not session.playerobjs[col[i]].portalsavailable[2] then
 						self.pickedup = true
-						playerobjs[col[i]]:portalpickup(2)
+						session.playerobjs[col[i]]:portalpickup(2)
 					end
 				end
 			
@@ -73,9 +73,9 @@ function pedestal:draw()
 	
 		if self.blue or self.orange then
 			if self.blue then
-				love.graphics.setColor(playerobjs[1].portal1color)
+				love.graphics.setColor(session.playerobjs[1].portal1color)
 			elseif self.orange then
-				love.graphics.setColor(playerobjs[1].portal2color)
+				love.graphics.setColor(session.playerobjs[1].portal2color)
 			end
 			love.graphics.rectangle("fill", tile_draw_x(self.cox-1+7/16), math.floor(tile_draw_y_raw(self.coy-1.5+2/16)), scale, scale)
 		end

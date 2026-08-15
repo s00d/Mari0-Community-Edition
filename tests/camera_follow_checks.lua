@@ -52,7 +52,7 @@ check("drawlevel_tiles uses world camera helpers", gdw:find("wpx(", 1, true) ~= 
 check("drawlevel_tiles dropped xscrollfrac", gdw:find("xscrollfrac", 1, true) == nil)
 check("scenedraw wraps world draw in world_camera_attach", gdw:find("world_camera_attach()", 1, true) ~= nil and gdw:find("drawlevel_tiles", 1, true) ~= nil)
 check("scenedraw draws tile batches outside world camera", gdw:find("draw_tile_spritebatches()", 1, true) ~= nil and gdw:find("draw_tile_spritebatches_foreground()", 1, true) ~= nil)
-check("tile batches use scroll_batch_offset", gdw:find("scroll_batch_offset(xscroll)", 1, true) ~= nil)
+check("tile batches use scroll_batch_offset", gdw:find("scroll_batch_offset(session.xscroll)", 1, true) ~= nil or gdw:find("scroll_batch_offset(xscroll)", 1, true) ~= nil)
 check("menu uses draw_world_tiles", (read(root .. "/src/ui/menu.tl") or ""):find("draw_world_tiles", 1, true) ~= nil)
 check("game_draw_objects uses entity_draw_x", gdw:find("entity_draw_x", 1, true) ~= nil)
 

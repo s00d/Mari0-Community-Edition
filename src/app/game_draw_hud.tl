@@ -57,8 +57,8 @@ global function game_draw_hud(hidetime?: any): any
 		end
 	end
 
-	if Weapons and playerobjs[1] then
-		Weapons.draw_hud(playerobjs[mouseowner] or playerobjs[1])
+	if Weapons and session.playerobjs[1] then
+		Weapons.draw_hud(session.playerobjs[mouseowner] or session.playerobjs[1])
 	end
 end
 
@@ -67,23 +67,23 @@ drawui = game_draw_hud
 global function game_draw_player_markers()
 	--Player markers
 	for i = 1, players do
-		local v = playerobjs[i]
-		if false and not v.dead and v.drawable and v.y < mapheight-.5 then
+		local v = session.playerobjs[i]
+		if false and not v.dead and v.drawable and v.y < session.mapheight-.5 then
 			--get if player offscreen
 			local right, left, up, down = false, false, false, false
-			if v.x > xscroll+width then
+			if v.x > session.xscroll+width then
 				right = true
 			end
 			
-			if v.x+v.width < xscroll then
+			if v.x+v.width < session.xscroll then
 				left = true
 			end
 			
-			if v.y > yscroll + .5 + height then
+			if v.y > session.yscroll + .5 + height then
 				down = true
 			end
 			
-			if v.y+v.height < yscroll +.5 then
+			if v.y+v.height < session.yscroll +.5 then
 				up = true
 			end
 			
@@ -109,11 +109,11 @@ global function game_draw_player_markers()
 				end
 				
 				if not right and not left then
-					x = v.x-xscroll+v.width/2
+					x = v.x-session.xscroll+v.width/2
 				end
 				
 				if not up and not down then
-					y = v.y-yscroll-3/16
+					y = v.y-session.yscroll-3/16
 				end
 				
 				local r = -math.atan2(angx, angy)-math.pi/2
@@ -147,7 +147,7 @@ global function game_draw_player_markers()
 				for x = math.floor(v.x), math.floor(v.x)+3 do
 					for y = math.floor(v.y), math.floor(v.y)+3 do
 						if inmap(x, y) then
-							tilenumber = map[x][y][1] as number
+							tilenumber = session.map[x][y][1] as number
 							
 							if tilenumber ~= 0 and not tilequads[tilenumber]:getproperty("invisible", x, y) then
 								local img: Image|nil = nil
@@ -190,19 +190,19 @@ global function game_draw_debug()
 	if physicsdebug or incognito then
 		local lw = love.graphics.getLineWidth()
 		love.graphics.setLineWidth(1)
-		for _, v in pairs(objects) do
+		for _, v in pairs(session.objects) do
 			for _, k in pairs(v) do
 				if k.width then
-					if xscroll >= k.x-width and k.x+k.width > xscroll then
+					if session.xscroll >= k.x-width and k.x+k.width > session.xscroll then
 						if k.active then
 							love.graphics.setColor(1, 1, 1)
 						else
 							love.graphics.setColor(1, 0, 0)
 						end
 						if incognito then
-							love.graphics.rectangle("fill", math.floor((k.x-xscroll)*16*scale)+.5, math.floor((k.y-yscroll-.5)*16*scale)+.5, k.width*16*scale-1, k.height*16*scale-1)
+							love.graphics.rectangle("fill", math.floor((k.x-session.xscroll)*16*scale)+.5, math.floor((k.y-session.yscroll-.5)*16*scale)+.5, k.width*16*scale-1, k.height*16*scale-1)
 						else
-							love.graphics.rectangle("line", math.floor((k.x-xscroll)*16*scale)+.5, math.floor((k.y-yscroll-.5)*16*scale)+.5, k.width*16*scale-1, k.height*16*scale-1)
+							love.graphics.rectangle("line", math.floor((k.x-session.xscroll)*16*scale)+.5, math.floor((k.y-session.yscroll-.5)*16*scale)+.5, k.width*16*scale-1, k.height*16*scale-1)
 						end
 					end
 				end
@@ -216,7 +216,7 @@ global function game_draw_debug()
 		love.graphics.setColor(1, 1, 1, 0.4)
 		for _, k in pairs(userects) do
 			local rect = k as {any:any}
-			love.graphics.rectangle("fill", ((rect.x as number)-xscroll)*16*scale, ((rect.y as number)-yscroll-.5)*16*scale, (rect.width as number)*16*scale, (rect.height as number)*16*scale)
+			love.graphics.rectangle("fill", ((rect.x as number)-session.xscroll)*16*scale, ((rect.y as number)-session.yscroll-.5)*16*scale, (rect.width as number)*16*scale, (rect.height as number)*16*scale)
 		end
 		love.graphics.setColor(1, 1, 1, 1)
 	end
@@ -224,11 +224,11 @@ global function game_draw_debug()
 	
 	--portalwalldebug
 	if portalwalldebug then
-		for _, v in pairs(portals) do
+		for _, v in pairs(session.portals) do
 			for k = 1, 2 do
 				for i = 1, 6 do
-					if objects["portalwall"][v.number .. "-" .. k .. "-" .. i] then
-						objects["portalwall"][v.number .. "-" .. k .. "-" .. i]:draw()
+					if session.objects["portalwall"][v.number .. "-" .. k .. "-" .. i] then
+						session.objects["portalwall"][v.number .. "-" .. k .. "-" .. i]:draw()
 					end
 				end
 			end

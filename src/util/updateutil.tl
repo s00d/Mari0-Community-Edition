@@ -22,7 +22,7 @@ local function update_and_compact(v: Dyn, dt: number)
 				if w.update and w:update(dt) then
 					remove = true
 				elseif w.autodelete then
-					if w.y > mapheight+5 or w.x > mapwidth+5 or w.x < -5 or w.y < -5 then
+					if w.y > session.mapheight+5 or w.x > session.mapwidth+5 or w.x < -5 or w.y < -5 then
 						if w.autodeleted then
 							(w.autodeleted as function(Entity))(w)
 						end
@@ -53,7 +53,7 @@ local function update_and_compact(v: Dyn, dt: number)
 		if w.update and w:update(dt) then
 			remove = true
 		elseif w.autodelete then
-			if w.y > mapheight+5 or w.x > mapwidth+5 or w.x < -5 or w.y < -5 then
+			if w.y > session.mapheight+5 or w.x > session.mapwidth+5 or w.x < -5 or w.y < -5 then
 				if w.autodeleted then
 					(w.autodeleted as function(Entity))(w)
 				end

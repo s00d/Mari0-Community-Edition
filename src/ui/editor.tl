@@ -20,12 +20,12 @@ global function test_level_from_cursor()
 	end
 	startlevel()
 	-- Warp player 1 to cursor tile if possible
-	if objects and objects["player"] and objects["player"][1] and inmap(cox, coy) then
-		objects["player"][1].x = cox - 1 + 2 / 16
-		objects["player"][1].y = coy - 1 + 2 / 16
-		xscroll = math.max(0, cox - width / 2)
-		yscroll = math.max(0, coy - height / 2)
-		if splitxscroll then splitxscroll[1] = xscroll end
+	if session.objects and session.objects["player"] and session.objects["player"][1] and inmap(cox, coy) then
+		session.objects["player"][1].x = cox - 1 + 2 / 16
+		session.objects["player"][1].y = coy - 1 + 2 / 16
+		session.xscroll = math.max(0, cox - width / 2)
+		session.yscroll = math.max(0, coy - height / 2)
+		if splitxscroll then splitxscroll[1] = session.xscroll end
 	end
 end
 
@@ -503,28 +503,27 @@ end
 function editor_update_keyscroll(_: number)
 --key scroll
 	if editormenuopen == false then
-		if not (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
-			local xdir = love.keyboard.isDown("left") and -1 or (love.keyboard.isDown("right") and 1 or 0)
-			local ydir = love.keyboard.isDown("up") and -1 or (love.keyboard.isDown("down") and 1 or 0)
+		if not sys_down("shift") then
+			local xdir = sys_down("left") and -1 or (sys_down("right") and 1 or 0)
+			local ydir = sys_down("up") and -1 or (sys_down("down") and 1 or 0)
 			
 			--xdir
-			local oldxscroll = xscroll
-			xscroll = math.max(0, math.min(mapwidth-width, xscroll + 30*gdt*xdir))
-			splitxscroll[1] = math.max(0, math.min(mapwidth-width, splitxscroll[1]))
+			local oldxscroll = session.xscroll
+			session.xscroll = math.max(0, math.min(session.mapwidth-width, session.xscroll + 30*gdt*xdir))
+			splitxscroll[1] = math.max(0, math.min(session.mapwidth-width, splitxscroll[1]))
 			
 			--ydir
-			local oldyscroll = yscroll
-			yscroll = math.max(0, math.min(mapheight-1-height, yscroll + 30*gdt*ydir))
+			local oldyscroll = session.yscroll
+			session.yscroll = math.max(0, math.min(session.mapheight-1-height, session.yscroll + 30*gdt*ydir))
 			
-			if oldxscroll ~= xscroll or oldyscroll ~= yscroll then
+			if oldxscroll ~= session.xscroll or oldyscroll ~= session.yscroll then
 				editor_camera_sync()
 				autoscroll = false
 				guielements["autoscrollcheckbox"].var = autoscroll
-				generatespritebatch(0, 0)
 				
 				if regiondragging and (regiondragging as RegionDragging).movex and (regiondragging as RegionDragging).movey then
-					(regiondragging as RegionDragging).movex = (regiondragging as RegionDragging).movex + (oldxscroll-xscroll)*16*scale
-					(regiondragging as RegionDragging).movey = (regiondragging as RegionDragging).movey + (oldyscroll-yscroll)*16*scale
+					(regiondragging as RegionDragging).movex = (regiondragging as RegionDragging).movex + (oldxscroll-session.xscroll)*16*scale
+					(regiondragging as RegionDragging).movey = (regiondragging as RegionDragging).movey + (oldyscroll-session.yscroll)*16*scale
 				end
 			end
 		end
@@ -532,17 +531,8 @@ function editor_update_keyscroll(_: number)
 end
 
 function editor_update_modifiers()
-	if love.keyboard.isDown("rctrl") or love.keyboard.isDown("lctrl") then
-		ctrlpressed = true
-	else
-		ctrlpressed = false
-	end
-
-	if love.keyboard.isDown(tileswitcherkey) then
-		tileswitcherpressed = true
-	else
-		tileswitcherpressed = false
-	end
+	ctrlpressed = sys_down("ctrl")
+	tileswitcherpressed = ui_action_down(1, "use")
 
 	if ctrlpressed then
 		tileselection = true
@@ -655,9 +645,9 @@ function editor_update_closed(_: number)
 						
 						if ii > 0 and powerlinedrawtable[ii] then
 							local row = powerlinedrawtable[ii]
-							placetile((currx-xscroll-.5)*16*scale, (curry-yscroll-1)*16*scale, row[3], row[4] or false)
+							placetile((currx-session.xscroll-.5)*16*scale, (curry-session.yscroll-1)*16*scale, row[3], row[4] or false)
 							for i = 5, #row, 4 do
-								placetile((currx-xscroll-.5+(row[i] as number))*16*scale, (curry-yscroll-1+(row[i+1] as number))*16*scale, row[i+2] or row[3], row[4] or false)
+								placetile((currx-session.xscroll-.5+(row[i] as number))*16*scale, (curry-session.yscroll-1+(row[i+1] as number))*16*scale, row[i+2] or row[3], row[4] or false)
 							end
 						end
 					end
@@ -788,58 +778,52 @@ function editor_update_main(dt: number)
 						end
 					end
 				elseif mousex >= (minimapx+394-width)*scale then
-					if minimapscroll < mapwidth-width-170 then
+					if minimapscroll < session.mapwidth-width-170 then
 						minimapscroll = minimapscroll + minimapscrollspeed*dt
-						if minimapscroll > mapwidth-width-170 then
-							minimapscroll = mapwidth-width-170
+						if minimapscroll > session.mapwidth-width-170 then
+							minimapscroll = session.mapwidth-width-170
 						end
 					end
 				end
 				
 				splitxscroll[1] = editor_minimap_xscroll_from_mouse(mousex, scale, width, minimapscroll)
-				if splitxscroll[1] > mapwidth-width then
-					splitxscroll[1] = mapwidth-width
+				if splitxscroll[1] > session.mapwidth-width then
+					splitxscroll[1] = session.mapwidth-width
 				end
 
-				--SPRITEBATCH UPDATE
+				--SCROLL TRACK (full-map batches: no rebuild on pan)
 				if math.floor(splitxscroll[1]) ~= spritebatchX[1] then
 					spritebatchX[1] = math.floor(splitxscroll[1])
-					generatespritebatch(0, 0)
 				end
 				
 				--VERTICAL
 				if mousey < (minimapy+5)*scale then
-					if yscroll > 0 then
-						yscroll = yscroll - minimapscrollspeed*dt
-						if yscroll < 0 then
-							yscroll = 0
+					if session.yscroll > 0 then
+						session.yscroll = session.yscroll - minimapscrollspeed*dt
+						if session.yscroll < 0 then
+							session.yscroll = 0
 						end
 					end
 				elseif mousey >= (minimapy+minimapheight*2+4-5)*scale then
-					if yscroll < mapheight-height then
-						yscroll = yscroll + minimapscrollspeed*dt
-						if yscroll > mapheight-height-1 then
-							yscroll = mapheight-height-1
+					if session.yscroll < session.mapheight-height then
+						session.yscroll = session.yscroll + minimapscrollspeed*dt
+						if session.yscroll > session.mapheight-height-1 then
+							session.yscroll = session.mapheight-height-1
 						end
 					end
 				end
 			
-				xscroll = editor_minimap_xscroll_from_mouse(mousex, scale, width, minimapscroll)
-				if xscroll > mapwidth-width then
-					xscroll = mapwidth-width
+				session.xscroll = editor_minimap_xscroll_from_mouse(mousex, scale, width, minimapscroll)
+				if session.xscroll > session.mapwidth-width then
+					session.xscroll = session.mapwidth-width
 				end
 
-				--SPRITEBATCH UPDATE
-				local batch_dirty = false
-				if math.floor(xscroll) ~= spritebatchX[1] then
-					spritebatchX[1] = math.floor(xscroll)
-					batch_dirty = true
-				elseif math.floor(yscroll) ~= spritebatchY[1] then
-					spritebatchY[1] = math.floor(yscroll)
-					batch_dirty = true
+				--SCROLL TRACK (full-map batches: no rebuild on pan)
+				if math.floor(session.xscroll) ~= spritebatchX[1] then
+					spritebatchX[1] = math.floor(session.xscroll)
 				end
-				if batch_dirty then
-					generatespritebatch(0, 0)
+				if math.floor(session.yscroll) ~= spritebatchY[1] then
+					spritebatchY[1] = math.floor(session.yscroll)
 				end
 			end
 		end
@@ -920,8 +904,8 @@ function editor_draw_overlay(emx: number, emy: number)
 			love.graphics.setColor(1, 1, 1, 0.4)
 			for i = 1, #selectionlist do
 				local v = selectionlist[i]
-				if map[v.x][v.y][2] and entitylist[map[v.x][v.y][2]] and rightclickmenues[entitylist[map[v.x][v.y][2]].t] then
-					love.graphics.rectangle("fill", (v.x-xscroll-1)*16*scale, (v.y-yscroll-1.5)*16*scale, 16*scale, 16*scale)
+				if session.map[v.x][v.y][2] and entitylist[session.map[v.x][v.y][2]] and rightclickmenues[entitylist[session.map[v.x][v.y][2]].t] then
+					love.graphics.rectangle("fill", (v.x-session.xscroll-1)*16*scale, (v.y-session.yscroll-1.5)*16*scale, 16*scale, 16*scale)
 				end
 			end
 		end
@@ -941,10 +925,10 @@ function editor_draw_overlay(emx: number, emy: number)
 								-- well, do nothing
 								-- or better: draw empty tiles almost transparent
 								love.graphics.setColor(1, 1, 1, 0.03)
-								love.graphics.draw(tilequads[w].image, quad, math.floor((x-xscroll-1 + pastecenter[1])*16*scale+(i-1)*16*scale), ((y-yscroll-1 + pastecenter[2])*16+8)*scale+((j-1)*16*scale), 0, scale, scale)
+								love.graphics.draw(tilequads[w].image, quad, math.floor((x-session.xscroll-1 + pastecenter[1])*16*scale+(i-1)*16*scale), ((y-session.yscroll-1 + pastecenter[2])*16+8)*scale+((j-1)*16*scale), 0, scale, scale)
 							else
 								love.graphics.setColor(1, 1, 1, 0.3)
-								love.graphics.draw(tilequads[w].image, quad, math.floor((x-xscroll-1 + pastecenter[1])*16*scale+(i-1)*16*scale), ((y-yscroll-1 + pastecenter[2])*16+8)*scale+((j-1)*16*scale), 0, scale, scale)
+								love.graphics.draw(tilequads[w].image, quad, math.floor((x-session.xscroll-1 + pastecenter[1])*16*scale+(i-1)*16*scale), ((y-session.yscroll-1 + pastecenter[2])*16+8)*scale+((j-1)*16*scale), 0, scale, scale)
 							end
 						end
 					end
@@ -958,13 +942,13 @@ function editor_draw_overlay(emx: number, emy: number)
 				local cox, coy = getMouseTile(love.mouse.getX(), love.mouse.getY()+8*scale)
 
 				-- now replace everything thats == map[cox][coy][1] to: currenttile
-				local mousetile = map[cox][coy][1]
-				for i, v in ipairs(map as {{MapCell}}) do
+				local mousetile = session.map[cox][coy][1]
+				for i, v in ipairs(session.map as {{MapCell}}) do
 					for j, w in ipairs(v) do
 						local quad = tilequads[currenttile as number]:quad() --[[tilequads[w].quad]]
 						if w[1] == mousetile then
 							--print(i,j,w[1],"SWITCHED")
-							love.graphics.draw(tilequads[currenttile as number].image, quad, (i-1)*16*scale-xscroll*16*scale, (((j-1)*16*scale)-8*scale)-yscroll*16*scale, 0, scale, scale)
+							love.graphics.draw(tilequads[currenttile as number].image, quad, (i-1)*16*scale-session.xscroll*16*scale, (((j-1)*16*scale)-8*scale)-session.yscroll*16*scale, 0, scale, scale)
 						end
 					end
 				end
@@ -976,7 +960,7 @@ function editor_draw_overlay(emx: number, emy: number)
 					if pastingtiles == false then
 						-- no clicks yet - draw layer on single block
 						love.graphics.setColor(0.5, 1, 0.5, 0.3)
-						love.graphics.rectangle("fill",math.floor((x-xscroll-1)*16*scale), (((y-1)*16+8)*scale)-yscroll*16*scale, 16*scale, 16*scale)
+						love.graphics.rectangle("fill",math.floor((x-session.xscroll-1)*16*scale), (((y-1)*16+8)*scale)-session.yscroll*16*scale, 16*scale, 16*scale)
 					end
 				elseif tileselectionclick2 == false then
 					-- first click done - draw area: click1xy->mousexy
@@ -985,7 +969,7 @@ function editor_draw_overlay(emx: number, emy: number)
 					ly1 = math.min(tileselectionclick1y as integer, y as integer)
 					
 					love.graphics.setColor(0.44,0.44,1,0.44)
-					love.graphics.rectangle("fill",math.floor((lx1-xscroll-1)*16*scale), (((ly1-1)*16+8)*scale)-yscroll*16*scale, (math.max(tileselectionclick1x, x)-lx1)*16*scale+16*scale, (math.max(tileselectionclick1y, y)-ly1)*16*scale+16*scale)
+					love.graphics.rectangle("fill",math.floor((lx1-session.xscroll-1)*16*scale), (((ly1-1)*16+8)*scale)-session.yscroll*16*scale, (math.max(tileselectionclick1x, x)-lx1)*16*scale+16*scale, (math.max(tileselectionclick1y, y)-ly1)*16*scale+16*scale)
 				else
 					-- two clicks done
 					local lx1, ly1, lx2, ly2 = 0, 0, 0, 0
@@ -995,7 +979,7 @@ function editor_draw_overlay(emx: number, emy: number)
 					ly2 = math.max(tileselectionclick1y as integer, tileselectionclick2y as integer)
 					
 					-- Laziness or cleverness?
-					local px, py = math.floor((lx1-xscroll-1)*16*scale), ((ly1-yscroll-1)*16+8)*scale
+					local px, py = math.floor((lx1-session.xscroll-1)*16*scale), ((ly1-session.yscroll-1)*16+8)*scale
 					local pw, ph = (lx2-lx1)*16*scale+16*scale, (ly2-ly1)*16*scale+16*scale
 					
 					love.graphics.setColor(0.67,1,0.67,0.7)
@@ -1033,7 +1017,7 @@ function editor_draw_overlay(emx: number, emy: number)
 				end
 			elseif middlemode[1] then
 				love.graphics.push()
-				love.graphics.translate(-xscroll*16*scale, -yscroll*16*scale)
+				love.graphics.translate(-session.xscroll*16*scale, -session.yscroll*16*scale)
 				if editentities and editenemies then
 					for i = 1, #enemies do
 						if enemies[i] == currenttile then
@@ -1123,14 +1107,14 @@ function editor_draw_overlay(emx: number, emy: number)
 					end
 					for t1 = 1, brush[1] as number do
 						for t2 = 1, brush[2] as number do
-							love.graphics.draw(tilequads[ctile].image, tileq, math.floor((cox-xscroll-1+(t1-1))*16*scale), math.floor(((coy-yscroll-1+(t2-1))*16+8)*scale), 0, scale, scale)
+							love.graphics.draw(tilequads[ctile].image, tileq, math.floor((cox-session.xscroll-1+(t1-1))*16*scale), math.floor(((coy-session.yscroll-1+(t2-1))*16+8)*scale), 0, scale, scale)
 						end
 					end
 				elseif editenemies == false then
 					local ctile = currenttile as number
 					for t1 = 1, brush[1] as number do
 						for t2 = 1, brush[2] as number do
-							love.graphics.draw(entityquads[ctile].image, entityquads[ctile].quad, math.floor((cox-xscroll-1+(t1-1))*16*scale), math.floor(((coy-yscroll-1+(t2-1))*16+8)*scale), 0, scale, scale)
+							love.graphics.draw(entityquads[ctile].image, entityquads[ctile].quad, math.floor((cox-session.xscroll-1+(t1-1))*16*scale), math.floor(((coy-session.yscroll-1+(t2-1))*16+8)*scale), 0, scale, scale)
 						end
 					end
 				else
@@ -1138,7 +1122,7 @@ function editor_draw_overlay(emx: number, emy: number)
 					local xoff, yoff = (((v.spawnoffsetx or 0)+v.width/2-.5)*16 - v.offsetX + v.quadcenterX)*scale, (((v.spawnoffsety or 0)-v.height+1)*16-v.offsetY - v.quadcenterY)*scale
 					for t1 = 1, brush[1] as number do
 						for t2 = 1, brush[2] as number do
-							love.graphics.draw(v.graphic, v.quad, math.floor((cox-xscroll-1+(t1-1))*16*scale+xoff), math.floor(((coy-yscroll+(t2-1))*16)*scale+yoff), 0, scale, scale)
+							love.graphics.draw(v.graphic, v.quad, math.floor((cox-session.xscroll-1+(t1-1))*16*scale+xoff), math.floor(((coy-session.yscroll+(t2-1))*16)*scale+yoff), 0, scale, scale)
 						end
 					end
 				end
@@ -1157,16 +1141,16 @@ function editor_draw_linking(mx: number, my: number)
 			table.insert(table1, v)
 		end
 		
-		for x = math.floor(xscroll), math.floor(xscroll)+width+1 do
-			for y = math.floor(yscroll), math.floor(yscroll)+height+1 do
+		for x = math.floor(session.xscroll), math.floor(session.xscroll)+width+1 do
+			for y = math.floor(session.yscroll), math.floor(session.yscroll)+height+1 do
 				for _, v in ipairs(table1) do
-					if inmap(x, y) and #map[x][y] > 1 and map[x][y][2] == v then
-						if cox == x and coy == y and tablecontains(outputsi, map[x][y][2]) then
+					if inmap(x, y) and #session.map[x][y] > 1 and session.map[x][y][2] == v then
+						if cox == x and coy == y and tablecontains(outputsi, session.map[x][y][2]) then
 							love.graphics.setColor(1, 1, 0.6, 1)
-						elseif tablecontains(outputsi, map[x][y][2]) then
+						elseif tablecontains(outputsi, session.map[x][y][2]) then
 							love.graphics.setColor(1, 1, 0.6, 0.6)
 						end
-						love.graphics.rectangle("fill", math.floor((x-1-xscroll)*16*scale), ((y-1-yscroll)*16-8)*scale, 16*scale, 16*scale)
+						love.graphics.rectangle("fill", math.floor((x-1-session.xscroll)*16*scale), ((y-1-session.yscroll)*16-8)*scale, 16*scale, 16*scale)
 					end
 				end
 			end
@@ -1175,19 +1159,19 @@ function editor_draw_linking(mx: number, my: number)
 	
 	if drawalllinks then
 		local added: number = 0
-		for x = 1, mapwidth do
-			for y = 1, mapheight do
+		for x = 1, session.mapwidth do
+			for y = 1, session.mapheight do
 				local ltx, lty = x, y
 				local lx1, ly1 = editor_link_screen_pos(ltx, lty)
 				local lx2, ly2 = 0.0, 0.0
 				
 				local drawtable: {{any}} = {}
 				
-				for i = 1, #map[ltx][lty] do
-					if map[ltx][lty][i] == "link" and tonumber(map[ltx][lty][i+2]) and tonumber(map[ltx][lty][i+3]) then
-						lx2, ly2 = math.floor(((map[ltx][lty][i+2] as number)-xscroll-.5)*16*scale), math.floor(((map[ltx][lty][i+3] as number)-yscroll-1)*16*scale)
+				for i = 1, #session.map[ltx][lty] do
+					if session.map[ltx][lty][i] == "link" and tonumber(session.map[ltx][lty][i+2]) and tonumber(session.map[ltx][lty][i+3]) then
+						lx2, ly2 = math.floor(((session.map[ltx][lty][i+2] as number)-session.xscroll-.5)*16*scale), math.floor(((session.map[ltx][lty][i+3] as number)-session.yscroll-1)*16*scale)
 						
-						local t = map[ltx][lty][i+1]
+						local t = session.map[ltx][lty][i+1]
 						added = (added as number) + 0.2
 						local color = getrainbowcolor(0.7)
 						table.insert(drawtable, {lx1, ly1, lx2, ly2, t, color})
@@ -1233,12 +1217,12 @@ function editor_draw_linking(mx: number, my: number)
 		
 		local drawtable: {{any}} = {}
 		
-		if map[ltx] and map[ltx][lty] then
-			for i = 1, #map[ltx][lty] do
-				if map[ltx][lty][i] == "link" and tonumber(map[ltx][lty][i+2]) and tonumber(map[ltx][lty][i+3]) then
-					lx2, ly2 = math.floor(((map[ltx][lty][i+2] as number)-xscroll-.5)*16*scale), math.floor(((map[ltx][lty][i+3] as number)-yscroll-1)*16*scale)
+		if session.map[ltx] and session.map[ltx][lty] then
+			for i = 1, #session.map[ltx][lty] do
+				if session.map[ltx][lty][i] == "link" and tonumber(session.map[ltx][lty][i+2]) and tonumber(session.map[ltx][lty][i+3]) then
+					lx2, ly2 = math.floor(((session.map[ltx][lty][i+2] as number)-session.xscroll-.5)*16*scale), math.floor(((session.map[ltx][lty][i+3] as number)-session.yscroll-1)*16*scale)
 					
-					local t = map[ltx][lty][i+1]
+					local t = session.map[ltx][lty][i+1]
 					table.insert(drawtable, {lx1, ly1, lx2, ly2, t})
 				end
 			end
@@ -1279,7 +1263,7 @@ function editor_draw_linking(mx: number, my: number)
 		end
 		
 		--faithplate paths
-		if entitylist[map[ltx][lty][2] as number].t == "faithplate" then
+		if entitylist[session.map[ltx][lty][2] as number].t == "faithplate" then
 			local yoff = -8/16
 			local x = ltx
 			local y = lty-1
@@ -1290,8 +1274,8 @@ function editor_draw_linking(mx: number, my: number)
 				speedx = (((rightclickm as rightclickmenu).t[2] as guielement).value) as number
 				speedy = -((((rightclickm as rightclickmenu).t[4] as guielement).value) as number)
 			else
-				speedx = tonumber(map[ltx][lty][3]) or 0
-				speedy = -(tonumber(map[ltx][lty][4]) or 0)
+				speedx = tonumber(session.map[ltx][lty][3]) or 0
+				speedy = -(tonumber(session.map[ltx][lty][4]) or 0)
 			end
 			
 			local step = 1/60
@@ -1300,13 +1284,13 @@ function editor_draw_linking(mx: number, my: number)
 				x, y = x+speedx*step, y+speedy*step
 				speedy = speedy + yacceleration*step
 				table.insert(pointstable, {x=x, y=y+yoff})
-			until y > yscroll+height+.5
+			until y > session.yscroll+height+.5
 			
 			love.graphics.setColor(62 / 255, 213 / 255, 244 / 255, 0.6*rightclicka)
 			for i = 1, #pointstable-1 do
 				local v = pointstable[i]
 				local w = pointstable[i+1]
-				love.graphics.line((v.x-xscroll)*16*scale, (v.y-yscroll-.5)*16*scale, (w.x-xscroll)*16*scale, (w.y-yscroll-.5)*16*scale)
+				love.graphics.line((v.x-session.xscroll)*16*scale, (v.y-session.yscroll-.5)*16*scale, (w.x-session.xscroll)*16*scale, (w.y-session.yscroll-.5)*16*scale)
 			end
 		end
 	end
@@ -1332,7 +1316,7 @@ function editor_draw_status()
 		properprint(":" .. (submode as string), (10+12*8)*scale, 18*scale)
 	end
 	
-	if love.keyboard.isDown("f1") and not rightclickm then
+	if sys_down("f1") and not rightclickm then
 		love.graphics.setColor(0, 0, 0, .85)
 		love.graphics.rectangle("fill", helpui[1]*scale, helpui[2]*scale, (helpui[3]-helpui[1])*scale, (helpui[4]-helpui[2])*scale)
 		love.graphics.setColor(1, 1, 1, 1)
@@ -1470,10 +1454,10 @@ function editor_draw_menu_changewidth()
 	
 	
 	--minimap
-	for x = 1, mapwidth do
-		for y = 1, mapheight do
+	for x = 1, session.mapwidth do
+		for y = 1, session.mapheight do
 			if x > -newmapoffsetx and x <= newmapwidth-newmapoffsetx and y > -newmapoffsety and y <= newmapheight-newmapoffsety then
-				local id = map[x][y][1]
+				local id = session.map[x][y][1]
 				if id ~= nil and rgblist[id] and id ~= 0 and tilequads[id]:getproperty("invisible", x, y) == false then
 					love.graphics.setColor(unpack(rgblist[id as number] as {any}))
 					love.graphics.rectangle("fill", (mapx+(x-1+newmapoffsetx)*s)*scale, (mapy+(y-1+newmapoffsety)*s)*scale, s*scale, s*scale)
@@ -1486,8 +1470,8 @@ function editor_draw_menu_changewidth()
 	drawrectangle(mapx-1, mapy-1, w+2, h+2)
 	
 	love.graphics.setColor(1, 1, 1)
-	properprintbackground("old width: " .. mapwidth, 26*scale, (mapy-21)*scale, true)
-	properprintbackground("old height: " .. mapheight, 26*scale, (mapy-11)*scale, true)
+	properprintbackground("old width: " .. session.mapwidth, 26*scale, (mapy-21)*scale, true)
+	properprintbackground("old height: " .. session.mapheight, 26*scale, (mapy-11)*scale, true)
 	
 	properprintbackground("new width: " .. newmapwidth, 26*scale, (mapy+h+4)*scale, true)
 	properprintbackground("new height: " .. newmapheight, 26*scale, (mapy+h+14)*scale, true)
@@ -1744,18 +1728,18 @@ function editor_draw_menu_main(_: number, _: number)
 	love.graphics.setColor(unpack(background))
 	love.graphics.rectangle("fill", (minimapx+2)*scale, (minimapy+2)*scale, 390*scale, minimapheight*2*scale)
 	
-	local lmap = map
+	local lmap = session.map
 	
 	love.graphics.setScissor((minimapx+2)*scale, (minimapy+2)*scale, 390*scale, minimapheight*2*scale)
 	
-	for x = 1, mapwidth do --blocks
-		for y = math.floor(yscroll)+1, math.min(mapheight, math.ceil(yscroll)+16) do
+	for x = 1, session.mapwidth do --blocks
+		for y = math.floor(session.yscroll)+1, math.min(session.mapheight, math.ceil(session.yscroll)+16) do
 			if x-minimapscroll > 0 and x-minimapscroll < 196 then
 				local id = lmap[x][y][1]
 				if id ~= nil and id ~= 0 and tilequads[id]:getproperty("invisible", x, y) == false then
 					if rgblist[id] then
 						love.graphics.setColor(unpack(rgblist[id as number] as {any}))
-						love.graphics.rectangle("fill", (minimapx+x*2-minimapscroll*2)*scale, (minimapy+(y+1)*2-(math.floor(yscroll)+1)*2-math.fmod(yscroll, 1)*2)*scale, 2*scale, 2*scale)
+						love.graphics.rectangle("fill", (minimapx+x*2-minimapscroll*2)*scale, (minimapy+(y+1)*2-(math.floor(session.yscroll)+1)*2-math.fmod(session.yscroll, 1)*2)*scale, 2*scale, 2*scale)
 					end
 				end
 			end
@@ -1765,8 +1749,8 @@ function editor_draw_menu_main(_: number, _: number)
 	love.graphics.setScissor()
 	
 	love.graphics.setColor(1, 0, 0)
-	drawrectangle(xscroll*2+minimapx-minimapscroll*2, minimapy, (width+2)*2, minimapheight*2+4)
-	drawrectangle(xscroll*2+minimapx-minimapscroll*2+1, minimapy+1, (width+1)*2, minimapheight*2+2)
+	drawrectangle(session.xscroll*2+minimapx-minimapscroll*2, minimapy, (width+2)*2, minimapheight*2+4)
+	drawrectangle(session.xscroll*2+minimapx-minimapscroll*2+1, minimapy+1, (width+1)*2, minimapheight*2+2)
 	love.graphics.setColor(1, 1, 1)
 	
 	if minimapdragging == false then
@@ -2604,15 +2588,15 @@ function openchangewidth()
 	guielements["mapwidthcancel"].active = true
 
 	changemapwidthmenu = true
-	newmapwidth = mapwidth
-	newmapheight = mapheight
+	newmapwidth = session.mapwidth
+	newmapheight = session.mapheight
 	newmapoffsetx = 0
 	newmapoffsety = 0
 end
 
 function mapwidthapply()
 	changemapwidthmenu = false
-	objects["tile"] = {}
+	session.objects["tile"] = {}
 	
 	local newmap = {}
 	local newcoinmap = {}
@@ -2622,8 +2606,8 @@ function mapwidthapply()
 		for y = 1, newmapheight do
 			local oldx, oldy = x-newmapoffsetx, y-newmapoffsety
 			if inmap(oldx, oldy) then
-				newmap[x][y] = map[oldx][oldy]
-				newcoinmap[x][y] = coinmap[oldx][oldy]
+				newmap[x][y] = session.map[oldx][oldy]
+				newcoinmap[x][y] = session.coinmap[oldx][oldy]
 			else
 				newmap[x][y] = {1, portaloverride={0, 0}}
 				init_map_cell_gels(newmap[x][y] as MapCell)
@@ -2635,54 +2619,54 @@ function mapwidthapply()
 		end
 	end
 	
-	objects["player"][1].x = objects["player"][1].x + newmapoffsetx
-	objects["player"][1].y = objects["player"][1].y + newmapoffsety
+	session.objects["player"][1].x = session.objects["player"][1].x + newmapoffsetx
+	session.objects["player"][1].y = session.objects["player"][1].y + newmapoffsety
 	
-	xscroll = xscroll + newmapoffsetx
-	yscroll = yscroll + newmapoffsety
+	session.xscroll = session.xscroll + newmapoffsetx
+	session.yscroll = session.yscroll + newmapoffsety
 	
-	if xscroll < 0 then
-		xscroll = 0
+	if session.xscroll < 0 then
+		session.xscroll = 0
 	end
 	
-	if xscroll > mapwidth-width then
-		xscroll = math.max(0, mapwidth-width)
+	if session.xscroll > session.mapwidth-width then
+		session.xscroll = math.max(0, session.mapwidth-width)
 		hitrightside()
 	end
 	
-	map = newmap
-	coinmap = newcoinmap
-	mapwidth = newmapwidth
-	mapheight = newmapheight
+	session.map = newmap
+	session.coinmap = newcoinmap
+	session.mapwidth = newmapwidth
+	session.mapheight = newmapheight
 	
 	--Update animatedtimers
 	animatedtimers = {}
 	animatedbooltimers = {}
-	for x = 1, mapwidth do
+	for x = 1, session.mapwidth do
 		if not animatedtimers[x] then
 			animatedtimers[x] = {}
 		end
 	end
-	for x = 1, mapwidth do
+	for x = 1, session.mapwidth do
 		if not animatedbooltimers[x] then
 			animatedbooltimers[x] = {}
 		end
 	end
 	
 	--move all them links!
-	for x = 1, mapwidth do
-		for y = 1, mapheight do
-			for i, v in pairs(map[x][y] as {any:any}) do
+	for x = 1, session.mapwidth do
+		for y = 1, session.mapheight do
+			for i, v in pairs(session.map[x][y] as {any:any}) do
 				if v == "link" then
 					local ii = (i as number)
-					map[x][y][(ii+2) as integer] = (map[x][y][(ii+2) as integer] as number) + newmapoffsetx
-					map[x][y][(ii+3) as integer] = (map[x][y][(ii+3) as integer] as number) + newmapoffsety
+					session.map[x][y][(ii+2) as integer] = (session.map[x][y][(ii+2) as integer] as number) + newmapoffsetx
+					session.map[x][y][(ii+3) as integer] = (session.map[x][y][(ii+3) as integer] as number) + newmapoffsety
 				end
 			end
 		end
 	end
 	
-	objects["screenboundary"]["right"].x = mapwidth
+	session.objects["screenboundary"]["right"].x = session.mapwidth
 	physics_world_refresh()
 	generatespritebatch(0, 0)
 	
@@ -2898,11 +2882,11 @@ function placetile(x: number, y: number, t: any, ent: any, preventMultiTile: any
 	end
 
 	-- Autotile brush (ALT = raw tile)
-	local alt = love.keyboard.isDown("lalt") or love.keyboard.isDown("ralt")
+	local alt = sys_down("alt")
 	if editentities == false and not preventMultiTile and not alt then
 		if autotile_paint(cox, coy, currenttile as integer, false) then
 			-- collision objects for resulting tile
-			local nt = map[cox][coy][1] as number
+			local nt = session.map[cox][coy][1] as number
 			if tilequads[nt]:getproperty("collision") == true then
 				physics_world_set_tile(tilekey(cox, coy), tile:new(cox-1, coy-1, 1, 1, true) as Entity)
 			else
@@ -2915,18 +2899,18 @@ function placetile(x: number, y: number, t: any, ent: any, preventMultiTile: any
 	
 	if editentities == false then
 		if tilequads[currenttile as number]:getproperty("coin") then
-			coinmap[cox][coy] = not editorcoinstart
+			session.coinmap[cox][coy] = not editorcoinstart
 			return
 		end
 	
-		if tilequads[currenttile as number]:getproperty("collision") == true and tilequads[map[cox][coy][1] as number]:getproperty("collision") == false then
+		if tilequads[currenttile as number]:getproperty("collision") == true and tilequads[session.map[cox][coy][1] as number]:getproperty("collision") == false then
 			physics_world_set_tile(tilekey(cox, coy), tile:new(cox-1, coy-1, 1, 1, true) as Entity)
-		elseif tilequads[currenttile as number]:getproperty("collision") == false and tilequads[map[cox][coy][1] as number]:getproperty("collision") == true then
+		elseif tilequads[currenttile as number]:getproperty("collision") == false and tilequads[session.map[cox][coy][1] as number]:getproperty("collision") == true then
 			physics_world_set_tile(tilekey(cox, coy), nil)
 		end
-		if map[cox][coy][1] ~= currenttile then
-			map[cox][coy][1] = currenttile
-			init_map_cell_gels(map[cox][coy])
+		if session.map[cox][coy][1] ~= currenttile then
+			session.map[cox][coy][1] = currenttile
+			init_map_cell_gels(session.map[cox][coy])
 			generatespritebatch(0, 0)
 			if not preventMultiTile and not alt and AUTOTILE_BY_TILE[currenttile as integer] then
 				autotile_around(cox, coy)
@@ -2947,15 +2931,15 @@ function placetile(x: number, y: number, t: any, ent: any, preventMultiTile: any
 		
 	else
 		if editenemies == false and entitylist[currenttile].t == "remove" then --removing tile
-			for i = 2, #map[cox][coy] do
-				map[cox][coy][i] = nil
+			for i = 2, #session.map[cox][coy] do
+				session.map[cox][coy][i] = nil
 			end
 		else
-			for i = 3, #map[cox][coy] do
-				map[cox][coy][i] = nil
+			for i = 3, #session.map[cox][coy] do
+				session.map[cox][coy][i] = nil
 			end
 			
-			map[cox][coy][2] = currenttile
+			session.map[cox][coy][2] = currenttile
 			
 			if editenemies == false then
 				if rightclickmenues[(entitylist[currenttile as number] as EntityListEntry).t] then
@@ -2964,9 +2948,9 @@ function placetile(x: number, y: number, t: any, ent: any, preventMultiTile: any
 						local v = rcm[i]
 						if tablecontains(rightclickelementslist, v.t) then
 							if v.default then
-								table.insert(map[cox][coy], v.default)
+								table.insert(session.map[cox][coy], v.default)
 							else
-								table.insert(map[cox][coy], "nil")
+								table.insert(session.map[cox][coy], "nil")
 							end
 						end
 					end
@@ -2996,7 +2980,7 @@ end
 
 function editoropen()
 	for i = 1, players do
-		objects["player"][i]:removeportals()
+		session.objects["player"][i]:removeportals()
 	end
 	if editorstate == "lightdraw" or editorstate == "selection" then
 		editorstate = "tools"
@@ -3143,13 +3127,13 @@ function savestate()
 	end
 	local t: {any:any} = {}
 	t.coinmap = {} as {any}
-	for x = 1, #map do
+	for x = 1, #session.map do
 		t[x] = {}
 		;(t.coinmap as {any})[x] = {}
-		for y = 1, #map[x] do
+		for y = 1, #session.map[x] do
 			(t[x] as {any})[y] = {}
-			;((t.coinmap as {any})[x] as {any})[y] = coinmap[x][y]
-			for i, v in pairs(map[x][y] as {any:any}) do
+			;((t.coinmap as {any})[x] as {any})[y] = session.coinmap[x][y]
+			for i, v in pairs(session.map[x][y] as {any:any}) do
 				((t[x] as Dyn)[y] as Dyn)[i] = v as Dyn
 			end
 		end
@@ -3162,17 +3146,17 @@ function loadstate(s: any)
 	currentstate = si
 	
 	local v = savestates[si as integer] as Dyn
-	map = {}
-	coinmap = {}
+	session.map = {}
+	session.coinmap = {}
 	for x = 1, #(v as {any}) do
-		map[x] = {}
-		coinmap[x] = {}
+		session.map[x] = {}
+		session.coinmap[x] = {}
 		local col = v[x] as {any}
 		for y = 1, #col do
-			map[x][y] = {} as MapCell
-			coinmap[x][y] = ((v["coinmap"] as {any})[x] as {any})[y] as boolean
+			session.map[x][y] = {} as MapCell
+			session.coinmap[x][y] = ((v["coinmap"] as {any})[x] as {any})[y] as boolean
 			for i, w in pairs(col[y] as {any:any}) do
-				map[x][y][i as integer] = w
+				session.map[x][y][i as integer] = w
 			end
 		end
 	end
@@ -3305,8 +3289,8 @@ function editor_mousepressed_left(x: number, y: number)
 				lx2 = math.max(tileselectionclick1x as integer, tileselectionclick2x as integer)
 				ly2 = math.max(tileselectionclick1y as integer, tileselectionclick2y as integer)
 				
-				slx1 = math.floor((lx1-xscroll-1)*16*scale)
-				sly1 = ((ly1-yscroll-1)*16+8)*scale
+				slx1 = math.floor((lx1-session.xscroll-1)*16*scale)
+				sly1 = ((ly1-session.yscroll-1)*16+8)*scale
 				slx2 = slx1 + ((lx2-lx1)*16*scale+16*scale)
 				sly2 = sly1 + (ly2-ly1)*16*scale+16*scale
 				
@@ -3392,11 +3376,11 @@ function editor_mousepressed_left(x: number, y: number)
 							editentities = false
 							tilesall()
 							-- now replace everything thats == map[cox][coy][1] to: currenttile
-							local mousetile = map[cox][coy][1]
-							for i, v in ipairs(map as {{MapCell}}) do
+							local mousetile = session.map[cox][coy][1]
+							for i, v in ipairs(session.map as {{MapCell}}) do
 								for j, w in ipairs(v) do
 									if w[1] == mousetile then
-										map[i][j][1] = currenttile
+										session.map[i][j][1] = currenttile
 									end
 								end
 							end
@@ -3405,7 +3389,7 @@ function editor_mousepressed_left(x: number, y: number)
 							--placetile(x, y)
 						end
 					else
-						if coinmap[cox][coy] then
+						if session.coinmap[cox][coy] then
 							editorcoinstart = true
 						else
 							editorcoinstart = false
@@ -3523,7 +3507,7 @@ end
 
 function editor_mousepressed_wheel_up(_: number, _: number)
 	if not editormenuopen then
-		if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
+		if sys_down("shift") then
 			brush[1] = math.min(brushmax, brush[1]+1)
 			brush[2] = math.min(brushmax, brush[2]+1)
 		elseif editentities then
@@ -3579,7 +3563,7 @@ end
 
 function editor_mousepressed_wheel_down(_: number, _: number)
 	if not editormenuopen then
-		if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
+		if sys_down("shift") then
 			brush[1] = math.max(1, brush[1]-1)
 			brush[2] = math.max(1, brush[2]-1)
 		elseif editentities then
@@ -3643,7 +3627,7 @@ function editor_mousepressed_right(x: number, y: number)
 		end
 		
 		if editorstate ~= "lightdraw" then
-			local r = map[tileX][tileY]
+			local r = session.map[tileX][tileY]
 			if #r > 1 then
 				local tile = r[2]
 				if entitylist[tile] and rightclickmenues[entitylist[tile].t] then
@@ -3656,10 +3640,10 @@ function editor_mousepressed_right(x: number, y: number)
 			else
 				local cox, coy = getMouseTile(x, y+8*scale)
 				
-				if objects["player"][1] and not objects["player"][1].vine and not objects["player"][1].grapple then
-					objects["player"][1].x = cox-1+2/16
-					objects["player"][1].y = coy-objects["player"][1].height
-					objects["player"][1].vine = false
+				if session.objects["player"][1] and not session.objects["player"][1].vine and not session.objects["player"][1].grapple then
+					session.objects["player"][1].x = cox-1+2/16
+					session.objects["player"][1].y = coy-session.objects["player"][1].height
+					session.objects["player"][1].vine = false
 				end
 			end
 		end
@@ -3667,11 +3651,11 @@ function editor_mousepressed_right(x: number, y: number)
 		if editorstate == "main" then
 			if y >= (minimapy+2)*scale and y < (minimapy+32)*scale then
 				if x >= (minimapx+2)*scale and x < (minimapx+392)*scale then
-					local x, y = editor_minimap_tile_from_click(x, y, scale, minimapx, minimapy, minimapscroll, yscroll)
+					local x, y = editor_minimap_tile_from_click(x, y, scale, minimapx, minimapy, minimapscroll, session.yscroll)
 					
-					if objects["player"][1] then
-						objects["player"][1].x = x-1+2/16
-						objects["player"][1].y = y-1+2/16
+					if session.objects["player"][1] then
+						session.objects["player"][1].x = x-1+2/16
+						session.objects["player"][1].y = y-1+2/16
 					end
 				end
 			end
@@ -3716,19 +3700,19 @@ function editor_mousereleased(x: number, y: number, button: any)
 			end
 			if not editentities then
 				tilesall()
-				currenttile = map[cox][coy][1]
+				currenttile = session.map[cox][coy][1]
 				
-				if currenttile == 1 and coinmap[cox][coy] then
+				if currenttile == 1 and session.coinmap[cox][coy] then
 					currenttile = 116 -- Let's be nice to the map maker, alright?
 				end
 			elseif not editenemies then
 				tilesentities()
 				generateentitylist()
-				currenttile = map[cox][coy][2]
+				currenttile = session.map[cox][coy][2]
 				if type(currenttile) ~= "number" then currenttile = 1 end
 			else
 				tilesenemies()
-				currenttile = map[cox][coy][2]
+				currenttile = session.map[cox][coy][2]
 				local ok = false
 				for _, v in ipairs(enemies as {string}) do
 					if v == currenttile then
@@ -3761,8 +3745,8 @@ function editor_keypressed(key: string)
 			local selectionlist = selectiongettiles(selectionx, selectiony, selectionwidth, selectionheight)
 			
 			for i = 1, #selectionlist do
-				for j = 2, #map[selectionlist[i].x][selectionlist[i].y] do
-					map[selectionlist[i].x][selectionlist[i].y][j] = nil
+				for j = 2, #session.map[selectionlist[i].x][selectionlist[i].y] do
+					session.map[selectionlist[i].x][selectionlist[i].y][j] = nil
 				end
 			end
 		end
@@ -3838,7 +3822,7 @@ function editor_keypressed(key: string)
 			tileselectionclick1x = 1
 			tileselectionclick1y = 0	
 			tileselectionclick2 = true
-			tileselectionclick2x = mapwidth
+			tileselectionclick2x = session.mapwidth
 			tileselectionclick2y = 14
 		end
 	elseif editormenuopen then
@@ -3939,7 +3923,7 @@ function editor_keypressed(key: string)
 		EDITOR_PALETTE_CATEGORY = cats[idx]
 		notice.new("category: " .. EDITOR_PALETTE_CATEGORY, notice.white, 1)
 		return
-	elseif (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) and not editormenuopen and ENEMY_MODIFIER_ORDER then
+	elseif (sys_down("shift")) and not editormenuopen and ENEMY_MODIFIER_ORDER then
 		for i = 1, 5 do
 			if key == tostring(i) then
 				local mod = ENEMY_MODIFIER_ORDER[i]
@@ -3978,7 +3962,7 @@ function editor_keypressed(key: string)
 	end
 	
 	if not editormenuopen then
-		local shiftpressed = ((love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) and true) or false
+		local shiftpressed = ((sys_down("shift")) and true) or false
 		if key == "q" then
 			currenttile = 1
 			if editentities and editenemies then
@@ -4289,8 +4273,8 @@ end
 -- Snapshot editor view so ESC can restore scroll/palette after playtest.
 global function editor_capture_test_restore(extra: {string:any}|nil)
 	local r: {string:any} = {
-		xscroll = xscroll,
-		yscroll = yscroll,
+		xscroll = session.xscroll,
+		yscroll = session.yscroll,
 		editorstate = editorstate,
 		currenttile = currenttile,
 		editentities = editentities,
@@ -4315,14 +4299,14 @@ global function editor_apply_test_restore(shift_death: boolean|nil)
 	end
 	local r = editor_test_restore as {string:any}
 	if shift_death and r.death_x ~= nil then
-		xscroll = math.max(0, (r.death_x as number) - width / 2)
-		yscroll = math.max(0, (r.death_y as number) - height / 2)
+		session.xscroll = math.max(0, (r.death_x as number) - width / 2)
+		session.yscroll = math.max(0, (r.death_y as number) - height / 2)
 	else
-		if r.xscroll ~= nil then xscroll = r.xscroll as number end
-		if r.yscroll ~= nil then yscroll = r.yscroll as number end
+		if r.xscroll ~= nil then session.xscroll = r.xscroll as number end
+		if r.yscroll ~= nil then session.yscroll = r.yscroll as number end
 	end
 	if splitxscroll then
-		splitxscroll[1] = xscroll
+		splitxscroll[1] = session.xscroll
 	end
 	if r.palette_collapsed ~= nil then EDITOR_LAYOUT.palette_collapsed = r.palette_collapsed as boolean end
 	if r.props_collapsed ~= nil then EDITOR_LAYOUT.props_collapsed = r.props_collapsed as boolean end
@@ -4370,8 +4354,8 @@ function emptySelection()
 	lx2 = math.max(tileselectionclick1x as integer, tileselectionclick2x as integer)
 	ly2 = math.max(tileselectionclick1y as integer, tileselectionclick2y as integer)
 	
-	slx1 = math.floor((lx1-xscroll-1)*16*scale)
-	sly1 = ((ly1-yscroll-1)*16+8)*scale
+	slx1 = math.floor((lx1-session.xscroll-1)*16*scale)
+	sly1 = ((ly1-session.yscroll-1)*16+8)*scale
 	slx2 = slx1 + ((lx2-lx1)*16*scale+16*scale)
 	sly2 = sly1 + (ly2-ly1)*16*scale+16*scale
 	
@@ -4382,8 +4366,8 @@ function emptySelection()
 	
 	for i = 1, xnum do
 		for j = 1, ynum do
-			map[tile1x + i - 1][tile1y + j - 1] = {1} as MapCell
-			init_map_cell_gels(map[tile1x + i - 1][tile1y + j - 1])
+			session.map[tile1x + i - 1][tile1y + j - 1] = {1} as MapCell
+			init_map_cell_gels(session.map[tile1x + i - 1][tile1y + j - 1])
 		end
 	end
 	generatespritebatch(0, 0)
@@ -4403,8 +4387,8 @@ function getSelectedTiles(): {{any}}
 	lx2 = math.max(tileselectionclick1x as integer, tileselectionclick2x as integer)
 	ly2 = math.max(tileselectionclick1y as integer, tileselectionclick2y as integer)
 	
-	slx1 = math.floor((lx1-xscroll-1)*16*scale)
-	sly1 = ((ly1-yscroll-1)*16+8)*scale
+	slx1 = math.floor((lx1-session.xscroll-1)*16*scale)
+	sly1 = ((ly1-session.yscroll-1)*16+8)*scale
 	slx2 = slx1 + ((lx2-lx1)*16*scale+16*scale)
 	sly2 = sly1 + (ly2-ly1)*16*scale+16*scale
 	
@@ -4421,7 +4405,7 @@ function getTiles(pos1: {number}, pos2: {number}): {{any}}
 	for i = 1, xnum do
 		tx = {}
 		for j = 1, ynum do
-			table.insert(tx, map[tile1x + i - 1][tile1y + j - 1][1])
+			table.insert(tx, session.map[tile1x + i - 1][tile1y + j - 1][1])
 			--print(map[tile1x + i - 1][tile1y + j - 1][1])
 		end
 		table.insert(objecttable, tx)
@@ -4695,7 +4679,7 @@ function closerightclickmenu()
 			
 			for i = 1, #selectionlist do
 				local v = selectionlist[i]
-				if (map[v.x as number][v.y as number][2] == map[((rightclickm as rightclickmenu).tx as number)][((rightclickm as rightclickmenu).ty as number)][2] or (tablecontains(groundlighttable, entitylist[map[((rightclickm as rightclickmenu).tx as number)][((rightclickm as rightclickmenu).ty as number)][2]].t) and tablecontains(groundlighttable, entitylist[map[v.x as number][v.y as number][2]].t))) and (v.x ~= (rightclickm as rightclickmenu).tx or v.y ~= (rightclickm as rightclickmenu).ty) then
+				if (session.map[v.x as number][v.y as number][2] == session.map[((rightclickm as rightclickmenu).tx as number)][((rightclickm as rightclickmenu).ty as number)][2] or (tablecontains(groundlighttable, entitylist[session.map[((rightclickm as rightclickmenu).tx as number)][((rightclickm as rightclickmenu).ty as number)][2]].t) and tablecontains(groundlighttable, entitylist[session.map[v.x as number][v.y as number][2]].t))) and (v.x ~= (rightclickm as rightclickmenu).tx or v.y ~= (rightclickm as rightclickmenu).ty) then
 					table.insert(edittable, {x=v.x, y=v.y})
 				end
 			end
@@ -4705,8 +4689,8 @@ function closerightclickmenu()
 			local x, y = edittable[i].x, edittable[i].y
 			
 			--remove all values until link or region
-			while map[x][y][3] and map[x][y][3] ~= "link" and strsplit(tostring(map[x][y][3]), ":")[1] ~= "region" do
-				table.remove(map[x][y], 3)
+			while session.map[x][y][3] and session.map[x][y][3] ~= "link" and strsplit(tostring(session.map[x][y][3]), ":")[1] ~= "region" do
+				table.remove(session.map[x][y], 3)
 			end
 			
 			--add values to link
@@ -4731,7 +4715,7 @@ function closerightclickmenu()
 				end
 				
 				if value then
-					table.insert(map[x][y], 3, value)
+					table.insert(session.map[x][y], 3, value)
 				end
 			end
 		end
@@ -4760,8 +4744,8 @@ function startregion(x: number, y: number, t: any)
 	--get width n shit
 	
 	local j = 0
-	for i = 3, #map[x][y] do
-		local s = strsplit(tostring(map[x][y][i]), ":")
+	for i = 3, #session.map[x][y] do
+		local s = strsplit(tostring(session.map[x][y][i]), ":")
 		if s[1] == t then
 			j = i
 			break
@@ -4769,7 +4753,7 @@ function startregion(x: number, y: number, t: any)
 	end
 	
 	if j then
-		local s = strsplit(map[x][y][j] as string, ":")
+		local s = strsplit(session.map[x][y][j] as string, ":")
 		
 		local rx: any = s[2]
 		local ry: any = s[3]
@@ -4794,8 +4778,8 @@ function finishregion()
 		local x, y = regiontoolX, regiontoolY
 		
 		local j = 0
-		for i = 3, #map[x][y] do
-			local s = strsplit(tostring(map[x][y][i]), ":")
+		for i = 3, #session.map[x][y] do
+			local s = strsplit(tostring(session.map[x][y][i]), ":")
 			if s[1] == t then
 				j = i
 				break
@@ -4813,7 +4797,7 @@ function finishregion()
 			ry = "m" .. -(ry as number)
 		end
 		
-		map[x][y][j] = (t as string) .. ":" .. tostring(rx) .. ":" .. tostring(ry) .. ":" .. (regiondragging as RegionDragging).width .. ":" .. (regiondragging as RegionDragging).height
+		session.map[x][y][j] = (t as string) .. ":" .. tostring(rx) .. ":" .. tostring(ry) .. ":" .. (regiondragging as RegionDragging).width .. ":" .. (regiondragging as RegionDragging).height
 		
 		regiondragging = nil
 		rightclickactive = false
@@ -4828,7 +4812,7 @@ function removelink(x: number, y: number, t: any)
 		
 		for i = 1, #selectionlist do
 			local v = selectionlist[i]
-			if (map[v.x][v.y][2] == map[x][y][2] or (entitylist[map[v.x][v.y][2]] and tablecontains(groundlighttable, entitylist[map[v.x][v.y][2]].t) and tablecontains(groundlighttable, entitylist[map[x][y][2]].t))) and (v.x ~= x or v.y ~= y) then
+			if (session.map[v.x][v.y][2] == session.map[x][y][2] or (entitylist[session.map[v.x][v.y][2]] and tablecontains(groundlighttable, entitylist[session.map[v.x][v.y][2]].t) and tablecontains(groundlighttable, entitylist[session.map[x][y][2]].t))) and (v.x ~= x or v.y ~= y) then
 				table.insert(edittable, {x=v.x, y=v.y})
 			end
 		end
@@ -4837,7 +4821,7 @@ function removelink(x: number, y: number, t: any)
 	for j = 1, #edittable do
 		local cx, cy = edittable[j].x, edittable[j].y
 		
-		local r = map[cx][cy]
+		local r = session.map[cx][cy]
 		local i = 1
 		
 		while (r[i] ~= "link" or tostring(r[i+1]) ~= tostring(t)) and i < #r do
@@ -4845,10 +4829,10 @@ function removelink(x: number, y: number, t: any)
 		end
 		
 		if i < #r then --found a match
-			table.remove(map[cx][cy], i)
-			table.remove(map[cx][cy], i)
-			table.remove(map[cx][cy], i)
-			table.remove(map[cx][cy], i)
+			table.remove(session.map[cx][cy], i)
+			table.remove(session.map[cx][cy], i)
+			table.remove(session.map[cx][cy], i)
+			table.remove(session.map[cx][cy], i)
 		end
 	end
 end
@@ -4865,7 +4849,7 @@ function finishlinking(x: number, y: number)
 			
 			for i = 1, #selectionlist do
 				local v = selectionlist[i]
-				if (map[v.x][v.y][2] == map[startx][starty][2] or (entitylist[map[v.x][v.y][2]] and tablecontains(groundlighttable, entitylist[map[v.x][v.y][2]].t) and tablecontains(groundlighttable, entitylist[map[startx][starty][2]].t))) and (v.x ~= startx or v.y ~= starty) then
+				if (session.map[v.x][v.y][2] == session.map[startx][starty][2] or (entitylist[session.map[v.x][v.y][2]] and tablecontains(groundlighttable, entitylist[session.map[v.x][v.y][2]].t) and tablecontains(groundlighttable, entitylist[session.map[startx][starty][2]].t))) and (v.x ~= startx or v.y ~= starty) then
 					table.insert(edittable, {x=v.x, y=v.y})
 				end
 			end
@@ -4875,21 +4859,21 @@ function finishlinking(x: number, y: number)
 		for i = 1, #edittable do
 			local x, y = edittable[i].x, edittable[i].y
 			if x ~= endx or y ~= endy then
-				local r = map[endx][endy]
+				local r = session.map[endx][endy]
 				
 				--LIST OF NUMBERS THAT ARE ACCEPTED AS INPUTS (buttons, laserdetectors)
 				if #r > 1 and tablecontains( outputsi, r[2] ) then
-					r = map[x][y]
+					r = session.map[x][y]
 					
 					local i = 1
 					while (r[i] ~= "link" or r[i+1] ~= linktoolt) and i <= #r do
 						i = i + 1
 					end
 					
-					map[x][y][i] = "link"
-					map[x][y][i+1] = linktoolt
-					map[x][y][i+2] = endx
-					map[x][y][i+3] = endy
+					session.map[x][y][i] = "link"
+					session.map[x][y][i+1] = linktoolt
+					session.map[x][y][i+2] = endx
+					session.map[x][y][i+3] = endy
 					linktoolfadeouttime = linktoolfadeouttimeslow
 				end
 				
@@ -4959,7 +4943,7 @@ function selectiongettiles(x: number, y: number, width: number, height: number):
 	
 	for cox = xstart, xend do
 		for coy = ystart, yend do
-			if inmap(cox, coy) and map[cox][coy][2] then
+			if inmap(cox, coy) and session.map[cox][coy][2] then
 				table.insert(out, {x=cox, y=coy})
 			end
 		end

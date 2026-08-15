@@ -84,17 +84,17 @@ _G.usebase = usebase
 -- AABB vs camera view (globals xscroll/yscroll/width/height). World units.
 local function onscreen(x: number, y: number, w: number|nil, h: number|nil): boolean
 	if w and h then
-		return x + w >= xscroll and y + h - 0.5 >= yscroll
-			and x <= xscroll + width and y - 0.5 <= yscroll + height
+		return x + w >= session.xscroll and y + h - 0.5 >= session.yscroll
+			and x <= session.xscroll + width and y - 0.5 <= session.yscroll + height
 	end
-	return x >= xscroll and y - 0.5 >= yscroll
-		and x <= xscroll + width and y - 0.5 <= yscroll + height
+	return x >= session.xscroll and y - 0.5 >= session.yscroll
+		and x <= session.xscroll + width and y - 0.5 <= session.yscroll + height
 end
 _G.onscreen = onscreen
 
 -- Enemy cull with size padding (not an onscreen alias — looser bounds for spawn/AI).
 local function enemy_onscreen(x: number, y: number, w: number, h: number): boolean
-	return x > xscroll - w and x < xscroll + width + w and y > yscroll - h and y < yscroll + height + h
+	return x > session.xscroll - w and x < session.xscroll + width + w and y > session.yscroll - h and y < session.yscroll + height + h
 end
 _G.enemy_onscreen = enemy_onscreen
 

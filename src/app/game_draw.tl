@@ -4,12 +4,12 @@ require "app.game_draw_effects"
 require "app.game_draw_world"
 
 global function game_draw()
-	if not objects then return end
+	if not session.objects then return end
 	if firstpersonview and firstpersonrotate then
 		local xtranslate = width/2*16*scale
 		local ytranslate = height/2*16*scale
 		love.graphics.translate(xtranslate, ytranslate)
-		love.graphics.rotate(-playerobjs[1].rotation/2)
+		love.graphics.rotate(-session.playerobjs[1].rotation/2)
 		love.graphics.translate(-xtranslate, -ytranslate)
 	end
 	

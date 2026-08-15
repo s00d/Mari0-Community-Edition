@@ -46,16 +46,16 @@ function bomb:update(dt: number): boolean
 	for i = 1, #offsets do
 		local o = offsets[i]
 		local x, y = cx + o[1], cy + o[2]
-		if inmap and inmap(x, y) and map and map[x] and map[x][y] and tilequads then
-			local tid = map[x][y][1] as number
+		if inmap and inmap(x, y) and session.map and session.map[x] and session.map[x][y] and tilequads then
+			local tid = session.map[x][y][1] as number
 			local tq = tilequads[tid]
 			if tq and tq.getproperty and tq:getproperty("breakable", x, y) and destroyblock then
 				destroyblock(x, y)
 			end
 		end
 	end
-	if objects and objects["enemy"] then
-		for _, e in pairs(objects["enemy"] as {any:{string:any}}) do
+	if session.objects and session.objects["enemy"] then
+		for _, e in pairs(session.objects["enemy"] as {any:{string:any}}) do
 			local en = e as {string:any}
 			if en and not en.dead and not en.shot then
 				local ex = (en.x as number) + ((en.width as number) or 0.75) / 2

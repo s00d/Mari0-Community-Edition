@@ -12,7 +12,7 @@ function screenboundary:init(x)
 	self.x = x as number
 	self.y = -1000	
 	self.width = 0
-	self.height = 1000+mapheight
+	self.height = 1000+session.mapheight
 	self.static = true
 	self.active = true
 	self.category = 10

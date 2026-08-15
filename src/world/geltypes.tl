@@ -45,7 +45,7 @@ end
 
 -- Drop oldest living gel blobs so spawn stays under GEL_POOL_MAX.
 global function gel_pool_prepare()
-	local listn = objects and objects["gel"]
+	local listn = session.objects and session.objects["gel"]
 	if listn == nil then
 		return
 	end

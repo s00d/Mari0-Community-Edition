@@ -38,12 +38,12 @@ end
 
 global function editor_clear_check(): boolean, string
 	-- Basic validation
-	if not map then return false, "no map" end
+	if not session.map then return false, "no map" end
 	local has_spawn = false
 	local has_finish = false
-	for x = 1, mapwidth or 0 do
-		for y = 1, mapheight or 0 do
-			local c = map[x][y]
+	for x = 1, session.mapwidth or 0 do
+		for y = 1, session.mapheight or 0 do
+			local c = session.map[x][y]
 			if c and c[2] and entitylist and type(c[2]) == "number" then
 				local e = entitylist[c[2] as integer]
 				if e then

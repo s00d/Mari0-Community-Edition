@@ -16,7 +16,7 @@ global function world_camera_sync()
 	local c = ensure()
 	c:zoomTo(scale)
 	local yoff = (yoffset or 0) * 16
-	c:lookAt((xscroll + width / 2) * 16, (yscroll + height / 2) * 16 + yoff)
+	c:lookAt((session.xscroll + width / 2) * 16, (session.yscroll + height / 2) * 16 + yoff)
 end
 
 global function editor_camera_sync()
@@ -88,7 +88,7 @@ global function tile_draw_x(tile_x: number): number
 	if world_camera_drawing then
 		return math.floor(tile_x * 16)
 	end
-	return math.floor((tile_x - xscroll) * 16 * scale)
+	return math.floor((tile_x - session.xscroll) * 16 * scale)
 end
 
 global function tile_draw_y(tile_y: number, extra_px: number): number
@@ -96,7 +96,7 @@ global function tile_draw_y(tile_y: number, extra_px: number): number
 		return math.floor(tile_y * 16 + extra_px)
 	end
 	local yoff = (yoffset or 0) * 16
-	return math.floor(((tile_y - yscroll) * 16 + yoff + extra_px) * scale)
+	return math.floor(((tile_y - session.yscroll) * 16 + yoff + extra_px) * scale)
 end
 
 global function tile_draw_y_raw(tile_y: number): number
@@ -104,7 +104,7 @@ global function tile_draw_y_raw(tile_y: number): number
 		return tile_y * 16
 	end
 	local yoff = (yoffset or 0) * 16
-	return ((tile_y - yscroll) * 16 + yoff) * scale
+	return ((tile_y - session.yscroll) * 16 + yoff) * scale
 end
 
 global function world_draw_scale(): number
@@ -125,14 +125,14 @@ global function entity_draw_x(tile_x: number, offset_px: number): number
 	if world_camera_drawing then
 		return math.floor(tile_x * 16 + offset_px)
 	end
-	return math.floor(((tile_x - xscroll) * 16 + offset_px) * scale)
+	return math.floor(((tile_x - session.xscroll) * 16 + offset_px) * scale)
 end
 
 global function entity_draw_y(tile_y: number, offset_px: number): number
 	if world_camera_drawing then
 		return math.floor(tile_y * 16 - offset_px)
 	end
-	return math.floor(((tile_y - yscroll) * 16 - offset_px) * scale)
+	return math.floor(((tile_y - session.yscroll) * 16 - offset_px) * scale)
 end
 
 global function screen_draw_x(tile_x: number): number
@@ -151,11 +151,11 @@ end
 
 -- Screen pixels → map tile units (for aim / logic outside draw).
 global function screen_to_tile_x(screen_px: number): number
-	return xscroll + screen_px / (16 * scale)
+	return session.xscroll + screen_px / (16 * scale)
 end
 
 global function screen_to_tile_y(screen_px: number): number
-	return yscroll + (screen_px - (yoffset or 0) * scale) / (16 * scale)
+	return session.yscroll + (screen_px - (yoffset or 0) * scale) / (16 * scale)
 end
 
 global function world_screen_px_x(world_px: number): number
@@ -173,5 +173,5 @@ global function weapon_draw_xy(tile_x: number, tile_y: number): number, number
 		return entity_draw_x(tile_x, 0), entity_draw_y(tile_y, 0)
 	end
 	local sc = scale or 1
-	return math.floor((tile_x - xscroll) * 16 * sc), math.floor((tile_y - yscroll - 0.5) * 16 * sc)
+	return math.floor((tile_x - session.xscroll) * 16 * sc), math.floor((tile_y - session.yscroll - 0.5) * 16 * sc)
 end

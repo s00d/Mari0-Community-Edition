@@ -67,7 +67,7 @@ end
 function door:link(): any|nil
 	while #self.r > 3 do
 		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w]) do
+			for _, v in pairs(session.objects[w]) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -136,7 +136,7 @@ end
 function door:pushstuff()
 	local col = checkrect(self.x, self.y, self.width, self.height, "all")
 	for i = 1, #col, 2 do
-		local v = objects[col[i]][col[i+1]]
+		local v = session.objects[col[i]][col[i+1]]
 		if self.dir == "ver" then
 			if v.speedx >= 0 then
 				v.x = self.x - v.width

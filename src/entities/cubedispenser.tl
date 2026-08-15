@@ -76,7 +76,7 @@ end
 function cubedispenser:link(): any|nil
 	while #self.r > 3 do
 		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w]) do
+			for _, v in pairs(session.objects[w]) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -99,7 +99,7 @@ function cubedispenser:update(dt: number): boolean
 			if self.t == "box" then
 				temp = box:new(self.cox+.5, self.coy)
 				temp:addoutput(self, "drop")
-				table.insert(objects["box"], temp)
+				obj_insert("box", temp)
 			elseif tablecontains(enemies, self.t) then
 				temp = enemy:new(self.cox, self.coy+2-enemiesdata[self.t].height, self.t as string)
 				
@@ -108,7 +108,7 @@ function cubedispenser:update(dt: number): boolean
 				end
 				
 				temp.mask[7] = true
-				table.insert(objects["enemy"], temp)
+				obj_insert("enemy", temp as Entity)
 			end
 			
 			self.box = temp

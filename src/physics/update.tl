@@ -12,7 +12,7 @@ end
 global function physicsupdate(dt: number)
 	prof_push("physicsupdate")
 	physics_world_prune()
-	local lobjects = objects
+	local lobjects = session.objects
 	
 	for gi = 1, #PHYSICS_GROUP_ORDER do
 		local group_name = PHYSICS_GROUP_ORDER[gi]
@@ -97,7 +97,7 @@ global function physicsupdate(dt: number)
 								local tile_ent = t as Entity
 								local mx = tile_ent.cox as number
 								local my = tile_ent.coy as number
-								if inmap(mx, my) and (not tilequads[map[mx][my][1]]:getproperty("invisible", mx, my) or group_name == "player") then
+								if inmap(mx, my) and (not tilequads[session.map[mx][my][1]]:getproperty("invisible", mx, my) or group_name == "player") then
 									if (i ~= tk or group_name ~= "tile") and v.mask[t.category] ~= true then
 										local collision1, collision2 = checkcollision(v, tile_ent, "tile", tk, group_name, i, dt, passed)
 										if collision1 then
@@ -113,7 +113,7 @@ global function physicsupdate(dt: number)
 					
 					--VS: LATE OBJECTS
 					for _, h in ipairs(PHYSICS_LATE_LIST) do
-						local u = objects[h]
+						local u = session.objects[h]
 						if u and next(u as {any: any}) ~= nil then
 							local hor, ver = handlegroup(i, h, u as {any:Body}, body, group_name, dt, passed)
 							if hor then

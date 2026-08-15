@@ -52,7 +52,7 @@ end
 function enemyspawner:link(): any|nil
 	while #self.r > 3 do
 		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w]) do
+			for _, v in pairs(session.objects[w]) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -69,8 +69,8 @@ end
 function enemyspawner:input(t, _): any
 	if t ~= "off" then
 		if enemiesdata[self.enemytospawn] then
-			local temp = enemy:new(self.cox, self.coy, self.enemytospawn, {map[self.cox][self.coy][1], self.enemytospawn})
-			table.insert(objects["enemy"], temp)
+			local temp = enemy:new(self.cox, self.coy, self.enemytospawn, {session.map[self.cox][self.coy][1], self.enemytospawn})
+			obj_insert("enemy", temp as Entity)
 			temp.speedx = self.xspeed
 			temp.speedy = self.yspeed
 		end

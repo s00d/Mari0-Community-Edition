@@ -181,13 +181,13 @@ end
 
 local function shoot_hook(pl: {string:any})
 	local sx, sy, dx, dy = aim(pl)
-	if not objects or not hook or not hook.new then
+	if not session.objects or not hook or not hook.new then
 		return
 	end
-	local list = objects["hook"] as {any}|nil
+	local list = session.objects["hook"] as {any}|nil
 	if list == nil then
 		list = {} as {any}
-		objects["hook"] = list as {any:Entity}
+		session.objects["hook"] = list as {any:Entity}
 	end
 	table.insert(list as {any}, (hook.new as function(any, number, number, number, number, any): any)(
 		hook, sx + dx * 0.6, sy + dy * 0.6, dx, dy, pl))
@@ -211,10 +211,10 @@ local function anchor_solid(cox: number, coy: number): boolean
 	if not inmap or not inmap(cox, coy) then
 		return false
 	end
-	if not map or not map[cox] or not map[cox][coy] then
+	if not session.map or not session.map[cox] or not session.map[cox][coy] then
 		return false
 	end
-	local tid = map[cox][coy][1] as number
+	local tid = session.map[cox][coy][1] as number
 	if not tid or tid == 1 or not tilequads or not tilequads[tid] then
 		return false
 	end
@@ -270,7 +270,7 @@ local function fire(pl: {string:any}, button: any)
 		return
 	end
 	-- cancel in-flight hooks for this player
-	local list = objects and objects["hook"] as {any:{string:any}}|nil
+	local list = session.objects and session.objects["hook"] as {any:{string:any}}|nil
 	if list ~= nil then
 		for _, h in pairs(list as {any:{string:any}}) do
 			if h.owner == pl and h.state == "flying" then
@@ -343,7 +343,7 @@ local function draw(pl: {string:any})
 	local sc = world_draw_scale()
 	if not pl.grapple then
 		-- in-flight rope from player to hook
-		local list = objects and objects["hook"] as {any:{string:any}}|nil
+		local list = session.objects and session.objects["hook"] as {any:{string:any}}|nil
 		if list == nil then
 			return
 		end
@@ -379,7 +379,7 @@ end
 
 local function unequip(pl: {string:any})
 	detach(pl, "switch", false)
-	local list = objects and objects["hook"] as {any:{string:any}}|nil
+	local list = session.objects and session.objects["hook"] as {any:{string:any}}|nil
 	if list ~= nil then
 		for _, h in pairs(list as {any:{string:any}}) do
 			if h.owner == pl then

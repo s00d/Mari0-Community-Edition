@@ -21,7 +21,7 @@ local function clear_scratch(t: {any})
 end
 
 global function game_update(dt: number)
-	if not objects then return end
+	if not session.objects then return end
 	gdt = dt
 
 	--------
@@ -106,7 +106,7 @@ global function game_update(dt: number)
 	
 	--If everyone's dead, just update the players and coinblock timer.
 	if everyonedead then
-		for _, v in pairs(playerobjs) do
+		for _, v in pairs(session.playerobjs) do
 			v:update(dt)
 		end
 		flush_spritebatch()
@@ -118,7 +118,7 @@ global function game_update(dt: number)
 		--get if any player has their controls disabled
 		local notime = false
 		for i = 1, players do
-			if (playerobjs[i].controlsenabled == false and playerobjs[i].dead == false) then
+			if (session.playerobjs[i].controlsenabled == false and session.playerobjs[i].dead == false) then
 				notime = true
 			end
 		end
@@ -134,7 +134,7 @@ global function game_update(dt: number)
 			if mariotime > 0 and mariotime + 2.5*dt >= 99-8 and mariotime < 99-8 and firstunder100 then
 				local star = false
 				for i = 1, players do
-					if playerobjs[i].starred then
+					if session.playerobjs[i].starred then
 						star = true
 					end
 				end
@@ -151,7 +151,7 @@ global function game_update(dt: number)
 			
 			if mariotime <= 0 then
 				mariotime = 0
-				for _, v in pairs(playerobjs) do
+				for _, v in pairs(session.playerobjs) do
 					v:die("time")
 				end
 			end
@@ -189,7 +189,7 @@ global function game_update(dt: number)
 	
 	--check if updates are blocked for whatever reason
 	if noupdate then
-		for _, v in pairs(playerobjs) do --But update players anyway.
+		for _, v in pairs(session.playerobjs) do --But update players anyway.
 			v:update(dt)
 		end
 		flush_spritebatch()
@@ -199,6 +199,7 @@ global function game_update(dt: number)
 	--blockbounce
 	local delete = blockbounce_delete_scratch
 	local ndelete = 0
+	local bounce_ended: {integer: {number}} = {}
 	
 	for i, _ in pairs(blockbouncetimer) do
 		if blockbouncetimer[i] < blockbouncetime then
@@ -210,6 +211,7 @@ global function game_update(dt: number)
 				end
 				ndelete = ndelete + 1
 				delete[ndelete] = i
+				bounce_ended[ndelete] = { blockbouncex[i] as number, blockbouncey[i] as number }
 			end
 		end
 	end
@@ -220,8 +222,11 @@ global function game_update(dt: number)
 	
 	remove_indices_desc_multi({blockbouncetimer, blockbouncex, blockbouncey, blockbouncecontent, blockbouncecontent2}, delete)
 	
-	if ndelete >= 1 then
-		generatespritebatch(0, 0)
+	for i = 1, ndelete do
+		local xy = bounce_ended[i]
+		if xy and tile_spritebatch_update_tile then
+			tile_spritebatch_update_tile(xy[1], xy[2])
+		end
 	end
 	
 	--coinblocktimer things
@@ -255,7 +260,7 @@ global function game_update(dt: number)
 	for _, v in ipairs(static_updatelists as {any}) do
 		update_and_compact(v, dt)
 	end
-	for i, v in pairs(objects) do
+	for i, v in pairs(session.objects) do
 		if i ~= "tile" and i ~= "portalwall" and i ~= "screenboundary" then
 			update_and_compact(v, dt)
 		end
@@ -267,77 +272,74 @@ global function game_update(dt: number)
 	
 	
 	--SCROLLING
-	local oldxscroll = xscroll
-	local oldyscroll = yscroll
+	local oldxscroll = session.xscroll
+	local oldyscroll = session.yscroll
 	scroll_update(dt)
 	--enemy spawning
 	if not editormode and not metroidmode then
-		if round(xscroll) ~= round(oldxscroll) then
+		if round(session.xscroll) ~= round(oldxscroll) then
 			local xstart: number = 0
 			local xend: number = 0
-			if xscroll > oldxscroll then
-				xstart, xend = round(oldxscroll)+1+math.ceil(width), round(xscroll)+math.ceil(width)
+			if session.xscroll > oldxscroll then
+				xstart, xend = round(oldxscroll)+1+math.ceil(width), round(session.xscroll)+math.ceil(width)
 			else
-				xstart, xend = round(xscroll), round(oldxscroll)-1
+				xstart, xend = round(session.xscroll), round(oldxscroll)-1
 			end
 			
 			for x = xstart, xend do
-				for y = round(yscroll)-1, round(yscroll)+height+1 do
+				for y = round(session.yscroll)-1, round(session.yscroll)+height+1 do
 					spawnenemy(x, y)
 				end
 			end
 		end
 		
-		if round(yscroll) ~= round(oldyscroll) then
+		if round(session.yscroll) ~= round(oldyscroll) then
 			local ystart: number = 0
 			local yend: number = 0
-			if yscroll > oldyscroll then
-				ystart, yend = round(oldyscroll)+1+math.ceil(height), round(yscroll)+math.ceil(height)
+			if session.yscroll > oldyscroll then
+				ystart, yend = round(oldyscroll)+1+math.ceil(height), round(session.yscroll)+math.ceil(height)
 			else
-				ystart, yend = round(yscroll), round(oldyscroll)-1
+				ystart, yend = round(session.yscroll), round(oldyscroll)-1
 			end
 			
 			for y = ystart, yend do
-				for x = round(xscroll)-1, round(xscroll)+width+1 do
+				for x = round(session.xscroll)-1, round(session.xscroll)+width+1 do
 					spawnenemy(x, y)
 				end
 			end
 		end
 	end
 	
-	--SPRITEBATCH UPDATE and CASTLEREPEATS
-	local new_sbx = math.floor(xscroll)
-	local new_sby = math.floor(yscroll)
+	--SPRITEBATCH: scroll no longer rebuilds (full-map batches). Castle repeats still track x.
+	local new_sbx = math.floor(session.xscroll)
+	local new_sby = math.floor(session.yscroll)
 	local sb_dx = 0
-	local sb_dy = 0
 	if spritebatchX[1] ~= nil then
 		sb_dx = new_sbx - (spritebatchX[1] as integer)
 	end
-	if spritebatchY[1] ~= nil then
-		sb_dy = new_sby - (spritebatchY[1] as integer)
-	end
-
-	if sb_dx ~= 0 or sb_dy ~= 0 then
-		if sb_dx ~= 0 and not editormode then
-			for currentx = lastrepeat+1+width, new_sbx+1+width do
-				reachedx(currentx)
-			end
+	if sb_dx ~= 0 and not editormode then
+		for currentx = lastrepeat+1+width, new_sbx+1+width do
+			reachedx(currentx)
 		end
-
-		generatespritebatch(0, 0)
+	end
+	if spritebatchX then
+		spritebatchX[1] = new_sbx as integer
+	end
+	if spritebatchY then
+		spritebatchY[1] = new_sby as integer
 	end
 
 	if spritebatch_portal_catchup and not editormode then
 		local i = 1
-		while i <= players and (playerobjs[i].dead or playerobjs[i].remote) do
+		while i <= players and (session.playerobjs[i].dead or session.playerobjs[i].remote) do
 			i = i + 1
 		end
-		local fp = playerobjs[i]
+		local fp = session.playerobjs[i]
 		if fp then
-			local x_ok = fp.x >= xscroll + scrollingleftcomplete - 1/16
-				and fp.x <= xscroll + width - scrollingcomplete + 1/16
-			local y_ok = fp.y - yscroll >= upscrollborder - 1/16
-				and fp.y - yscroll <= height - downscrollborder + 1/16
+			local x_ok = fp.x >= session.xscroll + scrollingleftcomplete - 1/16
+				and fp.x <= session.xscroll + width - scrollingcomplete + 1/16
+			local y_ok = fp.y - session.yscroll >= upscrollborder - 1/16
+				and fp.y - session.yscroll <= height - downscrollborder + 1/16
 			if x_ok and y_ok then
 				spritebatch_portal_catchup = false
 			end
@@ -345,7 +347,7 @@ global function game_update(dt: number)
 	end
 	
 	--portal update
-	for _, v in pairs(portals) do
+	for _, v in pairs(session.portals) do
 		v:update(dt)
 	end
 	
@@ -354,7 +356,7 @@ global function game_update(dt: number)
 	while portalparticletimer > portalparticletime do
 		portalparticletimer = portalparticletimer - portalparticletime
 		
-		for _, pv in pairs(portals) do
+		for _, pv in pairs(session.portals) do
 			local p = pv as portal
 			if p.facing1 and p.x1 and p.y1 then
 				local x1: number = 0
@@ -423,19 +425,19 @@ global function game_update(dt: number)
 	remove_indices_desc(portalprojectiles, delete)
 	
 	--FIRE SPAWNING
-	if not levelfinished and firestarted and (not objects["bowser"][1] or (objects["bowser"][1].backwards == false and objects["bowser"][1].shot == false and objects["bowser"][1].fall == false)) then
+	if not levelfinished and firestarted and (not session.objects["bowser"][1] or (session.objects["bowser"][1].backwards == false and session.objects["bowser"][1].shot == false and session.objects["bowser"][1].fall == false)) then
 		firetimer = firetimer + dt
 		while firetimer > firedelay do
 			firetimer = firetimer - firedelay
 			firedelay = math.random(4)
-			local temp = enemy:new(xscroll + width, math.random(3)+7, "fire")
-			table.insert(objects["enemy"], temp)
-			if objects["bowser"][1] then
-				temp.y = objects["bowser"][1].y+0.25
-				temp.x = objects["bowser"][1].x-0.750
+			local temp = enemy:new(session.xscroll + width, math.random(3)+7, "fire")
+			obj_insert("enemy", temp as Entity)
+			if session.objects["bowser"][1] then
+				temp.y = session.objects["bowser"][1].y+0.25
+				temp.x = session.objects["bowser"][1].x-0.750
 				temp.movement = "targety"
 				temp.targetyspeed = 2
-				temp.targety = objects["bowser"][1].starty-math.random(3)+2/16
+				temp.targety = session.objects["bowser"][1].starty-math.random(3)+2/16
 			end
 		end
 	end
@@ -446,10 +448,10 @@ global function game_update(dt: number)
 		while flyingfishtimer > flyingfishdelay do
 			flyingfishtimer = flyingfishtimer - flyingfishdelay
 			flyingfishdelay = math.random(6, 20)/10
-			local x, y = math.random(math.floor(xscroll) as integer, (math.floor(xscroll)+width) as integer), mapheight as integer
+			local x, y = math.random(math.floor(session.xscroll) as integer, (math.floor(session.xscroll)+width) as integer), session.mapheight as integer
 			local temp = enemy:new(x, y, "flyingfish")
-			table.insert(objects["enemy"], temp)
-			temp.speedx = playerobjs[1].speedx + math.random(10)-5
+			obj_insert("enemy", temp as Entity)
+			temp.speedx = session.playerobjs[1].speedx + math.random(10)-5
 			if temp.speedx == 0 then
 				temp.speedx = 1
 			end
@@ -467,7 +469,7 @@ global function game_update(dt: number)
 		while bulletbilltimer > bulletbilldelay do
 			bulletbilltimer = bulletbilltimer - bulletbilldelay
 			bulletbilldelay = math.random(5, 40)/10
-			table.insert(objects["enemy"], enemy:new(xscroll+width+2, math.random(4, 12), "bulletbill"))
+			obj_insert("enemy", enemy:new(session.xscroll+width+2, math.random(4, 12), "bulletbill") as Entity)
 		end
 	end
 	
@@ -477,7 +479,7 @@ global function game_update(dt: number)
 	end
 	
 	--Update pointing angle of players
-	for _, v in pairs(objects.player) do
+	for _, v in pairs(session.objects.player) do
 		if not v.disableaiming then
 			(v as mario):updateangle()
 		end

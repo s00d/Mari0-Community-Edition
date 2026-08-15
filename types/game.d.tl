@@ -2,10 +2,47 @@
 -- Prefer concrete records from entities.d.tl. Narrow `any` only at legacy boundaries.
 
 require("anim8")
+
+-- MapCell before entities: World.map needs it (entities loads before the rest of this file).
+global record SpriteBatchViewCell
+	foreground: boolean
+	tilenumber: number
+	batch_id: integer|nil
+	slot_id: integer|nil
+end
+global record MapCell is {any}
+	portaloverride: {string:any}
+	gels: {string:any}|nil
+	gelSides: {number:number}|nil
+	portal: any
+end
+
 require("entities")
 require("records")
 require("marioforms")
 require("flux")
+
+-- Session instance (`session`): SoT for level world (map/objects/scroll/portals).
+-- Teal record name is `World`.
+global record World
+	map: {number:{number:MapCell}}
+	coinmap: {any:{any:any}}
+	objects: {any:{any:Entity}}
+	playerobjs: {any:mario}
+	mapwidth: number
+	mapheight: number
+	xscroll: number
+	yscroll: number
+	ylookmodifier: number
+	portals: {number:portal}
+	enemiesspawned: {integer:boolean}
+	smbspritebatch: any
+	smbspritebatchfront: any
+	portalspritebatch: any
+	portalspritebatchfront: any
+	new: function(): World
+	reset_level: function(World)
+end
 
 global record MouseProxy
 	getX: function(): number
@@ -94,19 +131,6 @@ global record JSONModule
 end
 
 -- Map / camera / session
-global record SpriteBatchViewCell
-	foreground: boolean
-	tilenumber: number
-	batch_id: integer|nil
-	slot_id: integer|nil
-end
--- Keep open-array escape: MapCell is a Teal array-record (numeric tile slots via `#` / [1],[2],… plus named fields).
-global record MapCell is {any}
-	portaloverride: {string:any}
-	gels: {string:any}|nil
-	gelSides: {number:number}|nil
-	portal: any
-end
 -- Pure tile parse result from level_parse_tiles_only (no entities / no LÖVE).
 global record LevelTilesParse
 	v: integer
@@ -122,13 +146,7 @@ global record SelectionTile
 	y: number
 end
 
-global map: {number:{number:MapCell}}
-global objects: {any:{any:Entity}}
-global playerobjs: {any:mario}
-global xscroll: number
-global yscroll: number
-global mapwidth: number
-global mapheight: number
+-- map/objects/scroll live on `session` (World), not as bare _G aliases.
 global mariotimer: number
 global gamestate: string
 global editor_slab_debug: boolean
@@ -148,6 +166,8 @@ global input_bindings_rebuild: function(integer)
 global ui_input_update: function(number)
 global ui_action_down: function(integer, string): boolean
 global ui_action_get: function(integer, string): number
+global sys_down: function(string): boolean
+global input_player: function(integer): any
 global binding_display: function(string): string
 global mouseui_x: number
 global mouseui_y: number
@@ -302,10 +322,6 @@ global TILEKEY_STRIDE: integer
 global inmap: function(x: number|nil, y: number|nil): boolean
 global inrange: function(i: any, a: any, b: any, include?: boolean): boolean
 global round: function(num: number, idp?: number): number
-global dsin: function(a: number): number
-global dcos: function(a: number): number
-global datan2: function(y: number, x: number): number
-global datan: function(y: number, x?: number): number
 global tablecontains: function(t: {any}, entry: any): boolean
 global getTile: function(x: number, y: number, portalable?: any, portalcheck?: any, facing?: any, ignoregrates?: any, dir?: any, mirexc?: any): any, any
 global getMouseTile: function(any, any): number, number
@@ -337,7 +353,6 @@ global portalhues: {{number}}
 global portalcolor: {{{number}}}
 global portalcolor1: {number:number}
 global portalcolor2: {number:number}
-global portals: {number:portal}
 global portalsavailable: {any:boolean}
 global levelweapons: {string}
 global Weapons: WeaponsModule
@@ -423,7 +438,6 @@ global custombackground: any
 global customforeground: any
 global backgroundlevel: any
 global background: {any:number}
-global coinmap: {any:{any:any}}
 global smbtilecount: integer
 global portaltilecount: integer
 global customtilecount: integer
@@ -471,7 +485,6 @@ global axex: any
 global startx: {number}
 global starty: {number}
 global levelfinished: boolean
-global ylookmodifier: number
 global gdt: number
 global introprogress: number
 global currentshaderi1: integer
@@ -862,7 +875,6 @@ global bulletbilltimer: number
 global flyingfishzones: {{number|boolean}}
 global bulletbillzones: {{number|boolean}}
 global mazesolved: {any}
-global enemiesspawned: {integer:boolean}
 global livereplaydelay: {number}
 global endpressbutton: boolean
 global id: {any}
@@ -1752,6 +1764,11 @@ global generateanimationgui: function(): any
 global generateentitylist: function(): any
 global generatespritebatch: function(integer, integer)
 global updatespritebatch: function()
+global tile_spritebatch_rebuild: function()
+global tile_spritebatch_update_tile: function(number, number)
+global tile_spritebatch_draw_bg: function()
+global tile_spritebatch_draw_fg: function()
+global create_tile_spritebatches: function(number|nil)
 global getAngleFrame: function(number, number): any
 global getPortal: function(x: number, y: number, dir?: any): number|boolean, number|nil, any, any, any, any, any, any
 global getSelectedTiles: function(): {{any}}
@@ -1791,7 +1808,6 @@ global level_filename: function(world: number|string, level: number|string, subl
 global mappack_path: function(name: string): string
 global mappack_level_path: function(mappack_name: string, world: number|string, level: number|string, sublevel?: number): string
 global level_name: function(world: number|string, level: number|string, sublevel?: number): string
-global create_tile_spritebatches: function()
 global level_parse_tiles_only: function(s: string): LevelTilesParse|nil, string|nil
 global level_serialize_maptiles: function(map: {number:{number:MapCell}}, coinmap: {number:{number:any}}, mapwidth: number, mapheight: number, v: integer): string
 global level_split_file_contents: function(s: string): integer, number, {string}, {string}, string, string, string, string, string

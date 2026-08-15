@@ -1,5 +1,5 @@
 {
+  "actions":[["dotobool","ef_intro_seen","true"],["dialogbox","ENGINE FAULT build 3486. you are tester #4.","tracker"],["dialogbox","testers 1-3 are still compiling. breakable blocks ahead. ignore the signs.","tracker"]],
   "triggers":[["mapload"]],
-  "conditions":[["worldequals","1"],["levelequals","1"],["ifbool","ef_intro_seen","false"]],
-  "actions":[["dotobool","ef_intro_seen","true"],["dialogbox","ENGINE FAULT build 9716. you are tester #4.","tracker"],["dialogbox","testers 1-3 are still compiling. breakable blocks ahead. ignore the signs.","tracker"]]
+  "conditions":[["worldequals","1"],["levelequals","1"],["ifbool","ef_intro_seen","false"]]
 }

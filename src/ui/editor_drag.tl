@@ -27,7 +27,7 @@ local RESIZABLE: {string:string} = {
 
 local function cell_entity_type(cox: number, coy: number): string|nil
 	if not inmap(cox, coy) then return nil end
-	local c = map[cox][coy]
+	local c = session.map[cox][coy]
 	if not c or not c[2] then return nil end
 	if type(c[2]) == "string" then return c[2] as string end
 	if entitylist and type(c[2]) == "number" then
@@ -48,7 +48,7 @@ local function resize_handle_at(cox: number, coy: number): string|nil
 	if not ax then return nil end
 	-- For map cells, size often lives in args; treat single-cell + neighbor empties as edges
 	-- Prefer: if brush inactive and click on entity, move; resize when holding shift
-	if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
+	if sys_down("shift") then
 		if ax:find("h", 1, true) then return "e" end
 		if ax:find("v", 1, true) then return "s" end
 	end
@@ -60,8 +60,8 @@ local function move_entity_cell(fx: number, fy: number, tx: number, ty: number)
 	if fx == tx and fy == ty then return end
 	editor_undo_record(fx, fy)
 	editor_undo_record(tx, ty)
-	local src = map[fx][fy]
-	local dst = map[tx][ty]
+	local src = session.map[fx][fy]
+	local dst = session.map[tx][ty]
 	-- swap entity slots (keep destination tile art)
 	local tile_dst = dst[1]
 	local copy: {any} = {}
@@ -72,7 +72,7 @@ local function move_entity_cell(fx: number, fy: number, tx: number, ty: number)
 end
 
 local function bump_size_arg(cox: number, coy: number, handle: string, nx: number, ny: number)
-	local c = map[cox][coy]
+	local c = session.map[cox][coy]
 	if not c then return end
 	editor_undo_record(cox, coy)
 	local sz = tonumber(c[3] as any) or 2
@@ -111,7 +111,7 @@ global function editor_drag_begin(mx: number, my: number, palette_active: boolea
 		}
 		return
 	end
-	if has_entity(cox, coy) and editentities and not love.keyboard.isDown("lalt") then
+	if has_entity(cox, coy) and editentities and not sys_down("alt") then
 		editor_undo_begin()
 		EDITOR_DRAG = {
 			kind = "move", ox = mx, oy = my, from_x = cox, from_y = coy,

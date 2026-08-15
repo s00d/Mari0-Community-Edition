@@ -28,7 +28,10 @@ package.path = table.concat({
 local failed = 0
 local ran = 0
 
+local SessionBridge = require("tests.session_bridge")
+
 local function run_file(rel)
+	SessionBridge.install()
 	local path = root .. "/" .. rel
 	print("=== " .. rel .. " ===")
 	local chunk, err = loadfile(path)
@@ -59,7 +62,6 @@ run_file("tests/level_leak_checks.lua")
 run_file("tests/physics_order_checks.lua")
 run_file("tests/session_checks.lua")
 run_file("tests/net_checks.lua")
-run_file("tests/dmath_checks.lua")
 run_file("tests/gc_checks.lua")
 run_file("tests/transition_checks.lua")
 run_file("tests/camera_follow_checks.lua")

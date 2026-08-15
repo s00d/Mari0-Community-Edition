@@ -2,22 +2,7 @@
 
 require "world.level"
 require "assets.spritebatch_util"
-
-local record FreeSpriteBatchSlot
-	slot_id: integer
-	tilenumber: integer
-	foreground: boolean
-end
-
-local spritebatch_free: {integer: {FreeSpriteBatchSlot}} = {}
-local spritebatch_free_len: {integer: integer} = {}
-
-local function clear_spritebatch_free_pools()
-	for batch_id in pairs(spritebatch_free) do
-		spritebatch_free[batch_id] = nil
-		spritebatch_free_len[batch_id] = nil
-	end
-end
+require "world.tile_spritebatch"
 
 global function game_load(suspended?: any)
 	
@@ -106,7 +91,7 @@ global function game_load(suspended?: any)
 		respawnsublevel = mariosublevel or 0
 	end
 	
-	objects = nil
+	session.objects = nil
 	if suspended == true then
 		continuegame()
 	elseif suspended then
@@ -224,10 +209,10 @@ global function loadlevel(level: string|number): boolean
 	autoscroll = true
 	autoscrollx = true
 	autoscrolly = true
-	xscroll = 0
+	session.xscroll = 0
 	repeatX = 0
 	lastrepeat = 0
-	ylookmodifier = 0
+	session.ylookmodifier = 0
 	displaywarpzonetext = false
 	mazestarts = {}
 	mazeends = {}
@@ -282,7 +267,7 @@ global function loadlevel(level: string|number): boolean
 	warpzonenumbers = {}
 	textentities = {}
 	
-	portals = {}
+	session.portals = {}
 	
 	reset_level_state()
 	
@@ -292,7 +277,7 @@ global function loadlevel(level: string|number): boolean
 	pipestarty = nil
 	local animation: any = nil
 	
-	enemiesspawned = {}
+	session.enemiesspawned = {}
 	
 	intermission = false
 	haswarpzone = false
@@ -318,32 +303,32 @@ global function loadlevel(level: string|number): boolean
 	local needs_to_be_saved = false
 	if loadmap(tostring(level), true) == false then --make one up
 		needs_to_be_saved = true
-		mapwidth = width
+		session.mapwidth = width
 		background = {unpack(backgroundcolor[1] as {any})} as {any:number}
-		mapheight = 15
+		session.mapheight = 15
 		portalsavailable = {true, true}
 		musicname = "overworld.ogg"
-		map = {}
-		coinmap = {}
+		session.map = {}
+		session.coinmap = {}
 		for x = 1, width do
-			map[x] = {}
-			coinmap[x] = {}
-			for y = 1, mapheight do
+			session.map[x] = {}
+			session.coinmap[x] = {}
+			for y = 1, session.mapheight do
 				if y > 13 then
-					map[x][y] = {2}
-					objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
-					init_map_cell_gels(map[x][y])
-					map[x][y]["portaloverride"] = {}
+					session.map[x][y] = {2}
+					session.objects["tile"][tilekey(x, y)] = tile:new(x-1, y-1)
+					init_map_cell_gels(session.map[x][y])
+					session.map[x][y]["portaloverride"] = {}
 				else
-					map[x][y] = {1}
-					init_map_cell_gels(map[x][y])
-					map[x][y]["portaloverride"] = {}
+					session.map[x][y] = {1}
+					init_map_cell_gels(session.map[x][y])
+					session.map[x][y]["portaloverride"] = {}
 				end
 			end
 		end
 		
 		
-		create_tile_spritebatches()
+		create_tile_spritebatches(nil)
 	end
 
 	if keepalive_pump then
@@ -356,17 +341,17 @@ global function loadlevel(level: string|number): boolean
 		keepalive_pump()
 	end
 	
-	objects["screenboundary"] = {}
-	objects["screenboundary"]["left"] = screenboundary:new(0)
+	session.objects["screenboundary"] = {}
+	session.objects["screenboundary"]["left"] = screenboundary:new(0)
 	
-	objects["screenboundary"]["right"] = screenboundary:new(mapwidth)
+	session.objects["screenboundary"]["right"] = screenboundary:new(session.mapwidth)
 	
 	if flagx then
-		objects["screenboundary"]["flag"] = screenboundary:new((flagx as number)+6/16)
+		session.objects["screenboundary"]["flag"] = screenboundary:new((flagx as number)+6/16)
 	end
 	
 	if axex then
-		objects["screenboundary"]["axe"] = screenboundary:new(axex as number)
+		session.objects["screenboundary"]["axe"] = screenboundary:new(axex as number)
 	end
 	
 	if intermission then
@@ -384,9 +369,9 @@ global function loadlevel(level: string|number): boolean
 		for i = 1, #mazestarts do
 			local maxgate: number = 1
 			for x = mazestarts[i], mazeends[i] do
-				for y = 1, mapheight do
-					if map[x][y][2] and entitylist[map[x][y][2]] and entitylist[map[x][y][2]].t == "mazegate" then
-						local gate = tonumber(map[x][y][3]) or 0
+				for y = 1, session.mapheight do
+					if session.map[x][y][2] and entitylist[session.map[x][y][2]] and entitylist[session.map[x][y][2]].t == "mazegate" then
+						local gate = tonumber(session.map[x][y][3]) or 0
 						if gate > maxgate then
 							maxgate = gate
 						end
@@ -411,7 +396,7 @@ global function loadlevel(level: string|number): boolean
 		startx = {psx, psx, psx, psx, psx}
 		starty = {psy, psy, psy, psy, psy}
 		--check if startpos is a colliding block
-		if tilequads[map[startx[1] as number][starty[1] as number][1]]:getproperty("collision", startx[1] as number, starty[1] as number) then
+		if tilequads[session.map[startx[1] as number][starty[1] as number][1]]:getproperty("collision", startx[1] as number, starty[1] as number) then
 			animation = "pipeup"
 		end
 	end
@@ -429,23 +414,23 @@ global function loadlevel(level: string|number): boolean
 	end
 	
 	--Adjust start X scroll
-	xscroll = (startx[1] as number)-scrollingleftcomplete-2
-	if xscroll > mapwidth - width then
-		xscroll = mapwidth - width
+	session.xscroll = (startx[1] as number)-scrollingleftcomplete-2
+	if session.xscroll > session.mapwidth - width then
+		session.xscroll = session.mapwidth - width
 	end
 	
-	if xscroll < 0 then
-		xscroll = 0
+	if session.xscroll < 0 then
+		session.xscroll = 0
 	end
 	
 	--and Y too
-	yscroll = (starty[1] as number)-height+downscrollborder
-	if yscroll > mapheight - height - 1 then
-		yscroll = mapheight - height - 1
+	session.yscroll = (starty[1] as number)-height+downscrollborder
+	if session.yscroll > session.mapheight - height - 1 then
+		session.yscroll = session.mapheight - height - 1
 	end
 	
-	if yscroll < 0 then
-		yscroll = 0
+	if session.yscroll < 0 then
+		session.yscroll = 0
 	end
 	
 	spawnrestrictions = {}
@@ -463,16 +448,16 @@ global function loadlevel(level: string|number): boolean
 		mul = 2/16
 	end
 
-	if Weapons and playerobjs then
+	if Weapons and session.playerobjs then
 		for i = 1, (players or 0) do
-			if playerobjs[i] then
-				Weapons.release(playerobjs[i], "levelend")
+			if session.playerobjs[i] then
+				Weapons.release(session.playerobjs[i], "levelend")
 			end
 		end
 	end
 	
-	playerobjs = {}
-	objects["player"] = playerobjs
+	session.playerobjs = {}
+	session.objects["player"] = session.playerobjs
 	local spawns = {}
 	for i = 1, players do
 		local animation = animation
@@ -499,15 +484,17 @@ global function loadlevel(level: string|number): boolean
 			table.insert(spawns, {x=astartx, y=astarty})
 			
 			local spawn_y_off = level_mapmode and 0 or -1
-			playerobjs[i] = create_mario_player((astartx as number)+add, (astarty as number)+spawn_y_off, i, animation, mariosizes[i], playertype)
+			session.playerobjs[i] = create_mario_player((astartx as number)+add, (astarty as number)+spawn_y_off, i, animation, mariosizes[i], playertype)
+			physics_world_upsert(session.playerobjs[i], "player", i)
 		else
-			playerobjs[i] = create_mario_player(1.5 + (i-1)*mul-6/16+1.5, 13, i, animation, mariosizes[i], playertype)
+			session.playerobjs[i] = create_mario_player(1.5 + (i-1)*mul-6/16+1.5, 13, i, animation, mariosizes[i], playertype)
+			physics_world_upsert(session.playerobjs[i], "player", i)
 		end
 	end
 	
-	if level_mapmode and playerobjs[1] then
-		mapmode_update_view(playerobjs[1])
-		mapmode_snap_to_start(playerobjs[1])
+	if level_mapmode and session.playerobjs[1] then
+		mapmode_update_view(session.playerobjs[1])
+		mapmode_snap_to_start(session.playerobjs[1])
 	else
 		mapmode_zoom = 1
 		mapmode_pad_x = 0
@@ -520,25 +507,25 @@ global function loadlevel(level: string|number): boolean
 			metroid_bootstrap_from_player()
 		else
 			local xtodo = width+1
-			if mapwidth < width+1 then
-				xtodo = mapwidth
+			if session.mapwidth < width+1 then
+				xtodo = session.mapwidth
 			end
 			local ytodo = height+1
-			if mapheight < height+1 then
-				ytodo = mapheight
+			if session.mapheight < height+1 then
+				ytodo = session.mapheight
 			end
-			for x = math.floor(xscroll), math.floor(xscroll)+xtodo do
-				for y = math.floor(yscroll), math.floor(yscroll)+ytodo do
+			for x = math.floor(session.xscroll), math.floor(session.xscroll)+xtodo do
+				for y = math.floor(session.yscroll), math.floor(session.yscroll)+ytodo do
 					spawnenemy(x, y)
 				end
 			end
 		end
 	end
-	if metroidmode and playerobjs then
+	if metroidmode and session.playerobjs then
 		for i = 1, players do
-			if playerobjs[i] then
-				if metroid_reapply_abilities then metroid_reapply_abilities(playerobjs[i]) end
-				if metroid_apply_hp_to_player then metroid_apply_hp_to_player(playerobjs[i]) end
+			if session.playerobjs[i] then
+				if metroid_reapply_abilities then metroid_reapply_abilities(session.playerobjs[i]) end
+				if metroid_apply_hp_to_player then metroid_apply_hp_to_player(session.playerobjs[i]) end
 			end
 		end
 	end
@@ -555,7 +542,6 @@ global function loadlevel(level: string|number): boolean
 	spritebatch_portal_catchup = false
 	generatespritebatch(0, 0)
 	updatespritebatch()
-	if session then session:sync_session_from_globals() end
 	-- Incremental reclaim after load (full collect freezes transition on Metal).
 	if gcpace_after_load then
 		gcpace_after_load()
@@ -571,11 +557,10 @@ end
 
 global function startlevel(levelstart?: any)
 	
-	if session then
-		session:set_gamestate("game")
+	if Gamestate then
+		Gamestate.set("game")
 	else
 		gamestate = "game"
-		if Gamestate then Gamestate.set("game") end
 	end
 	(require("app.love_frame") as LoveFrameModule).request_skip_update()
 	
@@ -598,30 +583,30 @@ end
 
 global function changemapwidth(width: number)
 	
-	if width > (mapwidth as number) then
-		for x = (mapwidth as number)+1, width do
-			map[x] = {}
-			for y = 1, (mapheight as number)-2 do
-				map[x][y] = {1}
-				init_map_cell_gels(map[x][y])
-				map[x][y].portaloverride = {}
+	if width > (session.mapwidth as number) then
+		for x = (session.mapwidth as number)+1, width do
+			session.map[x] = {}
+			for y = 1, (session.mapheight as number)-2 do
+				session.map[x][y] = {1}
+				init_map_cell_gels(session.map[x][y])
+				session.map[x][y].portaloverride = {}
 				physics_world_set_tile(tilekey(x, y), nil)
 			end
 		
-			for y = (mapheight as number)-1, mapheight as number do
-				map[x][y] = {2}
+			for y = (session.mapheight as number)-1, session.mapheight as number do
+				session.map[x][y] = {2}
 				physics_world_set_tile(tilekey(x, y), tile:new(x-1, y-1))
-				init_map_cell_gels(map[x][y])
-				map[x][y].portaloverride = {}
+				init_map_cell_gels(session.map[x][y])
+				session.map[x][y].portaloverride = {}
 			end
 		end
 	end
 
-	mapwidth = width
-	objects["screenboundary"]["right"].x = mapwidth as number
-	physics_world_upsert_slot("screenboundary", "right", objects["screenboundary"]["right"])
-	if playerobjs[1].x > (mapwidth as number) then
-		playerobjs[1].x = (mapwidth as number)-1
+	session.mapwidth = width
+	session.objects["screenboundary"]["right"].x = session.mapwidth as number
+	physics_world_upsert_slot("screenboundary", "right", session.objects["screenboundary"]["right"])
+	if session.playerobjs[1].x > (session.mapwidth as number) then
+		session.playerobjs[1].x = (session.mapwidth as number)-1
 	end
 	
 	generatespritebatch(0, 0)
@@ -630,12 +615,12 @@ end
 
 global function changemapheight(height: number)
 	
-	if height > (mapheight as number) then
-		for x = 1, mapwidth as number do
-			for y = (mapheight as number)+1, height do
-				map[x][y] = {currenttile}
-				init_map_cell_gels(map[x][y])
-				map[x][y].portaloverride = {}
+	if height > (session.mapheight as number) then
+		for x = 1, session.mapwidth as number do
+			for y = (session.mapheight as number)+1, height do
+				session.map[x][y] = {currenttile}
+				init_map_cell_gels(session.map[x][y])
+				session.map[x][y].portaloverride = {}
 				
 				if tilequads[currenttile]:getproperty("collision", x, y) then
 					physics_world_set_tile(tilekey(x, y), tile:new(x-1, y-1, 1, 1, true))
@@ -646,15 +631,15 @@ global function changemapheight(height: number)
 		end
 	end
 	
-	mapheight = height
+	session.mapheight = height
 	
-	for key, v in pairs(objects["screenboundary"] as {any:any}) do
-		(v as Entity).height = 1000+(mapheight as number)
+	for key, v in pairs(session.objects["screenboundary"] as {any:any}) do
+		(v as Entity).height = 1000+(session.mapheight as number)
 		physics_world_upsert_slot("screenboundary", key, v)
 	end
 	
-	if playerobjs[1].y > (mapheight as number) then
-		playerobjs[1].y = (mapheight as number)-1
+	if session.playerobjs[1].y > (session.mapheight as number) then
+		session.playerobjs[1].y = (session.mapheight as number)-1
 	end
 	
 	generatespritebatch(0, 0)
@@ -662,290 +647,21 @@ global function changemapheight(height: number)
 end
 
 global function invalidate_spritebatch_after_portal_teleport()
-	clear_spritebatch_free_pools()
-	spritebatch_view = nil
-	spritebatch_orphan_slots = 0
+	-- Full-map batches: scroll offset only — no rebuild on portal camera catch-up.
 	spritebatch_portal_catchup = true
 end
 
--- AE-style coalesce: mark dirty; flush once via updatespritebatch (end of game_update).
--- scroll args kept for call-site compat; incremental scroll is disabled (full rebuild only).
+-- Mark dirty; flush once via updatespritebatch (end of game_update / after load).
 global function generatespritebatch(_scroll_dx: integer, _scroll_dy: integer)
 	spritebatch_dirty = true
 end
 
 global function updatespritebatch()
-	if rawget(_G, "prof_push") == nil then
-		rawset(_G, "prof_push", function(_: string) end)
-		rawset(_G, "prof_pop", function(_: string|nil) end)
-	end
 	if not spritebatch_dirty then
 		return
 	end
 	spritebatch_dirty = false
-
-	prof_push("generatespritebatch")
-	local xtodraw: number = 0
-	if (mapwidth as number) < width+1 then
-		xtodraw = math.ceil(mapwidth as number)
-	else
-		if (mapwidth as number) > width and xscroll < (mapwidth as number)-width then
-			xtodraw = math.ceil(width+1)
-		else
-			xtodraw = math.ceil(width)
-		end
-	end
-	
-	local ytodraw: number = 0
-	if (mapheight as number) < height+1 then
-		ytodraw = math.ceil(mapheight as number)
-	else
-		if (mapheight as number) > height and yscroll < (mapheight as number)-height then
-			ytodraw = height+1
-		else
-			ytodraw = height
-		end
-	end
-	
-	local lmap = map
-	
-	local flooredxscroll: number = 0
-	if xscroll >= 0 then
-		flooredxscroll = math.floor(xscroll)
-	else
-		flooredxscroll = math.ceil(xscroll)
-	end
-	
-	local flooredyscroll: number = 0
-	if yscroll >= 0 then
-		flooredyscroll = math.floor(yscroll)
-	else
-		flooredyscroll = math.ceil(yscroll)
-	end
-
-	local row_count = ytodraw + 2
-
-	local BATCH_SMB = 1
-	local BATCH_PORTAL = 2
-	local BATCH_CUSTOM = 3
-	local BATCH_SMB_FRONT = 4
-	local BATCH_PORTAL_FRONT = 5
-	local BATCH_CUSTOM_FRONT = 6
-
-	local function modcustom_batch_id(tilenumber: number, foreground: boolean): integer|nil
-		for i = 1, modcustomtiles as integer do
-			if tilenumber <= smbtilecount+portaltilecount+customtilecount+modcustomtilecount[i] then
-				if foreground then
-					return 50 + i
-				end
-				return 10 + i
-			end
-		end
-		return nil
-	end
-
-	local function get_batch(batch_id: integer): SpriteBatch
-		if batch_id == BATCH_SMB then
-			return smbspritebatch
-		elseif batch_id == BATCH_PORTAL then
-			return portalspritebatch
-		elseif batch_id == BATCH_CUSTOM then
-			return customspritebatch
-		elseif batch_id == BATCH_SMB_FRONT then
-			return smbspritebatchfront
-		elseif batch_id == BATCH_PORTAL_FRONT then
-			return portalspritebatchfront
-		elseif batch_id == BATCH_CUSTOM_FRONT then
-			return customspritebatchfront
-		elseif batch_id >= 10 and batch_id < 50 then
-			return modcustomspritebatch[batch_id - 9] as SpriteBatch
-		end
-		return modcustomspritebatchfront[batch_id - 49] as SpriteBatch
-	end
-
-	local function resolve_tile_batch(tilenumber: number, foreground: boolean): integer, any
-		if not foreground then
-			if tilenumber <= smbtilecount then
-				return BATCH_SMB, tilequads[tilenumber]:quad()
-			elseif tilenumber <= smbtilecount+portaltilecount then
-				return BATCH_PORTAL, tilequads[tilenumber]:quad()
-			elseif tilenumber <= smbtilecount+portaltilecount+customtilecount then
-				return BATCH_CUSTOM, tilequads[tilenumber]:quad()
-			end
-			local mod_id = modcustom_batch_id(tilenumber, false)
-			if mod_id then
-				return mod_id, tilequads[tilenumber]:quad()
-			end
-		else
-			if tilenumber <= smbtilecount then
-				return BATCH_SMB_FRONT, tilequads[tilenumber]:quad()
-			elseif tilenumber <= smbtilecount+portaltilecount then
-				return BATCH_PORTAL_FRONT, tilequads[tilenumber]:quad()
-			elseif tilenumber <= smbtilecount+portaltilecount+customtilecount then
-				return BATCH_CUSTOM_FRONT, tilequads[tilenumber]:quad()
-			end
-			local mod_id = modcustom_batch_id(tilenumber, true)
-			if mod_id then
-				return mod_id, tilequads[tilenumber]:quad()
-			end
-		end
-		return BATCH_SMB, tilequads[1]:quad()
-	end
-
-	local bounce_batch_skip = build_blockbounce_lookup(blockbouncex, blockbouncey) as {any:any}
-
-	local function fetch_view_cell(cox: number, coy: number): SpriteBatchViewCell|nil
-		if not inmap(cox, coy) then
-			return nil
-		end
-		if bounce_batch_skip[tilekey(cox, coy)] then
-			return nil
-		end
-		local t = lmap[cox][coy]
-		local tilenumber = t[1] as number
-		if tilenumber == 0 then
-			return nil
-		end
-		if tilequads[tilenumber]:getproperty("invisible", cox, coy) then
-			return nil
-		end
-		if tilequads[tilenumber]:getproperty("coinblock", cox, coy) then
-			return nil
-		end
-		-- Animated tiles use position-dependent quads; drawn in drawlevel_tiles, not batch.
-		if tilenumber > 10000 then
-			return nil
-		end
-		return {
-			foreground = tilequads[tilenumber]:getproperty("foreground", cox, coy) as boolean,
-			tilenumber = tilenumber,
-		} as SpriteBatchViewCell
-	end
-
-	local function screen_coords(x: integer, y: integer): number, number
-		if level_mapmode then
-			return (x - 1) * 16 * scale, y * 16 * scale
-		end
-		return (x - 1) * 16 * scale, (y * 16 - 8) * scale
-	end
-
-	local function release_cell_slot(cell: SpriteBatchViewCell)
-		local batch_id = cell.batch_id
-		local slot_id = cell.slot_id
-		if slot_id == nil or batch_id == nil then
-			return
-		end
-		get_batch(batch_id):set(slot_id, 0, 0, 0, 0, 0)
-		local pool = spritebatch_free[batch_id]
-		local len = spritebatch_free_len[batch_id] or 0
-		if pool == nil then
-			pool = {}
-			spritebatch_free[batch_id] = pool
-		end
-		len = len + 1
-		pool[len] = {
-			slot_id = slot_id,
-			tilenumber = cell.tilenumber,
-			foreground = cell.foreground,
-		} as FreeSpriteBatchSlot
-		spritebatch_free_len[batch_id] = len
-		cell.slot_id = nil
-		cell.batch_id = nil
-	end
-
-	local function acquire_spritebatch_slot(
-		batch_id: integer,
-		batch: SpriteBatch,
-		cell: SpriteBatchViewCell,
-		quad: any,
-		screen_x: number,
-		screen_y: number
-	): integer
-		local pool = spritebatch_free[batch_id]
-		local len = spritebatch_free_len[batch_id] or 0
-		if pool and len > 0 then
-			for i = len, 1, -1 do
-				local entry = pool[i] as FreeSpriteBatchSlot
-				if entry.tilenumber == cell.tilenumber and entry.foreground == cell.foreground then
-					pool[i] = pool[len]
-					pool[len] = nil
-					len = len - 1
-					spritebatch_free_len[batch_id] = len
-					batch:set(entry.slot_id, screen_x, screen_y, 0, scale, scale)
-					spritebatch_orphan_slots = math.max(0, (spritebatch_orphan_slots or 0) - 1)
-					return entry.slot_id
-				end
-			end
-		end
-		return batch:add(quad, screen_x, screen_y, 0, scale, scale) as integer
-	end
-
-	local function place_view_cell(maybe_cell: SpriteBatchViewCell|nil, screen_x: number, screen_y: number)
-		if maybe_cell == nil then
-			return
-		end
-		local cell = maybe_cell as SpriteBatchViewCell
-		local batch_id, quad = resolve_tile_batch(cell.tilenumber, cell.foreground)
-		local batch = get_batch(batch_id)
-		if cell.slot_id ~= nil and cell.batch_id == batch_id then
-			batch:set(cell.slot_id, screen_x, screen_y, 0, scale, scale)
-		else
-			if cell.slot_id ~= nil then
-				release_cell_slot(cell)
-			end
-			cell.slot_id = acquire_spritebatch_slot(batch_id, batch, cell, quad, screen_x, screen_y)
-			cell.batch_id = batch_id
-		end
-	end
-
-	local function clear_all_spritebatches()
-		clear_spritebatch_free_pools()
-		smbspritebatch:clear()
-		smbspritebatchfront:clear()
-		portalspritebatch:clear()
-		portalspritebatchfront:clear()
-		if customtiles then
-			customspritebatch:clear()
-			customspritebatchfront:clear()
-		end
-		if modcustomtiles then
-			for i = 1, modcustomtiles as number do
-				(modcustomspritebatch[i as number] as SpriteBatch):clear()
-				(modcustomspritebatchfront[i as number] as SpriteBatch):clear()
-			end
-		end
-	end
-
-	local function draw_view(view: {number:{number:SpriteBatchViewCell|nil}}, cols: integer, rows: integer)
-		for y = 0, rows - 1 do
-			for x = 1, cols do
-				local sx, sy = screen_coords(x, y)
-				place_view_cell(view[y][x], sx, sy)
-			end
-		end
-	end
-
-	-- Dirty-only full rebuild (incremental scroll disabled: view cache corrupt on bounce/reveal).
-	clear_all_spritebatches()
-	spritebatch_orphan_slots = 0
-
-	local view: {number:{number:SpriteBatchViewCell|nil}} = {}
-	for y = 0, row_count - 1 do
-		view[y] = {}
-		for x = 1, xtodraw do
-			local coy = math.min(flooredyscroll+y+1, mapheight as number)
-			view[y][x] = fetch_view_cell(flooredxscroll+x, coy)
-		end
-	end
-	spritebatch_view = view
-	spritebatch_cols = xtodraw as integer
-	spritebatch_rows = row_count as integer
-	spritebatch_floor_x = flooredxscroll as integer
-	spritebatch_floor_y = flooredyscroll as integer
-	draw_view(view, xtodraw as integer, row_count as integer)
-	spritebatchX[1] = flooredxscroll as integer
-	spritebatchY[1] = flooredyscroll as integer
-	prof_pop("generatespritebatch")
+	tile_spritebatch_rebuild()
 end
 
 
@@ -993,7 +709,7 @@ end
 
 global function hitrightside()
 	if haswarpzone then
-		for _, v in pairs(objects["enemy"] as {any:any}) do
+		for _, v in pairs(session.objects["enemy"] as {any:any}) do
 			if (v as Entity).t == "plant" then	
 				(v as Entity).kill = true
 			end
@@ -1025,8 +741,8 @@ global function respawnplayers()
 		return
 	end
 	for i = 1, players do
-		if mariolives[i] == 1 and playerobjs.dead then
-			playerobjs[i]:respawn()
+		if mariolives[i] == 1 and session.playerobjs.dead then
+			session.playerobjs[i]:respawn()
 		end
 	end
 end

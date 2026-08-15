@@ -17,24 +17,24 @@ global function spawnenemy(x: number, y: number)
 	local key = tilekey(x, y)
 
 	--don't spawn when on a coinblock or breakable block
-	if tilequads[map[x][y][1] ]:getproperty("breakable", x, y) or tilequads[map[x][y][1] ]:getproperty("coinblock", x, y) then
-		enemiesspawned[key] = true
+	if tilequads[session.map[x][y][1] ]:getproperty("breakable", x, y) or tilequads[session.map[x][y][1] ]:getproperty("coinblock", x, y) then
+		session.enemiesspawned[key] = true
 		return
 	end
 
-	if enemiesspawned[key] then
+	if session.enemiesspawned[key] then
 		return
 	end
 
 	--spawnrestriction (tilekey set, precomputed on add)
 	allowenemy = not spawnrestrictions[key]
 
-	local r = map[x][y]
+	local r = session.map[x][y]
 	if #r > 1 then
 		local wasenemy = false
 		if allowenemy and tablecontains(enemies, r[2]) and enemiesdata[r[2] as string] and enemiesdata[r[2] as string].width and not editormode then
-			if not tilequads[map[x][y][1] ]:getproperty("breakable", x, y) and not tilequads[map[x][y][1] ]:getproperty("coinblock", x, y) then
-				table.insert(objects["enemy"], enemy:new(x, y, r[2] as string, r))
+			if not tilequads[session.map[x][y][1] ]:getproperty("breakable", x, y) and not tilequads[session.map[x][y][1] ]:getproperty("coinblock", x, y) then
+				obj_insert("enemy", enemy:new(x, y, r[2] as string, r) as Entity)
 				wasenemy = true
 			end
 		elseif entitylist[r[2]] then
@@ -42,7 +42,7 @@ global function spawnenemy(x: number, y: number)
 			wasenemy = dispatch_enemy_entity_spawn(t, x, y, r, allowenemy)
 		end
 
-		enemiesspawned[key] = true
+		session.enemiesspawned[key] = true
 
 		if wasenemy then
 			--spawn enemies in 5x1 line so they spawn as a unit and not alone.
@@ -52,7 +52,6 @@ global function spawnenemy(x: number, y: number)
 			spawnenemy(x+2, y)
 		end
 	end
-	if session then session:sync_session_from_globals() end
 end
 
 global function givelive(_: any, t: Entity)

@@ -67,7 +67,7 @@ global function inportal(self: Entity): boolean
 	if self.mask[2] then
 		return
 	end
-	for _, v in pairs(portals) do
+	for _, v in pairs(session.portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 			local portal1Y = v.y1 as number
 			local portal2Y = v.y2 as number
@@ -154,7 +154,7 @@ global function inportal(self: Entity): boolean
 end
 
 global function checkportalHOR(self: Entity, nextY: number): boolean --handles horizontal (up- and down facing) portal teleportation
-	for _, v in pairs(portals) do
+	for _, v in pairs(session.portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 		
 			local portal1xplus = 0
@@ -285,7 +285,7 @@ global function checkportalHOR(self: Entity, nextY: number): boolean --handles h
 end
 
 global function checkportalVER(self: Entity, nextX: number): boolean --handles vertical (left- and right facing) portal teleportation
-	for _, v in pairs(portals) do
+	for _, v in pairs(session.portals) do
 		if v.x1 ~= false and v.x2 ~= false then
 			local portal1yplus = 0
 			local portal2yplus = 0

@@ -26,8 +26,8 @@ local function cursor_world(): number, number
 	if screen_to_tile_x and screen_to_tile_y then
 		return screen_to_tile_x(mx), screen_to_tile_y(my)
 	end
-	local xs = (xscroll as number) or 0
-	local ys = (yscroll as number) or 0
+	local xs = (session.xscroll as number) or 0
+	local ys = (session.yscroll as number) or 0
 	local sc = (scale as number) or 1
 	if sc == 0 then
 		sc = 1
@@ -106,14 +106,14 @@ local function entity_usable(group: string, obj: {string:any}, pl: {string:any})
 end
 
 local function pick_cone(pl: {string:any}, sx: number, sy: number, dx: number, dy: number, maxd: number): {string:any}|nil
-	if not objects then
+	if not session.objects then
 		return nil
 	end
 	local best: {string:any}|nil = nil
 	local bestd = maxd
 	for gi = 1, #PICK_LISTS do
 		local group = PICK_LISTS[gi]
-		local listn = objects[group] as {any:{string:any}}|nil
+		local listn = session.objects[group] as {any:{string:any}}|nil
 		if listn ~= nil then
 			local list = listn as {any:{string:any}}
 			for _, raw in pairs(list) do
@@ -155,7 +155,7 @@ local function pick_entity(pl: {string:any}, maxrange?: number): {string:any}|ni
 		local col = checkrect(x - PROBE / 2, y - PROBE / 2, PROBE, PROBE, PICK_LISTS, true)
 		if #col >= 2 then
 			local group = col[1] as string
-			local raw = (objects[group] as {any})[col[2] as integer]
+			local raw = (session.objects[group] as {any})[col[2] as integer]
 			if raw then
 				local obj = raw as {string:any}
 				if entity_usable(group, obj, pl) then

@@ -31,9 +31,9 @@ function gatedoor:update(dt: number)
 		if self.timer < 1 then self.timer = math.min(1, self.timer + (doorspeed or 2) * dt) end
 		return
 	end
-	if playerobjs then
+	if session.playerobjs then
 		for i = 1, players or 1 do
-			local pl = playerobjs[i]
+			local pl = session.playerobjs[i]
 			if pl and not (pl as Dyn).dead then
 				if door_try_open(self.uid, self.kind, pl, { keyid = self.keyid, kind = self.kind }) then
 					self.open = true; self.active = false

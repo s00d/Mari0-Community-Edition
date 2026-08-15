@@ -229,13 +229,13 @@ local function gather_targets(self: blackhole)
 		end
 	end
 
-	if objects and objects["box"] then
-		for _, v in pairs(objects["box"] as {any:{string:any}}) do
+	if session.objects and session.objects["box"] then
+		for _, v in pairs(session.objects["box"] as {any:{string:any}}) do
 			consider(v)
 		end
 	end
-	if objects and objects["enemy"] then
-		for _, v in pairs(objects["enemy"] as {any:{string:any}}) do
+	if session.objects and session.objects["enemy"] then
+		for _, v in pairs(session.objects["enemy"] as {any:{string:any}}) do
 			consider(v)
 		end
 	end

@@ -1,7 +1,8 @@
 --[[ Post-boot _G guard: block undeclared global writes (reads deferred).
      Writes allowed for: (1) keys in _G at install, (2) names declared in types/game.d.tl.
      Legitimate bypass: rawset(_G, key, value).
-     Per-frame state belongs in module locals (see app.love_callbacks). ]]
+     Per-frame state belongs in module locals (see app.love_callbacks).
+     World map/objects/scroll live on `session` (not mirrored to _G). ]]
 
 local GlobalFreeze = {}
 

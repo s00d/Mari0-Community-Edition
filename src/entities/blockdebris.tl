@@ -38,7 +38,7 @@ function blockdebris:update(dt: number): boolean
 	self.y = self.y + self.speedy*dt
 	
 	
-	if self.y > mapheight then
+	if self.y > session.mapheight then
 		return true
 	end
 	

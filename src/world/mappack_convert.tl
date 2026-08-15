@@ -529,7 +529,7 @@ global function convertmappack(name: any)
 			end
 		end
 		customtilecount = width * height
-		create_tile_spritebatches()
+		create_tile_spritebatches(nil)
 	else
 		customtiles = false
 		customtilesimg = nil

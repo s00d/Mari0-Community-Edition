@@ -107,7 +107,7 @@ end
 function textentity:link(): any|nil
 	while #self.r > 3 do
 		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w] as {any:any}) do
+			for _, v in pairs(session.objects[w] as {any:any}) do
 				local ent = v as Entity
 				if tonumber(self.r[3] as string) == ent.cox and tonumber(self.r[4] as string) == ent.coy then
 					(ent.addoutput as function(Entity, any, any): any)(ent, self, self.r[2])

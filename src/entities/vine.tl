@@ -14,13 +14,13 @@ function vine:init(x: number, y: number, t)
 	self.t = t as string
 	
 	if self.t == "start" then
-		self.limit = mapheight-5-15/16
+		self.limit = session.mapheight-5-15/16
 	else
 		self.limit = -1
 		for y = self.coy-1, 1, -1 do
-			if map[self.cox][y][2] and entitylist[map[self.cox][y][2]] and entitylist[map[self.cox][y][2]].t == "vinestop" then
+			if session.map[self.cox][y][2] and entitylist[session.map[self.cox][y][2]] and entitylist[session.map[self.cox][y][2]].t == "vinestop" then
 				self.limit = y-1
-				if tilequads[map[self.cox][y][1]]:getproperty("collision", self.cox, y) then
+				if tilequads[session.map[self.cox][y][1]]:getproperty("collision", self.cox, y) then
 					self.hidetop = true
 					self.limit = self.limit + 0.5
 				end

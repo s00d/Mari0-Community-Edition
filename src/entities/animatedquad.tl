@@ -126,7 +126,7 @@ function animatedquad:update(dt: number)
 			qi = 1
 		end
 		self.quadi = qi
-		if objects and not self.triggered and not self.boolean then
+		if session.objects and not self.triggered and not self.boolean then
 			self:updateproperties()
 		end
 	end

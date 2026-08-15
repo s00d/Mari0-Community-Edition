@@ -51,8 +51,8 @@ function Sync.read_local_held(slot: integer): {string:any}
 	for _, action in ipairs(Schema.KEYS) do
 		h[action] = ui_action_down(slot, action)
 	end
-	if playerobjs and playerobjs[slot] then
-		h.ang = (playerobjs[slot].pointingangle as number) or 0
+	if session.playerobjs and session.playerobjs[slot] then
+		h.ang = (session.playerobjs[slot].pointingangle as number) or 0
 	end
 	return h
 end
@@ -77,10 +77,10 @@ end
 
 function Sync.pack_snapshot(seq: integer): {string:any}
 	local rows: {{any}} = {}
-	if playerobjs then
+	if session.playerobjs then
 		for i = 1, (players as integer) or 1 do
-			if playerobjs[i] then
-				table.insert(rows, Schema.pack_player_row(i, playerobjs[i] as {string:any}))
+			if session.playerobjs[i] then
+				table.insert(rows, Schema.pack_player_row(i, session.playerobjs[i] as {string:any}))
 			end
 		end
 	end
@@ -89,10 +89,10 @@ end
 
 local function apply_one(row: {string:any}, soft_local: boolean)
 	local i = (tonumber(row.i) or 0) as integer
-	if i < 1 or not playerobjs or not playerobjs[i] then
+	if i < 1 or not session.playerobjs or not session.playerobjs[i] then
 		return
 	end
-	local p = playerobjs[i]
+	local p = session.playerobjs[i]
 	local nx = (tonumber(row.x) or p.x) as number
 	local ny = (tonumber(row.y) or p.y) as number
 	if soft_local and i == local_slot then
@@ -145,10 +145,10 @@ function Sync.reapply_last_snap(soft_local: boolean)
 end
 
 local function fire_edges(slot: integer, prev: {string:any}, cur: {string:any})
-	if not playerobjs or not playerobjs[slot] then
+	if not session.playerobjs or not session.playerobjs[slot] then
 		return
 	end
-	local p = playerobjs[slot]
+	local p = session.playerobjs[slot]
 	if cur.jump and not prev.jump then
 		p:jump()
 	elseif not cur.jump and prev.jump then

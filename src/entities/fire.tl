@@ -12,12 +12,12 @@ end
 
 function fire:init(x: number, y: number)
 	--PHYSICS STUFF
-	if objects["bowser"][1] then --make bowser fire this
-		self.y = objects["bowser"][1].y+0.25
-		self.x = objects["bowser"][1].x-0.750
+	if session.objects["bowser"][1] then --make bowser fire this
+		self.y = session.objects["bowser"][1].y+0.25
+		self.x = session.objects["bowser"][1].x-0.750
 		
 		--get goal Y
-		self.targety = objects["bowser"][1].starty-math.random(3)+2/16
+		self.targety = session.objects["bowser"][1].starty-math.random(3)+2/16
 	else
 		self.y = y-1+1/16
 		self.targety = self.y

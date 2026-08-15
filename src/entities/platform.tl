@@ -109,7 +109,7 @@ function platform:update(dt: number): boolean
 			
 		elseif self.dir == "justup" and self.y < -1 then
 			return true
-		elseif (self.dir == "justdown" or self.dir == "fall") and self.y > mapheight then
+		elseif (self.dir == "justdown" or self.dir == "fall") and self.y > session.mapheight then
 			return true
 		end
 	end
@@ -122,7 +122,7 @@ function platform:update(dt: number): boolean
 	
 	if self.dir == "fall" then
 		for _, v in ipairs(checktable) do
-			for _, w in pairs(objects[v] as {any:Body}) do
+			for _, w in pairs(session.objects[v] as {any:Body}) do
 				if inrange(w.x, self.x-w.width, self.x+self.width) and inrange(w.y + w.height, self.y - 0.1, self.y + 0.1) then
 					numberofobjects = numberofobjects + 1
 				end
@@ -135,7 +135,7 @@ function platform:update(dt: number): boolean
 	local nextx, nexty = self.x + self.speedx*dt, self.y + self.speedy*dt
 	
 	for _, v in ipairs(checktable) do
-		for _, w in pairs(objects[v] as {any:Body}) do
+		for _, w in pairs(session.objects[v] as {any:Body}) do
 			if inrange(w.x, self.x-w.width, self.x+self.width) and inrange(w.y + w.height, self.y - 0.1, self.y + 0.1) then
 				checkforemances(dt, w, self.speedx, self.speedy)
 				local newx = w.x + self.speedx*dt

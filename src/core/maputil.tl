@@ -11,16 +11,14 @@ local function inrange(i: any, a: any, b: any, include?: boolean): boolean
 	return ni > na and ni < nb
 end
 
--- Uses globals mapwidth / mapheight (set by level load).
+-- Uses Session map size (set by level load).
 local function inmap(x: number|nil, y: number|nil): boolean
 	if not x or not y then
 		return false
 	end
-	local mw = rawget(_G, "mapwidth") as number|nil
-	local mh = rawget(_G, "mapheight") as number|nil
-	if not mw or not mh then
-		return false
-	end
+	local s = session
+	local mw = s.mapwidth as number
+	local mh = s.mapheight as number
 	return x >= 1 and x <= mw and y >= 1 and y <= mh
 end
 

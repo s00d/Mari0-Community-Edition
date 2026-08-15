@@ -8,7 +8,7 @@ global function checkcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: 
 	local vsx = v.speedx or 0
 	local vsy = v.speedy or 0
 	
-	if h ~= "tile" or (not tilequads[map[t.cox][t.coy][1]]:getproperty("slantupleft", t.cox, t.coy) and not tilequads[map[t.cox][t.coy][1]]:getproperty("slantupright", t.cox, t.coy)) then
+	if h ~= "tile" or (not tilequads[session.map[t.cox][t.coy][1]]:getproperty("slantupleft", t.cox, t.coy) and not tilequads[session.map[t.cox][t.coy][1]]:getproperty("slantupright", t.cox, t.coy)) then
 		if math.abs(v.x+vsx*dt-t.x) < math.max(v.width, t.width)+1 and math.abs(v.y+vsy*dt-t.y) < math.max(v.height, t.height)+1 then
 			--check if it's a passive collision (Object is colliding anyway)
 			if not passed and aabb(v.x, v.y, v.width, v.height, t.x, t.y, t.width, t.height) then --passive collision! (oh noes!)
@@ -52,11 +52,11 @@ global function checkcollision(v: Entity, t: Entity, h: any, g: any, j: any, i: 
 		if math.abs(v.x-t.x) < math.max(v.width, t.width)+1 and math.abs(v.y-t.y) < math.max(v.height, t.height)+1 then
 			--check if it's a passive collision (Object is colliding anyway)
 			local slant = "ul"
-			if tilequads[map[t.cox][t.coy][1]]:getproperty("slantupright", t.cox, t.coy) then
+			if tilequads[session.map[t.cox][t.coy][1]]:getproperty("slantupright", t.cox, t.coy) then
 				slant = "ur"
 			end
 			t.slant = slant
-			local step = tilequads[map[t.cox][t.coy][1]]:getproperty("slopestep", t.cox, t.coy)
+			local step = tilequads[session.map[t.cox][t.coy][1]]:getproperty("slopestep", t.cox, t.coy)
 			;(t as {string:any}).slopestep = step
 			if not passed and aabt(v.x, v.y, v.width, v.height, t.x, t.y, t.width, t.height, slant) then --passive collision! (oh noes!)
 				if trianglepassivecollision(v, t, h, g, j, i, dt) then
@@ -377,22 +377,22 @@ global function callcollision(dir: any, obj: Entity, a: any, b: Entity, c: any, 
 		
 		--Find a more suitable block if available	
 		if dir == "floor" or dir == "ceil" then
-			if inmap(x+1, y) and tilequads[map[x+1][y][1]]:getproperty("collision", x+1, y) and obj.x+obj.width/2+.5 > x + .5 then
+			if inmap(x+1, y) and tilequads[session.map[x+1][y][1]]:getproperty("collision", x+1, y) and obj.x+obj.width/2+.5 > x + .5 then
 				x = x + 1
-			elseif inmap(x-1, y) and tilequads[map[x-1][y][1]]:getproperty("collision", x-1, y) and obj.x+obj.width/2+.5 < x - .5 then
+			elseif inmap(x-1, y) and tilequads[session.map[x-1][y][1]]:getproperty("collision", x-1, y) and obj.x+obj.width/2+.5 < x - .5 then
 				x = x - 1
 			end
 		end
 		if dir == "left" or dir == "right" then
-			if inmap(x, y+1) and tilequads[map[x][y+1][1]]:getproperty("collision", x, y+1) and obj.y+obj.height/2+.5 > y + .5 then
+			if inmap(x, y+1) and tilequads[session.map[x][y+1][1]]:getproperty("collision", x, y+1) and obj.y+obj.height/2+.5 > y + .5 then
 				y = y + 1
-			elseif inmap(x, y-1) and tilequads[map[x][y-1][1]]:getproperty("collision", x, y-1) and obj.y+obj.height/2+.5 < y - .5 then
+			elseif inmap(x, y-1) and tilequads[session.map[x][y-1][1]]:getproperty("collision", x, y-1) and obj.y+obj.height/2+.5 < y - .5 then
 				y = y - 1
 			end
 		end		
 		
 		if not obj.runframe or obj.size == 1 then --cheap check for player
-			local sidesn = map[x][y].gelSides
+			local sidesn = session.map[x][y].gelSides
 			if sidesn then
 				local sides = sidesn as {number:number}
 				if dir == "left" and gel_has(sides[GEL_SIDE_RIGHT], "adhere") then
@@ -425,8 +425,8 @@ global function callcollision(dir: any, obj: Entity, a: any, b: Entity, c: any, 
 		end
 
 		-- Opt-in bounce/speed gel for non-mario bodies (strangler: mario keeps its path).
-		if (obj as {string:any}).gelreactive and map[x] and map[x][y] then
-			local sidesn = map[x][y].gelSides
+		if (obj as {string:any}).gelreactive and session.map[x] and session.map[x][y] then
+			local sidesn = session.map[x][y].gelSides
 			if sidesn then
 				local sides = sidesn as {number:number}
 				if dir == "floor" then

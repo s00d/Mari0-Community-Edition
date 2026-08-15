@@ -185,7 +185,7 @@ function love.keypressed(key: any, scancode: any, _: any)
 	end
 
 	if key == "y" and debugbinds then
-		if love.keyboard.isDown("lalt") then
+		if sys_down("alt") then
 			recording = not recording
 		end
 	end
@@ -197,7 +197,7 @@ function love.keypressed(key: any, scancode: any, _: any)
 	
 	if replaysystem then
 		if key == "k" then
-			playerobjs[1]:savereplaydata()
+			session.playerobjs[1]:savereplaydata()
 		end
 	end
 	

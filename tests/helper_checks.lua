@@ -354,7 +354,7 @@ do
 	local obj = {gravitydirection = math.pi/2}
 	local sx, sy = convertfromstandard(obj, 3, -4)
 	local rx, ry = converttostandard(obj, sx, sy)
-	-- dmath LUT (~1e-7) — not bit-identical to libm; game physics tolerance.
+	-- game physics tolerance
 	check("convert roundtrip x", math.abs(rx - 3) < 1e-5, tostring(rx))
 	check("convert roundtrip y", math.abs(ry - (-4)) < 1e-5, tostring(ry))
 	-- near-zero snap

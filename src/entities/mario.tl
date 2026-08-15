@@ -166,10 +166,10 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 	self.animationdirection = "right" --left, right. duh
 	self.platform = false
 	self.combo = 1
-	if not portals[self.playernumber] then
-		portals[self.playernumber] = portal:new(self.playernumber, self.portal1color, self.portal2color)
+	if not session.portals[self.playernumber] then
+		session.portals[self.playernumber] = portal:new(self.playernumber, self.portal1color, self.portal2color)
 	end
-	self.portal = portals[self.playernumber]
+	self.portal = session.portals[self.playernumber]
 	self.rotation = 0 --for portals
 	self.pointingangle = -math.pi/2
 	self.animationdirection = "right"
@@ -267,14 +267,14 @@ function mario:init(x: number, y: number, i: any, animation: any, size: any, t: 
 		self.animationstate = "climbing"
 		self:setquad()
 		self.x = 4-3/16
-		self.y = mapheight+0.4*(self.playernumber-1)
+		self.y = session.mapheight+0.4*(self.playernumber-1)
 		self.vineanimationclimb = false
 		self.vineanimationdropoff = false
 		self.vinemovetimer = 0
 		playsound("vine")
 		
-		if #(objects["vine"] as {any}) == 0 then
-			table.insert(objects["vine"], vine:new(5, mapheight+1, "start"))
+		if #(session.objects["vine"] as {any}) == 0 then
+			table.insert(session.objects["vine"], vine:new(5, session.mapheight+1, "start"))
 		end
 	end
 	self:setquad()
@@ -458,7 +458,7 @@ function mario:update_star(dt: number)
 			--check if another starman is playing
 			local starstill = false
 			for i = 1, players do
-				if i ~= self.playernumber and playerobjs[i].starred then
+				if i ~= self.playernumber and session.playerobjs[i].starred then
 					starstill = true
 				end
 			end
@@ -667,7 +667,7 @@ function mario:update_animation(dt: number): boolean
 		end
 		
 		if bridgedisappear then
-			local v = objects["bowser"][1]
+			local v = session.objects["bowser"][1]
 			if v then
 				local vbag = v as {string:any}
 				v.walkframe = Anim8Effects.step_bowser_walk(vbag["walk_anim"] as Anim8Animation|nil, dt)
@@ -676,16 +676,22 @@ function mario:update_animation(dt: number): boolean
 			while self.animationtimer2 > castleanimationbridgedisappeardelay and self.animationbridgex > 0 do
 				self.animationtimer2 = self.animationtimer2 - castleanimationbridgedisappeardelay
 				local removedtile = false
-				for y = 1, mapheight do
-					if tilequads[map[self.animationbridgex][y][1]]:getproperty("bridge", self.animationbridgex, y) then
+				for y = 1, session.mapheight do
+					if tilequads[session.map[self.animationbridgex][y][1]]:getproperty("bridge", self.animationbridgex, y) then
 						removedtile = true
-						map[self.animationbridgex][y][1] = 1
+						session.map[self.animationbridgex][y][1] = 1
 						physics_world_set_tile(tilekey(self.animationbridgex, y), nil)
 					end
 				end
 				
 				if removedtile then
-					generatespritebatch(0, 0)
+					if tile_spritebatch_update_tile then
+						for y = 1, session.mapheight as integer do
+							tile_spritebatch_update_tile(self.animationbridgex, y)
+						end
+					else
+						generatespritebatch(0, 0)
+					end
 					playsound("bridgebreak")
 					self.animationbridgex = self.animationbridgex - 1
 				else
@@ -696,7 +702,7 @@ function mario:update_animation(dt: number): boolean
 		end
 		
 		if bowserfall then
-			local v = objects["bowser"][1]
+			local v = session.objects["bowser"][1]
 			if v and not v.fall then
 				v.fall = true
 				v.speedx = 0
@@ -721,8 +727,8 @@ function mario:update_animation(dt: number): boolean
 			playsound("castleend")
 		end
 		
-		if self.speedx > 0 and self.x >= mapwidth - 8 then
-			self.x = mapwidth - 8
+		if self.speedx > 0 and self.x >= session.mapwidth - 8 then
+			self.x = session.mapwidth - 8
 			self.animationstate = "idle"
 			self:setquad()
 			self.speedx = 0
@@ -832,11 +838,11 @@ function mario:update_animation(dt: number): boolean
 			self.climbframe = Anim8Player.step_climb(self, dt, vineframedelay)
 			
 			self.y = self.y - vinemovespeed*dt
-			if self.y <= mapheight-vineanimationgrowheight+vineanimationstop+0.4*(self.playernumber-1) then
+			if self.y <= session.mapheight-vineanimationgrowheight+vineanimationstop+0.4*(self.playernumber-1) then
 				self.vineanimationclimb = false
 				self.vineanimationdropoff = true
 				self.animationtimer = 0
-				self.y = mapheight-vineanimationgrowheight+vineanimationstop+0.4*(self.playernumber-1)
+				self.y = session.mapheight-vineanimationgrowheight+vineanimationstop+0.4*(self.playernumber-1)
 				Anim8Player.set_climb_frame(self, 2)
 				self.pointingangle = math.pi/2
 				self.animationdirection = "left"
@@ -981,7 +987,7 @@ function mario:update_vine(dt: number): boolean
 			
 			local t = checkrect(self.x, self.y, self.width, self.height, {"tile", "portalwall"})
 			if #t ~= 0 then
-				self.y = objects[t[1]][t[2]].y + objects[t[1]][t[2]].height
+				self.y = session.objects[t[1]][t[2]].y + session.objects[t[1]][t[2]].height
 				Anim8Player.set_climb_frame(self, 2)
 			end
 		elseif downkey(self.playernumber) then
@@ -993,7 +999,7 @@ function mario:update_vine(dt: number): boolean
 			
 			local t = checkrect(self.x, self.y, self.width, self.height, {"tile", "portalwall"})
 			if #t ~= 0 then
-				self.y = objects[t[1]][t[2]].y - self.height
+				self.y = session.objects[t[1]][t[2]].y - self.height
 				Anim8Player.set_climb_frame(self, 2)
 			end
 		else
@@ -1036,15 +1042,15 @@ function mario:update_world_pickups(_dt: number)
 	if not editormode then
 		local x = math.floor(self.x+self.width/2)+1
 		local y = math.floor(self.y+self.height)+14/16
-		if inmap(x, y) and coinmap[x][y] then
+		if inmap(x, y) and session.coinmap[x][y] then
 			collectcoin(x, y)
 		end
 		local y = math.floor(self.y+self.height/2)+1
-		if inmap(x, y) and coinmap[x][y] then
+		if inmap(x, y) and session.coinmap[x][y] then
 			collectcoin(x, y)
 		end
 		if self.size > 1 then
-			if inmap(x, y-1) and coinmap[x][y-1] then
+			if inmap(x, y-1) and session.coinmap[x][y-1] then
 				collectcoin(x, y-1)
 			end
 		end
@@ -1053,10 +1059,10 @@ function mario:update_world_pickups(_dt: number)
 	--mazegate
 	local x = math.floor(self.x+self.width/2)+1
 	local y = math.floor(self.y+self.height/2)+1
-	if inmap(x, y) and map[x][y][2] and entitylist[map[x][y][2]] and entitylist[map[x][y][2]].t == "mazegate" then
-		if map[x][y][3] == self.mazevar + 1 then
+	if inmap(x, y) and session.map[x][y][2] and entitylist[session.map[x][y][2]] and entitylist[session.map[x][y][2]].t == "mazegate" then
+		if session.map[x][y][3] == self.mazevar + 1 then
 			self.mazevar = self.mazevar + 1
-		elseif map[x][y][3] == self.mazevar then
+		elseif session.map[x][y][3] == self.mazevar then
 			
 		else
 			self.mazevar = 0
@@ -1140,7 +1146,7 @@ function mario:update_zones(_dt: number)
 			--check for all players
 			local disable = true
 			for i = 1, players do
-				if playerobjs[i].x >= (firestartx as number) - 1 then
+				if session.playerobjs[i].x >= (firestartx as number) - 1 then
 					disable = false
 				end
 			end
@@ -1202,18 +1208,18 @@ function mario:update_controls(dt: number): boolean
 		end
 		--check for pipe pipe pipe�
 		if inmap(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16)) and downkey(self.playernumber) and self.falling == false and self.jumping == false then
-			local t2 = map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][2]
+			local t2 = session.map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][2]
 			if t2 and entitylist[t2] and entitylist[t2].t == "pipe" then
-				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", tonumber((map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3] as number)-1))
+				self:pipe(math.floor(self.x+30/16), math.floor(self.y+self.height+20/16), "down", tonumber((session.map[math.floor(self.x+30/16)][math.floor(self.y+self.height+20/16)][3] as number)-1))
 				return true
 			elseif t2 and entitylist[t2] and entitylist[t2].t == "warppipe" then
 				local px = math.floor(self.x+30/16)
 				local py = math.floor(self.y+self.height+20/16)
-				self.animationmisc2 = tonumber(map[px][py][3]) or 1
-				self.animationmisc3 = tonumber(map[px][py][4]) or 1
-				self.animationmisc4 = tonumber(map[px][py][5]) or 0
+				self.animationmisc2 = tonumber(session.map[px][py][3]) or 1
+				self.animationmisc3 = tonumber(session.map[px][py][4]) or 1
+				self.animationmisc4 = tonumber(session.map[px][py][5]) or 0
 				
-				self:pipe(px, py, "down", "pipe" .. tostring(map[px][py][3]))
+				self:pipe(px, py, "down", "pipe" .. tostring(session.map[px][py][3]))
 				return true
 			end				
 		end
@@ -1235,7 +1241,7 @@ function mario:update_controls(dt: number): boolean
 			local y = math.floor(self.y+self.height/2)+1
 			
 			if inmap(x, y) then
-				if tilequads[map[x][y][1]]:getproperty("water", x, y) then
+				if tilequads[session.map[x][y][1]]:getproperty("water", x, y) then
 					if not self.underwater then
 						self:dive(true)
 					end
@@ -1318,7 +1324,7 @@ function mario:update_controls(dt: number): boolean
 		--DEATH BY PIT
 		if not level_mapmode then
 		if self.gravitydirection > math.pi/4*1 and self.gravitydirection <= math.pi/4*3 then --down
-			if self.y >= mapheight then
+			if self.y >= session.mapheight then
 				self:die("pit")
 			end
 		elseif self.gravitydirection > math.pi/4*5 and self.gravitydirection <= math.pi/4*7 then --up
@@ -1356,7 +1362,7 @@ function mario:update_drains(dt: number)
 	--drains
 	local x = math.floor(self.x+self.width/2)+1
 	
-	if inmap(x, mapheight) and map[x][mapheight][2] and entitylist[map[x][mapheight][2]] and entitylist[map[x][mapheight][2]].t == "drain" then
+	if inmap(x, session.mapheight) and session.map[x][session.mapheight][2] and entitylist[session.map[x][session.mapheight][2]] and entitylist[session.map[x][session.mapheight][2]].t == "drain" then
 		if self.speedy < drainmax then
 			self.speedy = math.min( drainmax, self.speedy + drainspeed*dt)
 		end
@@ -1423,7 +1429,7 @@ function mario:movement(dt: number)
 			local y = self.y+self.height+1
 			--x and y in map
 			if inmap(x, y) then
-				local topGel = map_cell_gel_id(map[x][y], GEL_SIDE_TOP)
+				local topGel = map_cell_gel_id(session.map[x][y], GEL_SIDE_TOP)
 				if gel_has(topGel, "speed") then
 					orangegel = true
 				elseif gel_has(topGel, "bounce") then
@@ -1436,7 +1442,7 @@ function mario:movement(dt: number)
 		local x = round(self.x+self.width/2+.5)
 		local y = round(self.y+self.height+1)
 		
-		for _, v in pairs(objects["lightbridgebody"]) do
+		for _, v in pairs(session.objects["lightbridgebody"]) do
 			if x == v.cox and y == v.coy and gel_has(entity_gel_id(v, GEL_SIDE_TOP), "speed") then
 				orangegel = true
 			end
@@ -1781,7 +1787,7 @@ function mario:underwatermovement(dt: number)
 			local y = self.y+self.height+1
 			--x and y in map
 			if inmap(x, y) then
-				if gel_has(map_cell_gel_id(map[x][y], GEL_SIDE_TOP), "speed") then
+				if gel_has(map_cell_gel_id(session.map[x][y], GEL_SIDE_TOP), "speed") then
 					maxrunspeed = uwgelmaxrunspeed
 					maxwalkspeed = uwgelmaxwalkspeed
 					runacceleration = uwgelrunacceleration
@@ -2062,13 +2068,13 @@ function mario:jump(force: any)
 			local x = round(self.x+self.width/2+.5)
 			local y = round(self.y)
 			
-			if inmap(x, y) and tilequads[map[x][y][1]]:getproperty("collision", x, y) then
+			if inmap(x, y) and tilequads[session.map[x][y][1]]:getproperty("collision", x, y) then
 				if getPortal(x, y) then
 					self.speedy = 0
 					self.jumping = false
 					self.falling = true
 				else
-					self:ceilcollide("tile", objects["tile"][tilekey(x, y)], "player", self)
+					self:ceilcollide("tile", session.objects["tile"][tilekey(x, y)], "player", self)
 				end
 			end
 		end
@@ -2247,7 +2253,7 @@ function mario:floorcollide(a: any, b: Entity, c: any, d: any): boolean
 		end
 		
 		--check for invisible block
-		if tilequads[map[x][y][1]]:getproperty("invisible", x, y) then
+		if tilequads[session.map[x][y][1]]:getproperty("invisible", x, y) then
 			self.jumping = jump
 			self.falling = fall
 			self.animationstate = anim
@@ -2293,7 +2299,7 @@ function mario:floorcollide(a: any, b: Entity, c: any, d: any): boolean
 	elseif a == "tile" then
 		local x, y = b.cox, b.coy
 		
-		if gel_has(map_cell_gel_id(map[x][y], GEL_SIDE_TOP), "bounce") then
+		if gel_has(map_cell_gel_id(session.map[x][y], GEL_SIDE_TOP), "bounce") then
 			if self:bluegel("top") then
 				return false
 			end
@@ -2412,14 +2418,14 @@ function mario:stompenemy(_: any, b: Entity, _: any, _: any, side: any)
 			b.x = self.x + b.width + self.speedx*gdt + 0.05
 			local col = checkrect(b.x, b.y, b.width, b.height, {"tile"})
 			if #col > 1 then
-				b.x = objects[col[1] as string][col[2] as number].x-b.width
+				b.x = session.objects[col[1] as string][col[2] as number].x-b.width
 				bounce = true
 			end
 		else
 			b.x = self.x - b.width + self.speedx*gdt - 0.05
 			local col = checkrect(b.x, b.y, b.width, b.height, {"tile"})
 			if #col > 1 then
-				b.x = objects[col[1] as string][col[2] as number].x+1
+				b.x = session.objects[col[1] as string][col[2] as number].x+1
 				bounce = true
 			end
 		end
@@ -2467,7 +2473,7 @@ function mario:rightcollide(a: any, b: Entity, c: any, d: any): boolean
 	allowskip = self.gravitydirection == math.pi/2
 	
 	if a == "tile" then
-		if tilequads[map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
+		if tilequads[session.map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
 			return false
 		end
 	end
@@ -2509,28 +2515,28 @@ function mario:rightcollide(a: any, b: Entity, c: any, d: any): boolean
 	elseif a == "tile" then
 		local x, y = b.cox, b.coy
 			
-		if gel_has(map_cell_gel_id(map[x][y], GEL_SIDE_LEFT), "bounce") then
+		if gel_has(map_cell_gel_id(session.map[x][y], GEL_SIDE_LEFT), "bounce") then
 			if self:bluegel("left") then
 				return false
 			end
 		end
 		
 		--check for invisible block
-		if tilequads[map[x][y][1]]:getproperty("invisible", x, y) then
+		if tilequads[session.map[x][y][1]]:getproperty("invisible", x, y) then
 			return false
 		end
 		
 		--Check if it's a pipe with pipe pipe.
 		if self.falling == false and self.jumping == false and (rightkey(self.playernumber) or intermission) then --but only on ground and rightkey
-			local t2 = map[x][y][2]
+			local t2 = session.map[x][y][2]
 			if t2 and entitylist[t2] and entitylist[t2].t == "pipe" then
-				self:pipe(x, y, "right", tonumber(map[x][y][3])-1)
+				self:pipe(x, y, "right", tonumber(session.map[x][y][3])-1)
 				return
 			else
 				if inmap(x, y+1) then
-					t2 = map[x][y+1][2]
+					t2 = session.map[x][y+1][2]
 					if t2 and entitylist[t2] and entitylist[t2].t == "pipe" then
-						self:pipe(x, y+1, "right", tonumber(map[x][y+1][3])-1)
+						self:pipe(x, y+1, "right", tonumber(session.map[x][y+1][3])-1)
 						return
 					end
 				end
@@ -2538,7 +2544,7 @@ function mario:rightcollide(a: any, b: Entity, c: any, d: any): boolean
 		end
 		
 		--Check if mario should run across a gap.
-		if allowskip and inmap(x, y-1) and tilequads[map[x][y-1][1]]:getproperty("collision", x, y-1) == false and self.speedy > 0 and self.y+self.height+1 < y+spacerunroom then
+		if allowskip and inmap(x, y-1) and tilequads[session.map[x][y-1][1]]:getproperty("collision", x, y-1) == false and self.speedy > 0 and self.y+self.height+1 < y+spacerunroom then
 			self.y = b.y - self.height
 			self.speedy = 0
 			self.x = b.x-self.width+0.0001
@@ -2590,7 +2596,7 @@ function mario:leftcollide(a: any, b: Entity, c: any, d: any): boolean
 	allowskip = self.gravitydirection == math.pi/2
 	
 	if a == "tile" then
-		if tilequads[map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
+		if tilequads[session.map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
 			return false
 		end
 	end
@@ -2633,18 +2639,18 @@ function mario:leftcollide(a: any, b: Entity, c: any, d: any): boolean
 	elseif a == "tile" then
 		local x, y = b.cox, b.coy
 		
-		if gel_has(map_cell_gel_id(map[x][y], GEL_SIDE_RIGHT), "bounce") then
+		if gel_has(map_cell_gel_id(session.map[x][y], GEL_SIDE_RIGHT), "bounce") then
 			if self:bluegel("right") then
 				return false
 			end
 		end
 		
 		--check for invisible block
-		if tilequads[map[x][y][1]]:getproperty("invisible", x, y) then
+		if tilequads[session.map[x][y][1]]:getproperty("invisible", x, y) then
 			return false
 		end
 		
-		if allowskip and inmap(x, y-1) and tilequads[map[x][y-1][1]]:getproperty("collision", x, y-1) == false and self.speedy > 0 and self.y+1+self.height < y+spacerunroom then
+		if allowskip and inmap(x, y-1) and tilequads[session.map[x][y-1][1]]:getproperty("collision", x, y-1) == false and self.speedy > 0 and self.y+1+self.height < y+spacerunroom then
 			self.y = b.y - self.height
 			self.speedy = 0
 			self.x = b.x+1-0.0001
@@ -2694,7 +2700,7 @@ function mario:ceilcollide(a: any, b: Entity, c: any, d: any): boolean
 	end
 	
 	if a == "tile" then
-		if tilequads[map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
+		if tilequads[session.map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
 			return false
 		end
 	end
@@ -2720,12 +2726,12 @@ function mario:ceilcollide(a: any, b: Entity, c: any, d: any): boolean
 		end
 	elseif a == "tile" then
 		local x, y = b.cox, b.coy
-		if not (map[x] and map[x][y]) then
+		if not (session.map[x] and session.map[x][y]) then
 			return false
 		end
 
 		--check if it's an invisible block
-		if tilequads[map[x][y][1]]:getproperty("invisible", x, y) then
+		if tilequads[session.map[x][y][1]]:getproperty("invisible", x, y) then
 			if self.y-self.speedy <= y-1 then
 				return false
 			end
@@ -2740,7 +2746,7 @@ function mario:ceilcollide(a: any, b: Entity, c: any, d: any): boolean
 			if self.gravitydirection == math.pi/2 then
 				if self.x < x-22/16 then
 					--check if block left of it is a better fit
-					if x > 1 and tilequads[map[x-1][y][1]]:getproperty("collision", x-1, y) == true and tilequads[map[x-1][y][1]]:getproperty("platform", x-1, y) == false then
+					if x > 1 and tilequads[session.map[x-1][y][1]]:getproperty("collision", x-1, y) == true and tilequads[session.map[x-1][y][1]]:getproperty("platform", x-1, y) == false then
 						x = x - 1
 					else
 						local col = checkrect(x-28/16, self.y, self.width, self.height, {"exclude", self}, true)
@@ -2754,7 +2760,7 @@ function mario:ceilcollide(a: any, b: Entity, c: any, d: any): boolean
 					end
 				elseif self.x > x-6/16 then
 					--check if block right of it is a better fit
-					if x < mapwidth and tilequads[map[x+1][y][1]]:getproperty("collision", x+1, y) == true and tilequads[map[x+1][y][1]]:getproperty("platform", x+1, y) == false then
+					if x < session.mapwidth and tilequads[session.map[x+1][y][1]]:getproperty("collision", x+1, y) == true and tilequads[session.map[x+1][y][1]]:getproperty("platform", x+1, y) == false then
 						x = x + 1
 					else
 						local col = checkrect(x, self.y, self.width, self.height, {"exclude", self}, true)
@@ -2822,16 +2828,16 @@ function mario:globalcollide(a: any, b: Entity, c: any, d: any, dir: any): boole
 			--super mario dadada, dada-da, dada-da. dadada, dada-da, dada-da...
 		else
 			dir = twistdirection(self.gravitydirection, dir)
-			if dir == "ceil" and tilequads[map[b.cox][b.coy][1]]:getproperty("spikesbottom", b.cox, b.coy) then
+			if dir == "ceil" and tilequads[session.map[b.cox][b.coy][1]]:getproperty("spikesbottom", b.cox, b.coy) then
 				self:die("Spikes")
 				return false
-			elseif dir == "right" and tilequads[map[b.cox][b.coy][1]]:getproperty("spikesleft", b.cox, b.coy) then
+			elseif dir == "right" and tilequads[session.map[b.cox][b.coy][1]]:getproperty("spikesleft", b.cox, b.coy) then
 				self:die("Spikes")
 				return false
-			elseif dir == "left" and tilequads[map[b.cox][b.coy][1]]:getproperty("spikesright", b.cox, b.coy) then
+			elseif dir == "left" and tilequads[session.map[b.cox][b.coy][1]]:getproperty("spikesright", b.cox, b.coy) then
 				self:die("Spikes")
 				return false
-			elseif dir == "floor" and tilequads[map[b.cox][b.coy][1]]:getproperty("spikestop", b.cox, b.coy) then
+			elseif dir == "floor" and tilequads[session.map[b.cox][b.coy][1]]:getproperty("spikestop", b.cox, b.coy) then
 				self:die("Spikes")
 				return false
 			end
@@ -2878,7 +2884,7 @@ function mario:passivecollide(a: any, b: Entity, c: any, d: any): boolean
 	end
 	
 	if a == "tile" then
-		if tilequads[map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
+		if tilequads[session.map[b.cox][b.coy][1]]:getproperty("platform", b.cox, b.coy) then
 			return false
 		end
 	end
@@ -2915,7 +2921,7 @@ function mario:passivecollide(a: any, b: Entity, c: any, d: any): boolean
 				local x, y = b.cox, b.coy
 				
 				--check for invisible block
-				if inmap(x, y) and tilequads[map[x][y][1]]:getproperty("invisible", x, y) then
+				if inmap(x, y) and tilequads[session.map[x][y][1]]:getproperty("invisible", x, y) then
 					return false
 				end
 			end
@@ -3025,7 +3031,7 @@ function mario:grabvine(b: Entity)
 end
 
 global function hitblock(x: number, y: number, t: any, koopa?: any): any
-	for _, v in pairs(portals) do
+	for _, v in pairs(session.portals) do
 		if v.x1 and v.x2 and v.y1 and v.y2 then
 			local x1 = v.x1 as number
 			local y1 = v.y1 as number
@@ -3073,7 +3079,7 @@ global function hitblock(x: number, y: number, t: any, koopa?: any): any
 		return
 	end
 	
-	local r = map[x][y]
+	local r = session.map[x][y]
 	if not t or not (t as {string:any}).infunnel then
 		if koopa and ((t as {string:any}).onscreen as function(...: any): any)(t) or not koopa then
 			playsound("blockhit")
@@ -3090,25 +3096,25 @@ global function hitblock(x: number, y: number, t: any, koopa?: any): any
 		table.insert(blockbouncetimer, 0.000000001) --yeah it's a cheap solution to a problem but screw it.
 		table.insert(blockbouncex, x)
 		table.insert(blockbouncey, y)
-		generatespritebatch(0, 0)
+		-- map[x][y] may change below; tile_spritebatch_update_tile at end of hitblock
 		if #r > 1 and entitylist[r[2]] and entitylist[r[2]].t ~= "manycoins" then --block contained something!
 			table.insert(blockbouncecontent, entitylist[r[2]].t)
 			table.insert(blockbouncecontent2, (t as {string:any}).size)
 			if tilequads[r[1]]:getproperty("invisible", x, y) then
 				if spriteset == 1 then
-					map[x][y][1] = 113
+					session.map[x][y][1] = 113
 				elseif spriteset == 2 then
-					map[x][y][1] = 118
+					session.map[x][y][1] = 118
 				else
-					map[x][y][1] = 112
+					session.map[x][y][1] = 112
 				end
 			else
 				if spriteset == 1 then
-					map[x][y][1] = 113
+					session.map[x][y][1] = 113
 				elseif spriteset == 2 then
-					map[x][y][1] = 114
+					session.map[x][y][1] = 114
 				else
-					map[x][y][1] = 117
+					session.map[x][y][1] = 117
 				end
 			end
 			if entitylist[r[2]].t == "vine" then
@@ -3124,19 +3130,19 @@ global function hitblock(x: number, y: number, t: any, koopa?: any): any
 			
 			if tilequads[r[1]]:getproperty("invisible", x, y) then
 				if spriteset == 1 then
-					map[x][y][1] = 113
+					session.map[x][y][1] = 113
 				elseif spriteset == 2 then
-					map[x][y][1] = 118
+					session.map[x][y][1] = 118
 				else
-					map[x][y][1] = 112
+					session.map[x][y][1] = 112
 				end
 			else
 				if spriteset == 1 then
-					map[x][y][1] = 113
+					session.map[x][y][1] = 113
 				elseif spriteset == 2 then
-					map[x][y][1] = 114
+					session.map[x][y][1] = 114
 				else
-					map[x][y][1] = 117
+					session.map[x][y][1] = 117
 				end
 			end
 		else
@@ -3152,19 +3158,19 @@ global function hitblock(x: number, y: number, t: any, koopa?: any): any
 			playsound("coin")
 			if tilequads[r[1]]:getproperty("invisible", x, y) then
 				if spriteset == 1 then
-					map[x][y][1] = 113
+					session.map[x][y][1] = 113
 				elseif spriteset == 2 then
-					map[x][y][1] = 118
+					session.map[x][y][1] = 118
 				else
-					map[x][y][1] = 112
+					session.map[x][y][1] = 112
 				end
 			else
 				if spriteset == 1 then
-					map[x][y][1] = 113
+					session.map[x][y][1] = 113
 				elseif spriteset == 2 then
-					map[x][y][1] = 114
+					session.map[x][y][1] = 114
 				else
-					map[x][y][1] = 117
+					session.map[x][y][1] = 117
 				end
 			end
 			if #r == 1 then
@@ -3213,17 +3219,17 @@ global function hitblock(x: number, y: number, t: any, koopa?: any): any
 				table.insert(coinblocktimers, {x, y, coinblocktime})
 			elseif (coinblocktimers[exists as integer][3] as number) <= 0 then
 				if spriteset == 1 then
-					map[x][y][1] = 113
+					session.map[x][y][1] = 113
 				elseif spriteset == 2 then
-					map[x][y][1] = 114
+					session.map[x][y][1] = 114
 				else
-					map[x][y][1] = 117
+					session.map[x][y][1] = 117
 				end
 			end
 		end
 		
 		--kill enemies on top
-		for _, w in pairs(objects["enemy"]) do
+		for _, w in pairs(session.objects["enemy"]) do
 			if not w.notkilledfromblocksbelow then
 				local centerX = w.x + w.width/2
 				if inrange(centerX, x-1, x, true) and y-1 == w.y+w.height then
@@ -3242,7 +3248,7 @@ global function hitblock(x: number, y: number, t: any, koopa?: any): any
 		end
 		
 		--make items jump
-		for _, w in pairs(objects["enemy"]) do
+		for _, w in pairs(session.objects["enemy"]) do
 			if w.jumpsfromblocksbelow then
 				local centerX = w.x + w.width/2
 				if inrange(centerX, x-1, x, true) and y-1 == w.y+w.height then
@@ -3258,11 +3264,15 @@ global function hitblock(x: number, y: number, t: any, koopa?: any): any
 		end
 		
 		--check for coin on top
-		if inmap(x, y-1) and coinmap[x][y-1] then
+		if inmap(x, y-1) and session.coinmap[x][y-1] then
 			collectcoin(x, y-1)
 			table.insert(coinblockanimations, coinblockanimation:new(x-0.5, y-1))
 		end
-		generatespritebatch(0, 0)
+		if tile_spritebatch_update_tile then
+			tile_spritebatch_update_tile(x, y)
+		else
+			generatespritebatch(0, 0)
+		end
 	end
 end
 
@@ -3281,7 +3291,7 @@ end
 
 global function destroyblock(x: number, y: number): any
 	for i = 1, players do
-		local v = playerobjs[i].portal
+		local v = session.playerobjs[i].portal
 		local zv = v as Dyn
 		local x1 = zv.x1 as number
 		local y1 = zv.y1 as number
@@ -3320,9 +3330,9 @@ global function destroyblock(x: number, y: number): any
 		end
 	end
 	
-	map[x][y][1] = 1
+	session.map[x][y][1] = 1
 	physics_world_set_tile(tilekey(x, y), nil)
-	init_map_cell_gels(map[x][y])
+	init_map_cell_gels(session.map[x][y])
 	playsound("blockbreak")
 	addpoints(50)
 	
@@ -3331,7 +3341,11 @@ global function destroyblock(x: number, y: number): any
 	table.insert(blockdebristable, blockdebris:new(x-.5, y-.5, 3.5, -14))
 	table.insert(blockdebristable, blockdebris:new(x-.5, y-.5, -3.5, -14))
 	
-	generatespritebatch(0, 0)
+	if tile_spritebatch_update_tile then
+		tile_spritebatch_update_tile(x, y)
+	else
+		generatespritebatch(0, 0)
+	end
 end
 
 function mario:faithplate(_: any)
@@ -3388,7 +3402,7 @@ function mario:die(how: any)
 	if not arcade then
 		everyonedead = true
 		for i = 1, players do
-			if not playerobjs[i].dead then
+			if not session.playerobjs[i].dead then
 				everyonedead = false
 			end
 		end
@@ -3721,8 +3735,8 @@ function mario:place_bomb()
 		return
 	end
 	self.bombcd = 2.5
-	if bomb and bomb.new and objects and objects["bomb"] then
-		table.insert(objects["bomb"] as {any}, (bomb.new as function(any, number, number): any)(bomb, self.x, self.y))
+	if bomb and bomb.new and session.objects and session.objects["bomb"] then
+		table.insert(session.objects["bomb"] as {any}, (bomb.new as function(any, number, number): any)(bomb, self.x, self.y))
 		if playsound then
 			playsound("fireball")
 		end
@@ -3804,7 +3818,7 @@ end
 
 function mario:flag()	
 	for i = 1, players do
-		playerobjs[i].invincible = true
+		session.playerobjs[i].invincible = true
 	end
 	
 	if levelfinished then
@@ -3833,8 +3847,8 @@ function mario:flag()
 	subtractscore = false
 	firework = false
 	castleflagy = castleflagstarty
-	objects["screenboundary"]["flag"].active = false
-	physics_world_upsert(objects["screenboundary"]["flag"], "screenboundary", "flag")
+	session.objects["screenboundary"]["flag"].active = false
+	physics_world_upsert(session.objects["screenboundary"]["flag"], "screenboundary", "flag")
 	
 	--get score
 	flagscore = flagscores[1]
@@ -3870,10 +3884,10 @@ function mario:axe()
 	end
 	self.ducking = false
 	for i = 1, players do
-		playerobjs[i]:removeportals()
+		session.playerobjs[i]:removeportals()
 	end
 	
-	for i, _ in pairs(objects["platform"]) do
+	for i, _ in pairs(session.objects["platform"]) do
 		physics_world_remove_slot("platform", i)
 	end
 
@@ -3903,8 +3917,8 @@ function mario:axe()
 	bowserfall = false
 	physics_world_remove_slot("screenboundary", "axe")
 	
-	if objects["bowser"][1] and not objects["bowser"][1].shot then
-		local v = objects["bowser"][1]
+	if session.objects["bowser"][1] and not session.objects["bowser"][1].shot then
+		local v = session.objects["bowser"][1]
 		v.speedx = 0
 		v.speedy = 0
 		v.active = false
@@ -3934,7 +3948,7 @@ function mario:vineanimation()
 	self.controlsenabled = false
 	self.animationx = self.x
 	self.animationy = vineanimationstart
-	self.animationmisc = (map[self.vinex][self.viney][3] as number)-1
+	self.animationmisc = (session.map[self.vinex][self.viney][3] as number)-1
 	self.active = false
 	self.vine = false
 end
@@ -3969,7 +3983,7 @@ function mario:fire()
 				end
 			end
 			
-			table.insert(objects["fireball"], fireball:new(self.x, self.y, dir, self))
+			table.insert(session.objects["fireball"], fireball:new(self.x, self.y, dir, self))
 			
 			self.fireballcount = self.fireballcount + 1
 			self.fireanimationtimer = 0
@@ -3983,7 +3997,7 @@ function mario:spinhit(x: number, y: number, dir: any)
 	local col = checkrect(x, y, 0, 0, "all", true)
 	for i = 1, #col, 2 do
 		local a = col[i]
-		local b = objects[a][col[i+1]]
+		local b = session.objects[a][col[i+1]]
 		if a == "tile" then
 			hitblock(b.cox, b.coy, self)
 		elseif a ~= "bowser" then
@@ -4003,7 +4017,7 @@ end
 
 global function collectcoin(x: number, y: number, i?: any): any
 	if x and y then
-		coinmap[x][y] = false
+		session.coinmap[x][y] = false
 	end
 	addpoints(200)
 	playsound("coin")
@@ -4057,7 +4071,7 @@ function mario:portaled(dir: any)
 		self.rainboomallowed = false
 		playsound("rainboom")
 		
-		for _, v in pairs(objects["enemy"]) do
+		for _, v in pairs(session.objects["enemy"]) do
 			v:shotted()
 			if (v as enemy).t ~= "bowser" then
 				addpoints(firepoints[(v as {string:any}).t] or 100, v.x, v.y)
@@ -4074,13 +4088,13 @@ end
 
 function mario:shootgel(i: any)
 	gel_pool_prepare()
-	table.insert(objects["gel"], gel:new(self.x+self.width/2+8/16, self.y+self.height/2+6/16, i))
+	table.insert(session.objects["gel"], gel:new(self.x+self.width/2+8/16, self.y+self.height/2+6/16, i))
 	
 	local xspeed = math.cos(-self.pointingangle-math.pi/2)*gelcannonspeed
 	local yspeed = math.sin(-self.pointingangle-math.pi/2)*gelcannonspeed
 	
-	objects["gel"][#(objects["gel"] as {any})].speedy = yspeed
-	objects["gel"][#(objects["gel"] as {any})].speedx = xspeed
+	session.objects["gel"][#(session.objects["gel"] as {any})].speedy = yspeed
+	session.objects["gel"][#(session.objects["gel"] as {any})].speedx = xspeed
 end
 
 function mario:respawn()
@@ -4089,19 +4103,19 @@ function mario:respawn()
 	end
 	
 	local i = 1
-	while i <= players and (playerobjs[i].dead or (self.playernumber == i and not arcade)) do
+	while i <= players and (session.playerobjs[i].dead or (self.playernumber == i and not arcade)) do
 		i = i + 1
 	end
 	
-	fastestplayer = playerobjs[i]
+	fastestplayer = session.playerobjs[i]
 	
 	local spawnx: number = 0
 	local spawny: number = 0
 	
 	if fastestplayer then
 		for i = 2, players do
-			if playerobjs[i].x > fastestplayer.x and not playerobjs[i].dead then
-				fastestplayer = playerobjs[i]
+			if session.playerobjs[i].x > fastestplayer.x and not session.playerobjs[i].dead then
+				fastestplayer = session.playerobjs[i]
 			end
 		end
 	end

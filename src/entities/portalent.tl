@@ -43,8 +43,8 @@ function portalent:init(x: number, y: number, i, r)
 		table.remove(self.r, 1)
 	end
 	
-	if not portals[self.id] then
-		portals[self.id] = portal:new(self.id)
+	if not session.portals[self.id] then
+		session.portals[self.id] = portal:new(self.id)
 	end
 	
 	if self.power then
@@ -55,7 +55,7 @@ end
 function portalent:link(): any|nil
 	while #self.r > 3 do
 		for _, w in pairs(outputs) do
-			for _, v in pairs(objects[w]) do
+			for _, v in pairs(session.objects[w]) do
 				if tonumber(self.r[3]) == v.cox and tonumber(self.r[4]) == v.coy then
 					v:addoutput(self, self.r[2])
 				end
@@ -100,15 +100,15 @@ function portalent:input(t, input): any
 end
 
 function portalent:trigger(): any
-	portals[self.id]:createportal(self.portal as number, self.x, self.y, self.dir, -1)
+	session.portals[self.id]:createportal(self.portal as number, self.x, self.y, self.dir, -1)
 	return nil
 end
 
 function portalent:rem()
 	local p = self.portal as number
-	local port = portals[self.id] as {string:any}
+	local port = session.portals[self.id] as {string:any}
 	if port["x" .. p] == self.x and port["y" .. p] == self.y and port["facing" .. p] == self.dir then
-		portals[self.id]:removeportal(p)
+		session.portals[self.id]:removeportal(p)
 	else
 		print("Portal wasn't removed because it isn't at this position")
 	end

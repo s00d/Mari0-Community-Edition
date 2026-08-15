@@ -1,5 +1,5 @@
 {
+  "actions":[["dialogbox","CHAMBER: memleak stress. hard cap 60 — we learned that the hard way.","tracker"]],
   "triggers":[["mapload"]],
-  "conditions":[["worldequals","1"],["levelequals","3"]],
-  "actions":[["dialogbox","CHAMBER: memleak stress. hard cap 60 — we learned that the hard way.","tracker"]]
+  "conditions":[["worldequals","1"],["levelequals","3"]]
 }

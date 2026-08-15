@@ -46,6 +46,23 @@ global INPUT_ACTIONS = {
 } as {string}
 
 local baton_players: {integer: BatonInput} = {}
+local sys_baton: BatonInput|nil = nil
+
+local function rebuild_sys()
+	sys_baton = BatonMod.new({
+		controls = {
+			shift = {"key:lshift", "key:rshift"},
+			alt = {"key:lalt", "key:ralt"},
+			ctrl = {"key:lctrl", "key:rctrl"},
+			left = {"key:left"},
+			right = {"key:right"},
+			up = {"key:up"},
+			down = {"key:down"},
+			f1 = {"key:f1"},
+		},
+		deadzone = 0.3,
+	}) as BatonInput
+end
 
 local function joystick_for(slot: integer): Joystick|nil
 	if not love or not love.joystick or not love.joystick.getJoysticks then
@@ -84,6 +101,9 @@ local function rebuild_slot(slot: integer)
 end
 
 global function input_bindings_rebuild(slot: integer)
+	if not sys_baton then
+		rebuild_sys()
+	end
 	if slot == 0 then
 		for i = 1, 4 do
 			rebuild_slot(i)
@@ -94,10 +114,32 @@ global function input_bindings_rebuild(slot: integer)
 end
 
 global function input_bindings_init()
+	rebuild_sys()
 	input_bindings_rebuild(0)
 end
 
+-- Editor/menu modifiers + arrow keys (not player-rebinding).
+global function sys_down(action: string): boolean
+	if not sys_baton then
+		rebuild_sys()
+	end
+	local p = sys_baton as BatonInput|nil
+	if p == nil then
+		return false
+	end
+	return (p as BatonInput):down(action)
+end
+
+-- Baton player for slot (use :get / :down / :pressed). Bindings table stays in `controls`.
+global function input_player(slot: integer): any
+	return baton_players[slot]
+end
+
 global function ui_input_update(_dt: number)
+	local sys = sys_baton as BatonInput|nil
+	if sys ~= nil then
+		(sys as BatonInput):update()
+	end
 	for i = 1, players do
 		local p = baton_players[i]
 		if not p then
@@ -106,7 +148,7 @@ global function ui_input_update(_dt: number)
 			p:update()
 		else
 			p:update()
-			local pl = playerobjs and playerobjs[i]
+			local pl = session.playerobjs and session.playerobjs[i]
 			if not pl or pl.remote or not pl.controlsenabled then
 				-- skip
 			else
@@ -194,7 +236,7 @@ local function net_held_action(i: integer, action: string): boolean|nil
 end
 
 local function gravity_action(i: integer, base: string): string
-	local pl = playerobjs[i]
+	local pl = session.playerobjs[i]
 	if not pl then
 		return base
 	end
@@ -243,7 +285,7 @@ local function polled(i: integer, action: string): boolean
 	if netv ~= nil then
 		return netv
 	end
-	if playerobjs[i] and playerobjs[i].remote then
+	if session.playerobjs[i] and session.playerobjs[i].remote then
 		return false
 	end
 	return ui_action_down(i, action)
@@ -284,7 +326,7 @@ global function game_keypressed(key: any)
 	end
 
 	if key == "f" and debugbinds then
-		playerobjs[1]:grow()
+		session.playerobjs[1]:grow()
 	end
 
 	if pausemenuopen then
@@ -408,9 +450,9 @@ global function game_keypressed(key: any)
 
 	if key == "escape" then
 		if not editormode and testlevel then
-			local shift = love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")
-			if editor_test_restore and objects and objects["player"] and objects["player"][1] then
-				local pl = objects["player"][1] as {string:any}
+			local shift = sys_down("shift")
+			if editor_test_restore and session.objects and session.objects["player"] and session.objects["player"][1] then
+				local pl = session.objects["player"][1] as {string:any}
 				(editor_test_restore as {string:any}).death_x = pl.x
 				(editor_test_restore as {string:any}).death_y = pl.y
 			end
@@ -499,29 +541,29 @@ global function game_mousepressed(x: any, y: any, button: any)
 	if editormode then
 		editor_mousepressed(x, y, button)
 	else
-		if not noupdate and playerobjs[mouseowner] and playerobjs[mouseowner].controlsenabled and playerobjs[mouseowner].vine == false then
-			local pl = playerobjs[mouseowner]
+		if not noupdate and session.playerobjs[mouseowner] and session.playerobjs[mouseowner].controlsenabled and session.playerobjs[mouseowner].vine == false then
+			local pl = session.playerobjs[mouseowner]
 			local allow_fire = not pl.grapple
 			if pl.grapple then
 				local curw = Weapons and Weapons.current(pl)
 				allow_fire = curw ~= nil and curw.id == "hookshot"
 			end
 			if allow_fire then
-				if button == "l" or button == "r" and playerobjs[mouseowner] then
+				if button == "l" or button == "r" and session.playerobjs[mouseowner] then
 					if portalknockback then
-						local xadd = math.sin(playerobjs[mouseowner].pointingangle)*30
-						local yadd = math.cos(playerobjs[mouseowner].pointingangle)*30
-						playerobjs[mouseowner].speedx = playerobjs[mouseowner].speedx + xadd
-						playerobjs[mouseowner].speedy = playerobjs[mouseowner].speedy + yadd
-						playerobjs[mouseowner].falling = true
-						playerobjs[mouseowner].animationstate = "falling"
-						playerobjs[mouseowner]:setquad()
+						local xadd = math.sin(session.playerobjs[mouseowner].pointingangle)*30
+						local yadd = math.cos(session.playerobjs[mouseowner].pointingangle)*30
+						session.playerobjs[mouseowner].speedx = session.playerobjs[mouseowner].speedx + xadd
+						session.playerobjs[mouseowner].speedy = session.playerobjs[mouseowner].speedy + yadd
+						session.playerobjs[mouseowner].falling = true
+						session.playerobjs[mouseowner].animationstate = "falling"
+						session.playerobjs[mouseowner]:setquad()
 					end
 				end
 				if button == "l" then
-					Weapons.fire(playerobjs[mouseowner], "l")
+					Weapons.fire(session.playerobjs[mouseowner], "l")
 				elseif button == "r" then
-					Weapons.fire(playerobjs[mouseowner], "r")
+					Weapons.fire(session.playerobjs[mouseowner], "r")
 				end
 			end
 		end
@@ -533,8 +575,8 @@ global function game_mousepressed(x: any, y: any, button: any)
 				end
 			elseif speeddebug then
 				speed = math.max(0, speed/2)
-			elseif playerobjs[mouseowner] then
-				Weapons.switch(playerobjs[mouseowner], 1)
+			elseif session.playerobjs[mouseowner] then
+				Weapons.switch(session.playerobjs[mouseowner], 1)
 			end
 		elseif button == "wu" then
 			if bullettime then
@@ -544,8 +586,8 @@ global function game_mousepressed(x: any, y: any, button: any)
 				end
 			elseif speeddebug then
 				speed = math.min(1, speed*2)
-			elseif playerobjs[mouseowner] then
-				Weapons.switch(playerobjs[mouseowner], -1)
+			elseif session.playerobjs[mouseowner] then
+				Weapons.switch(session.playerobjs[mouseowner], -1)
 			end
 		end
 	end

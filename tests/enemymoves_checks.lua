@@ -48,7 +48,6 @@ objects = { enemy = {}, fireball = {}, lightbridgebody = {} }
 screenshake = function() end
 screenshake_amp = function() return 0 end
 playsound = function() end
-round = function(n) return math.floor(n + 0.5) end
 fireball = {
 	new = function(_, x, y, dir, owner)
 		return { x = x, y = y, speedx = 0, speedy = 0, gravity = 0, owner = owner }
