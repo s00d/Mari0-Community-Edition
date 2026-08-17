@@ -1,5 +1,5 @@
 {
-  "triggers":[["whenintis","q4471_falls","greater","2"]],
   "actions":[["dotoint","q_ticket_4471_step","set","2"],["dialogbox","fall through the floor 3 times (known issue) — DONE. return to Compiler.","tracker"]],
+  "triggers":[["whenintis","q4471_falls","greater","2"]],
   "conditions":[["ifint","q_ticket_4471_step","equal","1"]]
 }

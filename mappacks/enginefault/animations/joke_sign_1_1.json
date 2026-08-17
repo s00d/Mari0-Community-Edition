@@ -1,5 +1,5 @@
 {
-  "triggers":[["playerxgreater","11"]],
   "actions":[["dotobool","ef_sign_a","true"],["dialogbox","SIGN A: do NOT break these blocks","sign"]],
+  "triggers":[["playerxgreater","11"]],
   "conditions":[["worldequals","1"],["levelequals","1"],["ifbool","ef_sign_a","false"]]
 }
